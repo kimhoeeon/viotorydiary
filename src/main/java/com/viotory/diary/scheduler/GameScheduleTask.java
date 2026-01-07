@@ -42,7 +42,7 @@ public class GameScheduleTask {
         gameDataService.syncDailyData();
     }
 
-    // 1. 매일 새벽 2시에 '오늘' 예정된 경기 일정을 가져옴 (초기화)
+    /*// 1. 매일 새벽 2시에 '오늘' 예정된 경기 일정을 가져옴 (초기화)
     @Scheduled(cron = "0 0 2 * * *")
     public void scheduleDailyUpdate() {
         log.info("[Batch] 새벽 정기 업데이트 시작");
@@ -55,5 +55,6 @@ public class GameScheduleTask {
     public void scheduleLiveScoreUpdate() {
         log.info("[Batch] 라이브 스코어 업데이트 시작");
         gameDataService.fetchFromRapid(LocalDate.now());
-    }
+    }*/
+
 }

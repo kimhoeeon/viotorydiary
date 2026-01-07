@@ -7,7 +7,9 @@ import com.viotory.diary.mapper.GameMapper;
 import com.viotory.diary.vo.GameVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -36,6 +38,14 @@ public class GameDataService {
     private final RestTemplate restTemplate = new RestTemplate(); // 재사용을 위해 필드로 선언
 
     /**
+     * [핵심 수정] 내부 호출(Self-Invocation) 문제를 해결하기 위해 자기 자신을 주입받습니다.
+     * @Lazy를 붙여 순환 참조 오류를 방지합니다.
+     */
+    @Autowired
+    @Lazy
+    private GameDataService self;
+
+    /**
      * 특정 연도 전체 데이터 일괄 동기화 (초기 데이터 적재용)
      * 보통 KBO는 3월(시범경기/개막)부터 11월(포스트시즌)까지 진행됩니다.
      */
@@ -48,7 +58,7 @@ public class GameDataService {
             log.info(">>> {}년 {}월 데이터 수집 중...", year, month);
 
             // 기존에 만든 월별 수집 로직 호출
-            syncMonthlyData(year, month);
+            self.syncMonthlyData(year, month);
 
             // 월간 이동 시 서버 부하 및 차단 방지를 위해 약간의 휴식 (1초)
             try {
@@ -146,15 +156,26 @@ public class GameDataService {
             boolean isCancel = g.path("cancel").asBoolean(false);
             String gameDateTime = g.path("gameDateTime").asText("");
 
+            int homeScore = g.path("homeTeamScore").asInt(0);
+            int awayScore = g.path("awayTeamScore").asInt(0);
+
             String status = "SCHEDULED";
             String mvpName = null;
-            if (isCancel) status = "CANCELLED";
-            else if ("FINISHED".equals(statusCode)) {
+
+            // 2. 상태 코드 일관성: RESULT도 종료된 경기로 처리
+            if (isCancel) {
+                status = "CANCELLED";
+            } else if ("FINISHED".equals(statusCode) || "RESULT".equals(statusCode)) {
                 status = "FINISHED";
                 mvpName = getMvpFromDetail(apiGameId);
-                if (mvpName == null) mvpName = g.path("winPitcherName").asText(null);
+                if (mvpName == null || mvpName.isEmpty()) {
+                    mvpName = g.path("winPitcherName").asText(null);
+                }
             } else if ("STARTED".equals(statusCode) || "ONGOING".equals(statusCode)) {
+                // [수정] 1. LIVE 상태일 때 수훈 선수 자리에 '경기 중' 표시 유도
                 status = "LIVE";
+                mvpName = "경기 중";
+                log.info(">>> [실시간 업데이트] {} {}:{} {} (상태: {})", homeCode, homeScore, awayScore, awayCode, statusCode);
             }
 
             GameVO game = GameVO.builder()
@@ -163,8 +184,8 @@ public class GameDataService {
                     .gameTime(gameDateTime.length() >= 19 ? gameDateTime.substring(11, 19) : "18:30:00")
                     .homeTeamCode(homeCode)
                     .awayTeamCode(awayCode)
-                    .scoreHome(g.path("homeTeamScore").asInt(0))
-                    .scoreAway(g.path("awayTeamScore").asInt(0))
+                    .scoreHome(homeScore)
+                    .scoreAway(awayScore)
                     .status(status)
                     .cancelReason(isCancel ? g.path("statusInfo").asText(null) : null)
                     .mvpPlayer(mvpName)
