@@ -1,0 +1,324 @@
+window.onload = function () {
+
+    f_train_calendar_select('전체');
+
+    //buildCalendar();
+}    // 웹 페이지가 로드되면 buildCalendar 실행
+
+let nowMonth = new Date();  // 현재 달을 페이지를 로드한 날의 달로 초기화
+let today = new Date();     // 페이지를 로드한 날짜를 저장
+today.setHours(0, 0, 0, 0);    // 비교 편의를 위해 today의 시간을 초기화
+
+// 날짜와 이벤트 배열을 저장하는 객체
+/*let events = {
+    "2023-11-01": [
+        { text: "[장기]해상엔진테크니션(선외기 및 선내기 통합)", className: "edu01", link: "/apply/eduApply01.do"},
+        { text: "[단기]선외기 기초정비실습 과정", className: "edu03" }
+    ],
+    "2023-11-02": [
+        { text: "[장기]FRP 레저보트 선체 정비 테크니션", className: "edu02" }
+    ],
+    "2023-11-03": [
+        { text: "[단기]선외기 기초정비실습 과정", className: "edu03" }
+    ],
+    "2023-11-04": [
+        { text: "[단기]선내기 기초정비실습 과정", className: "edu04", link: "/apply/eduApply04.do" }
+    ],
+    "2023-11-05": [
+        { text: "[단기]세일요트 기초정비실습 과정", className: "edu05" }
+    ]
+};*/
+
+let events = {};
+
+function f_train_calendar_select(category){
+
+    let jsonObj = {
+        category: category
+    }
+
+    $.ajax({
+        url: '/apply/schedule/calendar/selectList.do',
+        method: 'post',
+        data: JSON.stringify(jsonObj),
+        contentType: 'application/json; charset=utf-8' //server charset 확인 필요
+    })
+    .done(function (data, status){
+        let results = data;
+        let str = '';
+        let eventsObj = {};
+        if(nvl(results,'') !== ''){
+            $.each(results , function(i){
+                let seq = results[i].seq;
+                let gbn = results[i].gbn;
+                let gbnDepth = results[i].gbnDepth;
+                let category = results[i].category;
+                if(category !== '팸투어'){
+                    category = category.toString().replaceAll('과정','');
+                }
+                let trainStartDttm = results[i].trainStartDttm;
+                trainStartDttm = trainStartDttm.toString().replaceAll('.','-');
+                let trainEndDttm = results[i].trainEndDttm;
+                trainEndDttm = trainEndDttm.toString().replaceAll('.','-');
+
+                if(nvl(gbnDepth,'') !== ''){
+                    gbn = gbnDepth + ' ' + gbn;
+                }
+
+                let className = '';
+                let link = '';
+                switch (gbn){
+                    case '해상엔진 테크니션 (선내기/선외기)':
+                        className = 'edu01';
+                        link = '/apply/eduApply02.do';
+                        break;
+                    case 'FRP 레저보트 선체 정비 테크니션':
+                        className = 'edu02';
+                        link = '/apply/eduApply03.do';
+                        break;
+                    case '선외기 기초정비실습 과정':
+                        className = 'edu03';
+                        link = '/apply/eduApply05.do';
+                        break;
+                    case '선내기 기초정비실습 과정':
+                        className = 'edu04';
+                        link = '/apply/eduApply04.do';
+                        break;
+                    case '세일요트 기초정비실습 과정':
+                        className = 'edu05';
+                        link = '/apply/eduApply06.do';
+                        break;
+                    case '고마력 선외기 정비 중급 테크니션':
+                        className = 'edu06';
+                        link = '/apply/eduApply07.do';
+                        break;
+                    case '고마력 선외기 정비 중급 테크니션 (특별반)':
+                        className = 'edu09';
+                        link = '/apply/eduApply10.do';
+                        break;
+                    case '자가정비 심화과정 (고마력 선외기)':
+                        className = 'edu08';
+                        link = '/apply/eduApply09.do';
+                        break;
+                    case '스턴드라이브 정비 전문가과정':
+                        className = 'edu07';
+                        link = '/apply/eduApply08.do';
+                        break;
+                    case '스턴드라이브 정비 전문가과정 (특별반)':
+                        className = 'edu10';
+                        link = '/apply/eduApply11.do';
+                        break;
+                    case '선외기 기초정비교육':
+                        className = 'edu12';
+                        link = '/apply/eduApply12.do';
+                        break;
+                    case '선내기 기초정비교육':
+                        className = 'edu13';
+                        link = '/apply/eduApply13.do';
+                        break;
+                    case '세일요트 기초정비교육':
+                        className = 'edu14';
+                        link = '/apply/eduApply14.do';
+                        break;
+                    case '선외기 응급조치교육':
+                        className = 'edu15';
+                        link = '/apply/eduApply15.do';
+                        break;
+                    case '선내기 응급조치교육':
+                        className = 'edu16';
+                        link = '/apply/eduApply16.do';
+                        break;
+                    case '세일요트 응급조치교육':
+                        className = 'edu17';
+                        link = '/apply/eduApply17.do';
+                        break;
+                    case '발전기 정비 교육':
+                        className = 'edu18';
+                        link = '/apply/eduApply18.do';
+                        break;
+                    case '선외기/선내기 직무역량 강화과정':
+                        className = 'edu19';
+                        link = '/apply/eduApply19.do';
+                        break;
+                    case '선내기 팸투어':
+                        className = 'edu20';
+                        link = '/apply/eduApply20.do';
+                        break;
+                    case '선외기 팸투어':
+                        className = 'edu21';
+                        link = '/apply/eduApply21.do';
+                        break;
+                    case '레저선박 해양전자장비 교육':
+                        className = 'edu22';
+                        link = '/apply/eduApply22.do';
+                        break;
+                    default:
+                        break;
+                }
+
+                let eventsObjContent = {
+                    text: '[' + category + ']' + gbn,
+                    className: className,
+                    link: link
+                };
+
+                if(eventsObj.hasOwnProperty(trainStartDttm)){
+                    let newArr = [];
+                    for(let i=0; i<eventsObj[trainStartDttm].length; i++){
+                        newArr.push(eventsObj[trainStartDttm][i]);
+                    }
+                    newArr.push(eventsObjContent);
+                    eventsObj[trainStartDttm] = newArr;
+                }else{
+                    let eventsArr = [];
+                    eventsArr.push(eventsObjContent);
+                    eventsObj[trainStartDttm] = eventsArr;
+                }
+
+                events = eventsObj;
+            });
+        }else{
+            events = eventsObj;
+        }
+    })
+    .fail(function(xhr, status, errorThrown) {
+        $('body').html("오류가 발생했습니다.")
+            .append("<br>오류명: " + errorThrown)
+            .append("<br>상태: " + status);
+    }).always(function() {
+        /*console.log(JSON.stringify(events));*/
+        buildCalendar(events);
+    });
+}
+
+// 달력 생성 : 해당 달에 맞춰 테이블을 만들고, 날짜를 채워 넣는다.
+function buildCalendar(eventsObj) {
+    //console.log(eventsObj);
+
+    let firstDate = new Date(nowMonth.getFullYear(), nowMonth.getMonth(), 1);     // 이번달 1일
+    let lastDate = new Date(nowMonth.getFullYear(), nowMonth.getMonth() + 1, 0);  // 이번달 마지막날
+
+    let tbody_Calendar = document.querySelector(".calendar > tbody");
+    document.getElementById("calYear").innerText = nowMonth.getFullYear() + "년";             // 연도 숫자 갱신
+    document.getElementById("calMonth").innerText = nowMonth.getMonth() + 1 + "월";  // 월 숫자 갱신
+
+    while (tbody_Calendar.rows.length > 0) {                        // 이전 출력결과가 남아있는 경우 초기화
+        tbody_Calendar.deleteRow(tbody_Calendar.rows.length - 1);
+    }
+
+    let nowRow = tbody_Calendar.insertRow();        // 첫번째 행 추가           
+
+    for (let j = 0; j < firstDate.getDay(); j++) {  // 이번달 1일의 요일만큼
+        let nowColumn = nowRow.insertCell();        // 열 추가
+    }
+
+    for (let nowDay = firstDate; nowDay <= lastDate; nowDay.setDate(nowDay.getDate() + 1)) {
+        let nowColumn = nowRow.insertCell();
+        let dateWrapper = document.createElement("div"); // 새로운 div 태그 생성
+        let newDIV = document.createElement("div"); // 새로운 div 태그 생성
+    
+        newDIV.innerText = nowDay.getDate(); // div 태그에 날짜 입력
+    
+        // 다음은 날짜별로 클래스를 지정하는 부분
+        if (nowDay.getDay() === 6) {
+            nowRow = tbody_Calendar.insertRow();
+        }
+    
+        if (nowDay < today) {
+            dateWrapper.className = "pastDay";
+            dateWrapper.onclick = function () { choiceDate(newDIV, eventsObj); }
+        } else if (nowDay.getFullYear() === today.getFullYear() && nowDay.getMonth() === today.getMonth() && nowDay.getDate() === today.getDate()) {
+            dateWrapper.className = "today";
+            dateWrapper.onclick = function () { choiceDate(newDIV, eventsObj); }
+        } else {
+            dateWrapper.className = "futureDay";
+            dateWrapper.onclick = function () { choiceDate(newDIV, eventsObj); }
+        }
+    
+        dateWrapper.appendChild(newDIV); // 날짜를 감싸는 div에 날짜 div 추가
+    
+        nowColumn.appendChild(dateWrapper); // 테이블 셀에 감싸는 div 추가
+    
+        let dateString = nowDay.getFullYear() + '-' + (nowDay.getMonth() + 1).toString().padStart(2, '0') + '-' + nowDay.getDate().toString().padStart(2, '0');
+    
+        // 이벤트 정보가 있는 경우 해당 날짜에 이벤트를 추가
+        if (eventsObj[dateString]) {
+            for (let i = 0; i < eventsObj[dateString].length; i++) {
+                let scheduleParagraph = document.createElement("p");
+                scheduleParagraph.innerText = eventsObj[dateString][i].text;
+                scheduleParagraph.className = eventsObj[dateString][i].className; // 클래스 추가
+                dateWrapper.appendChild(scheduleParagraph); // p 태그를 날짜를 감싸는 div에 추가
+            }
+        }
+    }
+
+}
+
+// 날짜 선택
+function choiceDate(newDIV, eventsObj) {
+    // 이전에 선택된 날짜가 있다면 클래스 제거
+    let previousChoiceDay = document.querySelector(".choiceDay");
+    if (previousChoiceDay) {
+        previousChoiceDay.classList.remove("choiceDay");
+    }
+
+    // 선택한 날짜의 부모인 dateWrapper에 choiceDay 클래스 추가
+    let dateWrapper = newDIV.parentElement;
+    dateWrapper.classList.add("choiceDay");
+
+    // 선택한 날짜의 날짜 텍스트 가져오기
+    let selectedDateText = newDIV.innerText;
+
+    // 선택한 날짜를 노출하는 요소에 텍스트 설정
+    let choiceCalDay = document.querySelector(".choiceCalDay");
+    choiceCalDay.innerHTML = "";  // 기존 내용 제거
+    choiceCalDay.innerText = nowMonth.getFullYear() + "년 " + (nowMonth.getMonth() + 1) + "월 " + newDIV.innerText + "일";
+
+    // 선택한 날짜의 이벤트 가져오기
+    let dateString = nowMonth.getFullYear() + "-" + (nowMonth.getMonth() + 1).toString().padStart(2,'0') + "-" + selectedDateText.padStart(2, '0');
+    console.log(dateString, JSON.stringify(eventsObj) , eventsObj[dateString]);
+    let selectedEvents = eventsObj[dateString];
+
+    // 이벤트 목록을 노출하는 요소 가져오기
+    let calList = document.querySelector(".calList");
+
+    // 기존에 있는 이벤트 목록 삭제
+    calList.querySelector(".choiceSkedList").innerHTML = "";
+
+    // 이벤트가 있는 경우 목록에 추가
+    if (selectedEvents) {
+        for (let i = 0; i < selectedEvents.length; i++) {
+            let eventText = selectedEvents[i].text;
+            let eventClassName = selectedEvents[i].className;
+            let eventLink = selectedEvents[i].link; // 이벤트의 링크
+
+            // li 요소 생성
+            let eventListItem = document.createElement("li");
+            eventListItem.className = eventClassName;
+
+            // a 태그 생성
+            let eventLinkElement = document.createElement("a");
+            eventLinkElement.href = eventLink || "#";  // 링크가 없으면 기본값으로 "#" 설정
+            eventLinkElement.innerText = eventText;
+
+            // a 태그를 li 요소에 추가
+            eventListItem.appendChild(eventLinkElement);
+
+            // li 요소를 ul에 추가
+            calList.querySelector(".choiceSkedList").appendChild(eventListItem);
+        }
+    }
+}
+
+
+
+// 이전달 버튼 클릭
+function prevCalendar() {
+    nowMonth = new Date(nowMonth.getFullYear(), nowMonth.getMonth() - 1, nowMonth.getDate());   // 현재 달을 1 감소
+    buildCalendar(events);    // 달력 다시 생성
+}
+// 다음달 버튼 클릭
+function nextCalendar() {
+    nowMonth = new Date(nowMonth.getFullYear(), nowMonth.getMonth() + 1, nowMonth.getDate());   // 현재 달을 1 증가
+    buildCalendar(events);    // 달력 다시 생성
+}

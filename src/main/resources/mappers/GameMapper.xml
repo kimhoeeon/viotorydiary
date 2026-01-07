@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.viotory.diary.mapper.GameMapper">
+
+    <insert id="upsertGame" parameterType="com.viotory.diary.vo.GameVO">
+    <![CDATA[
+        INSERT INTO games (
+            api_game_id,
+            game_date,
+            game_time,
+            stadium_id,
+            home_team_code,
+            away_team_code,
+            score_home,
+            score_away,
+            status,
+            cancel_reason,
+            mvp_player,
+            created_at
+        ) VALUES (
+                     #{apiGameId},
+                     #{gameDate},
+                     #{gameTime},
+                     #{stadiumId},
+                     #{homeTeamCode},
+                     #{awayTeamCode},
+                     #{scoreHome},
+                     #{scoreAway},
+                     #{status},
+                     #{cancelReason},
+                     #{mvpPlayer},
+                     NOW()
+                 )
+        ON DUPLICATE KEY UPDATE
+                             game_time = VALUES(game_time),
+                             score_home = VALUES(score_home),
+                             score_away = VALUES(score_away),
+                             status = VALUES(status),
+                             cancel_reason = VALUES(cancel_reason),
+                             mvp_player = VALUES(mvp_player),
+                             updated_at = NOW()
+        ]]>
+</insert>
+
+    <select id="selectGameByDateAndTeams" resultType="com.viotory.diary.vo.GameVO">
+        SELECT * FROM games
+        WHERE game_date = #{gameDate}
+          AND home_team_code = #{homeTeam}
+          AND away_team_code = #{awayTeam}
+    </select>
+
+</mapper>

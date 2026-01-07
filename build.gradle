@@ -1,0 +1,65 @@
+plugins {
+	id 'java'
+	id 'war'
+	id 'org.springframework.boot' version '2.7.18' // Java 8 호환 최신 버전
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'com.viotory'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '1.8'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// 1. Web & Tomcat
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+	implementation 'javax.servlet:jstl'
+
+	// 2. Database
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.1'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	implementation group: 'org.bgee.log4jdbc-log4j2', name:'log4jdbc-log4j2-jdbc4.1', version: '1.16'
+
+	// 3. Utils
+	implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
+	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+	implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
+	implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.4'
+	implementation group: 'org.apache.poi', name: 'poi', version: '4.1.2'
+	implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
+
+	// 로컬 라이브러리
+	implementation fileTree(dir : 'src/main/webapp/WEB-INF/lib', include : [ '*.jar'])
+
+	// 4. Lombok (테스트 환경 포함 필수)
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	// 5. Test (가장 단순화된 설정)
+	// 이 한 줄이 JUnit5, SpringBootTest, Assertions를 모두 가져옵니다.
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:2.3.1'
+
+	// [추가] HTML 파싱 및 크롤링 라이브러리
+	implementation 'org.jsoup:jsoup:1.16.1'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
