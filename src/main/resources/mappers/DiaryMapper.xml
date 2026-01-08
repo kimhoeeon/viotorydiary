@@ -37,37 +37,7 @@
           AND d.is_verified = 1       /* 직관 인증 완료 */
           AND g.status = 'FINISHED'   /* 경기 종료 */
           AND d.status != 'INVALID'   /* 유효한 일기 */
-        ORDER BY g.game_date DESC, g.game_time DESC
-        ]]>
-    </select>
-
-    <select id="selectWinYoRankingTop10" resultType="com.viotory.diary.dto.WinYoAnalysisDTO">
-        <![CDATA[
-        SELECT
-            m.member_id AS memberId,
-            m.nickname AS nickname,
-            COUNT(d.diary_id) AS totalGames,
-            SUM(CASE
-                    WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR
-                         (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home)
-                        THEN 1 ELSE 0 END) AS winGames,
-            /* 승률 계산: (승리수 / 전체수) * 100 */
-            ROUND(
-                    (SUM(CASE
-                             WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR
-                                  (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home)
-                                 THEN 1 ELSE 0 END) / COUNT(d.diary_id)) * 100
-                , 1) AS winRate
-        FROM diaries d
-        JOIN games g ON d.game_id = g.game_id
-        JOIN members m ON d.member_id = m.member_id
-        WHERE d.is_verified = 1
-          AND g.status = 'FINISHED'
-          AND d.status != 'INVALID'
-        GROUP BY d.member_id
-        HAVING totalGames >= 3  /* 최소 3경기 이상 직관한 사람만 랭킹 인정 */
-        ORDER BY winRate DESC, totalGames DESC
-        LIMIT 10
+        ORDER BY g.game_date DESC
         ]]>
     </select>
 
@@ -124,5 +94,31 @@
         WHERE diary_id = #{diaryId}
           AND member_id = #{memberId}
     </update>
+
+    <select id="selectWinYoRankingTop10" resultType="com.viotory.diary.dto.WinYoAnalysisDTO">
+        <![CDATA[
+        SELECT
+            m.nickname,
+            COUNT(d.diary_id) AS totalGames,
+            SUM(CASE
+                WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR
+                     (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home)
+                THEN 1 ELSE 0 END) AS winGames,
+            (SUM(CASE
+                WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR
+                     (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home)
+                THEN 1 ELSE 0 END) / COUNT(d.diary_id)) * 100 AS winRate
+        FROM diaries d
+        JOIN games g ON d.game_id = g.game_id
+        JOIN members m ON d.member_id = m.member_id
+        WHERE d.is_verified = 1
+          AND g.status = 'FINISHED'
+          AND d.status != 'INVALID'
+        GROUP BY d.member_id
+        HAVING totalGames >= 5  /* 최소 5경기 이상 직관한 사람만 랭킹 대상 */
+        ORDER BY winGames DESC, winRate DESC
+        LIMIT 10
+        ]]>
+    </select>
 
 </mapper>

@@ -3,13 +3,14 @@
 
 <mapper namespace="com.viotory.diary.mapper.WinYoMentionMapper">
 
-    <select id="selectMessage" resultType="string">
+    <select id="selectMentionByCode" resultType="string">
+        <![CDATA[
         SELECT message
         FROM winyo_mentions
         WHERE category = #{category}
           AND condition_code = #{code}
-        ORDER BY priority ASC
         LIMIT 1
+        ]]>
     </select>
 
 </mapper>
