@@ -4,6 +4,8 @@ import com.viotory.diary.vo.MemberVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface MemberMapper {
 
@@ -33,4 +35,15 @@ public interface MemberMapper {
 
     // 9. 회원 탈퇴 (상태값 변경)
     int withdrawMember(Long memberId);
+
+    // [관리자] 회원 목록 조회
+    List<MemberVO> selectMemberList(@Param("offset") int offset,
+                                    @Param("limit") int limit,
+                                    @Param("searchType") String searchType,
+                                    @Param("keyword") String keyword);
+
+    // [관리자] 전체 회원 수 조회
+    int countMemberList(@Param("searchType") String searchType,
+                        @Param("keyword") String keyword);
+
 }

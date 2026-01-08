@@ -93,4 +93,57 @@
             member_id = #{memberId}
     </update>
 
+    <select id="selectMemberList" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT
+        member_id,
+        email,
+        nickname,
+        my_team_code,
+        social_provider,
+        role,
+        status,
+        created_at,
+        last_login_at
+        FROM members
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'email'">
+                        AND email LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'nickname'">
+                        AND nickname LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND (email LIKE CONCAT('%', #{keyword}, '%')
+                        OR nickname LIKE CONCAT('%', #{keyword}, '%'))
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countMemberList" resultType="int">
+        SELECT COUNT(*)
+        FROM members
+        <where>
+            <if test="keyword != null and keyword != ''">
+                <choose>
+                    <when test="searchType == 'email'">
+                        AND email LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <when test="searchType == 'nickname'">
+                        AND nickname LIKE CONCAT('%', #{keyword}, '%')
+                    </when>
+                    <otherwise>
+                        AND (email LIKE CONCAT('%', #{keyword}, '%')
+                        OR nickname LIKE CONCAT('%', #{keyword}, '%'))
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </select>
+
 </mapper>

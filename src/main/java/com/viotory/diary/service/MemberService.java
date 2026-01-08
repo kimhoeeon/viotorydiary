@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -191,6 +192,22 @@ public class MemberService {
         if (Pattern.compile("[0-9]").matcher(password).find()) typeCount++;    // 숫자
         if (Pattern.compile("[!@#$%^&*?_~]").matcher(password).find()) typeCount++; // 특수문자
         return typeCount >= 2;
+    }
+
+    // --- [New] 관리자용 메서드 ---
+
+    /**
+     * [관리자] 회원 목록 조회 (페이징 + 검색)
+     */
+    public List<MemberVO> getMemberList(int offset, int limit, String searchType, String keyword) {
+        return memberMapper.selectMemberList(offset, limit, searchType, keyword);
+    }
+
+    /**
+     * [관리자] 회원 수 카운트 (페이징용)
+     */
+    public int countMembers(String searchType, String keyword) {
+        return memberMapper.countMemberList(searchType, keyword);
     }
 
 }
