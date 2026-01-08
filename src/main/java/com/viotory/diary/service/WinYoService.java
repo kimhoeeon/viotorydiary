@@ -60,7 +60,7 @@ public class WinYoService {
 
         analysis.setWinRateGrade(rateCode);
         // WinYoMentionMapper 사용
-        analysis.setMainMessage(mentionMapper.selectMentionByCode("WIN_RATE", rateCode));
+        analysis.setMainMessage(mentionMapper.selectMessage("WIN_RATE", rateCode));
 
         // 6. [규칙 적용] 직관 횟수 (New, Mid, Heavy)
         String countCode;
@@ -69,12 +69,12 @@ public class WinYoService {
         else countCode = "NEW";
 
         analysis.setCountGrade(countCode);
-        analysis.setCountMessage(mentionMapper.selectMentionByCode("ATTENDANCE_COUNT", countCode));
+        analysis.setCountMessage(mentionMapper.selectMessage("ATTENDANCE_COUNT", countCode));
 
         // 7. [규칙 적용] 최근 흐름
         String trendCode = analyzeTrend(diaries);
         analysis.setTrendCode(trendCode);
-        analysis.setSubMessage(mentionMapper.selectMentionByCode("RECENT_TREND", trendCode));
+        analysis.setSubMessage(mentionMapper.selectMessage("RECENT_TREND", trendCode));
 
         return analysis;
     }

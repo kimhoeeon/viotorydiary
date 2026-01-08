@@ -10,5 +10,5 @@ public interface WinYoMentionMapper {
 
     // 2. 조건 코드에 맞는 멘트 조회
     // category: WIN_RATE, ATTENDANCE_COUNT, RECENT_TREND
-    String selectMentionByCode(@Param("category") String category, @Param("code") String code);
+    String selectMessage(@Param("category") String category, @Param("code") String code);
 }

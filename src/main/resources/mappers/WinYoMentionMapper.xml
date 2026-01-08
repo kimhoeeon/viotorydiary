@@ -3,7 +3,7 @@
 
 <mapper namespace="com.viotory.diary.mapper.WinYoMentionMapper">
 
-    <select id="selectMentionByCode" resultType="string">
+    <select id="selectMessage" resultType="string">
         <![CDATA[
         SELECT message
         FROM winyo_mentions
