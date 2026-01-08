@@ -23,7 +23,6 @@ public class AdminController {
 
     private final AdminService adminService;     // DB 로그인용
     private final GameDataService gameDataService; // 경기 데이터 관리용
-    private final MenuService menuService;       // 메뉴 구조 생성용
 
     // --- 1. 로그인 및 메인 ---
 
@@ -70,9 +69,6 @@ public class AdminController {
      */
     @GetMapping("/main.do")
     public String mainPage(Model model) {
-        // 관리자 메뉴 목록 생성 (커스텀 태그용)
-        List<MenuItem> menuItems = menuService.getAdminMenuItems();
-        model.addAttribute("menuItems", menuItems);
 
         // TODO: 대시보드 통계 데이터 추가 가능
         return "mng/main";
