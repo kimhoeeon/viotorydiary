@@ -5,11 +5,33 @@
 
     <insert id="insertMember" parameterType="com.viotory.diary.vo.MemberVO" useGeneratedKeys="true" keyProperty="memberId">
         INSERT INTO members (
-            email, password, nickname, phone_number, birthdate, gender,
-            my_team_code, social_provider, social_uid, role, status
+            email,
+            password,
+            nickname,
+            phone_number,
+            birthdate,
+            gender,
+            my_team_code,
+            social_provider,
+            social_uid,
+            role,
+            status,
+            created_at,
+            updated_at
         ) VALUES (
-                     #{email}, #{password}, #{nickname}, #{phoneNumber}, #{birthdate}, #{gender},
-                     #{myTeamCode}, IFNULL(#{socialProvider}, 'NONE'), #{socialUid}, 'USER', 'ACTIVE'
+                     #{email},
+                     #{password},
+                     #{nickname},
+                     #{phoneNumber},
+                     #{birthdate},
+                     #{gender},
+                     #{myTeamCode},
+                     IFNULL(#{socialProvider}, 'NONE'),
+                     #{socialUid},
+                     'USER',
+                     'ACTIVE',
+                     NOW(),
+                     NOW()
                  )
     </insert>
 
@@ -29,6 +51,46 @@
         UPDATE members
         SET last_login_at = NOW()
         WHERE member_id = #{memberId}
+    </update>
+
+    <update id="updateMemberInfo" parameterType="com.viotory.diary.vo.MemberVO">
+        UPDATE members
+        SET
+            nickname = #{nickname},
+            phone_number = #{phoneNumber},
+            gender = #{gender},
+            birthdate = #{birthdate},
+            updated_at = NOW()
+        WHERE
+            member_id = #{memberId}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE members
+        SET
+            password = #{newPassword},
+            updated_at = NOW()
+        WHERE
+            member_id = #{memberId}
+    </update>
+
+    <update id="updateMemberTeam" parameterType="com.viotory.diary.vo.MemberVO">
+        UPDATE members
+        SET
+            my_team_code = #{myTeamCode},
+            team_change_date = NOW(),
+            updated_at = NOW()
+        WHERE
+            member_id = #{memberId}
+    </update>
+
+    <update id="withdrawMember">
+        UPDATE members
+        SET
+            status = 'WITHDRAWN',
+            updated_at = NOW()
+        WHERE
+            member_id = #{memberId}
     </update>
 
 </mapper>

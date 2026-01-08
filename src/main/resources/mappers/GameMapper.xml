@@ -4,33 +4,14 @@
 <mapper namespace="com.viotory.diary.mapper.GameMapper">
 
     <insert id="upsertGame" parameterType="com.viotory.diary.vo.GameVO">
-    <![CDATA[
         INSERT INTO games (
-            api_game_id,
-            game_date,
-            game_time,
-            stadium_id,
-            home_team_code,
-            away_team_code,
-            score_home,
-            score_away,
-            status,
-            cancel_reason,
-            mvp_player,
-            created_at
+            api_game_id, game_date, game_time, stadium_id,
+            home_team_code, away_team_code, score_home, score_away,
+            status, cancel_reason, mvp_player, data_source, created_at
         ) VALUES (
-                     #{apiGameId},
-                     #{gameDate},
-                     #{gameTime},
-                     #{stadiumId},
-                     #{homeTeamCode},
-                     #{awayTeamCode},
-                     #{scoreHome},
-                     #{scoreAway},
-                     #{status},
-                     #{cancelReason},
-                     #{mvpPlayer},
-                     NOW()
+                     #{apiGameId}, #{gameDate}, #{gameTime}, #{stadiumId},
+                     #{homeTeamCode}, #{awayTeamCode}, #{scoreHome}, #{scoreAway},
+                     #{status}, #{cancelReason}, #{mvpPlayer}, 'API', NOW()
                  )
         ON DUPLICATE KEY UPDATE
                              game_time = VALUES(game_time),
@@ -40,14 +21,26 @@
                              cancel_reason = VALUES(cancel_reason),
                              mvp_player = VALUES(mvp_player),
                              updated_at = NOW()
-        ]]>
-</insert>
+    </insert>
 
     <select id="selectGameByDateAndTeams" resultType="com.viotory.diary.vo.GameVO">
         SELECT * FROM games
         WHERE game_date = #{gameDate}
           AND home_team_code = #{homeTeam}
           AND away_team_code = #{awayTeam}
+    </select>
+
+    <select id="selectGameByDateAndTeam" resultType="com.viotory.diary.vo.GameVO">
+        SELECT * FROM games
+        WHERE game_date = #{gameDate}
+          AND (home_team_code = #{teamCode} OR away_team_code = #{teamCode})
+        LIMIT 1
+    </select>
+
+    <select id="selectGamesByDate" resultType="com.viotory.diary.vo.GameVO">
+        SELECT * FROM games
+        WHERE game_date = #{gameDate}
+        ORDER BY game_time ASC
     </select>
 
 </mapper>

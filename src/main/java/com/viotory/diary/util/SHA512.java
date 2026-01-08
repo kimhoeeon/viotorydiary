@@ -1,8 +1,11 @@
 package com.viotory.diary.util;
 
+import org.springframework.stereotype.Component;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
+@Component
 public class SHA512 {
 
 	public String hash(String data_hash) {

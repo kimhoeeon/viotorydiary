@@ -11,8 +11,12 @@ import java.util.List;
 @ControllerAdvice
 public class GlobalController {
 
+    private final MenuService menuService;
+
     @Autowired
-    private MenuService menuService;
+    public GlobalController(MenuService menuService) {
+        this.menuService = menuService;
+    }
 
     @ModelAttribute("menuItems")
     public List<MenuItem> menuItems() {

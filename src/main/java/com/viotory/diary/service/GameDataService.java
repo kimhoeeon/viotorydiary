@@ -46,6 +46,25 @@ public class GameDataService {
     private GameDataService self;
 
     /**
+     * [스케줄러용] 일일 자동 동기화
+     */
+    @Transactional
+    public void syncDailyData() {
+        LocalDate today = LocalDate.now();
+        String from = today.minusDays(1).toString();
+        String to = today.plusDays(1).toString();
+        executeSync(from, to);
+    }
+
+    /**
+     * [관리자용] 특정 기간 데이터 수동 동기화
+     */
+    @Transactional
+    public void syncManualData(String fromDate, String toDate) {
+        executeSync(fromDate, toDate);
+    }
+
+    /**
      * 특정 연도 전체 데이터 일괄 동기화 (초기 데이터 적재용)
      * 보통 KBO는 3월(시범경기/개막)부터 11월(포스트시즌)까지 진행됩니다.
      */
@@ -87,17 +106,6 @@ public class GameDataService {
     }
 
     /**
-     * [스케줄러용] 일일 자동 동기화
-     */
-    @Transactional
-    public void syncDailyData() {
-        LocalDate today = LocalDate.now();
-        String from = today.minusDays(1).toString();
-        String to = today.plusDays(1).toString();
-        executeSync(from, to);
-    }
-
-    /**
      * 공통 실행 로직: 기간을 입력받아 네이버 API와 통신 후 DB 저장
      */
     private void executeSync(String fromDate, String toDate) {
@@ -109,7 +117,7 @@ public class GameDataService {
                     .queryParam("categoryId", "kbo")
                     .queryParam("fromDate", fromDate)
                     .queryParam("toDate", toDate)
-                    .queryParam("size", "500")
+                    .queryParam("size", "100")
                     .build()
                     .toUri();
 
@@ -132,9 +140,9 @@ public class GameDataService {
                     }
                 }
             }
-            log.info(">>> 기간 {} ~ {} 처리 완료 (성공: {}건)", fromDate, toDate, successCount.get());
+            log.info(">>> 경기 데이터 동기화 완료 (기간: {} ~ {}, 처리: {}건)", fromDate, toDate, successCount.get());
         } catch (Exception e) {
-            log.error(">>> 데이터 동기화 에러: {}", e.getMessage());
+            log.error(">>> 데이터 동기화 중 에러 발생: {}", e.getMessage());
         }
     }
 
@@ -152,12 +160,15 @@ public class GameDataService {
 
             if (homeCode == null || awayCode == null) return false;
 
-            String statusCode = g.path("statusCode").asText("BEFORE");
-            boolean isCancel = g.path("cancel").asBoolean(false);
-            String gameDateTime = g.path("gameDateTime").asText("");
+            String gameDateTime = g.path("gameDateTime").asText(""); // "2025-04-01T18:30:00"
+            String gameDate = g.path("gameDate").asText(); // "2025-04-01"
+            String gameTime = (gameDateTime.length() >= 19) ? gameDateTime.substring(11, 19) : "18:30:00";
 
             int homeScore = g.path("homeTeamScore").asInt(0);
             int awayScore = g.path("awayTeamScore").asInt(0);
+
+            String statusCode = g.path("statusCode").asText("BEFORE"); // BEFORE, STARTED, RESULT, FINISHED
+            boolean isCancel = g.path("cancel").asBoolean(false);
 
             String status = "SCHEDULED";
             String mvpName = null;
@@ -165,36 +176,40 @@ public class GameDataService {
             // 2. 상태 코드 일관성: RESULT도 종료된 경기로 처리
             if (isCancel) {
                 status = "CANCELLED";
-            } else if ("FINISHED".equals(statusCode) || "RESULT".equals(statusCode)) {
+            } else if ("RESULT".equals(statusCode) || "FINISHED".equals(statusCode)) {
                 status = "FINISHED";
+                // 경기 종료 시 MVP 조회 (상세 API 호출)
                 mvpName = getMvpFromDetail(apiGameId);
-                if (mvpName == null || mvpName.isEmpty()) {
-                    mvpName = g.path("winPitcherName").asText(null);
+                if (mvpName == null) {
+                    mvpName = g.path("winPitcherName").asText(null); // 승리투수로 대체
                 }
             } else if ("STARTED".equals(statusCode) || "ONGOING".equals(statusCode)) {
-                // [수정] 1. LIVE 상태일 때 수훈 선수 자리에 '경기 중' 표시 유도
                 status = "LIVE";
                 mvpName = "경기 중";
                 log.info(">>> [실시간 업데이트] {} {}:{} {} (상태: {})", homeCode, homeScore, awayScore, awayCode, statusCode);
             }
 
+            // 구장 ID 매핑 (홈팀 기준)
+            int stadiumId = mapStadiumId(homeCode);
+
             GameVO game = GameVO.builder()
                     .apiGameId(apiGameId)
-                    .gameDate(g.path("gameDate").asText())
-                    .gameTime(gameDateTime.length() >= 19 ? gameDateTime.substring(11, 19) : "18:30:00")
+                    .gameDate(gameDate)
+                    .gameTime(gameTime)
                     .homeTeamCode(homeCode)
                     .awayTeamCode(awayCode)
                     .scoreHome(homeScore)
                     .scoreAway(awayScore)
                     .status(status)
-                    .cancelReason(isCancel ? g.path("statusInfo").asText(null) : null)
+                    .cancelReason(isCancel ? g.path("statusInfo").asText() : null)
                     .mvpPlayer(mvpName)
-                    .stadiumId(1)
+                    .stadiumId(stadiumId)
                     .build();
 
             gameMapper.upsertGame(game);
             return true;
         } catch (Exception e) {
+            log.error(">>> 경기 저장 실패 (JSON: {}): {}", g.toString(), e.getMessage());
             return false;
         }
     }
@@ -213,7 +228,8 @@ public class GameDataService {
                 return root.path("result").path("todayMvp").path("name").asText(null);
             }
         } catch (Exception e) {
-            log.debug(">>> 상세 API 호출 실패: {}", gameId);
+            // 상세 정보 호출 실패는 로그만 남기고 무시 (크리티컬하지 않음)
+            log.debug("MVP 조회 실패: {}", gameId);
         }
         return null;
     }
@@ -234,6 +250,23 @@ public class GameDataService {
         if (name.contains("한화")) return "HANWHA";
         if (name.contains("키움")) return "KIWOOM";
         return null;
+    }
+
+    // 홈팀 코드로 구장 ID 매핑 (DB의 stadiums 테이블 ID와 일치시켜야 함)
+    // 임시로 하드코딩된 ID를 리턴합니다. 추후 DB 조회로 변경 가능.
+    private int mapStadiumId(String homeTeamCode) {
+        switch (homeTeamCode) {
+            case "LG": case "DOOSAN": return 1; // 잠실
+            case "KIWOOM": return 2; // 고척
+            case "SSG": return 3; // 문학
+            case "KT": return 4; // 수원
+            case "HANWHA": return 5; // 대전
+            case "SAMSUNG": return 6; // 대구
+            case "KIA": return 7; // 광주
+            case "LOTTE": return 8; // 사직
+            case "NC": return 9; // 창원
+            default: return 1; // 기본값
+        }
     }
 
 

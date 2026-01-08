@@ -1,0 +1,35 @@
+package com.viotory.diary.service;
+
+import com.viotory.diary.mapper.GameMapper;
+import com.viotory.diary.vo.GameVO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class GameService {
+
+    private final GameMapper gameMapper;
+
+    /**
+     * 오늘 내 응원팀의 경기 정보 조회
+     */
+    public GameVO getMyTeamGameToday(String teamCode) {
+        if (teamCode == null || "NONE".equals(teamCode)) {
+            return null;
+        }
+        String today = LocalDate.now().toString(); // "yyyy-MM-dd"
+        return gameMapper.selectGameByDateAndTeam(today, teamCode);
+    }
+
+    /**
+     * 오늘 전체 경기 목록 조회 (타구장 소식용)
+     */
+    public List<GameVO> getAllGamesToday() {
+        String today = LocalDate.now().toString();
+        return gameMapper.selectGamesByDate(today);
+    }
+}

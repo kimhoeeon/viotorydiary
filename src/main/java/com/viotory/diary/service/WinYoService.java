@@ -32,11 +32,8 @@ public class WinYoService {
         int lose = 0;
         int draw = 0;
 
-        // 2. 승/패 카운팅 (실제 경기 결과 비교 로직은 DB 쿼리에서 처리하거나 여기서 계산)
-        // 여기서는 DiaryVO에 gameResult(WIN/LOSE/DRAW)가 있다고 가정하거나 Join된 값을 씀
+        // 2. 승/패 카운팅
         for (DiaryVO diary : diaries) {
-            // TODO: GameVO의 scoreHome, scoreAway와 myTeamCode를 비교하여 승패 판별 로직 필요
-            // 임시 로직: DB에서 가져온 result status 사용
             if ("WIN".equals(diary.getGameResult())) win++;
             else if ("LOSE".equals(diary.getGameResult())) lose++;
             else draw++;
@@ -59,35 +56,38 @@ public class WinYoService {
         else if (total >= 3) countGrade = "MID";
         else countGrade = "NEW";
 
-        // 6. 최근 3경기 흐름 분석 (UP/DOWN/MAINTAIN)
+        // 5. 최근 3경기 흐름 (UP/DOWN/MAINTAIN/LACK_DATA) - DB 데이터와 일치
         String trendCode = analyzeTrend(diaries);
 
         // 7. 멘트 조회 (DB에서 가져오기)
         String mainMsg = mentionMapper.selectMessage("WIN_RATE", winRateGrade);
         String subMsg = mentionMapper.selectMessage("RECENT_TREND", trendCode);
+        String countMsg = mentionMapper.selectMessage("ATTENDANCE_COUNT", countGrade);
 
         // 8. 결과 반환
         return WinYoAnalysisDTO.builder()
                 .totalGames(total)
                 .winGames(win)
                 .loseGames(lose)
+                .drawGames(draw) // [추가] 무승부도 DTO에 넣으면 좋음
                 .winRate(winRate)
                 .winRateGrade(winRateGrade)
                 .countGrade(countGrade)
                 .trendCode(trendCode)
                 .mainMessage(mainMsg)
                 .subMessage(subMsg)
+                .countMessage(countMsg) // [추가]
                 .build();
     }
 
     // 최근 3경기 흐름 분석 헬퍼 메소드
     private String analyzeTrend(List<DiaryVO> diaries) {
-        if (diaries.size() < 3) return "LACK_DATA"; // 데이터 부족
+        if (diaries.size() < 3) return "LACK_DATA";
 
-        // 최신순으로 정렬되어 있다고 가정 (0:최신, 1:전, 2:전전)
         int recentWinCount = 0;
         int recentLoseCount = 0;
 
+        // 최신 3경기 확인
         for (int i = 0; i < 3; i++) {
             String result = diaries.get(i).getGameResult();
             if ("WIN".equals(result)) recentWinCount++;
@@ -98,4 +98,12 @@ public class WinYoService {
         if (recentLoseCount >= 2) return "DOWN";
         return "MAINTAIN";
     }
+
+    /**
+     * [추가 기능] 명예의 전당 (승요 랭킹 TOP 10) 조회
+     */
+    public List<WinYoAnalysisDTO> getWinYoRanking() {
+        return diaryMapper.selectWinYoRankingTop10();
+    }
+
 }

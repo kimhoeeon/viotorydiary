@@ -3,10 +3,10 @@ package com.viotory.diary.controller;
 import com.viotory.diary.service.GameDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/admin/game")

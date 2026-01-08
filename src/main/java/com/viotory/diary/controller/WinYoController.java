@@ -1,13 +1,18 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.WinYoAnalysisDTO;
+import com.viotory.diary.service.DiaryService;
 import com.viotory.diary.service.WinYoService;
+import com.viotory.diary.vo.DiaryVO;
+import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
 
@@ -17,7 +22,8 @@ import javax.servlet.http.HttpSession;
 @RequestMapping("/diary")
 public class WinYoController {
 
-    private final WinYoService winYoService;
+    private final WinYoService winYoService; // 분석용
+    private final DiaryService diaryService; // CRUD용
 
     /**
      * 승요력 분석 페이지 이동
@@ -25,19 +31,46 @@ public class WinYoController {
      */
     @GetMapping("/winyo")
     public String winYoPage(Model model, HttpSession session) {
-        // 1. 로그인한 사용자 ID 가져오기
-        // (세션 연동 전이므로 테스트용으로 1번 고정, 추후 session.getAttribute("member") 등으로 교체)
-        Long memberId = 1L;
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
 
-        log.info("승요력 분석 요청 - memberId: {}", memberId);
-
-        // 2. 서비스 호출 (핵심 로직 실행)
-        WinYoAnalysisDTO result = winYoService.analyzeWinYoPower(memberId);
-
-        // 3. JSP로 데이터 전달
+        WinYoAnalysisDTO result = winYoService.analyzeWinYoPower(loginMember.getMemberId());
         model.addAttribute("winyo", result);
-
-        // 4. 화면 이동 (WEB-INF/views/diary/winyo.jsp)
         return "diary/winyo";
     }
+
+    // --- 일기 작성 화면 ---
+    @GetMapping("/write")
+    public String writePage(@RequestParam("gameId") Long gameId, Model model, HttpSession session) {
+        // 로그인 체크
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        // 화면에 필요한 gameId 전달 (나중에 GameService에서 경기 상세 정보도 조회해서 넘겨야 함)
+        model.addAttribute("gameId", gameId);
+
+        return "diary/write"; // 퍼블리싱 후 jsp 생성
+    }
+
+    // --- 일기 저장 처리 ---
+    @PostMapping("/write")
+    public String writeAction(DiaryVO diary, HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        diary.setMemberId(loginMember.getMemberId());
+
+        try {
+            diaryService.writeDiary(diary);
+            // 저장 후 목록이나 상세 페이지로 이동
+            return "redirect:/diary/winyo";
+        } catch (Exception e) {
+            log.error("일기 작성 실패", e);
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("gameId", diary.getGameId()); // 다시 작성 화면으로 돌아갈 때 필요
+            return "diary/write";
+        }
+    }
+
+
 }

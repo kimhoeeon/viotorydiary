@@ -20,7 +20,11 @@ public class WinYoAnalysisDTO {
     private String countGrade;      // NEW, MID, HEAVY
     private String trendCode;       // UP, MAINTAIN, DOWN
 
-    // 4. 최종 매핑된 멘트 (화면에 뿌려줄 문자열)
-    private String mainMessage;     // 승률 기반 메인 멘트
-    private String subMessage;      // 흐름/횟수 기반 서브 멘트
+    // 4. 노출용 멘트 (DB winyo_mentions 조회 결과)
+    private String mainMessage;     // 승률 멘트 (WIN_RATE)
+    private String subMessage;      // 흐름 멘트 (RECENT_TREND)
+    private String countMessage;    // [추가] 횟수 멘트 (ATTENDANCE_COUNT)
+
+    // 5. 랭킹 정보 (선택 사항)
+    private String nickname;        // 랭킹 조회 시 사용
 }
