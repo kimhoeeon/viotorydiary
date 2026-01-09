@@ -36,17 +36,17 @@ public class MemberMngController {
         int pageSize = 10;
         int offset = (page - 1) * pageSize;
 
-        // 2. 전체 회원 수 조회 (검색 조건 적용)
-        // (MemberService에 countMembers 메서드를 추가해야 함)
+        // 2. 전체 회원 수 조회 (검색 조건 포함)
         int totalCount = memberService.countMembers(searchType, keyword);
 
         // 3. 회원 목록 조회 (검색 조건 + 페이징 적용)
-        // (MemberService에 getMemberList 메서드를 추가해야 함)
         List<MemberVO> members = memberService.getMemberList(offset, pageSize, searchType, keyword);
 
         // 4. 페이징 계산 (화면 하단 숫자 버튼용)
         int totalPages = (int) Math.ceil((double) totalCount / pageSize);
-        int startPage = ((page - 1) / 10) * 10 + 1; // 1, 11, 21...
+        // 시작 페이지 (1, 11, 21...)
+        int startPage = ((page - 1) / 10) * 10 + 1;
+        // 끝 페이지 (10, 20, 30... 또는 마지막 페이지)
         int endPage = Math.min(startPage + 9, totalPages);
 
         // 5. 화면(JSP)으로 데이터 전달
