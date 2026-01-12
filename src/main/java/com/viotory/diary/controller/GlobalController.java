@@ -6,20 +6,77 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-// assignableTypes를 지정하여 'AdminController'에서만 이 메뉴가 동작하도록 제한 (권장)
-// 만약 모든 페이지에 다 띄울거라면 (assignableTypes = ...) 부분 삭제
-@ControllerAdvice(assignableTypes = {AdminController.class})
+// 모든 컨트롤러에 적용 (assignableTypes 제거)
+@ControllerAdvice
 @RequiredArgsConstructor
 public class GlobalController {
 
     private final MenuService menuService;
 
-    // 모든 관리자 페이지 요청 시 자동으로 "menuItems"가 모델에 담깁니다.
+    /**
+     * 모든 요청 시 모델에 'menuItems'를 자동으로 담아줌
+     * + 현재 접속한 URL을 기준으로 Active 상태를 계산함
+     */
     @ModelAttribute("menuItems")
-    public List<MenuItem> menuItems() {
-        return menuService.getAdminMenuItems(); // 메서드명 수정 (getMenuList -> getAdminMenuItems)
+    public List<MenuItem> menuItems(HttpServletRequest request) {
+
+        // 1. 전체 메뉴 목록 가져오기 (DB 또는 메모리)
+        List<MenuItem> menus = menuService.getAdminMenuItems();
+
+        // 2. 현재 접속한 페이지의 URI 확인 (예: /mng/members/list)
+        String requestUri = request.getRequestURI();
+
+        // 3. 재귀적으로 돌면서 Active 상태 업데이트
+        updateMenuStatus(menus, requestUri);
+
+        return menus;
     }
 
+    /**
+     * 메뉴 트리 구조를 순회하며 현재 URL과 일치하는 메뉴를 활성화
+     * @param menus 탐색할 메뉴 리스트
+     * @param currentUri 현재 접속 URL
+     * @return 하위 메뉴 중 하나라도 활성화되었다면 true 반환 (부모 메뉴 확장용)
+     */
+    private boolean updateMenuStatus(List<MenuItem> menus, String currentUri) {
+        boolean isGroupActive = false; // 현재 레벨(형제들) 중 하나라도 활성화되었는지 여부
+
+        for (MenuItem menu : menus) {
+            // 상태 초기화 (싱글톤 객체가 아니라면 필수)
+            menu.setActive(false);
+
+            boolean isSelfActive = false;
+
+            // 1. [본인 확인] 현재 URL과 메뉴 URL이 정확히 일치하는지 확인
+            if (menu.getUrl() != null && !menu.getUrl().isEmpty()) {
+                if (currentUri.equals(menu.getUrl())) {
+                    isSelfActive = true;
+                }
+                // (옵션) 상세 페이지 등 서브 URL도 활성화하고 싶다면 아래와 같은 로직 추가 가능
+                else if (currentUri.startsWith(menu.getUrl())) {
+                    isSelfActive = true;
+                }
+            }
+
+            // 2. [자식 확인] 하위 메뉴가 있다면 재귀 호출
+            if (menu.getChildren() != null && !menu.getChildren().isEmpty()) {
+                boolean isChildActive = updateMenuStatus(menu.getChildren(), currentUri);
+                // 자식이 활성화되었다면 부모(나)도 활성화 (Accordion 펼치기 위해)
+                if (isChildActive) {
+                    isSelfActive = true;
+                }
+            }
+
+            // 3. 최종 상태 적용
+            if (isSelfActive) {
+                menu.setActive(true);
+                isGroupActive = true;
+            }
+        }
+
+        return isGroupActive;
+    }
 }
