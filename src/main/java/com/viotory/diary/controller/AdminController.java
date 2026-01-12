@@ -86,6 +86,24 @@ public class AdminController {
         return "redirect:/mng/index.do";
     }
 
+    @PostMapping("/mng/profile/change-password")
+    @ResponseBody
+    public String changePassword(@RequestParam String currentPassword,
+                                 @RequestParam String newPassword,
+                                 HttpSession session) {
+
+        // 1. 세션에서 로그인된 관리자 정보 가져오기
+        AdminVO admin = (AdminVO) session.getAttribute("admin");
+
+        if (admin == null) {
+            return "로그인 정보가 없습니다 (세션 만료).";
+        }
+
+        // 2. 서비스 호출 (이메일 대신 ID 전달)
+        // AdminVO에 getId() 메서드가 있다고 가정합니다.
+        return adminService.changePassword(admin.getLoginId(), currentPassword, newPassword);
+    }
+
     // IP 추출 유틸 메서드
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");

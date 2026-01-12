@@ -2,64 +2,27 @@ package com.viotory.diary;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import java.security.Security;
-
+// 1. Security 로그인 화면 차단 (exclude)
+// 2. 스케줄러 활성화 (EnableScheduling)
 @EnableScheduling
-@SpringBootApplication
-public class ViotorydiaryApplication {
+@ServletComponentScan // @WebListener를 찾아서 실행하게 함
+@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+public class ViotorydiaryApplication extends SpringBootServletInitializer {
+
+	// [중요] 톰캣이 실행될 때 이 메서드를 가장 먼저 찾아서 실행합니다.
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(ViotorydiaryApplication.class);
+	}
 
 	public static void main(String[] args) {
-
-		disableAddressCache();
-
 		SpringApplication.run(ViotorydiaryApplication.class, args);
-
-		/*String password = "threaten*00";
-
-		//salt값 생성
-		String salt = Salt();
-		System.out.println(salt);
-
-		//암호화
-		String pw_encrypt = SHA512(password, salt);
-		System.out.println(pw_encrypt);*/
 	}
-
-	private static void disableAddressCache() {
-		Security.setProperty("networkaddress.cache.ttl", "0");
-		Security.setProperty("networkaddress.cache.negative.ttl", "0");
-	}
-
-	/*public static String Salt() {
-
-		String salt="";
-		try {
-			SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-			byte[] bytes = new byte[16];
-			random.nextBytes(bytes);
-			salt = new String(Base64.getEncoder().encode(bytes));
-
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		return salt;
-	}
-
-	public static String SHA512(String password, String hash) {
-		String salt = hash+password;
-		String hex = null;
-		try {
-			MessageDigest msg = MessageDigest.getInstance("SHA-512");
-			msg.update(salt.getBytes());
-
-			hex = String.format("%128x", new BigInteger(1, msg.digest()));
-
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		return hex;
-	}*/
 
 }

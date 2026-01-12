@@ -19,7 +19,7 @@
                     </p>
 
                     <c:if test="${not empty error}">
-                        <p style="color:red; text-align:center; margin-top:10px;">${error}</p>
+                        <p style="color:red; text-align:center; margin-bottom:20px;">${error}</p>
                     </c:if>
 
                     <p class="mb20 mt30">

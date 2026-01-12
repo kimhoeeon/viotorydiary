@@ -21,6 +21,8 @@ public class MainController {
 
     @GetMapping("/")
     public String mainPage(Model model, HttpSession session) {
+
+        /*
         // 1. 세션에서 로그인 정보 가져오기
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
 
@@ -45,7 +47,10 @@ public class MainController {
         model.addAttribute("allGames", allGames);
 
         // 4. 메인 화면으로 이동
-        return "main"; // /WEB-INF/views/main.jsp (퍼블리싱 파일 대기)
+        return "main"; // /WEB-INF/views/main.jsp (퍼블리싱 파일 대기)*/
+
+        // 서비스 준비중 페이지로 연결
+        return "maintenance";
     }
 
 }

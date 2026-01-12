@@ -6,9 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -63,4 +61,38 @@ public class MemberMngController {
 
         return "mng/member/list"; // /WEB-INF/views/mng/member/list.jsp
     }
+
+    /**
+     * 회원 상세 정보 조회
+     */
+    @GetMapping("/detail")
+    public String detailPage(@RequestParam("memberId") Long memberId, Model model) {
+
+        // 서비스에서 회원 정보 조회 (기존 메서드 활용)
+        MemberVO member = memberService.getMemberInfo(memberId);
+
+        if(member == null) {
+            // 존재하지 않는 회원이면 목록으로 리다이렉트 (또는 에러 페이지)
+            return "redirect:/mng/members/list";
+        }
+
+        model.addAttribute("member", member);
+        return "mng/member/detail";
+    }
+
+    /**
+     * 회원 강제 탈퇴 처리 (AJAX)
+     */
+    @PostMapping("/withdraw")
+    @ResponseBody
+    public String withdrawAction(@RequestParam("memberId") Long memberId) {
+        try {
+            memberService.forceWithdrawMember(memberId);
+            return "ok";
+        } catch (Exception e) {
+            log.error("강제 탈퇴 처리 중 오류", e);
+            return "fail: " + e.getMessage();
+        }
+    }
+
 }

@@ -210,4 +210,26 @@ public class MemberService {
         return memberMapper.countMemberList(searchType, keyword);
     }
 
+    /**
+     * [관리자] 회원 강제 탈퇴 처리
+     * 상태를 'WITHDRAWN'으로 변경합니다.
+     */
+    @Transactional
+    public void forceWithdrawMember(Long memberId) throws Exception {
+        // 1. 존재 여부 확인
+        MemberVO member = memberMapper.selectMemberById(memberId);
+        if (member == null) {
+            throw new Exception("존재하지 않는 회원입니다.");
+        }
+
+        // 2. 이미 탈퇴한 회원인지 확인
+        if ("WITHDRAWN".equals(member.getStatus())) {
+            throw new Exception("이미 탈퇴 처리된 회원입니다.");
+        }
+
+        // 3. 탈퇴 처리
+        memberMapper.withdrawMember(memberId);
+        log.info("관리자에 의한 강제 탈퇴 처리 완료: memberId={}", memberId);
+    }
+
 }

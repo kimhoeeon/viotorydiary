@@ -8,9 +8,20 @@
     <title>관리자 메인 | Viotory Admin</title>
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/mngStyle.css" rel="stylesheet">
 </head>
 
-<body id="kt_app_body" class="app-default">
+<body id="kt_app_body"
+      data-kt-app-layout="dark-sidebar"
+      data-kt-app-header-fixed="true"
+      data-kt-app-sidebar-enabled="true"
+      data-kt-app-sidebar-fixed="true"
+      data-kt-app-sidebar-hoverable="true"
+      data-kt-app-sidebar-push-header="true"
+      data-kt-app-sidebar-push-toolbar="true"
+      data-kt-app-sidebar-push-footer="true"
+      data-kt-app-toolbar-enabled="true"
+      class="app-default">
 
     <c:if test="${sessionScope.status ne 'logon'}">
         <script>
@@ -31,59 +42,66 @@
 
                     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
                         <div class="d-flex flex-column flex-column-fluid">
-                            <div id="kt_app_content" class="app-content flex-column-fluid">
-                                <div id="kt_app_content_container" class="app-container container-xxl">
 
-                                    <div class="card mb-5 mb-xl-10">
+                            <div id="kt_app_content" class="app-content flex-column-fluid">
+                                <div id="kt_app_content_container" class="app-container container-xxl pt-10">
+
+                                    <div class="card shadow-sm mb-5 mb-xl-10">
                                         <div class="card-header">
                                             <div class="card-title">
                                                 <h3>⚾ 경기 데이터 수동 동기화</h3>
                                             </div>
                                         </div>
+
                                         <div class="card-body">
                                             <p class="text-muted mb-5">네이버 스포츠 API를 통해 경기 일정과 결과를 수동으로 가져옵니다.</p>
 
                                             <div class="d-flex gap-2">
-                                                <button onclick="syncData('2025', '03')" class="btn btn-primary">2025년 3월 동기화</button>
-                                                <button onclick="syncData('2025', '04')" class="btn btn-primary">4월</button>
-                                                <button onclick="syncData('2025', '05')" class="btn btn-primary">5월</button>
+                                                <button onclick="syncData('2025', '03', this)" class="btn btn-primary">2025년 3월 동기화</button>
+                                                <button onclick="syncData('2025', '04', this)" class="btn btn-primary">4월</button>
+                                                <button onclick="syncData('2025', '05', this)" class="btn btn-primary">5월</button>
                                                 <div class="vr"></div>
                                                 <button onclick="syncYear('2025')" class="btn btn-success">2025 시즌 전체 동기화</button>
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
         <script src="/assets/plugins/global/plugins.bundle.js"></script>
         <script src="/assets/js/scripts.bundle.js"></script>
 
         <script>
-            function syncData(year, month) {
+            function syncData(year, month, btnElement) {
                 if(!confirm(year + "년 " + month + "월 데이터를 동기화하시겠습니까?")) return;
 
-                // 로딩 표시 (선택 사항)
-                const btn = event.target;
-                const originalText = btn.innerText;
-                btn.innerText = "처리중...";
-                btn.disabled = true;
+                const originalText = btnElement ? btnElement.innerText : "";
+                if(btnElement) {
+                    btnElement.innerText = "처리중...";
+                    btnElement.disabled = true;
+                }
 
                 fetch('/mng/game/sync?year=' + year + '&month=' + month)
                     .then(res => res.text())
                     .then(msg => {
                         alert(msg);
-                        btn.innerText = originalText;
-                        btn.disabled = false;
+                        if(btnElement) {
+                            btnElement.innerText = originalText;
+                            btnElement.disabled = false;
+                        }
                     })
                     .catch(err => {
                         alert("오류 발생: " + err);
-                        btn.innerText = originalText;
-                        btn.disabled = false;
+                        if(btnElement) {
+                            btnElement.innerText = originalText;
+                            btnElement.disabled = false;
+                        }
                     });
             }
 
