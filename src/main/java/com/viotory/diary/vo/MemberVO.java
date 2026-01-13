@@ -14,12 +14,15 @@ public class MemberVO {
     private LocalDate birthdate;    // 생년월일 (통계용)
     private String gender;          // 'M', 'F', 'U'
     private String myTeamCode;      // 응원팀 코드
+    private String myTeamName;      // 화면 표시용 팀 이름 (DB join 결과)
     private LocalDateTime teamChangeDate;
     private String socialProvider;  // 'NONE', 'KAKAO'
     private String socialUid;
     private String role;            // 'USER', 'ADMIN'
     private String status;          // 'ACTIVE', 'INACTIVE' 등
     private String marketingAgree;
+    private String gameAlarm;      // 경기 알림 (Y/N)
+    private String friendAlarm;    // 친구 알림 (Y/N)
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

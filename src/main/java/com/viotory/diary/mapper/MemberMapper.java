@@ -67,4 +67,17 @@ public interface MemberMapper {
     // 이름과 전화번호로 회원 찾기
     MemberVO findMemberByNameAndPhone(@Param("userName") String userName, @Param("phoneNumber") String phoneNumber);
 
+    // 닉네임 변경 전용 메소드
+    void updateNickname(@Param("memberId") Long memberId, @Param("nickname") String nickname);
+
+    // 알림 설정 변경
+    void updateAlarmSetting(MemberVO member);
+
+    // 팔로우 관련
+    List<com.viotory.diary.dto.FollowDTO> selectFollowingList(Long myMemberId);
+    List<com.viotory.diary.dto.FollowDTO> selectFollowerList(Long myMemberId);
+
+    int insertFollow(@Param("myMemberId") Long myMemberId, @Param("targetMemberId") Long targetMemberId);
+    int deleteFollow(@Param("myMemberId") Long myMemberId, @Param("targetMemberId") Long targetMemberId);
+
 }

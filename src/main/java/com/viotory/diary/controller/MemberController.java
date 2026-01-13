@@ -1,5 +1,8 @@
 package com.viotory.diary.controller;
 
+import com.viotory.diary.dto.CommentDTO;
+import com.viotory.diary.dto.FollowDTO;
+import com.viotory.diary.service.CommentService;
 import com.viotory.diary.service.MemberService;
 import com.viotory.diary.service.SmsService;
 import com.viotory.diary.util.StringUtil;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -24,6 +28,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final SmsService smsService;
+    private final CommentService commentService;
 
     // ==========================================
     // 1. 로그인 & 로그아웃
@@ -192,8 +197,19 @@ public class MemberController {
     }
 
     // --- 비밀번호 변경 처리 ---
-    @PostMapping("/change-password")
-    public String changePasswordAction(@RequestParam("currentPassword") String currentPassword,
+    // 비밀번호 변경 페이지 이동
+    @GetMapping("/update/password")
+    public String updatePasswordPage(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) {
+            return "redirect:/member/login";
+        }
+        return "member/password_change"; // views/member/password_change.jsp
+    }
+
+    // 비밀번호 변경 처리
+    @PostMapping("/update/password")
+    public String updatePasswordAction(@RequestParam("currentPassword") String currentPassword,
                                        @RequestParam("newPassword") String newPassword,
                                        HttpSession session,
                                        Model model) {
@@ -201,15 +217,19 @@ public class MemberController {
         if (loginMember == null) return "redirect:/member/login";
 
         try {
+            // 비밀번호 변경 서비스 호출
             memberService.changePassword(loginMember.getMemberId(), currentPassword, newPassword);
-            return "redirect:/member/mypage?status=pw_success";
+
+            // 변경 성공 시 로그아웃 처리 후 로그인 페이지로 이동 (보안 정책)
+            session.invalidate();
+            return "redirect:/member/login?msg=pwChanged";
+
+            // 또는 마이페이지로 이동하려면:
+            // return "redirect:/member/mypage?status=pw_success";
         } catch (Exception e) {
-            model.addAttribute("pwError", e.getMessage());
-            model.addAttribute("tab", "password");
-            // 에러 시에도 정보 표시를 위해 다시 조회
-            MemberVO memberInfo = memberService.getMemberInfo(loginMember.getMemberId());
-            model.addAttribute("member", memberInfo);
-            return "member/mypage";
+            // 실패 시 다시 변경 페이지로 이동하며 에러 메시지 전달
+            model.addAttribute("error", e.getMessage());
+            return "member/password_change";
         }
     }
 
@@ -277,50 +297,42 @@ public class MemberController {
     }
 
     // ==========================================
-    // 4. 팀 선택 (온보딩)
+    // 5. 팀 선택 (온보딩 & 마이페이지)
     // ==========================================
 
-    // 1. 팀 선택 화면 이동
+    // 팀 선택 페이지 이동
     @GetMapping("/team-setting")
-    public String teamSettingPage(HttpServletRequest request, Model model) {
-        HttpSession session = request.getSession(false);
-        MemberVO loginMember = (session != null) ? (MemberVO) session.getAttribute("loginMember") : null;
-
-        // 로그인이 안 되어 있다면 로그인 페이지로
+    public String teamSettingPage(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) {
             return "redirect:/member/login";
         }
-
-        // 이미 팀을 선택한 회원이 접근했다면 메인으로 보낼지, 수정 페이지로 쓸지 결정
-        // 여기서는 수정 페이지로도 쓴다고 가정하고 그대로 둡니다.
-
-        // (선택사항) 화면에 뿌려줄 팀 목록 데이터가 필요하다면 model에 담습니다.
-        // model.addAttribute("teamList", teamService.getTeamList());
-
-        return "member/team_setting"; // /WEB-INF/views/member/team_setting.jsp
+        return "member/team_setting";
     }
 
-    // 2. 팀 선택 저장 처리 (POST)
+    // 팀 선택 저장 처리
     @PostMapping("/team-setting")
     public String teamSettingAction(@RequestParam("teamCode") String teamCode,
-                                    HttpServletRequest request,
+                                    HttpSession session,
                                     Model model) {
-        HttpSession session = request.getSession(false);
-        MemberVO loginMember = (session != null) ? (MemberVO) session.getAttribute("loginMember") : null;
-
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) {
             return "redirect:/member/login";
         }
 
         try {
-            // 서비스 호출
+            // 1. DB 업데이트 (Service 호출)
             memberService.updateTeam(loginMember.getMemberId(), teamCode);
 
-            // 세션 정보 갱신 (선택한 팀 코드를 세션에도 반영해줘야 바로 적용됨)
+            // 2. 세션 정보 갱신 (중요: 세션을 업데이트해야 화면에 즉시 반영됨)
             loginMember.setMyTeamCode(teamCode);
             session.setAttribute("loginMember", loginMember);
 
-            return "redirect:/"; // 설정 완료 후 메인으로
+            // 3. 페이지 이동
+            // (1) 최초 가입 후 온보딩인 경우 -> 메인으로
+            // (2) 마이페이지에서 변경한 경우 -> 마이페이지로
+            // 구분하기 복잡하다면, 마이페이지로 보내는 것이 무난합니다.
+            return "redirect:/member/mypage";
 
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
@@ -328,4 +340,168 @@ public class MemberController {
         }
     }
 
+    // 프로필 수정(닉네임 변경) 페이지 이동
+    @GetMapping("/update/profile")
+    public String updateProfilePage(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) {
+            return "redirect:/member/login";
+        }
+        // 최신 정보 조회하여 전달
+        MemberVO memberInfo = memberService.getMemberInfo(loginMember.getMemberId());
+        model.addAttribute("member", memberInfo);
+
+        return "member/profile_update"; // views/member/profile_update.jsp
+    }
+
+    // 프로필 수정 처리 (닉네임 전용)
+    @PostMapping("/update/profile")
+    public String updateProfileAction(@RequestParam("nickname") String nickname,
+                                      HttpSession session,
+                                      Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        try {
+            // 닉네임 변경 전용 서비스 호출
+            memberService.updateNickname(loginMember.getMemberId(), nickname);
+
+            // 세션 정보 갱신 (DB가 바뀌었으니 세션도 맞춰줌)
+            loginMember.setNickname(nickname);
+            session.setAttribute("loginMember", loginMember);
+
+            return "redirect:/member/mypage";
+
+        } catch (Exception e) {
+            // 실패 시 (중복 닉네임 등) 에러 메시지와 함께 기존 정보 유지
+            model.addAttribute("error", e.getMessage());
+
+            // 입력폼에 기존 정보 다시 채워주기 위해 조회
+            MemberVO memberInfo = memberService.getMemberInfo(loginMember.getMemberId());
+            model.addAttribute("member", memberInfo);
+
+            return "member/profile_update";
+        }
+    }
+
+    // ==========================================
+    // 6. 알림 설정
+    // ==========================================
+
+    // 알림 설정 페이지 이동
+    @GetMapping("/alarm/setting")
+    public String alarmSettingPage(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) {
+            return "redirect:/member/login";
+        }
+
+        // 최신 정보 조회 (설정값 동기화)
+        MemberVO member = memberService.getMemberInfo(loginMember.getMemberId());
+        model.addAttribute("member", member);
+
+        return "member/alarm_setting";
+    }
+
+    // 알림 설정 변경 (AJAX)
+    @PostMapping("/alarm/update")
+    @ResponseBody
+    public String updateAlarmAction(@RequestParam("type") String type,
+                                    @RequestParam("value") String value, // 'Y' or 'N'
+                                    HttpSession session) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "fail:not_login";
+
+        try {
+            memberService.updateAlarm(loginMember.getMemberId(), type, value);
+
+            // 세션 정보도 갱신 (선택사항)
+            if("marketing".equals(type)) loginMember.setMarketingAgree(value);
+            else if("game".equals(type)) loginMember.setGameAlarm(value);
+            else if("friend".equals(type)) loginMember.setFriendAlarm(value);
+            session.setAttribute("loginMember", loginMember);
+
+            return "ok";
+        } catch (Exception e) {
+            log.error("알림 설정 변경 오류", e);
+            return "fail";
+        }
+    }
+
+    // 팔로우 관리 페이지 (탭 구분: following / follower)
+    @GetMapping("/follow/list")
+    public String followListPage(@RequestParam(value = "tab", defaultValue = "following") String tab,
+                                 HttpSession session,
+                                 Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        List<FollowDTO> list;
+
+        if ("follower".equals(tab)) {
+            list = memberService.getFollowerList(loginMember.getMemberId());
+        } else {
+            list = memberService.getFollowingList(loginMember.getMemberId());
+        }
+
+        model.addAttribute("list", list);
+        model.addAttribute("tab", tab); // 현재 탭 정보
+
+        return "member/follow_list";
+    }
+
+    // 팔로우 / 언팔로우 실행 (AJAX)
+    @PostMapping("/follow/toggle")
+    @ResponseBody
+    public String followToggle(@RequestParam("targetId") Long targetId,
+                               @RequestParam("action") String action, // 'follow' or 'unfollow'
+                               HttpSession session) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "fail:login";
+
+        try {
+            if ("follow".equals(action)) {
+                memberService.addFollow(loginMember.getMemberId(), targetId);
+            } else {
+                memberService.removeFollow(loginMember.getMemberId(), targetId);
+            }
+            return "ok";
+        } catch (Exception e) {
+            log.error("팔로우 처리 오류", e);
+            return "fail";
+        }
+    }
+
+    // ==========================================
+    // 8. 댓글 관리
+    // ==========================================
+
+    // 댓글 관리 페이지 이동 (내가 쓴 댓글 리스트)
+    @GetMapping("/review/list")
+    public String reviewListPage(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        List<CommentDTO> list = commentService.getMyComments(loginMember.getMemberId());
+        model.addAttribute("list", list);
+
+        return "member/review_list";
+    }
+
+    // 댓글 삭제 처리
+    @PostMapping("/review/delete")
+    @ResponseBody
+    public String deleteReview(@RequestParam("commentId") Long commentId, HttpSession session) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "fail:login";
+
+        try {
+            // 서비스에서 '댓글 작성자' 또는 '일기 주인'인지 확인하고 삭제함
+            commentService.deleteComment(commentId, loginMember.getMemberId());
+            return "ok";
+        } catch (Exception e) {
+            return "fail";
+        }
+    }
+    
 }

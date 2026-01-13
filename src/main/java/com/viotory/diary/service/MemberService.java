@@ -1,5 +1,6 @@
 package com.viotory.diary.service;
 
+import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.dto.SmsDTO;
 import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.util.SHA512;
@@ -289,6 +290,81 @@ public class MemberService {
 
         log.info("비밀번호 초기화 및 발송 완료: memberId={}", member.getMemberId());
         return true;
+    }
+
+    /**
+     * [안전] 닉네임 변경 전용 서비스
+     * 다른 필드(전화번호 등)에 영향 없이 닉네임만 수정합니다.
+     */
+    @Transactional
+    public void updateNickname(Long memberId, String newNickname) throws Exception {
+        // 1. 기존 닉네임과 동일한지 확인 (DB 조회)
+        MemberVO currentMember = memberMapper.selectMemberById(memberId);
+        if (currentMember == null) {
+            throw new Exception("회원 정보를 찾을 수 없습니다.");
+        }
+
+        if (newNickname.equals(currentMember.getNickname())) {
+            return; // 변경 사항 없음
+        }
+
+        // 2. 중복 체크
+        if (memberMapper.countByNickname(newNickname) > 0) {
+            throw new Exception("이미 사용 중인 닉네임입니다.");
+        }
+
+        // 3. 닉네임 업데이트 실행
+        memberMapper.updateNickname(memberId, newNickname);
+        log.info("닉네임 변경 완료: memberId={}, newNickname={}", memberId, newNickname);
+    }
+
+    /**
+     * 알림 설정 변경 (개별 토글 처리용)
+     */
+    @Transactional
+    public void updateAlarm(Long memberId, String type, String value) throws Exception {
+        MemberVO member = memberMapper.selectMemberById(memberId);
+        if (member == null) throw new Exception("회원 정보가 없습니다.");
+
+        // 변경된 타입에 따라 값 설정
+        switch (type) {
+            case "marketing": member.setMarketingAgree(value); break;
+            case "game": member.setGameAlarm(value); break;
+            case "friend": member.setFriendAlarm(value); break;
+        }
+
+        memberMapper.updateAlarmSetting(member);
+    }
+
+    // 팔로잉 목록
+    public List<FollowDTO> getFollowingList(Long memberId) {
+        return memberMapper.selectFollowingList(memberId);
+    }
+
+    // 팔로워 목록
+    public List<FollowDTO> getFollowerList(Long memberId) {
+        return memberMapper.selectFollowerList(memberId);
+    }
+
+    // 팔로우 토글 (하기/취소)
+    @Transactional
+    public boolean toggleFollow(Long myMemberId, Long targetMemberId) {
+        // 이미 팔로우 중인지 확인하고 싶지만,
+        // 간단하게 insert ignore -> 0 row affected면 delete 하는 식으로 구현하거나
+        // 명시적으로 체크할 수 있습니다. 여기선 명시적 체크 없는 간단 로직(화면에서 상태를 줌)을 따르거나
+        // 안전하게 무조건 요청대로 처리합니다.
+
+        // 여기서는 "팔로우 하기"와 "취소"가 명확하므로 두 메소드를 분리하거나 flag를 받습니다.
+        // 하지만 편의상 Controller에서 분기하겠습니다. 여기선 각각 구현.
+        return true;
+    }
+
+    public void addFollow(Long myId, Long targetId) {
+        memberMapper.insertFollow(myId, targetId);
+    }
+
+    public void removeFollow(Long myId, Long targetId) {
+        memberMapper.deleteFollow(myId, targetId);
     }
 
 }

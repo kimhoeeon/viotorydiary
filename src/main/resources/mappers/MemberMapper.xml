@@ -41,7 +41,12 @@
     </select>
 
     <select id="selectMemberById" parameterType="long" resultType="com.viotory.diary.vo.MemberVO">
-        SELECT * FROM members WHERE member_id = #{memberId}
+        SELECT
+            m.*,
+            t.name_kr AS myTeamName
+        FROM members m
+        LEFT JOIN teams t ON m.my_team_code = t.team_code
+        WHERE m.member_id = #{memberId}
     </select>
 
     <update id="updateLastLogin" parameterType="long">
@@ -182,5 +187,83 @@
         WHERE nickname = #{userName}  AND phone_number = #{phoneNumber}
           AND status = 'ACTIVE'
     </select>
+
+    <update id="updateNickname">
+        UPDATE members
+        SET nickname = #{nickname},
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
+    <update id="updateAlarmSetting">
+        UPDATE members
+        SET
+            marketing_agree = #{marketingAgree},
+            game_alarm = #{gameAlarm},
+            friend_alarm = #{friendAlarm},
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
+    <select id="selectFollowingList" resultType="com.viotory.diary.dto.FollowDTO">
+        SELECT m.member_id,
+               m.nickname,
+               m.my_team_code,
+               t.name_kr                                                                      AS myTeamName,
+               -- [승요력 계산]
+               -- 1. diaries와 games를 game_id로 조인
+               -- 2. 게임의 승리팀(winning_team)이 회원의 응원팀(my_team_code)과 같으면 승리(1)로 카운트
+               -- 3. (승리 횟수 / 전체 유효 경기 수) * 100 = 승률(%)
+               (SELECT IFNULL(ROUND(COUNT(CASE WHEN g.winning_team = m.my_team_code THEN 1 END) / NULLIF(COUNT(*), 0) *
+                                    100), 0)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND g.cancel_reason IS NULL
+                  AND g.winning_team IS NOT NULL)                                             AS winRate,
+               -- 맞팔 여부 확인
+               EXISTS(SELECT 1
+                      FROM follows f2
+                      WHERE f2.follower_id = m.member_id AND f2.following_id = #{myMemberId}) AS isMutual
+        FROM follows f
+                 JOIN members m ON f.following_id = m.member_id
+                 LEFT JOIN teams t ON m.my_team_code = t.team_code
+        WHERE f.follower_id = #{myMemberId}
+        ORDER BY f.created_at DESC
+    </select>
+
+    <select id="selectFollowerList" resultType="com.viotory.diary.dto.FollowDTO">
+        SELECT m.member_id,
+               m.nickname,
+               m.my_team_code,
+               t.name_kr                                                                      AS myTeamName,
+               -- [승요력 계산] 동일 로직 적용
+               (SELECT IFNULL(ROUND(COUNT(CASE WHEN g.winning_team = m.my_team_code THEN 1 END) / NULLIF(COUNT(*), 0) *
+                                    100), 0)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND g.cancel_reason IS NULL
+                  AND g.winning_team IS NOT NULL)                                             AS winRate,
+               -- 내가 이 사람을 팔로우 중인지 확인 (맞팔 여부이자 버튼 상태)
+               EXISTS(SELECT 1
+                      FROM follows f2
+                      WHERE f2.follower_id = #{myMemberId} AND f2.following_id = m.member_id) AS isFollowing
+        FROM follows f
+                 JOIN members m ON f.follower_id = m.member_id
+                 LEFT JOIN teams t ON m.my_team_code = t.team_code
+        WHERE f.following_id = #{myMemberId}
+        ORDER BY f.created_at DESC
+    </select>
+
+    <insert id="insertFollow">
+        INSERT IGNORE INTO follows (follower_id, following_id, created_at)
+        VALUES (#{myMemberId}, #{targetMemberId}, NOW())
+    </insert>
+
+    <delete id="deleteFollow">
+        DELETE FROM follows
+        WHERE follower_id = #{myMemberId} AND following_id = #{targetMemberId}
+    </delete>
 
 </mapper>

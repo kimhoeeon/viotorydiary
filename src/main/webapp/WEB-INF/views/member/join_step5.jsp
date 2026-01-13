@@ -73,7 +73,7 @@
                     $('#authBox').show();
                     $('#sendBtn').text('재전송');
                 } else {
-                    // [변경] 실패 시 페이지 이동
+                    // 실패 시 페이지 이동
                     // 에러 메시지를 URL 파라미터로 전달 (한글은 인코딩)
                     location.href = '/member/sms/fail?msg=' + encodeURIComponent(res);
                 }
