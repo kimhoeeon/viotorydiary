@@ -67,5 +67,4 @@ public interface MemberMapper {
     // 이름과 전화번호로 회원 찾기
     MemberVO findMemberByNameAndPhone(@Param("userName") String userName, @Param("phoneNumber") String phoneNumber);
 
-
 }
