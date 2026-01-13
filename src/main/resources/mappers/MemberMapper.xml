@@ -169,4 +169,18 @@
         UPDATE auth_codes SET is_verified = 1 WHERE phone_number = #{phoneNumber}
     </update>
 
+    <select id="findMemberByBirthAndPhone" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT email, nickname
+        FROM members
+        WHERE birthdate = #{birthdate}
+          AND phone_number = #{phoneNumber}
+          AND status = 'ACTIVE'
+    </select>
+
+    <select id="findMemberByNameAndPhone" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT * FROM members
+        WHERE nickname = #{userName}  AND phone_number = #{phoneNumber}
+          AND status = 'ACTIVE'
+    </select>
+
 </mapper>

@@ -77,7 +77,7 @@ public class SmsService {
     /**
      * 실제 알리고 API 호출 로직
      */
-    private SmsResponseDTO smsSend(SmsDTO smsDTO) {
+    public SmsResponseDTO smsSend(SmsDTO smsDTO) {
         String senderParam = smsDTO.getSender().replaceAll("-", "");
         String receiverParam = smsDTO.getReceiver().replaceAll("-", "");
 
@@ -147,6 +147,24 @@ public class SmsService {
         // 인증 성공 처리
         memberMapper.updateAuthCodeVerified(phoneNumber);
         return true;
+    }
+
+    // ... 기존 코드 ...
+
+    /**
+     * 임시 비밀번호 발송
+     */
+    public void sendTempPassword(String phoneNumber, String tempPassword) {
+        String message = "[승요일기] 임시 비밀번호는 [" + tempPassword + "] 입니다. 로그인 후 변경해주세요.";
+
+        SmsDTO smsDTO = SmsDTO.builder()
+                .receiver(phoneNumber)
+                .sender(SENDER_PHONE) // 기존 상수 사용
+                .message(message)
+                .testmode_yn("N")
+                .build();
+
+        smsSend(smsDTO); // 기존 전송 메서드 재사용
     }
 
     private String generateRandomCode() {

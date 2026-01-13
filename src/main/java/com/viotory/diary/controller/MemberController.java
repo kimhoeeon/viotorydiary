@@ -39,12 +39,9 @@ public class MemberController {
      * MemberVO를 사용하여 파라미터를 받고, 세션에 저장
      */
     @PostMapping("/login")
-    public String loginAction(@RequestParam("email") String email,
-                              @RequestParam("password") String password,
-                              HttpServletRequest request,
-                              Model model) {
+    public String loginAction(MemberVO member, HttpServletRequest request, Model model) {
         try {
-            MemberVO loginMember = memberService.login(email, password);
+            MemberVO loginMember = memberService.login(member.getEmail(), member.getPassword());
 
             // 세션에 회원 정보 저장
             HttpSession session = request.getSession();
@@ -76,11 +73,6 @@ public class MemberController {
     // 2. 회원가입 (단계별 Wizard)
     // ==========================================
 
-    @GetMapping("/join")
-    public String joinPage() {
-        return "member/join";
-    }
-
     // 단계별 페이지 매핑
     @GetMapping("/join")
     public String joinMain() { return "member/join"; }
@@ -104,25 +96,7 @@ public class MemberController {
     public String joinStep6() { return "member/join_step6"; }
 
     @PostMapping("/join")
-    public String joinAction(
-            @RequestParam("email") String email,
-            @RequestParam("password") String password,
-            @RequestParam("nickname") String nickname,
-            @RequestParam("phoneNumber") String phoneNumber,
-            @RequestParam("birthdate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate birthdate,
-            @RequestParam(value = "gender", required = false, defaultValue = "U") String gender,
-            @RequestParam(value = "marketingAgree", defaultValue = "N") String marketingAgree,
-            Model model) {
-
-        MemberVO member = new MemberVO();
-        member.setEmail(email);
-        member.setPassword(password);
-        member.setNickname(nickname);
-        member.setPhoneNumber(phoneNumber);
-        member.setBirthdate(birthdate);
-        member.setGender(gender);
-        member.setMarketingAgree(marketingAgree);
-
+    public String joinAction(MemberVO member, Model model) {
         try {
             memberService.registerMember(member);
             return "member/join_complete"; // 가입 성공 페이지
@@ -245,7 +219,7 @@ public class MemberController {
         return "member/find_id";
     }
 
-    // [신규] 아이디 찾기 결과 처리
+    // 아이디 찾기 결과 처리
     @PostMapping("/find-id/result")
     public String findIdResult(@RequestParam("birthdate") String birthdate,
                                @RequestParam("phoneNumber") String phoneNumber,
@@ -263,15 +237,49 @@ public class MemberController {
         return "member/find_id_result";
     }
 
-    // 비밀번호 찾기 (추후 구현 예정)
+    // 비밀번호 찾기 입력 페이지
     @GetMapping("/find-password")
     public String findPasswordPage() {
-        return "member/password_find"; // 퍼블리싱 파일명 기준 매핑
+        return "member/find_password";
+    }
+
+    // 비밀번호 초기화 및 임시 비밀번호 발송
+    @PostMapping("/find-password/reset")
+    public String resetPassword(@RequestParam("userName") String userName,
+                                @RequestParam("phoneNumber") String phoneNumber,
+                                @RequestParam("authCode") String authCode,
+                                Model model) {
+
+        // 1. SMS 인증번호 검증
+        String cleanNumber = phoneNumber.replaceAll("-", "");
+        boolean isVerified = smsService.verifyCode(cleanNumber, authCode);
+
+        if (!isVerified) {
+            model.addAttribute("error", "인증번호가 일치하지 않거나 만료되었습니다.");
+            return "member/find_password";
+        }
+
+        // 2. 회원 확인 및 임시 비밀번호 발송
+        try {
+            boolean success = memberService.resetAndSendPassword(userName, cleanNumber);
+            if (success) {
+                model.addAttribute("name", userName);
+                return "member/find_password_result";
+            } else {
+                model.addAttribute("error", "입력하신 정보와 일치하는 회원이 없습니다.");
+                return "member/find_password";
+            }
+        } catch (Exception e) {
+            log.error("비밀번호 초기화 중 오류", e);
+            model.addAttribute("error", "오류가 발생했습니다. 다시 시도해주세요.");
+            return "member/find_password";
+        }
     }
 
 
-
-    // --- 팀 선택 (온보딩) ---
+    // ==========================================
+    // 4. 팀 선택 (온보딩)
+    // ==========================================
 
     // 1. 팀 선택 화면 이동
     @GetMapping("/team-setting")

@@ -1,5 +1,6 @@
 package com.viotory.diary.service;
 
+import com.viotory.diary.dto.SmsDTO;
 import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.util.SHA512;
 import com.viotory.diary.vo.MemberVO;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -20,6 +22,7 @@ public class MemberService {
 
     private final MemberMapper memberMapper;
     private final SHA512 sha512;
+    private final SmsService smsService; // 문자 발송을 위해 주입
 
     /**
      * 회원 가입 처리
@@ -101,7 +104,7 @@ public class MemberService {
     }
 
     /**
-     * [신규] 회원 최신 정보 조회 (마이페이지용)
+     * 회원 최신 정보 조회 (마이페이지용)
      */
     public MemberVO getMemberInfo(Long memberId) {
         return memberMapper.selectMemberById(memberId);
@@ -230,6 +233,62 @@ public class MemberService {
         // 3. 탈퇴 처리
         memberMapper.withdrawMember(memberId);
         log.info("관리자에 의한 강제 탈퇴 처리 완료: memberId={}", memberId);
+    }
+
+    /**
+     * 아이디 찾기
+     * @param birthdate 생년월일 (YYYY-MM-DD)
+     * @param phoneNumber 휴대폰 번호 (하이픈 포함 가능)
+     * @return MemberVO (email, nickname 포함) 또는 null
+     */
+    public MemberVO findId(String birthdate, String phoneNumber) {
+        // 하이픈 제거 (DB에는 숫자만 저장되어 있다고 가정)
+        String cleanPhone = phoneNumber.replaceAll("-", "");
+        return memberMapper.findMemberByBirthAndPhone(birthdate, cleanPhone);
+    }
+
+    /**
+     * 비밀번호 초기화 및 임시 비밀번호 발송
+     * 1. 회원 정보 확인
+     * 2. 임시 비밀번호 생성 및 암호화 업데이트
+     * 3. SMS 발송
+     */
+    @Transactional
+    public boolean resetAndSendPassword(String userName, String phoneNumber) throws Exception {
+        // 1. 회원 조회 (이름 + 전화번호)
+        // MemberMapper에 해당 메소드 추가 필요
+        MemberVO member = memberMapper.findMemberByNameAndPhone(userName, phoneNumber);
+
+        if (member == null) {
+            return false;
+        }
+
+        // 2. 임시 비밀번호 생성 (UUID 앞 8자리 사용)
+        String tempPw = UUID.randomUUID().toString().substring(0, 8);
+
+        // 3. 비밀번호 암호화 (기존 sha512 빈 사용)
+        String encryptedPassword = sha512.hash(tempPw);
+
+        // 4. DB 업데이트 (기존에 존재하는 updatePassword 메소드 재사용)
+        // 기존 Mapper의 파라미터명은 newPassword 입니다.
+        memberMapper.updatePassword(member.getMemberId(), encryptedPassword);
+
+        // 5. SMS 발송
+        String message = "[승요일기] 고객님의 임시 비밀번호는 [" + tempPw + "] 입니다. 로그인 후 변경해주세요.";
+
+        // SmsService에 sendOne 같은 간편 메소드가 있다면 사용하고, 없다면 DTO 빌드
+        SmsDTO smsDTO = SmsDTO.builder()
+                .receiver(phoneNumber)
+                // 발신번호는 SmsService 내부 상수를 쓰거나 설정파일에서 가져옴
+                .sender("01012345678") // 실제 운영시 등록된 발신번호 필수
+                .message(message)
+                .testmode_yn("N")
+                .build();
+
+        smsService.smsSend(smsDTO);
+
+        log.info("비밀번호 초기화 및 발송 완료: memberId={}", member.getMemberId());
+        return true;
     }
 
 }

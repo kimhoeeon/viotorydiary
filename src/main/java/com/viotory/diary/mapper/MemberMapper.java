@@ -60,4 +60,12 @@ public interface MemberMapper {
 
     void updateAuthCodeVerified(@Param("phoneNumber") String phoneNumber);
 
+    // 생년월일과 전화번호로 회원 찾기
+    MemberVO findMemberByBirthAndPhone(@Param("birthdate") String birthdate,
+                                       @Param("phoneNumber") String phoneNumber);
+
+    // 이름과 전화번호로 회원 찾기
+    MemberVO findMemberByNameAndPhone(@Param("userName") String userName, @Param("phoneNumber") String phoneNumber);
+
+
 }

@@ -27,7 +27,7 @@ public class DiaryVO {
     private Integer predScoreAway;
     private String predHero;
 
-    // [신규] 오늘의 히어로 (사용자 직접 입력)
+    // 오늘의 히어로 (사용자 직접 입력)
     private String heroName;
 
     // 직관 인증
