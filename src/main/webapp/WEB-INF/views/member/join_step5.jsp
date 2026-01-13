@@ -73,8 +73,13 @@
                     $('#authBox').show();
                     $('#sendBtn').text('재전송');
                 } else {
-                    alert('발송 실패: ' + res);
+                    // [변경] 실패 시 페이지 이동
+                    // 에러 메시지를 URL 파라미터로 전달 (한글은 인코딩)
+                    location.href = '/member/sms/fail?msg=' + encodeURIComponent(res);
                 }
+            }).fail(function() {
+                // 네트워크 오류 등 아예 통신 실패 시에도 이동
+                location.href = '/member/sms/fail?msg=' + encodeURIComponent('서버 통신 오류가 발생했습니다.');
             });
         }
 

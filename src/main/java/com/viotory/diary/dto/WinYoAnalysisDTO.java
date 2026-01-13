@@ -23,8 +23,12 @@ public class WinYoAnalysisDTO {
     // 4. 노출용 멘트 (DB winyo_mentions 조회 결과)
     private String mainMessage;     // 승률 멘트 (WIN_RATE)
     private String subMessage;      // 흐름 멘트 (RECENT_TREND)
-    private String countMessage;    // [추가] 횟수 멘트 (ATTENDANCE_COUNT)
+    private String countMessage;    // 횟수 멘트 (ATTENDANCE_COUNT)
 
     // 5. 랭킹 정보 (선택 사항)
     private String nickname;        // 랭킹 조회 시 사용
+
+    // 6. 최다 방문 구장
+    private String topStadium;
+
 }

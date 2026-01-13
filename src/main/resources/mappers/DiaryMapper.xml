@@ -12,16 +12,14 @@
                d.is_verified,
                d.verified_at,
                g.game_date,
-            /* 승/패/무 판별 로직 */
+               s.name  AS stadiumName, /* 승패 판별 로직 */
                CASE
-                   /* 1. 내가 홈팀을 응원했을 때 */
                    WHEN d.snapshot_team_code = g.home_team_code THEN
                        CASE
                            WHEN g.score_home > g.score_away THEN 'WIN'
                            WHEN g.score_home < g.score_away THEN 'LOSE'
                            ELSE 'DRAW'
                            END
-                   /* 2. 내가 원정팀을 응원했을 때 */
                    WHEN d.snapshot_team_code = g.away_team_code THEN
                        CASE
                            WHEN g.score_away > g.score_home THEN 'WIN'
@@ -32,10 +30,11 @@
                    END AS gameResult
         FROM diaries d
                  INNER JOIN games g ON d.game_id = g.game_id
+                 INNER JOIN stadiums s ON g.stadium_id = s.stadium_id
         WHERE d.member_id = #{memberId}
-          AND d.is_verified = 1 /* 직관 인증 완료 */
-          AND g.status = 'FINISHED' /* 경기 종료 */
-          AND d.status != 'INVALID' /* 유효한 일기 */
+          AND d.is_verified = 1
+          AND g.status = 'FINISHED'
+          AND d.status != 'INVALID'
         ORDER BY g.game_date DESC
         ]]>
     </select>

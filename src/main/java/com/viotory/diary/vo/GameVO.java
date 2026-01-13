@@ -47,4 +47,5 @@ public class GameVO {
     */
     private String homeTeamName;
     private String awayTeamName;
+    private String stadiumName;  // JOIN 결과
 }

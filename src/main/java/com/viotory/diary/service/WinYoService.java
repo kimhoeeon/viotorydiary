@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -31,11 +33,29 @@ public class WinYoService {
         int loses = 0;
         int draws = 0;
 
+        // [추가] 구장별 방문 횟수 카운팅용 맵
+        Map<String, Integer> stadiumCountMap = new HashMap<>();
+
         // 2. 승/패/무 카운트
         for (DiaryVO d : diaries) {
             if ("WIN".equals(d.getGameResult())) wins++;
             else if ("LOSE".equals(d.getGameResult())) loses++;
             else draws++;
+
+            // 2. [추가] 구장 카운트
+            if (d.getStadiumName() != null) {
+                stadiumCountMap.put(d.getStadiumName(), stadiumCountMap.getOrDefault(d.getStadiumName(), 0) + 1);
+            }
+        }
+
+        // [추가] 최다 방문 구장 찾기
+        String topStadium = "-";
+        int maxCount = 0;
+        for (Map.Entry<String, Integer> entry : stadiumCountMap.entrySet()) {
+            if (entry.getValue() > maxCount) {
+                maxCount = entry.getValue();
+                topStadium = entry.getKey();
+            }
         }
 
         // 3. 승률 계산
@@ -48,6 +68,7 @@ public class WinYoService {
                 .loseGames(loses)
                 .drawGames(draws)
                 .winRate(winRate)
+                .topStadium(topStadium)
                 .build();
 
         // 5. [규칙 적용] 승률 구간 (A~E)

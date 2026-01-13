@@ -374,4 +374,27 @@ public class StringUtil {
         return coll == null || coll.isEmpty();
     }
 
+    /**
+     * [추가] 이메일 마스킹 처리 (앞 3자리 노출 후 *** 마스킹)
+     * 예: abcdefg@naver.com -> abc***@naver.com
+     * 예: ab@naver.com -> a***@naver.com (3자리 미만 시 1자리 노출)
+     */
+    public static String maskEmail(String email) {
+        if (isEmpty(email)) return "";
+
+        int atIndex = email.indexOf("@");
+        if (atIndex < 0) return email; // 이메일 형식이 아니면 그대로 반환
+
+        String id = email.substring(0, atIndex);
+        String domain = email.substring(atIndex);
+
+        if (id.length() <= 3) {
+            // 아이디가 3자리 이하인 경우 첫 글자만 보여주고 마스킹
+            return id.substring(0, 1) + "***" + domain;
+        } else {
+            // 아이디가 3자리 초과인 경우 앞 3자리 보여주고 마스킹
+            return id.substring(0, 3) + "***" + domain;
+        }
+    }
+
 }
