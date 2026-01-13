@@ -4,35 +4,32 @@
 <mapper namespace="com.viotory.diary.mapper.MemberMapper">
 
     <insert id="insertMember" parameterType="com.viotory.diary.vo.MemberVO" useGeneratedKeys="true" keyProperty="memberId">
-        INSERT INTO members (
-            email,
-            password,
-            nickname,
-            phone_number,
-            birthdate,
-            gender,
-            my_team_code,
-            social_provider,
-            social_uid,
-            role,
-            status,
-            created_at,
-            updated_at
-        ) VALUES (
-                     #{email},
-                     #{password},
-                     #{nickname},
-                     #{phoneNumber},
-                     #{birthdate},
-                     #{gender},
-                     #{myTeamCode},
-                     IFNULL(#{socialProvider}, 'NONE'),
-                     #{socialUid},
-                     'USER',
-                     'ACTIVE',
-                     NOW(),
-                     NOW()
-                 )
+        INSERT INTO members (email,
+                             password,
+                             nickname,
+                             phone_number,
+                             birthdate,
+                             gender,
+                             my_team_code,
+                             social_provider,
+                             social_uid,
+                             role,
+                             status,
+                             marketing_agree, created_at,
+                             updated_at)
+        VALUES (#{email},
+                #{password},
+                #{nickname},
+                #{phoneNumber},
+                #{birthdate},
+                #{gender},
+                #{myTeamCode},
+                IFNULL(#{socialProvider}, 'NONE'),
+                #{socialUid},
+                'USER',
+                'ACTIVE',
+                IFNULL(#{marketingAgree}, 'N'), NOW(),
+                NOW())
     </insert>
 
     <select id="selectMemberByEmail" parameterType="string" resultType="com.viotory.diary.vo.MemberVO">
@@ -145,5 +142,31 @@
             </if>
         </where>
     </select>
+
+    <delete id="deleteAuthCode">
+        DELETE FROM auth_codes WHERE phone_number = #{phoneNumber}
+    </delete>
+
+    <insert id="insertAuthCode">
+        INSERT INTO auth_codes (phone_number, code, type, is_verified, expires_at, created_at)
+        VALUES (#{phoneNumber}, #{authCode}, #{type}, 0, DATE_ADD(NOW(), INTERVAL 3 MINUTE), NOW())
+    </insert>
+
+    <select id="selectAuthCode" resultType="string">
+        SELECT code FROM auth_codes
+        WHERE phone_number = #{phoneNumber}
+          AND is_verified = 0
+        ORDER BY auth_id DESC LIMIT 1
+    </select>
+
+    <select id="selectAuthCodeExpireTime" resultType="java.time.LocalDateTime">
+        SELECT expires_at FROM auth_codes
+        WHERE phone_number = #{phoneNumber}
+        ORDER BY auth_id DESC LIMIT 1
+    </select>
+
+    <update id="updateAuthCodeVerified">
+        UPDATE auth_codes SET is_verified = 1 WHERE phone_number = #{phoneNumber}
+    </update>
 
 </mapper>

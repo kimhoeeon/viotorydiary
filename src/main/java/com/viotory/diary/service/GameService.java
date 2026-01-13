@@ -32,4 +32,8 @@ public class GameService {
         String today = LocalDate.now().toString();
         return gameMapper.selectGamesByDate(today);
     }
+
+    public GameVO getTodayGame(String myTeamCode) {
+        return gameMapper.selectTodayGame(myTeamCode);
+    }
 }

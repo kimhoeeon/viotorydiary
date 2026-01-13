@@ -14,6 +14,7 @@ public class DiaryVO {
     private Integer predScoreHome;
     private Integer predScoreAway;
     private String predHero;
+    private String heroName;
 
     // 직관 인증
     private Boolean isVerified;

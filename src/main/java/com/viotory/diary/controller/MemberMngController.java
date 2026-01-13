@@ -1,9 +1,11 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.service.MemberService;
+import com.viotory.diary.service.SmsService;
 import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,8 @@ import java.util.List;
 public class MemberMngController {
 
     private final MemberService memberService;
+
+    private final SmsService smsService;
 
     /**
      * 관리자 - 회원 목록 조회 (페이징 + 검색)
@@ -92,6 +96,35 @@ public class MemberMngController {
         } catch (Exception e) {
             log.error("강제 탈퇴 처리 중 오류", e);
             return "fail: " + e.getMessage();
+        }
+    }
+
+    // [API] 인증번호 발송 요청
+    @PostMapping("/send-sms")
+    @ResponseBody
+    public String sendSms(@RequestParam("phoneNumber") String phoneNumber) {
+        try {
+            // 하이픈 제거 등 전처리
+            String cleanNumber = phoneNumber.replaceAll("-", "");
+            return smsService.sendVerificationCode(cleanNumber);
+        } catch (Exception e) {
+            log.error("SMS 발송 오류", e);
+            return "fail: " + e.getMessage();
+        }
+    }
+
+    // [API] 인증번호 확인 요청
+    @PostMapping("/verify-sms")
+    @ResponseBody
+    public String verifySms(@RequestParam("phoneNumber") String phoneNumber,
+                            @RequestParam("authCode") String authCode) {
+        String cleanNumber = phoneNumber.replaceAll("-", "");
+        boolean isVerified = smsService.verifyCode(cleanNumber, authCode);
+
+        if (isVerified) {
+            return "ok";
+        } else {
+            return "fail"; // 인증 실패 (시간 만료 또는 번호 불일치)
         }
     }
 

@@ -19,6 +19,7 @@ public class MemberVO {
     private String socialUid;
     private String role;            // 'USER', 'ADMIN'
     private String status;          // 'ACTIVE', 'INACTIVE' 등
+    private String marketingAgree;
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

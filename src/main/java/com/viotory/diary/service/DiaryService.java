@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -72,4 +73,9 @@ public class DiaryService {
     public DiaryVO getDiary(Long diaryId) {
         return diaryMapper.selectDiaryById(diaryId);
     }
+
+    public List<DiaryVO> getRecentDiaries(Long memberId) {
+        return diaryMapper.selectRecentDiaries(memberId);
+    }
+
 }

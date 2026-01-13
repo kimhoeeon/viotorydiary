@@ -28,4 +28,5 @@ public interface DiaryMapper {
     // [명예의 전당] 승요 랭킹 TOP 10 조회
     List<WinYoAnalysisDTO> selectWinYoRankingTop10();
 
+    List<DiaryVO> selectRecentDiaries(Long memberId);
 }

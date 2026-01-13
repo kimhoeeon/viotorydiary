@@ -1,0 +1,100 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>비밀번호 입력 | 승요일기</title>
+</head>
+<body class="page-login">
+    <header class="app-header">
+        <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
+            <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
+        </button>
+    </header>
+
+    <div class="page-login_wrap">
+        <div class="login-card">
+            <div class="login">
+                <img src="/img/ico_check.svg" alt="체크이미지">
+                <div class="login-txt">
+                    <h1 class="login_title">비밀번호를 입력해 주세요</h1>
+                </div>
+            </div>
+
+            <div class="login-form gap-50">
+                <div class="login-field_wrap">
+                    <div class="login-field">
+                        <div class="login-inputwrap">
+                            <input class="login-input" id="loginPw" type="password" autocomplete="new-password" placeholder="비밀번호" required/>
+                            <button class="login-eye" type="button" id="togglePw" aria-label="비밀번호 표시">
+                                <img src="/img/pass_off.svg" alt="비밀번호 보기">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="login-field login-field-check">
+                        <div class="login-inputwrap">
+                            <input class="login-input" id="loginPwConfirm" type="password" autocomplete="new-password" placeholder="비밀번호를 한번 더 입력해 주세요" required/>
+                            <button class="login-eye" type="button" id="togglePwCheck" aria-label="비밀번호 표시">
+                                <img src="/img/pass_off.svg" alt="비밀번호 보기">
+                            </button>
+                        </div>
+                        <div class="login-message" id="pwMessage" role="status"></div>
+                        <ul class="word">
+                            <li>* 영문 대/소문자 + 숫자 + 특수문자 중 2종 이상 포함하여 8~14자리 이내</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="login-bottom">
+                    <div class="login-actions">
+                        <button class="join-btn btn-primary" id="termsNext" disabled onclick="goNext()">
+                            다음
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+    <script>
+        const pw = document.getElementById('loginPw');
+        const pwConfirm = document.getElementById('loginPwConfirm');
+        const nextBtn = document.getElementById('termsNext');
+        const msg = document.getElementById('pwMessage');
+
+        function checkPw() {
+            // 정규식: 영문, 숫자, 특수문자 중 2종 이상, 8~14자
+            const reg = /^(?!((?:[A-Za-z]+)|(?:[~!@#$%^&*()_+=]+)|(?:[0-9]+))$)[A-Za-z\d~!@#$%^&*()_+=]{8,14}$/;
+
+            if(!reg.test(pw.value)) {
+                msg.textContent = '비밀번호 규칙에 맞지 않습니다.';
+                msg.classList.add('is-show', 'is-error');
+                nextBtn.disabled = true;
+                return;
+            }
+            if(pw.value !== pwConfirm.value) {
+                msg.textContent = '비밀번호가 일치하지 않습니다.';
+                msg.classList.add('is-show', 'is-error');
+                nextBtn.disabled = true;
+            } else {
+                msg.textContent = '';
+                msg.classList.remove('is-show', 'is-error');
+                nextBtn.disabled = false;
+            }
+        }
+
+        pw.addEventListener('input', checkPw);
+        pwConfirm.addEventListener('input', checkPw);
+
+        function goNext() {
+            sessionStorage.setItem('join_pw', pw.value);
+            location.href = '/member/join/step4';
+        }
+    </script>
+</body>
+</html>

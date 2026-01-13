@@ -1,180 +1,405 @@
-$(document).ready(function () {
+// ios 높이 대응
+function setVH() {
+  document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+}
+setVH();
+window.addEventListener('resize', setVH);
 
-    // 숫자만 입력
-    $('.onlyNum').on("blur keyup", function () {
-        $(this).val($(this).val().replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'));
-    });
+// 로그인
+const form = document.getElementById('loginForm');
+const btn = document.getElementById('loginBtn');
 
-    // 숫자랑 - 만 입력
-    $('.onlyNumh').on("blur keyup", function () {
-        $(this).val($(this).val().replace(/[^0-9-]/g, ''));
-    });
+const idInput = document.getElementById('loginId');
+const pwInput = document.getElementById('loginPw');
+const pwConfirmInput = document.getElementById('loginPwConfirm');
 
-    // 연락처 입력 시 자동으로 - 삽입과 숫자만 입력
-    $('.onlyTel').on("blur keyup", function () {
-        $(this).val($(this).val().replace(/[^0-9]/g, "").replace(/(^02|^0505|^1[0-9]{3}|^0[0-9]{2})([0-9]+)?([0-9]{4})$/, "$1-$2-$3").replace("--", "-"));
-    });
+const idField = idInput ? idInput.closest('.login-field') : null;
+const pwField = pwInput ? pwInput.closest('.login-field') : null;
 
-    // 영문, 숫자만 입력
-    $('.onlyNumEng').on("blur keyup", function () {
-        let exp = /[^A-Za-z0-9_\`\~\!\@\#\$\%\^\&\*\(\)\-\=\+\\\{\}\[\]\'\"\;\:\<\,\>\.\?\/\s]/gm;
-        $(this).val($(this).val().replaceAll(exp, ''));
-    });
+const pwConfirmField = pwConfirmInput ? pwConfirmInput.closest('.login-field') : null;
 
-    // 뷰포트 너비가 769px 이상일 경우
-    if (window.innerWidth >= 769) {
+const togglePw = document.getElementById('togglePw');
+const togglePwCheck = document.getElementById('togglePwCheck');
 
-        $(".nav .dept1 > li").on('mouseover', function () {
-            $(this).children("ul").addClass('on');
-        }).on('mouseleave', function () {
-            $(this).children("ul").removeClass('on');
-        });
+const joinBtn = document.getElementById('joinBtn');
+const loginMessage = document.getElementById('loginMessage');
 
-    } else {
-        $(".nav .dept1 > li").on('click', function () {
-            $(".nav .dept1 > li").not(this).removeClass('on').children("ul").slideUp();
-            $(this).toggleClass('on').children("ul").slideToggle();
+function clearFormErrorUI(config) {
+    const { fields, messageEl } = config || {};
+
+    if (fields) {
+        Object.values(fields).forEach(el => {
+            if (el) el.classList.remove('is-error');
         });
     }
 
-    $('.m_menu').on('click', function () {
-        $(this).toggleClass('on');
-        $('.aside_bg, #header .nav').toggleClass('on');
-        $('body').toggleClass('lock_scroll')
+    if (messageEl) {
+        messageEl.textContent = '';
+        messageEl.className = 'login-message';
+        messageEl.classList.remove('is-show', 'is-error');
+    }
+}
+
+function showFormErrorUI(config, { message = '', errorFields = [] } = {}) {
+    const { fields, messageEl } = config || {};
+
+    if (fields) {
+        Object.entries(fields).forEach(([name, el]) => {
+        if (!el) return;
+            el.classList.toggle('is-error', errorFields.includes(name));
+        });
+    }
+
+    if (messageEl && message) {
+        messageEl.textContent = message;
+            messageEl.classList.add('is-show', 'is-error');
+    }
+}
+
+const LOGIN_UI = {
+    fields: {
+        loginId: idField,
+        loginPw: pwField,
+        loginPwConfirm: pwConfirmField
+    },
+    messageEl: loginMessage
+};
+
+function clearLoginErrorUI() {
+    clearFormErrorUI(LOGIN_UI);
+}
+
+function showLoginErrorUI({ message = '', errorFields = [] }) {
+    showFormErrorUI(LOGIN_UI, { message, errorFields });
+}
+
+
+function setupPasswordToggle(inputEl, btnEl) {
+    if (!inputEl || !btnEl) return;
+        const img = btnEl.querySelector('img');
+    if (!img) return;
+
+    btnEl.addEventListener('click', () => {
+        const isHidden = inputEl.type === 'password';
+
+        inputEl.type = isHidden ? 'text' : 'password';
+
+        img.src = isHidden ? '/img/pass_on.svg' : '/img/pass_off.svg';
+
+        img.alt = isHidden ? '비밀번호 숨김' : '비밀번호 보기';
+        btnEl.setAttribute('aria-label', isHidden ? '비밀번호 숨김' : '비밀번호 표시');
     });
+}
 
-    $('.selLang .lang').on('click', function () {
-        $(this).next('.list').slideToggle();
-    });
+setupPasswordToggle(pwInput, togglePw);
+setupPasswordToggle(pwConfirmInput, togglePwCheck);
 
-    // tab
-    $('.tab_menu li').on('click', function () {
-        var tab_id = $(this).attr('data-tab');
+// 로그인폼
+if (form && btn) {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-        $('.tab_menu li').removeClass('on');
-        $('.tab_content').removeClass('on');
+        clearLoginErrorUI();
 
-        $(this).addClass('on');
-        $("#" + tab_id).addClass('on');
-    });
+        btn.classList.add('is-loading');
+        btn.disabled = true;
 
-    // 푸터 관련기관 사이트
-    $('.footer_other_site .btn').on('click', function () {
-        $('.footer_other_site .option_box').slideToggle();
-    });
+        await new Promise(r => setTimeout(r, 700));
 
+        const serverResponse = {
+            success: false,
+            message: '입력하신 정보를 다시 확인해 주세요.',
+            error_fields: ['loginId', 'loginPw']
+        };
 
-    // 서브페이지 사이드바 모바일
-    $('#sidebar .lnb li.on').on('click', function () {
-        $('#sidebar .lnb li').not(this).slideToggle();
-    });
+        btn.classList.remove('is-loading');
+        btn.disabled = false;
 
+        if (serverResponse.success) return;
 
-    // 팝업 - 댣기
-    $('.popup_close').on('click', function () {
-        $(this).parents('.popup').removeClass('on');
-        $('body').removeClass('lock_scroll');
-    });
-
-    // 팝업 - 갤러리
-    $(document).on("click", ".gallery_view", function() {
-        let slideTitle = $(this).find('.subject').text();
-        let slideImgList = $(this).find('input[type=hidden][name=slideImg]');
-
-        let str = '';
-        $.each(slideImgList , function(i) {
-            let slideImgPath = slideImgList[i].value.toString().replace('/usr/local/tomcat/webapps', '/../../../..');
-            str += '<li class="swiper-slide img_box">';
-            str += '<img src="' + slideImgPath + '">';
-            str += '</li>';
+        showLoginErrorUI({
+        message: serverResponse.message,
+        errorFields: serverResponse.error_fields || []
         });
 
-        $('#popupGallery .popup_inner .popup_tit').text(slideTitle);
-        $('#popupGallery .gallery_swiper .swiper_box ul').empty();
-        $('#popupGallery .gallery_swiper .swiper_box ul').html(str);
-
-        $('#popupGallery').addClass('on');
-        $('body').addClass('lock_scroll');
+        const first = (serverResponse.error_fields || [])[0];
+        if (first === 'loginId' && idInput) idInput.focus();
+        if (first === 'loginPw' && pwInput) pwInput.focus();
     });
+}
 
-    // 팝업 - 비디오
-    $(document).on("click", ".video_view", function() {
-        //console.log($(this).find('img').attr('src')); // https://img.youtube.com/vi/WMaA84_cixo/mqdefault.jpg
-        let youtubeTitle = $(this).find('.subject').text();
-        let youtubeUrl = $(this).find('img').attr('src');
-        let youtubeSeq = '';
-        youtubeSeq = youtubeUrl.toString()
-            .replace('https://img.youtube.com/vi/','')
-            .replace('/mqdefault.jpg',''); // WMaA84_cixo
-        let youtubeIframeUrl = 'https://www.youtube.com/embed/' + youtubeSeq;
-        $('#popupVideo').find('.popup_tit').text(youtubeTitle);
-        $('#popupVideo').find('iframe').attr('src', youtubeIframeUrl);
+// 인증번호 입력 6자리
+const numberCert = document.getElementById('number_cert');
+const certCheckIcon = document.getElementById('certCheckIcon');
 
-        $('#popupVideo').addClass('on');
-        $('body').addClass('lock_scroll');
-    });
-    // 팝업 - 닫기 클릭 시 유튜브 영상 정지
-    $('#popupVideo .popup_close').on('click', function () {
-        //playVideo=재생, pauseVideo=일시정지, stopVideo=정지 
-        $("iframe")[0].contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
-    });
+if (numberCert && certCheckIcon) {
+    numberCert.addEventListener('input', () => {
+        const v = numberCert.value.trim();
 
-    // 팝업 - 취창업후기
-    $(document).on("click", ".job_review_view", function() {
-        let slideTitle = $(this).find('.subject').text();
-        let slideImgList = $(this).find('input[type=hidden][name=slideImg]');
-
-        let str = '';
-        $.each(slideImgList , function(i) {
-            let slideImgPath = slideImgList[i].value.toString().replace('/usr/local/tomcat/webapps', '/../../../..');
-            str += '<li class="swiper-slide img_box">';
-            str += '<img src="' + slideImgPath + '">';
-            str += '</li>';
-        });
-
-        $('#popupJobReview .popup_inner .popup_tit').text(slideTitle);
-        $('#popupJobReview .review_swiper .swiper_box ul').empty();
-        $('#popupJobReview .review_swiper .swiper_box ul').html(str);
-
-        $('#popupJobReview').addClass('on');
-        $('body').addClass('lock_scroll');
-    });
-
-     // 팝업 - 스케줄표
-    $('.sked_wrap .sked_btn a').on('click', function () {
-        $('#popupCalendar').addClass('on');
-        $('body').addClass('lock_scroll');
-    });
-    $('#popupCalendar .close_btn').on('click', function () {
-        $(this).parents('.popup').removeClass('on')
-        $('body').removeClass('lock_scroll');
-    });
-
-    /// faq 추가 20240201
-    $(document).on('click', '.board_faq .ask', function() {
-        let answer = $(this).next('div');
-        $(this).toggleClass('on');
-
-        if (answer.is(':visible')) {
-            answer.slideUp();
+        if (v.length === 6) {
+        certCheckIcon.classList.add('is-show');
         } else {
-            answer.slideDown();
+        certCheckIcon.classList.remove('is-show');
         }
     });
+}
 
-    $('.checkbox_etc').on('change', function(){
-       let checkYn = $(this).is(':checked');
-       let inputTxtBox = $(this).siblings('input[type=text]');
-       if(checkYn){
-           inputTxtBox.prop('disabled',false);
-       }else{
-           inputTxtBox.prop('disabled',true);
-           inputTxtBox.val('');
-       }
+const keyRadios = document.querySelectorAll('.car-info_box .btn_wrap input');
+
+if (keyRadios.length && typeof enableNext === 'function') {
+    keyRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            enableNext();
+        });
+    });
+}
+
+document.body.classList.add('is-loading');
+
+// API 완료 후
+document.body.classList.remove('is-loading');
+
+
+// 회원가입 동의하기
+document.addEventListener('DOMContentLoaded', () => {
+    const agreeAll = document.getElementById('agreeAll');
+    const items = document.querySelectorAll('.agree-item');
+    const nextBtn = document.getElementById('termsNext');
+
+    if (!agreeAll || !items.length || !nextBtn) return;
+
+    function updateStateFromItems() {
+        // 모든 항목이 체크됐는지
+        const allChecked = Array.from(items).every(i => i.checked);
+        agreeAll.checked = allChecked;
+
+        // 필수 항목이 모두 체크됐는지
+        const requiredOk = Array.from(items)
+        .filter(i => i.dataset.required === 'true')
+        .every(i => i.checked);
+
+        nextBtn.disabled = !requiredOk;
+    }
+
+    // 모두 동의 클릭 시 → 전체 동기화
+    agreeAll.addEventListener('change', () => {
+        const checked = agreeAll.checked;
+        items.forEach(i => {
+        i.checked = checked;
+        });
+        updateStateFromItems();
     });
 
-    /*$('.reply_wrap .recommend_btn').on('click', function () {
-        $(this).toggleClass('on');
-    });*/
+    // 각 항목 변화 시 → 전체/다음버튼 상태 갱신
+    items.forEach(i => {
+        i.addEventListener('change', updateStateFromItems);
+    });
 
+    // 초기 상태 한 번 맞춰주기
+    updateStateFromItems();
+
+    // (옵션) 다음 버튼 클릭 시 값 확인
+    nextBtn.addEventListener('click', () => {
+        const result = {
+            all: agreeAll.checked,
+            service: document.getElementById('agreeService')?.checked || false,
+            privacy: document.getElementById('agreePrivacy')?.checked || false,
+            marketing: document.getElementById('agreeMarketing')?.checked || false
+        };
+        console.log('약관 동의 상태:', result);
+        // TODO: 서버 전송 or 다음 페이지 이동
+    });
+});
+
+// 모달
+document.addEventListener('DOMContentLoaded', () => {
+    const sheetBackdrop = document.getElementById('selectSheet');
+    const sheetTitleEl  = document.getElementById('selectSheetTitle');
+    const sheetListEl   = document.getElementById('selectSheetList');
+    const sheetApplyBtn = document.getElementById('selectSheetApply');
+    const sheetCloseBtn = document.getElementById('selectSheetClose');
+    const sheetCancelBtn = document.getElementById('selectSheetCancel');
+
+    if (!sheetBackdrop || !sheetListEl || !sheetApplyBtn) return;
+
+    let currentTrigger = null;
+    let currentName    = '';
+    let currentValue   = '';
+    let tempValue      = '';
+
+    function openSelectSheet() {
+        sheetBackdrop.classList.add('is-open');
+    }
+
+    function closeSelectSheet() {
+        sheetBackdrop.classList.remove('is-open');
+        currentTrigger = null;
+        currentName = '';
+        currentValue = '';
+        tempValue = '';
+        sheetApplyBtn.disabled = true;
+    }
+
+    function renderOptions(options = []) {
+        sheetListEl.innerHTML = '';
+
+        const extraClass = currentTrigger?.dataset.selectClass || '';
+
+        options.forEach(label => {
+            const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `select-sheet_option ${extraClass}`;
+                btn.dataset.value = label;
+                btn.innerHTML = `<span>${label}</span>`;
+
+                if (label === currentValue) {
+                btn.classList.add('is-selected');
+                tempValue = currentValue;
+                sheetApplyBtn.disabled = false;
+            }
+
+            btn.addEventListener('click', () => {
+                sheetListEl
+                    .querySelectorAll('.select-sheet_option.is-selected')
+                    .forEach(el => el.classList.remove('is-selected'));
+
+                btn.classList.add('is-selected');
+                tempValue = btn.dataset.value;
+                sheetApplyBtn.disabled = false;
+            });
+
+            sheetListEl.appendChild(btn);
+        });
+    }
+
+    document.querySelectorAll('.select-field').forEach(field => {
+        field.addEventListener('click', () => {
+        currentTrigger = field;
+
+        currentName = field.dataset.selectName || '';
+        if (!currentName) return;
+
+        const optionList = SELECT_DATA[currentName] || [];
+        const hiddenInput = document.querySelector(`input[name="${currentName}"]`);
+        currentValue = hiddenInput?.value || '';
+
+        if (sheetTitleEl) {
+            sheetTitleEl.textContent = field.dataset.selectTitle || '항목 선택';
+        }
+
+        renderOptions(optionList);
+        openSelectSheet();
+        });
+    });
+    
+    const SELECT_DATA = {
+            game: [
+                "[잠실 야구장] LG vs 두산 12. 08 18:30",
+                "[잠실 야구장] LG vs 두산 12. 09 18:30",
+                "[잠실 야구장] LG vs 두산 12. 10 18:30",
+                "[잠실 야구장] LG vs 두산 12. 11 18:30",
+                "[잠실 야구장] LG vs 두산 12. 12 18:30"
+            ],
+
+            ace: [
+                "[LG트윈스] 김엘지1",
+                "[LG트윈스] 김엘지2",
+                "[LG트윈스] 김엘지3",
+                "[LG트윈스] 김엘지4",
+                "[LG트윈스] 김엘지5",
+                "[LG트윈스] 김엘지6",
+                "[LG트윈스] 김엘지7",
+                "[LG트윈스] 김엘지8",
+                "[LG트윈스] 김엘지9"
+            ]
+        };
+
+    sheetApplyBtn.addEventListener('click', () => {
+        if (!currentTrigger || !currentName || !tempValue) {
+            closeSelectSheet();
+            return;
+        }
+
+        const hiddenInput = document.querySelector(`input[name="${currentName}"]`);
+        if (hiddenInput) hiddenInput.value = tempValue;
+
+        const valueSpan = currentTrigger.querySelector('.select-field_value');
+        if (valueSpan) {
+        valueSpan.textContent = tempValue;
+        valueSpan.classList.remove('is-placeholder');
+        }
+
+        closeSelectSheet();
+    });
+
+    sheetCloseBtn?.addEventListener('click', closeSelectSheet);
+
+    sheetBackdrop.addEventListener('click', e => {
+        if (e.target === sheetBackdrop) closeSelectSheet();
+    });
+    sheetCancelBtn?.addEventListener('click', () => {
+    // 그냥 닫기만
+    closeSelectSheet();
+    });
+});
+
+// 팀선택
+document.addEventListener('DOMContentLoaded', () => {
+    const teamBtns = document.querySelectorAll('.team_info-btn');
+
+    if (!teamBtns.length) return;
+
+    teamBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+
+            teamBtns.forEach(b => b.classList.remove('is-select'));
+                btn.classList.add('is-select');
+        });
+    });
+});
+
+// 친구 탭
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tab-pill_btn');
+    const panels = document.querySelectorAll('.tab-panel');
+
+    if (!tabs.length) return;
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+        const key = tab.dataset.tab;
+
+        tabs.forEach(t => {
+            t.classList.remove('on');
+            t.setAttribute('aria-selected', 'false');
+        });
+
+        tab.classList.add('on');
+        tab.setAttribute('aria-selected', 'true');
+
+        // (선택) 패널 전환
+        if (panels.length) {
+            panels.forEach(p => p.classList.toggle('on', p.dataset.panel === key));
+        }
+        });
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tab_menu li');
+    const conts = document.querySelectorAll('.tab_cont');
+
+    if (!tabs.length || !conts.length) return;
+
+    tabs.forEach((tab, idx) => {
+        tab.addEventListener('click', () => {
+
+            tabs.forEach(t => t.classList.remove('on'));
+            conts.forEach(c => c.classList.remove('on'));
+
+            tab.classList.add('on');
+            if (conts[idx]) conts[idx].classList.add('on');
+        });
+    });
 });

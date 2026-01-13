@@ -4,6 +4,7 @@ import com.viotory.diary.vo.MemberVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -45,5 +46,18 @@ public interface MemberMapper {
     // [관리자] 전체 회원 수 조회
     int countMemberList(@Param("searchType") String searchType,
                         @Param("keyword") String keyword);
+
+    // SMS 인증 관련 (auth_codes 테이블)
+    void deleteAuthCode(@Param("phoneNumber") String phoneNumber);
+
+    void insertAuthCode(@Param("phoneNumber") String phoneNumber,
+                        @Param("authCode") String authCode,
+                        @Param("type") String type);
+
+    String selectAuthCode(@Param("phoneNumber") String phoneNumber);
+
+    LocalDateTime selectAuthCodeExpireTime(@Param("phoneNumber") String phoneNumber);
+
+    void updateAuthCodeVerified(@Param("phoneNumber") String phoneNumber);
 
 }

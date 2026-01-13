@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.viotory.diary.mapper.ContentMngMapper">
+
+    <select id="selectEventList" resultType="com.viotory.diary.vo.EventVO">
+        SELECT * FROM events ORDER BY created_at DESC
+    </select>
+
+    <select id="selectEventById" resultType="com.viotory.diary.vo.EventVO">
+        SELECT * FROM events WHERE event_id = #{eventId}
+    </select>
+
+    <insert id="insertEvent" parameterType="com.viotory.diary.vo.EventVO">
+        INSERT INTO events (title, content, image_url, link_url, start_date, end_date, status, created_at, updated_at)
+        VALUES (#{title}, #{content}, #{imageUrl}, #{linkUrl}, #{startDate}, #{endDate}, #{status}, NOW(), NOW())
+    </insert>
+
+    <update id="updateEvent" parameterType="com.viotory.diary.vo.EventVO">
+        UPDATE events
+        SET title = #{title},
+            content = #{content},
+            image_url = #{imageUrl},
+            link_url = #{linkUrl},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            status = #{status},
+            updated_at = NOW()
+        WHERE event_id = #{eventId}
+    </update>
+
+    <delete id="deleteEvent">
+        DELETE FROM events WHERE event_id = #{eventId}
+    </delete>
+
+    <select id="selectTeamContentList" resultType="com.viotory.diary.vo.TeamContentVO">
+        SELECT * FROM team_contents ORDER BY sort_order ASC, created_at DESC
+    </select>
+
+    <insert id="insertTeamContent" parameterType="com.viotory.diary.vo.TeamContentVO">
+        INSERT INTO team_contents (team_code, title, content_url, sort_order, status, created_at)
+        VALUES (#{teamCode}, #{title}, #{contentUrl}, #{sortOrder}, #{status}, NOW())
+    </insert>
+
+    <update id="updateTeamContent" parameterType="com.viotory.diary.vo.TeamContentVO">
+        UPDATE team_contents
+        SET team_code = #{teamCode},
+            title = #{title},
+            content_url = #{contentUrl},
+            sort_order = #{sortOrder},
+            status = #{status}
+        WHERE content_id = #{contentId}
+    </update>
+
+    <delete id="deleteTeamContent">
+        DELETE FROM team_contents WHERE content_id = #{contentId}
+    </delete>
+
+</mapper>

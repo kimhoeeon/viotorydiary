@@ -40,6 +40,7 @@ public class MemberController {
             @RequestParam("phoneNumber") String phoneNumber,
             @RequestParam("birthdate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate birthdate,
             @RequestParam(value = "gender", required = false, defaultValue = "U") String gender,
+            @RequestParam(value = "marketingAgree", defaultValue = "N") String marketingAgree,
             Model model) {
 
         MemberVO member = new MemberVO();
@@ -49,6 +50,7 @@ public class MemberController {
         member.setPhoneNumber(phoneNumber);
         member.setBirthdate(birthdate);
         member.setGender(gender);
+        member.setMarketingAgree(marketingAgree);
 
         try {
             memberService.registerMember(member);
@@ -85,7 +87,7 @@ public class MemberController {
                 return "redirect:/member/team-setting";
             }
 
-            return "redirect:/"; // 메인 페이지로
+            return "redirect:/main"; // 메인 페이지로
         } catch (Exception e) {
             log.warn("로그인 실패: {}", e.getMessage());
             model.addAttribute("error", e.getMessage());
@@ -223,5 +225,30 @@ public class MemberController {
             return "member/mypage";
         }
     }
+
+    // 단계별 페이지 매핑
+    @GetMapping("/join")
+    public String joinMain() { return "member/join"; }
+
+    @GetMapping("/join/step1")
+    public String joinStep1() { return "member/join_step1"; }
+
+    @GetMapping("/join/step2")
+    public String joinStep2() { return "member/join_step2"; }
+
+    @GetMapping("/join/step3")
+    public String joinStep3() { return "member/join_step3"; }
+
+    @GetMapping("/join/step4")
+    public String joinStep4() { return "member/join_step4"; }
+
+    @GetMapping("/join/step5")
+    public String joinStep5() { return "member/join_step5"; }
+
+    @GetMapping("/join/step6")
+    public String joinStep6() { return "member/join_step6"; }
+
+    @GetMapping("/join/complete")
+    public String joinComplete() { return "member/join_complete"; }
 
 }

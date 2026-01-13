@@ -37,5 +37,7 @@ public interface GameMapper {
     List<GameVO> selectGamesByDate(String gameDate);
 
 
+    GameVO selectTodayGameByTeam(String teamCode);
 
+    GameVO selectTodayGame(String myTeamCode);
 }
