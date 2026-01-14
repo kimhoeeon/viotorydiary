@@ -3,7 +3,7 @@
     <span aria-hidden="true"><img src="/img/tabbar_home_active.svg" alt="홈 아이콘"></span>
     <span>홈</span>
   </a>
-  <a class="app-tabbar_item" href="/game/list">
+  <a class="app-tabbar_item" href="/play">
     <span aria-hidden="true"><img src="/img/tabbar_play.svg" alt="경기 아이콘"></span>
     <span>경기</span>
   </a>

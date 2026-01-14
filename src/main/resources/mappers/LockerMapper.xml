@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.viotory.diary.mapper.LockerMapper">
+
+    <select id="selectPostList" resultType="com.viotory.diary.vo.LockerVO">
+        SELECT
+        p.*,
+        m.nickname,
+        m.my_team_code AS teamCode
+        FROM locker_posts p
+        JOIN members m ON p.member_id = m.member_id
+        WHERE 1=1
+        <if test="category != 'ALL' and category != null">
+            AND p.category = #{category}
+        </if>
+        ORDER BY p.created_at DESC
+    </select>
+
+    <select id="selectPostById" resultType="com.viotory.diary.vo.LockerVO">
+        SELECT
+            p.*,
+            m.nickname,
+            m.my_team_code AS teamCode
+        FROM locker_posts p
+                 JOIN members m ON p.member_id = m.member_id
+        WHERE p.post_id = #{postId}
+    </select>
+
+    <insert id="insertPost" useGeneratedKeys="true" keyProperty="postId">
+        INSERT INTO locker_posts (member_id, category, title, content, image_url, created_at, updated_at)
+        VALUES (#{memberId}, #{category}, #{title}, #{content}, #{imageUrl}, NOW(), NOW())
+    </insert>
+
+    <update id="updateViewCount">
+        UPDATE locker_posts SET view_count = view_count + 1 WHERE post_id = #{postId}
+    </update>
+
+</mapper>
