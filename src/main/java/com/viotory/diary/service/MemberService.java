@@ -365,13 +365,13 @@ public class MemberService {
         memberMapper.updateAlarmSetting(member);
     }
 
-    // [신규] 팔로우 여부 확인
+    // 팔로우 여부 확인
     public boolean isFollowing(Long followerId, Long followingId) {
         return memberMapper.checkFollow(followerId, followingId) > 0;
     }
 
     /**
-     * [신규] 팔로우 토글 (이미 팔로우 중이면 취소, 아니면 추가)
+     * 팔로우 토글 (이미 팔로우 중이면 취소, 아니면 추가)
      * 리턴: true(팔로우 상태가 됨), false(언팔로우 상태가 됨)
      */
     @Transactional
@@ -382,24 +382,24 @@ public class MemberService {
         } else {
             memberMapper.insertFollow(followerId, followingId);
 
-            // [신규] 팔로우 알림 발송
+            // 팔로우 알림 발송
             sendFollowAlarm(followerId, followingId);
 
             return true; // 팔로우됨
         }
     }
 
-    // [신규] 팔로워 목록 조회
+    // 팔로워 목록 조회
     public List<FollowDTO> getFollowerList(Long targetMemberId, Long myMemberId) {
         return memberMapper.selectFollowerList(targetMemberId, myMemberId);
     }
 
-    // [신규] 팔로잉 목록 조회
+    // 팔로잉 목록 조회
     public List<FollowDTO> getFollowingList(Long targetMemberId) {
         return memberMapper.selectFollowingList(targetMemberId);
     }
 
-    // [신규] 팔로우 알림 발송 메소드
+    // 팔로우 알림 발송 메소드
     private void sendFollowAlarm(Long followerId, Long targetId) {
         try {
             // 알림 내용 구성을 위해 팔로워 정보 조회

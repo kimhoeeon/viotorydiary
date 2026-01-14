@@ -58,13 +58,12 @@
     <update id="updateMemberInfo" parameterType="com.viotory.diary.vo.MemberVO">
         UPDATE members
         SET
-            nickname = #{nickname},
-            phone_number = #{phoneNumber},
-            gender = #{gender},
-            birthdate = #{birthdate},
-            updated_at = NOW()
-        WHERE
-            member_id = #{memberId}
+        nickname = #{nickname},
+        updated_at = NOW()
+        <if test="profileImage != null">
+            , profile_image = #{profileImage}
+        </if>
+        WHERE member_id = #{memberId}
     </update>
 
     <update id="updatePassword">

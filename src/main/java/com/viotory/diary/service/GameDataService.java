@@ -54,7 +54,7 @@ public class GameDataService {
     }
 
     /**
-     * [신규] 단건 경기 실시간 데이터 업데이트
+     * 단건 경기 실시간 데이터 업데이트
      * @param apiGameId 외부 API의 경기 ID
      * @return 업데이트된 GameVO 객체 (DB 최신값)
      */

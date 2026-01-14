@@ -23,6 +23,13 @@
                 <div class="main-title">
                     <span id="userName">${sessionScope.loginMember.nickname}</span>님
                 </div>
+
+                <div class="main-profile" style="width:40px; height:40px; border-radius:50%; overflow:hidden; margin-left: auto; margin-right: 10px;">
+                    <img src="${not empty sessionScope.loginMember.profileImage ? sessionScope.loginMember.profileImage : '/img/ico_user.svg'}"
+                         alt="내 프로필"
+                         onclick="location.href='/member/mypage'"
+                         style="width:100%; height:100%; object-fit:cover; cursor:pointer;">
+                </div>
                 <button class="noti-btn has-badge" onclick="location.href='/alarm/list'">
                     <span class="noti-btn_icon" aria-hidden="true"><img src="/img/ico_noti.svg" alt="알림 아이콘"></span>
                     <span class="noti-dot" aria-hidden="true"></span>
@@ -126,7 +133,19 @@
                         </div>
 
                         <div class="card_wrap event">
-                            <a href="/event/list"><img src="/img/card_event.png" alt="이벤트 이미지"></a>
+                            <c:choose>
+                                <c:when test="${not empty latestEvent}">
+                                    <a href="/locker/content/detail?postId=${latestEvent.postId}">
+                                        <img src="${not empty latestEvent.imageUrl ? latestEvent.imageUrl : '/img/card_event.png'}"
+                                             alt="이벤트 배너" style="width:100%; border-radius:12px; object-fit:cover;">
+                                    </a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a href="/locker/main">
+                                        <img src="/img/card_event.png" alt="이벤트 준비중">
+                                    </a>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
 
                         <div class="card_wrap score_card">
@@ -175,21 +194,47 @@
                         <div class="card_wrap clip">
                             <div class="row history-head">
                                 <div class="tit clip_tit">우리 팀 새 소식</div>
-                                <a href="/locker/list">
+                                <a href="/locker/content/list">
                                     <img src="/img/ico_next_arrow.svg" alt="모두 보기">
                                 </a>
                             </div>
                             <div class="card_item">
                                 <div class="clip_wrap">
-                                    <div class="clip_list">
-                                        <div class="img"><img src="/img/card_defalut.svg" alt="clip"></div>
-                                        <div class="clip_txt">
-                                            <div class="txt_box">
-                                                <div class="tit">준비중입니다</div>
-                                                <div class="date">-</div>
+
+                                    <c:choose>
+                                        <%-- 최신 소식이 있을 때 --%>
+                                        <c:when test="${not empty latestContent}">
+                                            <div class="clip_list" onclick="location.href='/locker/content/detail?postId=${latestContent.postId}'" style="cursor:pointer;">
+                                                <div class="img">
+                                                    <img src="${not empty latestContent.imageUrl ? latestContent.imageUrl : '/img/card_defalut.svg'}"
+                                                         alt="콘텐츠 썸네일" style="width:100%; height:100%; object-fit:cover;">
+                                                </div>
+                                                <div class="clip_txt">
+                                                    <div class="txt_box">
+                                                        <div class="tit text-ellipsis">${latestContent.title}</div>
+                                                        <div class="date">
+                                                            <fmt:parseDate value="${latestContent.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="cDate" type="both"/>
+                                                            <fmt:formatDate value="${cDate}" pattern="yyyy.MM.dd"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
+                                        </c:when>
+
+                                        <%-- 소식이 없을 때 --%>
+                                        <c:otherwise>
+                                            <div class="clip_list">
+                                                <div class="img"><img src="/img/card_defalut.svg" alt="clip"></div>
+                                                <div class="clip_txt">
+                                                    <div class="txt_box">
+                                                        <div class="tit">새로운 소식이 없습니다.</div>
+                                                        <div class="date">-</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+
                                 </div>
                             </div>
                         </div>

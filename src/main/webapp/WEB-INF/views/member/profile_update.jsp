@@ -34,34 +34,35 @@
                 <div class="page-tit">프로필 수정</div>
             </div>
 
-            <form id="profileForm" action="/member/update/profile" method="post">
+            <form id="profileForm" action="/member/update/profile" method="post" enctype="multipart/form-data">
                 <div class="stack mt-24">
+
+                    <div class="profile-img-area" style="text-align:center; margin-bottom:30px;">
+                        <div class="img-box" style="position:relative; width:100px; height:100px; margin:0 auto; border-radius:50%; overflow:hidden; background:#f5f5f5;">
+                            <img id="previewImg"
+                                 src="${not empty member.profileImage ? member.profileImage : '/img/ico_user.svg'}"
+                                 alt="프로필 이미지"
+                                 style="width:100%; height:100%; object-fit:cover;">
+                        </div>
+
+                        <input type="file" id="profileFile" name="file" accept="image/*" style="display:none;" onchange="previewImage(this)">
+                        <button type="button" class="btn btn-xs btn-secondary mt-12" onclick="document.getElementById('profileFile').click()">
+                            사진 변경
+                        </button>
+                    </div>
 
                     <div class="profile_info">
                         <div class="profile-info_item">
                             <div class="gu">현재 닉네임 : <span class="nickname">${member.nickname}</span></div>
                             <div class="nae">
                                 <div class="input">
-                                    <input type="text" id="newNickname" name="nickname" placeholder="변경할 닉네임을 입력해 주세요." autocomplete="off">
+                                    <input type="text" id="newNickname" name="nickname"
+                                           value="${member.nickname}" <%-- 기존 값 넣어주기 --%>
+                                           placeholder="변경할 닉네임을 입력해 주세요." autocomplete="off">
                                 </div>
-
-                                <c:if test="${not empty error}">
-                                    <div class="login-message is-show is-error" id="serverMsg">${error}</div>
-                                </c:if>
-
-                                <div class="login-message" id="validMsg" style="display:none;"></div>
-
-                                <span class="login-message login-message-right" id="clearBtn" style="display:none; cursor:pointer;">
-                                        <img src="/img/ico_clear.svg" alt="삭제">
-                                    </span>
                             </div>
                         </div>
-
-                        <ul class="pre">
-                            <li>* 2~6자리 이내 국/영문 대소문자</li>
-                        </ul>
                     </div>
-
                 </div>
             </form>
         </div>
@@ -122,6 +123,19 @@
         function submitForm() {
             // 최종 제출 전 한 번 더 검사 (현재 닉네임과 동일한지 등 체크 가능)
             document.getElementById('profileForm').submit();
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+
+                // 사진을 바꾸면 [변경 완료] 버튼 활성화 로직도 필요하면 추가
+                document.getElementById('submitBtn').disabled = false;
+            }
         }
     </script>
 </body>

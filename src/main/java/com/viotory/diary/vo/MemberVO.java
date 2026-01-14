@@ -23,6 +23,7 @@ public class MemberVO {
     private String marketingAgree;
     private String gameAlarm;      // 경기 알림 (Y/N)
     private String friendAlarm;    // 친구 알림 (Y/N)
+    private String profileImage; // 프로필 이미지 경로
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

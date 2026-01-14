@@ -74,7 +74,7 @@ public interface MemberMapper {
     // 알림 설정 변경
     void updateAlarmSetting(MemberVO member);
 
-    // [신규] 팔로우 관련
+    // 팔로우 관련
     int checkFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
     int insertFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
     int deleteFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);

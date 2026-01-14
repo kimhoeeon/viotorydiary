@@ -11,10 +11,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -350,34 +354,61 @@ public class MemberController {
         return "member/profile_update"; // views/member/profile_update.jsp
     }
 
-    // 프로필 수정 처리 (닉네임 전용)
+    // 프로필 수정 처리
     @PostMapping("/update/profile")
     public String updateProfileAction(@RequestParam("nickname") String nickname,
+                                      @RequestParam(value = "file", required = false) MultipartFile file, // 파일 추가
                                       HttpSession session,
                                       Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
         try {
-            // 닉네임 변경 전용 서비스 호출
-            memberService.updateNickname(loginMember.getMemberId(), nickname);
+            // 1. 이미지 파일 업로드 처리
+            String profileImagePath = null;
+            if (file != null && !file.isEmpty()) {
+                String savedName = saveFile(file);
+                profileImagePath = "/uploads/" + savedName;
+            }
 
-            // 세션 정보 갱신 (DB가 바뀌었으니 세션도 맞춰줌)
+            // 2. 서비스 호출 (닉네임 + 이미지 업데이트)
+            // (MemberService에 updateProfile 메소드를 새로 만들거나, 기존 updateMemberInfo 활용)
+            MemberVO updateVO = new MemberVO();
+            updateVO.setMemberId(loginMember.getMemberId());
+            updateVO.setNickname(nickname);
+            updateVO.setProfileImage(profileImagePath);
+
+            memberService.updateMemberInfo(updateVO); // Mapper 쿼리가 수정되었으므로 이것만 호출하면 됨
+
+            // 3. 세션 정보 최신화
             loginMember.setNickname(nickname);
+            if (profileImagePath != null) {
+                loginMember.setProfileImage(profileImagePath);
+            }
             session.setAttribute("loginMember", loginMember);
 
             return "redirect:/member/mypage";
 
         } catch (Exception e) {
-            // 실패 시 (중복 닉네임 등) 에러 메시지와 함께 기존 정보 유지
-            model.addAttribute("error", e.getMessage());
+            log.error("프로필 수정 실패", e);
+            model.addAttribute("error", "프로필 수정 중 오류가 발생했습니다.");
 
-            // 입력폼에 기존 정보 다시 채워주기 위해 조회
+            // 기존 정보 복구하여 화면 유지
             MemberVO memberInfo = memberService.getMemberInfo(loginMember.getMemberId());
             model.addAttribute("member", memberInfo);
-
             return "member/profile_update";
         }
+    }
+
+    // [파일 저장 메소드] (LockerController와 동일 로직)
+    private String saveFile(MultipartFile file) throws Exception {
+        String uploadDir = Paths.get(System.getProperty("user.home"), "viotory", "upload").toString();
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        String savedName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        file.transferTo(new File(dir, savedName));
+        return savedName;
     }
 
     // ==========================================

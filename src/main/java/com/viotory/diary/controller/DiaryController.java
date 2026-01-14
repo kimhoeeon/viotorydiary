@@ -308,7 +308,7 @@ public class DiaryController {
         return Paths.get(System.getProperty("user.home"), "viotory", "upload").toString();
     }
 
-    // [신규] 친구 일기 전체 목록 페이지
+    // 친구 일기 전체 목록 페이지
     @GetMapping("/friend/list")
     public String friendListPage(HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
