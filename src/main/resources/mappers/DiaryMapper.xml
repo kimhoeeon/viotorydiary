@@ -12,7 +12,8 @@
                d.is_verified,
                d.verified_at,
                g.game_date,
-               s.name  AS stadiumName, /* 승패 판별 로직 */
+               s.name  AS stadiumName,
+            /* 승패 판별 로직 */
                CASE
                    WHEN d.snapshot_team_code = g.home_team_code THEN
                        CASE
@@ -34,42 +35,9 @@
         WHERE d.member_id = #{memberId}
           AND d.is_verified = 1
           AND g.status = 'FINISHED'
-          AND d.status != 'INVALID'
+          AND d.status = 'COMPLETED' /* [중요] 삭제된 글('DELETED') 제외 */
         ORDER BY g.game_date DESC
         ]]>
-    </select>
-
-    <insert id="insertDiary" parameterType="com.viotory.diary.vo.DiaryVO" useGeneratedKeys="true" keyProperty="diaryId">
-        INSERT INTO diaries (member_id,
-                             game_id,
-                             snapshot_team_code,
-                             hero_name, is_verified,
-                             verified_at,
-                             content,
-                             one_line_comment,
-                             rating,
-                             status,
-                             is_public,
-                             created_at,
-                             updated_at)
-        VALUES (#{memberId},
-                #{gameId},
-                #{snapshotTeamCode},
-                #{heroName}, #{isVerified},
-                #{verifiedAt},
-                #{content},
-                #{oneLineComment},
-                #{rating},
-                'COMPLETED',
-                IFNULL(#{isPublic}, 'PUBLIC'),
-                NOW(),
-                NOW())
-    </insert>
-
-    <select id="selectDiaryById" parameterType="long" resultType="com.viotory.diary.vo.DiaryVO">
-        SELECT *
-        FROM diaries
-        WHERE diary_id = #{diaryId}
     </select>
 
     <select id="selectDiaryByMemberAndGame" resultType="com.viotory.diary.vo.DiaryVO">
@@ -124,12 +92,17 @@
         SELECT
             d.diary_id,
             d.game_id,
+            d.one_line_comment, /* 메인화면 표시용 */
             g.game_date,
             g.home_team_code,
             g.away_team_code,
             g.score_home,
             g.score_away,
-            /* 승패 판별 로직 재사용 */
+            t1.name_kr AS homeTeamName, /* 팀 이름 추가 */
+            t2.name_kr AS awayTeamName, /* 팀 이름 추가 */
+            s.name AS stadiumName,      /* 구장 이름 추가 */
+
+            /* 승패 판별 로직 */
             CASE
                 WHEN d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away THEN 'WIN'
                 WHEN d.snapshot_team_code = g.home_team_code AND g.score_home &lt; g.score_away THEN 'LOSE'
@@ -140,10 +113,120 @@
                 END AS gameResult
         FROM diaries d
                  JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+                 LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
         WHERE d.member_id = #{memberId}
-          AND d.status != 'INVALID'
+          AND d.status = 'COMPLETED' /* [중요] 삭제된 글 제외 */
         ORDER BY g.game_date DESC
         LIMIT 3
     </select>
+
+    <insert id="insertDiary" parameterType="com.viotory.diary.vo.DiaryVO" useGeneratedKeys="true" keyProperty="diaryId">
+        INSERT INTO diaries (
+            member_id, game_id, snapshot_team_code,
+            pred_score_home, pred_score_away, pred_hero, hero_name,
+            content, one_line_comment, rating,
+            status, is_public, created_at, updated_at
+        ) VALUES (
+                     #{memberId}, #{gameId}, #{snapshotTeamCode},
+                     #{predScoreHome}, #{predScoreAway}, #{predHero}, #{heroName},
+                     #{content}, #{oneLineComment}, #{rating},
+                     'COMPLETED', IFNULL(#{isPublic}, 'PUBLIC'), NOW(), NOW()
+                 )
+    </insert>
+
+    <select id="selectDiaryById" resultType="com.viotory.diary.vo.DiaryVO">
+        SELECT d.*,
+               g.home_team_code,
+               g.away_team_code,
+               g.score_home,
+               g.score_away,
+               g.game_date,
+               g.game_time,
+               s.name AS stadiumName
+        FROM diaries d
+        JOIN games g ON d.game_id = g.game_id
+        LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+        WHERE d.diary_id = #{diaryId}
+    </select>
+
+    <select id="selectDiaryList" resultType="com.viotory.diary.vo.DiaryVO">
+        SELECT d.diary_id,
+               d.member_id,
+               d.one_line_comment,
+               d.rating,
+               d.game_id,
+               g.game_date,
+               g.game_time,
+               g.home_team_code,
+               g.away_team_code,
+               g.score_home,
+               g.score_away,
+               t1.name_kr AS homeTeamName,
+               t2.name_kr AS awayTeamName,
+               s.name     AS stadiumName,
+
+               -- 승패 판별 (승요 서비스 로직과 동일)
+               CASE
+                   WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                   WHEN g.winning_team = 'DRAW' THEN 'DRAW'
+                   WHEN g.winning_team IS NOT NULL THEN 'LOSE'
+                   ELSE 'NONE' -- 경기 전 or 취소
+                   END    AS gameResult
+
+        FROM diaries d
+                 JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+                 LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+        WHERE d.member_id = #{memberId}
+          AND d.status = 'COMPLETED'
+        ORDER BY g.game_date DESC, g.game_time DESC
+    </select>
+
+    <select id="selectFriendDiaryList" resultType="com.viotory.diary.vo.DiaryVO">
+        SELECT
+            d.diary_id, d.member_id, d.one_line_comment, d.rating,
+            g.game_date, g.home_team_code, g.away_team_code,
+            g.score_home, g.score_away,
+            t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
+            m.nickname, m.my_team_code AS snapshotTeamCode, -- 친구 닉네임/팀
+
+            CASE
+                WHEN g.winning_team = m.my_team_code THEN 'WIN'
+                WHEN g.winning_team = 'DRAW' THEN 'DRAW'
+                WHEN g.winning_team IS NOT NULL THEN 'LOSE'
+                ELSE 'NONE'
+                END AS gameResult
+
+        FROM diaries d
+                 JOIN follows f ON d.member_id = f.following_id
+                 JOIN members m ON d.member_id = m.member_id
+                 JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        WHERE f.follower_id = #{memberId}
+          AND d.status = 'COMPLETED'
+          AND d.is_public IN ('PUBLIC', 'FRIENDS') -- 공개 범위 체크
+        ORDER BY g.game_date DESC
+        LIMIT 3
+    </select>
+
+    <select id="selectVisitedStadiumIds" resultType="long">
+        SELECT DISTINCT g.stadium_id
+        FROM diaries d
+                 JOIN games g ON d.game_id = g.game_id
+        WHERE d.member_id = #{memberId}
+          AND d.status = 'COMPLETED'
+    </select>
+
+    <update id="updateDiaryStatus">
+        UPDATE diaries
+        SET status     = #{status},
+            updated_at = NOW()
+        WHERE diary_id = #{diaryId}
+          AND member_id = #{memberId} -- 본인 확인
+    </update>
 
 </mapper>

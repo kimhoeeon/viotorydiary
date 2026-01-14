@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
 import java.util.UUID;
@@ -173,10 +174,20 @@ public class MemberService {
         }
 
         // 2. 팀 코드 유효성 검사 (예시: KBO 10개 구단 코드)
-        // 실제로는 Enum이나 DB 공통코드 테이블로 관리하는 것이 좋습니다.
-        // 여기서는 간단히 null 체크만 진행하거나, 필요한 경우 화이트리스트 검사를 추가하세요.
         if (teamCode == null || teamCode.isEmpty()) {
             throw new Exception("팀을 선택해주세요.");
+        }
+
+        // [신규 로직] 팀 변경 제한 체크 (월 1회)
+        // 기존 팀이 있고(NONE이 아님), 변경 이력이 있는 경우 날짜 비교
+        if (!"NONE".equals(member.getMyTeamCode()) && member.getTeamChangeDate() != null) {
+            // 마지막 변경일로부터 30일이 지났는지 확인 (또는 월 단위 로직)
+            // 여기서는 간단히 '30일 이내 변경 불가'로 구현하거나, '이번 달 변경 여부'로 구현 가능
+            // 기획 의도(월 1회)에 따라: "마지막 변경일로부터 1달 경과 후 가능"
+            LocalDateTime limitDate = member.getTeamChangeDate().plusMonths(1);
+            if (LocalDateTime.now().isBefore(limitDate)) {
+                throw new Exception("응원 팀은 한 달에 한 번만 변경할 수 있어요.");
+            }
         }
 
         // 3. 업데이트 수행
@@ -184,6 +195,23 @@ public class MemberService {
         memberMapper.updateMemberTeam(member);
 
         log.info("팀 변경 완료: memberId={}, teamCode={}", memberId, teamCode);
+    }
+
+    /**
+     * 회원 탈퇴 (사용자 직접 요청)
+     */
+    @Transactional
+    public void withdraw(Long memberId) throws Exception {
+        MemberVO member = memberMapper.selectMemberById(memberId);
+        if (member == null) throw new Exception("회원 정보가 없습니다.");
+
+        // 이미 탈퇴 상태인지 체크
+        if ("WITHDRAWN".equals(member.getStatus())) {
+            throw new Exception("이미 탈퇴 처리된 회원입니다.");
+        }
+
+        memberMapper.withdrawMember(memberId);
+        log.info("회원 탈퇴 완료: memberId={}", memberId);
     }
 
     // 비밀번호 규칙 검증 로직
@@ -344,19 +372,6 @@ public class MemberService {
     // 팔로워 목록
     public List<FollowDTO> getFollowerList(Long memberId) {
         return memberMapper.selectFollowerList(memberId);
-    }
-
-    // 팔로우 토글 (하기/취소)
-    @Transactional
-    public boolean toggleFollow(Long myMemberId, Long targetMemberId) {
-        // 이미 팔로우 중인지 확인하고 싶지만,
-        // 간단하게 insert ignore -> 0 row affected면 delete 하는 식으로 구현하거나
-        // 명시적으로 체크할 수 있습니다. 여기선 명시적 체크 없는 간단 로직(화면에서 상태를 줌)을 따르거나
-        // 안전하게 무조건 요청대로 처리합니다.
-
-        // 여기서는 "팔로우 하기"와 "취소"가 명확하므로 두 메소드를 분리하거나 flag를 받습니다.
-        // 하지만 편의상 Controller에서 분기하겠습니다. 여기선 각각 구현.
-        return true;
     }
 
     public void addFollow(Long myId, Long targetId) {

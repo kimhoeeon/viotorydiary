@@ -5,19 +5,15 @@ import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.service.CommentService;
 import com.viotory.diary.service.MemberService;
 import com.viotory.diary.service.SmsService;
-import com.viotory.diary.util.StringUtil;
 import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -501,6 +497,22 @@ public class MemberController {
             return "ok";
         } catch (Exception e) {
             return "fail";
+        }
+    }
+
+    // 회원 탈퇴 처리
+    @GetMapping("/withdraw")
+    public String withdrawAction(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        try {
+            memberService.withdraw(loginMember.getMemberId());
+            session.invalidate(); // 세션 만료
+            return "redirect:/member/login?msg=withdrawn";
+        } catch (Exception e) {
+            // 탈퇴 실패 시 마이페이지로 돌아감 (에러 메시지는 alert 등으로 처리 필요)
+            return "redirect:/member/mypage";
         }
     }
     

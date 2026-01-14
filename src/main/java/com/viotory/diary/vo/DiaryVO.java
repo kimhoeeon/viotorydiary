@@ -5,47 +5,40 @@ import java.time.LocalDateTime;
 
 @Data
 public class DiaryVO {
-    private Long diaryId;           // PK
+    private Long diaryId;
     private Long memberId;
     private Long gameId;
+    private String nickname;
     private String snapshotTeamCode; // 작성 당시 응원팀
 
-    // [누락된 필드 추가: 메인 화면 및 목록 표시용]
-    private String gameDate;      // 경기 날짜 (JOIN 결과)
-    private String homeTeamCode;  // 홈팀 코드 (JOIN 결과)
-    private String awayTeamCode;  // 원정팀 코드 (JOIN 결과)
+    // [예측/결과 정보]
+    private Integer predScoreHome;   // 예상 홈 점수
+    private Integer predScoreAway;   // 예상 원정 점수
+    private String predHero;         // 예상 히어로
+    private String heroName;         // 오늘의 히어로
 
-    // [추가] 경기장 이름 (승요력 분석용)
-    private String stadiumName;
-
-    // (선택사항) 쿼리에서 조회하지만 VO에 없던 점수 필드도 필요하다면 추가
-    // private Integer scoreHome;
-    // private Integer scoreAway;
-
-    // 경기 전 (예측)
-    private Integer predScoreHome;
-    private Integer predScoreAway;
-    private String predHero;
-
-    // 오늘의 히어로 (사용자 직접 입력)
-    private String heroName;
-
-    // 직관 인증
-    private Boolean isVerified;
+    private boolean isVerified;      // 직관 인증 여부
     private LocalDateTime verifiedAt;
 
-    // 경기 후 (일기)
-    private String content;
-    private String oneLineComment;
-    private Integer rating;
+    private String content;          // 본문
+    private String oneLineComment;   // 한줄평
+    private Integer rating;          // 평점 (1~5)
 
-    // 상태 및 관리
-    private String status;          // 'PRE_SAVED', 'COMPLETED'...
-    private String isPublic;        // 'PUBLIC', 'PRIVATE'...
-    private Long version;           // 낙관적 락
+    private String status;           // PRE_SAVED, COMPLETED...
+    private String isPublic;         // PUBLIC, FRIENDS, PRIVATE
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private String gameResult; // 쿼리에서 계산된 결과: "WIN", "LOSE", "DRAW"
+    // [JOIN용 추가 필드] - 화면 표시용
+    private String homeTeamCode;
+    private String awayTeamCode;
+    private String homeTeamName;
+    private String awayTeamName;
+    private int scoreHome;
+    private int scoreAway;
+    private String gameDate;         // yyyy-MM-dd
+    private String gameTime;         // HH:mm
+    private String stadiumName;
+    private String gameResult;       // WIN, LOSE, DRAW (승요 서비스 계산용)
 }

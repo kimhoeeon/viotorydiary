@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -72,5 +73,35 @@ public class WinYoController {
         }
     }
 
+    // 일기 탭 메인 (대시보드)
+    @GetMapping("/winyo")
+    public String winYoMain(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        Long memberId = loginMember.getMemberId();
+
+        // 1. 승요력 통계 (Fire Card)
+        WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(memberId);
+        model.addAttribute("winYo", winYo);
+
+        // 2. 나의 최신 일기 (최대 3개 - 기존 Mapper 재사용 후 subList)
+        List<DiaryVO> myAllDiaries = diaryService.getMyDiaryList(memberId);
+        List<DiaryVO> myDiaries = myAllDiaries.size() > 3 ? myAllDiaries.subList(0, 3) : myAllDiaries;
+        model.addAttribute("myDiaries", myDiaries);
+
+        // 3. 친구들의 일기 (최대 3개)
+        List<DiaryVO> friendDiaries = diaryService.getFriendDiaryList(memberId);
+        model.addAttribute("friendDiaries", friendDiaries);
+
+        // 4. 스코어카드 (구장 방문 현황)
+        List<Boolean> stadiumStatus = diaryService.getStadiumVisitStatus(memberId);
+        int visitedCount = diaryService.getVisitedStadiumCount(memberId);
+
+        model.addAttribute("stadiumStatus", stadiumStatus);
+        model.addAttribute("visitedCount", visitedCount);
+
+        return "diary/diary_main";
+    }
 
 }

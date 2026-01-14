@@ -40,4 +40,6 @@ public interface GameMapper {
     GameVO selectTodayGameByTeam(String teamCode);
 
     GameVO selectTodayGame(String myTeamCode);
+
+    GameVO selectGameById(Long gameId);
 }

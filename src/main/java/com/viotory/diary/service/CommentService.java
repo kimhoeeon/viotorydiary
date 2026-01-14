@@ -31,4 +31,16 @@ public class CommentService {
             throw new Exception("삭제 권한이 없거나 이미 삭제된 댓글입니다.");
         }
     }
+
+    // 일기별 댓글 조회
+    public List<CommentDTO> getCommentsByDiaryId(Long diaryId) {
+        return commentMapper.selectCommentListByDiaryId(diaryId);
+    }
+
+    // 댓글 작성
+    @Transactional
+    public void writeComment(CommentDTO comment) {
+        commentMapper.insertComment(comment);
+    }
+
 }

@@ -111,10 +111,10 @@
                         <div class="tit">기타</div>
                         <ul>
                             <li>
-                                <a href="/member/logout" onclick="return confirm('로그아웃 하시겠습니까?');">로그아웃</a>
+                                <a href="javascript:void(0);" onclick="openLogoutPopup()">로그아웃</a>
                             </li>
                             <li>
-                                <a href="#" onclick="withdraw(); return false;">탈퇴하기</a>
+                                <a href="javascript:void(0);" onclick="openWithdrawPopup()">탈퇴하기</a>
                             </li>
                         </ul>
                     </div>
@@ -126,13 +126,25 @@
         <%@ include file="../include/tabbar.jsp" %>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="/js/script.js"></script>
     <script>
-        function withdraw() {
-            if(confirm('정말 탈퇴하시겠습니까?\n탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.')) {
-                alert('탈퇴 기능은 현재 준비 중입니다.');
-                // location.href = '/member/withdraw';
-            }
+        // 로그아웃 팝업
+        function openLogoutPopup() {
+            showPopup('confirm', '로그아웃 하시겠어요?<br />로그아웃하면 서비스를 이용할 수 없어요.', function() {
+                location.href = '/member/logout';
+            });
+            // 확인 버튼 텍스트를 '로그아웃'으로 바꾸고 싶다면 추가 스크립트 작성 가능
+            document.getElementById('popupConfirmBtn').innerText = '로그아웃';
+        }
+
+        // 회원탈퇴 팝업
+        function openWithdrawPopup() {
+            showPopup('confirm', '정말 탈퇴하시겠습니까?<br />모든 데이터가 삭제되며 복구할 수 없습니다.', function() {
+                location.href = '/member/withdraw';
+            });
+            document.getElementById('popupConfirmBtn').innerText = '탈퇴하기';
         }
     </script>
 </body>

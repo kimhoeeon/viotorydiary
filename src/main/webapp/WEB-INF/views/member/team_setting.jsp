@@ -44,7 +44,7 @@
             </div>
 
             <form id="teamForm" action="/member/team-setting" method="post">
-                <input type="hidden" name="teamCode" id="teamCode" value="${loginMember.myTeamCode}">
+                <input type="hidden" name="teamCode" id="teamCode" value="${sessionScope.loginMember.myTeamCode}">
 
                 <div class="team_select">
                     <ul class="team-list">
@@ -117,13 +117,17 @@
             </div>
 
             <c:if test="${not empty error}">
-                <div class="login-message is-show is-error" style="text-align:center; margin-top:10px;">${error}</div>
+                <script>
+                    window.addEventListener('load', function() {
+                        showPopup('alert', '${error}');
+                    });
+                </script>
             </c:if>
         </div>
     </div>
 
     <div class="bottom-action bottom-main">
-        <button type="button" class="btn btn-primary" id="btnNext" disabled onclick="submitTeam()">
+        <button type="button" class="btn btn-primary" id="btnNext" disabled onclick="trySubmitTeam()">
             변경하기
         </button>
     </div>
@@ -168,15 +172,15 @@
             });
         });
 
-        function submitTeam() {
+        function trySubmitTeam() {
             const teamCode = document.getElementById('teamCode').value;
-            if (!teamCode) {
-                alert('응원할 팀을 선택해주세요.');
-                return;
-            }
+            if (!teamCode) return;
 
-            // 전송
-            document.getElementById('teamForm').submit();
+            // 변경 확인 팝업
+            showPopup('confirm', '응원 팀을 변경하시겠어요?<br />응원 팀 변경은 월 1회만 가능해요.', function() {
+                document.getElementById('teamForm').submit();
+            });
+            document.getElementById('popupConfirmBtn').innerText = '변경하기';
         }
     </script>
 </body>

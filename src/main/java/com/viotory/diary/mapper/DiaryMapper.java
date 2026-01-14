@@ -29,4 +29,16 @@ public interface DiaryMapper {
     List<WinYoAnalysisDTO> selectWinYoRankingTop10();
 
     List<DiaryVO> selectRecentDiaries(Long memberId);
+
+    List<DiaryVO> selectDiaryList(Long memberId);
+
+    List<DiaryVO> selectFriendDiaryList(Long memberId);
+
+    List<Long> selectVisitedStadiumIds(Long memberId);
+
+    // 일기 상태 변경 (삭제 등)
+    int updateDiaryStatus(@Param("diaryId") Long diaryId,
+                          @Param("memberId") Long memberId,
+                          @Param("status") String status);
+
 }

@@ -27,33 +27,23 @@ public class DiaryService {
      * 일기 작성
      */
     @Transactional
-    public void writeDiary(DiaryVO diary) throws Exception {
-        // 1. 회원 정보 조회 (현재 응원팀 확인용)
-        MemberVO member = memberMapper.selectMemberById(diary.getMemberId());
-        if (member == null) {
-            throw new Exception("회원 정보를 찾을 수 없습니다.");
+    public Long writeDiary(DiaryVO diary) throws Exception {
+        // 1. 필수값 체크
+        if (diary.getGameId() == null) throw new Exception("경기를 선택해주세요.");
+        if (diary.getOneLineComment() == null || diary.getOneLineComment().isEmpty()) {
+            throw new Exception("한줄평을 입력해주세요.");
         }
 
-        // 2. 중복 작성 체크
-        DiaryVO existDiary = diaryMapper.selectDiaryByMemberAndGame(diary.getMemberId(), diary.getGameId());
-        if (existDiary != null) {
-            throw new Exception("이미 해당 경기에 대한 일기가 존재합니다.");
+        // 2. 작성 당시 응원팀 스냅샷 저장
+        // (Controller에서 세션의 팀코드를 넣어주겠지만, 한번 더 체크)
+        if (diary.getSnapshotTeamCode() == null) {
+            throw new Exception("응원팀 정보가 없습니다.");
         }
 
-        // 3. 스냅샷 데이터 설정 (작성 시점의 응원팀 저장)
-        diary.setSnapshotTeamCode(member.getMyTeamCode());
-
-        // 4. 인증 여부 기본값 처리 (직관 인증 로직이 별도로 있다면 거기서 처리)
-        if (diary.getIsVerified() == null) {
-            diary.setIsVerified(false);
-        }
-        if (Boolean.TRUE.equals(diary.getIsVerified())) {
-            diary.setVerifiedAt(LocalDateTime.now());
-        }
-
-        // 5. 저장
+        // 3. 저장
         diaryMapper.insertDiary(diary);
-        log.info("일기 저장 완료: diaryId={}, memberId={}", diary.getDiaryId(), diary.getMemberId());
+
+        return diary.getDiaryId();
     }
 
     /**
@@ -76,6 +66,49 @@ public class DiaryService {
 
     public List<DiaryVO> getRecentDiaries(Long memberId) {
         return diaryMapper.selectRecentDiaries(memberId);
+    }
+
+    public List<DiaryVO> getMyDiaryList(Long memberId) {
+        return diaryMapper.selectDiaryList(memberId);
+    }
+
+    // 친구 일기 조회
+    public List<DiaryVO> getFriendDiaryList(Long memberId) {
+        return diaryMapper.selectFriendDiaryList(memberId);
+    }
+
+    // 방문 구장 현황 (총 9개 구장 기준 방문 여부 boolean 리스트 반환)
+    public List<Boolean> getStadiumVisitStatus(Long memberId) {
+        List<Long> visitedIds = diaryMapper.selectVisitedStadiumIds(memberId);
+
+        // KBO 구장 ID 순서대로 체크 (1~9번 구장이라 가정)
+        // 실제 운영 시에는 Stadium 테이블을 조회해서 매핑해야 함.
+        // 여기서는 편의상 1~9번 인덱스에 매핑하여 True/False 반환
+        List<Boolean> statusList = new java.util.ArrayList<>();
+        for (long i = 1; i <= 9; i++) {
+            statusList.add(visitedIds.contains(i));
+        }
+        return statusList;
+    }
+
+    // 방문한 구장 개수
+    public int getVisitedStadiumCount(Long memberId) {
+        return diaryMapper.selectVisitedStadiumIds(memberId).size();
+    }
+
+    /**
+     * 일기 삭제 (Soft Delete)
+     */
+    @Transactional
+    public void deleteDiary(Long diaryId, Long memberId) throws Exception {
+        // 상태를 'DELETED'로 변경
+        int result = diaryMapper.updateDiaryStatus(diaryId, memberId, "DELETED");
+
+        if (result == 0) {
+            throw new Exception("삭제 권한이 없거나 이미 삭제된 일기입니다.");
+        }
+
+        log.info("일기 삭제 완료: diaryId={}, memberId={}", diaryId, memberId);
     }
 
 }

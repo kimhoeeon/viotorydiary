@@ -36,4 +36,11 @@ public class GameService {
     public GameVO getTodayGame(String myTeamCode) {
         return gameMapper.selectTodayGame(myTeamCode);
     }
+
+    /**
+     * 경기 ID로 상세 정보 조회 (일기 작성 화면용)
+     */
+    public GameVO getGameById(Long gameId) {
+        return gameMapper.selectGameById(gameId);
+    }
 }
