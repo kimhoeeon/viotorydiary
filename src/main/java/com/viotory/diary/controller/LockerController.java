@@ -24,23 +24,25 @@ public class LockerController {
 
     private final LockerService lockerService;
 
-    // 라커룸 메인 (대시보드 형태)
+    // ==========================================
+    // 1. 라커룸 메인 (대시보드)
+    // ==========================================
+
     @GetMapping("/main")
     public String lockerMain(HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
         // 1. 야구 200% 즐기기 (이벤트) - 최신 1개
-        List<LockerVO> events = lockerService.getPostList("EVENT");
+        List<LockerVO> events = lockerService.getPostList("EVENT", 1, 1);
         model.addAttribute("event", events.isEmpty() ? null : events.get(0));
 
         // 2. 우리 팀 추천 콘텐츠 - 최신 5개
-        List<LockerVO> contents = lockerService.getPostList("CONTENT");
-        // (필요하다면 서비스에서 limit 쿼리를 짜거나 여기서 subList 처리)
+        List<LockerVO> contents = lockerService.getPostList("CONTENT", 1, 5);
         model.addAttribute("contents", contents);
 
         // 3. 공지 및 설문 - 최신 5개
-        List<LockerVO> notices = lockerService.getPostList("NOTICE");
+        List<LockerVO> notices = lockerService.getPostList("NOTICE", 1, 5);
         model.addAttribute("notices", notices);
 
         return "locker/locker_main";
@@ -55,7 +57,7 @@ public class LockerController {
     public String noticeList(HttpSession session, Model model) {
         if (session.getAttribute("loginMember") == null) return "redirect:/member/login";
 
-        List<LockerVO> list = lockerService.getPostList("NOTICE");
+        List<LockerVO> list = lockerService.getPostList("NOTICE", 1, 20);
         model.addAttribute("list", list);
 
         return "locker/notice_list"; // views/locker/notice_list.jsp
@@ -81,7 +83,7 @@ public class LockerController {
     public String contentList(HttpSession session, Model model) {
         if (session.getAttribute("loginMember") == null) return "redirect:/member/login";
 
-        List<LockerVO> list = lockerService.getPostList("CONTENT");
+        List<LockerVO> list = lockerService.getPostList("CONTENT", 1, 20);
         model.addAttribute("list", list);
 
         return "locker/content_list"; // views/locker/content_list.jsp

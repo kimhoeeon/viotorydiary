@@ -29,15 +29,22 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(adminInterceptor)
                 .addPathPatterns("/mng/**")
                 .excludePathPatterns("/mng/assets/**", "/mng/css/**", "/mng/js/**", "/mng/img/**");
+
+        // 관리자 권한 체크
+        registry.addInterceptor(adminInterceptor)
+                .addPathPatterns("/mng/**")
+                .excludePathPatterns("/mng/login", "/mng/loginAction");
     }
 
+    // 정적 리소스(이미지) 경로 매핑
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 1. 업로드 경로 설정 (운영체제 상관없이 '사용자 홈/viotory/upload/' 경로 사용)
+        // 1. 업로드 경로 설정 (OS에 따라 유동적)
+        // 리눅스/맥: /home/사용자/viotory/upload/
+        // 윈도우: C:/Users/사용자/viotory/upload/
         String uploadPath = Paths.get(System.getProperty("user.home"), "viotory", "upload").toUri().toString();
 
-        // 2. 리소스 핸들러 매핑
-        // 웹에서 '/uploads/**' 로 접근하면 -> 실제 서버의 upload 폴더 내용을 보여줌
+        // 2. URL 매핑: /uploads/파일명 -> 실제 파일 경로
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadPath);
     }

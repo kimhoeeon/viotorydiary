@@ -15,6 +15,7 @@
             AND p.category = #{category}
         </if>
         ORDER BY p.created_at DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <select id="selectPostById" resultType="com.viotory.diary.vo.LockerVO">

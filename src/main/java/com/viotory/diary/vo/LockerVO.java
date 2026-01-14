@@ -23,4 +23,13 @@ public class LockerVO {
 
     // [화면용 유틸]
     private String timeAgo;         // "1시간 전", "방금 전" 등 표시용
+
+    // [페이징용 필드 추가]
+    private int page = 1;       // 현재 페이지 (기본 1)
+    private int size = 10;      // 페이지당 개수 (기본 10)
+
+    // 쿼리에서 사용할 offset 계산
+    public int getOffset() {
+        return (page - 1) * size;
+    }
 }

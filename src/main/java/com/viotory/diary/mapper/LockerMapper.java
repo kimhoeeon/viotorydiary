@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface LockerMapper {
-    List<LockerVO> selectPostList(@Param("category") String category);
+    List<LockerVO> selectPostList(LockerVO params);
 
     LockerVO selectPostById(Long postId);
 

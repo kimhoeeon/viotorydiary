@@ -70,20 +70,20 @@
                                      style="display:flex; overflow-x:auto; gap:12px; padding-bottom:10px;">
                                     <c:choose>
                                         <c:when test="${not empty contents}">
-                                            <c:forEach var="item" items="${contents}">
+                                            <c:forEach var="content" items="${contents}">
                                                 <div class="score_list"
-                                                     onclick="location.href='/locker/detail?postId=${item.postId}'"
+                                                     onclick="location.href='/locker/detail?postId=${content.postId}'"
                                                      style="min-width:140px; cursor:pointer;">
                                                     <div class="img">
-                                                        <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}"
+                                                        <img src="${not empty content.imageUrl ? content.imageUrl : '/img/card_defalut.svg'}"
                                                              alt="콘텐츠 이미지"
                                                              style="width:100%; height:100px; object-fit:cover; border-radius:8px;">
                                                     </div>
                                                     <div class="score_txt">
                                                         <div class="txt_box">
-                                                            <div class="tit text-ellipsis">${item.title}</div>
+                                                            <div class="tit text-ellipsis">${content.title}</div>
                                                             <div class="date">
-                                                                <fmt:parseDate value="${item.createdAt}"
+                                                                <fmt:parseDate value="${content.createdAt}"
                                                                                pattern="yyyy-MM-dd'T'HH:mm" var="pDate"
                                                                                type="both"/>
                                                                 <fmt:formatDate value="${pDate}" pattern="yyyy-MM-dd"/>
@@ -116,22 +116,22 @@
                                 <div class="notice_wrap">
                                     <c:choose>
                                         <c:when test="${not empty notices}">
-                                            <c:forEach var="item" items="${notices}">
+                                            <c:forEach var="notice" items="${notices}">
                                                 <div class="notice_list"
-                                                     onclick="location.href='/locker/detail?postId=${item.postId}'"
+                                                     onclick="location.href='/locker/detail?postId=${notice.postId}'"
                                                      style="cursor:pointer;">
                                                     <div class="notice_thum">
-                                                        <img src="${not empty item.imageUrl ? item.imageUrl : '/img/sample03.png'}"
+                                                        <img src="${not empty notice.imageUrl ? notice.imageUrl : '/img/sample03.png'}"
                                                              alt="공지 썸네일"
                                                              style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
                                                     </div>
                                                     <div class="notice_item">
                                                         <div class="notice_txt">
                                                             <div class="notice_badge">공지</div>
-                                                            <div class="tit text-ellipsis">${item.title}</div>
+                                                            <div class="tit text-ellipsis">${notice.title}</div>
                                                         </div>
                                                         <div class="date">
-                                                            <fmt:parseDate value="${item.createdAt}"
+                                                            <fmt:parseDate value="${notice.createdAt}"
                                                                            pattern="yyyy-MM-dd'T'HH:mm" var="nDate"
                                                                            type="both"/>
                                                             <fmt:formatDate value="${nDate}" pattern="yyyy-MM-dd"/>

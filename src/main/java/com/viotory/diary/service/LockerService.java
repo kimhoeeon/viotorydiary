@@ -16,10 +16,16 @@ public class LockerService {
 
     private final LockerMapper lockerMapper;
 
-    // 목록 조회
-    public List<LockerVO> getPostList(String category) {
-        List<LockerVO> list = lockerMapper.selectPostList(category);
-        // 시간 포맷팅 (ex: "방금 전", "1시간 전")
+    // 목록 조회 (페이징 적용)
+    public List<LockerVO> getPostList(String category, int page, int size) {
+        LockerVO params = new LockerVO();
+        params.setCategory(category);
+        params.setPage(page);
+        params.setSize(size); // 필요한 만큼 설정 (예: 메인화면은 5개)
+
+        List<LockerVO> list = lockerMapper.selectPostList(params);
+
+        // 시간 포맷팅
         for (LockerVO vo : list) {
             vo.setTimeAgo(formatTimeAgo(vo.getCreatedAt()));
         }
