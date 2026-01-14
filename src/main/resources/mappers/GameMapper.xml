@@ -45,9 +45,17 @@
     </select>
 
     <select id="selectGamesByDate" resultType="com.viotory.diary.vo.GameVO">
-        SELECT * FROM games
-        WHERE game_date = #{gameDate}
-        ORDER BY game_time ASC
+        SELECT
+            g.*,
+            t1.name_kr AS homeTeamName,
+            t2.name_kr AS awayTeamName,
+            s.name AS stadiumName
+        FROM games g
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+                 LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+        WHERE g.game_date = #{date}
+        ORDER BY g.game_time ASC
     </select>
 
     <select id="selectTodayGame" resultType="com.viotory.diary.vo.GameVO">
@@ -75,6 +83,26 @@
                  LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
                  LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
         WHERE g.game_id = #{gameId}
+    </select>
+
+    <update id="updateGameScoreAndStatus">
+        UPDATE games
+        SET score_home = #{scoreHome},
+            score_away = #{scoreAway},
+            status = #{status},
+            /* winningTeam 파라미터 값("HOME" 등)을 무시하고, 실제 팀 코드를 넣는 로직 */
+            winning_team = CASE
+                               WHEN #{status} = 'FINISHED' AND #{scoreHome} > #{scoreAway} THEN home_team_code
+                               WHEN #{status} = 'FINISHED' AND #{scoreAway} > #{scoreHome} THEN away_team_code
+                               WHEN #{status} = 'FINISHED' AND #{scoreHome} = #{scoreAway} THEN 'DRAW'
+                               ELSE NULL
+                END,
+            updated_at = NOW()
+        WHERE api_game_id = #{apiGameId}
+    </update>
+
+    <select id="selectGameByApiId" resultType="com.viotory.diary.vo.GameVO">
+        SELECT * FROM games WHERE api_game_id = #{apiGameId}
     </select>
 
 </mapper>

@@ -1,10 +1,15 @@
 package com.viotory.diary.scheduler;
 
 import com.viotory.diary.service.GameDataService;
+import com.viotory.diary.service.GameService;
+import com.viotory.diary.service.PlayService;
+import com.viotory.diary.vo.GameVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -12,12 +17,13 @@ import org.springframework.stereotype.Component;
 public class GameScheduleTask {
 
     private final GameDataService gameDataService;
+    private final GameService gameService; // DB 조회용
+    private final PlayService playService; // 승부예측 처리용
 
     /**
-     * [ 네이버 ]
+     * [ 네이버/API ]
      * [정기 동기화] 매일 새벽 2시
-     * - 전날 경기 결과 확정 (혹시 취소된 경기나 늦게 끝난 경기 업데이트)
-     * - 오늘 예정된 경기 목록 생성
+     * - 전날 경기 결과 확정 및 오늘 일정 생성
      */
     @Scheduled(cron = "0 0 2 * * *")
     public void runDailySync() {
@@ -31,25 +37,45 @@ public class GameScheduleTask {
     }
 
     /**
-     * [ 네이버 ]
      * [라이브 업데이트] 매일 13시 ~ 23시 (1분 간격)
-     * - 실시간 점수, 경기 취소 여부, 경기 종료 처리
-     * - 월요일은 보통 경기가 없으므로 체크하여 스킵 (포스트시즌 등 예외 제외)
+     * - 실시간 점수 업데이트
+     * - 경기 종료(FINISHED) 감지 시 승부예측 결과 처리 및 알림 발송
      */
     @Scheduled(cron = "0 0/1 13-23 * * *")
     public void runLiveSync() {
-        // 1. 월요일 체크 (KBO는 보통 월요일 경기가 없음, 필요 시 주석 해제)
-        /*
-        DayOfWeek dayOfWeek = LocalDate.now().getDayOfWeek();
-        if (dayOfWeek == DayOfWeek.MONDAY) {
-            // 월요일이라도 혹시 경기가 잡혀있을 수 있으니(우천취소분 등),
-            // DB에서 오늘자 경기가 있는지 조회해보고 없으면 리턴하는 로직을 추가하면 더 좋습니다.
-            // 여기서는 일단 패스
-        }
-        */
+        log.debug(">>> [라이브 스케줄러] 실시간 경기 정보 확인 중...");
 
-        log.debug(">>> [라이브 스케줄러] 실시간 데이터 체크");
-        gameDataService.syncDailyData();
+        // 1. 오늘 경기 목록 조회
+        List<GameVO> todayGames = gameService.getAllGamesToday();
+        if (todayGames.isEmpty()) return;
+
+        for (GameVO game : todayGames) {
+            // try-catch를 반복문 안으로 이동 (개별 경기 에러 격리)
+            try {
+                // 이미 종료 처리된 경기는 패스 (결과 정정 로직이 필요 없다면)
+                if ("FINISHED".equals(game.getStatus())) {
+                    // (선택) 종료된 경기도 알림 누락 방지 차원에서 호출 가능
+                    playService.processPredictionResult(game);
+                    continue;
+                }
+
+                // 2. 업데이트 수행
+                GameVO updatedGame = gameDataService.updateLiveGame(game.getApiGameId());
+
+                if (updatedGame != null) {
+                    // 3. 종료 감지 시 승부예측 처리
+                    if ("FINISHED".equals(updatedGame.getStatus())) {
+                        log.info(">>> [경기종료 감지] {} vs {}, 결과 처리 시작",
+                                updatedGame.getHomeTeamName(), updatedGame.getAwayTeamName());
+
+                        playService.processPredictionResult(updatedGame);
+                    }
+                }
+            } catch (Exception e) {
+                // 특정 경기 업데이트 실패 시 로그만 남기고 다음 경기로 진행
+                log.error(">>> [라이브 스케줄러] 경기({}) 업데이트 실패: {}", game.getGameId(), e.getMessage());
+            }
+        }
     }
 
     /*// 1. 매일 새벽 2시에 '오늘' 예정된 경기 일정을 가져옴 (초기화)

@@ -265,7 +265,7 @@
           $('#selectSheet').hide();
       }
 
-      // [수정] 리스트 아이템 클릭 시 (바로 닫지 않고 선택 상태만 변경)
+      // 리스트 아이템 클릭 시 (바로 닫지 않고 선택 상태만 변경)
       function selectGameItem(btn) {
           // 스타일 변경 (모든 버튼 active 제거 -> 현재 버튼 active 추가)
           $('#selectSheetList button').removeClass('active');

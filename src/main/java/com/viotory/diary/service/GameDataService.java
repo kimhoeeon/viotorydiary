@@ -10,10 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -54,6 +51,78 @@ public class GameDataService {
         String from = today.minusDays(1).toString();
         String to = today.plusDays(1).toString();
         executeSync(from, to);
+    }
+
+    /**
+     * [신규] 단건 경기 실시간 데이터 업데이트
+     * @param apiGameId 외부 API의 경기 ID
+     * @return 업데이트된 GameVO 객체 (DB 최신값)
+     */
+    @Transactional
+    public GameVO updateLiveGame(String apiGameId) {
+        if (apiGameId == null) return null;
+
+        try {
+            // 1. API 호출 (RapidAPI 등 가정)
+            String url = "https://" + apiHost + "/games?id=" + apiGameId;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-RapidAPI-Key", apiKey);
+            headers.set("X-RapidAPI-Host", apiHost);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                JsonNode root = objectMapper.readTree(response.getBody());
+                JsonNode responseNode = root.path("response");
+
+                if (responseNode.isArray() && responseNode.size() > 0) {
+                    JsonNode gameNode = responseNode.get(0);
+
+                    // 2. 데이터 파싱
+                    String statusShort = gameNode.path("status").path("short").asText(); // FT, NS, LIVE...
+                    String statusCode = convertStatus(statusShort);
+
+                    int homeScore = gameNode.path("scores").path("home").path("total").asInt(0);
+                    int awayScore = gameNode.path("scores").path("away").path("total").asInt(0);
+
+                    // 3. DB 업데이트를 위한 VO 생성
+                    // (기존 정보는 유지하고 점수와 상태만 업데이트)
+                    GameVO game = GameVO.builder()
+                            .apiGameId(apiGameId)
+                            .status(statusCode)
+                            .scoreHome(homeScore)
+                            .scoreAway(awayScore)
+                            // 승리팀 판별
+                            .winningTeam(determineWinningTeam(statusCode, homeScore, awayScore))
+                            .build();
+
+                    // 4. DB 업데이트 (MyBatis Mapper 호출)
+                    // (updateGameStatusAndScore 쿼리가 GameMapper에 필요함. 없으면 upsertGame 사용)
+                    // 여기서는 기존 upsertGame 로직을 활용하거나 별도 update 쿼리 사용
+                    gameMapper.updateGameScoreAndStatus(game);
+
+                    // 5. 업데이트된 전체 정보를 다시 조회하여 반환 (PlayService 처리를 위해)
+                    return gameMapper.selectGameByApiId(apiGameId);
+                }
+            }
+        } catch (Exception e) {
+            log.error(">>> 경기({}) 실시간 업데이트 실패: {}", apiGameId, e.getMessage());
+        }
+        return null;
+    }
+
+    // 승리팀 판별 로직
+    private String determineWinningTeam(String status, int homeScore, int awayScore) {
+        if (!"FINISHED".equals(status)) return null;
+
+        // GameVO에 homeTeamCode, awayTeamCode가 있어야 정확하지만,
+        // 여기선 단순 로직 (나중에 DB 조회 후 비교 필요할 수 있음)
+        // 일단은 'HOME', 'AWAY', 'DRAW' 코드로 반환하도록 약속
+        if (homeScore > awayScore) return "HOME"; // 호출처에서 실제 팀코드로 변환 필요할 수도 있음
+        if (awayScore > homeScore) return "AWAY";
+        return "DRAW";
     }
 
     /**

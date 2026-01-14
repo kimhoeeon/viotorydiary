@@ -72,7 +72,7 @@ public class AdminService {
      * @return 성공 시 "ok", 실패 시 에러 메시지
      */
     @Transactional
-    public String changePassword(String loginId, String currentPassword, String newPassword) { // [수정] id -> loginId
+    public String changePassword(String loginId, String currentPassword, String newPassword) { // id -> loginId
 
         // 1. 관리자 정보 조회
         AdminVO admin = adminMapper.selectAdminByLoginId(loginId);

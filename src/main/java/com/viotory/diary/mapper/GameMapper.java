@@ -42,4 +42,9 @@ public interface GameMapper {
     GameVO selectTodayGame(String myTeamCode);
 
     GameVO selectGameById(Long gameId);
+
+    void updateGameScoreAndStatus(GameVO game);
+
+    GameVO selectGameByApiId(String apiGameId);
+
 }

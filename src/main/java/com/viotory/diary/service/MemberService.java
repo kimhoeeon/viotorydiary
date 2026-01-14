@@ -25,6 +25,7 @@ public class MemberService {
     private final MemberMapper memberMapper;
     private final SHA512 sha512;
     private final SmsService smsService; // 문자 발송을 위해 주입
+    private final AlarmService alarmService; // 알림 서비스 주입
 
     /**
      * 회원 가입 처리
@@ -380,6 +381,10 @@ public class MemberService {
             return false; // 언팔로우됨
         } else {
             memberMapper.insertFollow(followerId, followingId);
+
+            // [신규] 팔로우 알림 발송
+            sendFollowAlarm(followerId, followingId);
+
             return true; // 팔로우됨
         }
     }
@@ -392,6 +397,26 @@ public class MemberService {
     // [신규] 팔로잉 목록 조회
     public List<FollowDTO> getFollowingList(Long targetMemberId) {
         return memberMapper.selectFollowingList(targetMemberId);
+    }
+
+    // [신규] 팔로우 알림 발송 메소드
+    private void sendFollowAlarm(Long followerId, Long targetId) {
+        try {
+            // 알림 내용 구성을 위해 팔로워 정보 조회
+            MemberVO follower = memberMapper.selectMemberById(followerId);
+            MemberVO target = memberMapper.selectMemberById(targetId);
+
+            // 알림 수신 동의 여부 체크 (friend_alarm = 'Y')
+            if (target != null && "Y".equals(target.getFriendAlarm())) {
+                String content = follower.getNickname() + "님이 회원님을 팔로우했습니다.";
+                String url = "/member/follow/list?tab=follower"; // 팔로워 목록으로 이동
+
+                alarmService.sendAlarm(targetId, "FRIEND", content, url);
+            }
+        } catch (Exception e) {
+            log.error("팔로우 알림 발송 실패", e);
+            // 알림 실패가 팔로우 트랜잭션을 롤백시키지 않도록 예외 처리
+        }
     }
 
 }
