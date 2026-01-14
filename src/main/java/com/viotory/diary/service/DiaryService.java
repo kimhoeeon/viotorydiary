@@ -111,4 +111,9 @@ public class DiaryService {
         log.info("일기 삭제 완료: diaryId={}, memberId={}", diaryId, memberId);
     }
 
+    // 친구 일기 전체 조회
+    public List<DiaryVO> getAllFriendDiaries(Long memberId) {
+        return diaryMapper.selectAllFriendDiaries(memberId);
+    }
+
 }

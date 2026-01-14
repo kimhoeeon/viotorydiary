@@ -382,4 +382,14 @@ public class MemberService {
         memberMapper.deleteFollow(myId, targetId);
     }
 
+    // 회원 ID로 정보 조회
+    public MemberVO getMemberById(Long memberId) {
+        return memberMapper.selectMemberById(memberId);
+    }
+
+    // 팔로우 여부 확인
+    public boolean isFollowing(Long followerId, Long followingId) {
+        return memberMapper.checkFollow(followerId, followingId) > 0;
+    }
+
 }

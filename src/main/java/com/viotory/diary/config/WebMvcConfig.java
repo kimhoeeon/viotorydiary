@@ -3,7 +3,10 @@ package com.viotory.diary.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.nio.file.Paths;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -12,7 +15,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private AdminInterceptor adminInterceptor;
 
     @Autowired
-    private HttpsRedirectInterceptor httpsRedirectInterceptor; // [추가]
+    private HttpsRedirectInterceptor httpsRedirectInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -26,6 +29,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(adminInterceptor)
                 .addPathPatterns("/mng/**")
                 .excludePathPatterns("/mng/assets/**", "/mng/css/**", "/mng/js/**", "/mng/img/**");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 1. 업로드 경로 설정 (운영체제 상관없이 '사용자 홈/viotory/upload/' 경로 사용)
+        String uploadPath = Paths.get(System.getProperty("user.home"), "viotory", "upload").toUri().toString();
+
+        // 2. 리소스 핸들러 매핑
+        // 웹에서 '/uploads/**' 로 접근하면 -> 실제 서버의 upload 폴더 내용을 보여줌
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(uploadPath);
     }
 
 }

@@ -11,6 +11,8 @@ public class DiaryVO {
     private String nickname;
     private String snapshotTeamCode; // 작성 당시 응원팀
 
+    private String imageUrl;
+
     // [예측/결과 정보]
     private Integer predScoreHome;   // 예상 홈 점수
     private Integer predScoreAway;   // 예상 원정 점수

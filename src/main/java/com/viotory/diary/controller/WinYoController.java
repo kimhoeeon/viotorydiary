@@ -10,9 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -23,57 +21,14 @@ import java.util.List;
 @RequestMapping("/diary")
 public class WinYoController {
 
-    private final WinYoService winYoService; // 분석용
-    private final DiaryService diaryService; // CRUD용
+    private final WinYoService winYoService;
+    private final DiaryService diaryService;
 
     /**
-     * 승요력 분석 페이지 이동
+     * 일기 탭 메인 (대시보드)
      * URL: /diary/winyo
+     * 기능: 승요력 통계, 내 일기(최신 3개), 친구 일기(최신 3개), 스코어카드
      */
-    @GetMapping("/winyo")
-    public String winYoPage(Model model, HttpSession session) {
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "redirect:/member/login";
-
-        WinYoAnalysisDTO result = winYoService.analyzeWinYoPower(loginMember.getMemberId());
-        model.addAttribute("winyo", result);
-        return "diary/winyo";
-    }
-
-    // --- 일기 작성 화면 ---
-    @GetMapping("/write")
-    public String writePage(@RequestParam("gameId") Long gameId, Model model, HttpSession session) {
-        // 로그인 체크
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "redirect:/member/login";
-
-        // 화면에 필요한 gameId 전달 (나중에 GameService에서 경기 상세 정보도 조회해서 넘겨야 함)
-        model.addAttribute("gameId", gameId);
-
-        return "diary/write"; // 퍼블리싱 후 jsp 생성
-    }
-
-    // --- 일기 저장 처리 ---
-    @PostMapping("/write")
-    public String writeAction(DiaryVO diary, HttpSession session, Model model) {
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "redirect:/member/login";
-
-        diary.setMemberId(loginMember.getMemberId());
-
-        try {
-            diaryService.writeDiary(diary);
-            // 저장 후 목록이나 상세 페이지로 이동
-            return "redirect:/diary/winyo";
-        } catch (Exception e) {
-            log.error("일기 작성 실패", e);
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("gameId", diary.getGameId()); // 다시 작성 화면으로 돌아갈 때 필요
-            return "diary/write";
-        }
-    }
-
-    // 일기 탭 메인 (대시보드)
     @GetMapping("/winyo")
     public String winYoMain(HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
@@ -85,7 +40,7 @@ public class WinYoController {
         WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(memberId);
         model.addAttribute("winYo", winYo);
 
-        // 2. 나의 최신 일기 (최대 3개 - 기존 Mapper 재사용 후 subList)
+        // 2. 나의 최신 일기 (최대 3개)
         List<DiaryVO> myAllDiaries = diaryService.getMyDiaryList(memberId);
         List<DiaryVO> myDiaries = myAllDiaries.size() > 3 ? myAllDiaries.subList(0, 3) : myAllDiaries;
         model.addAttribute("myDiaries", myDiaries);
@@ -103,5 +58,4 @@ public class WinYoController {
 
         return "diary/diary_main";
     }
-
 }

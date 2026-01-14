@@ -2,10 +2,7 @@ package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.CommentDTO;
 import com.viotory.diary.dto.WinYoAnalysisDTO;
-import com.viotory.diary.service.CommentService;
-import com.viotory.diary.service.DiaryService;
-import com.viotory.diary.service.GameService;
-import com.viotory.diary.service.WinYoService;
+import com.viotory.diary.service.*;
 import com.viotory.diary.vo.DiaryVO;
 import com.viotory.diary.vo.GameVO;
 import com.viotory.diary.vo.MemberVO;
@@ -14,11 +11,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -30,6 +31,7 @@ public class DiaryController {
     private final GameService gameService;
     private final CommentService commentService;
     private final WinYoService winYoService;
+    private final MemberService memberService;
 
     // 1. 일기 작성 페이지 이동
     @GetMapping("/write")
@@ -54,23 +56,111 @@ public class DiaryController {
 
     // 2. 일기 저장 처리
     @PostMapping("/write")
-    public String writeAction(DiaryVO diary, HttpSession session, Model model) {
+    public String writeAction(DiaryVO diary,
+                              @RequestParam(value = "file", required = false) MultipartFile file,
+                              HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
         try {
-            // 세션 정보 주입
+            // 파일 업로드
+            if (file != null && !file.isEmpty()) {
+                String savedFileName = saveFile(file);
+                diary.setImageUrl("/uploads/" + savedFileName); // DB에는 웹 접근 경로 저장
+            }
+
             diary.setMemberId(loginMember.getMemberId());
             diary.setSnapshotTeamCode(loginMember.getMyTeamCode());
 
             Long diaryId = diaryService.writeDiary(diary);
-
             return "redirect:/diary/complete?diaryId=" + diaryId;
         } catch (Exception e) {
+            log.error("일기 작성 실패", e);
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("diary", diary); // 입력값 유지
+            model.addAttribute("diary", diary);
             return "diary/diary_write";
         }
+    }
+
+    // --- [1] 일기 수정 페이지 이동 (GET) ---
+    @GetMapping("/update")
+    public String updatePage(@RequestParam("diaryId") Long diaryId,
+                             HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        // 1. 기존 일기 정보 조회
+        DiaryVO diary = diaryService.getDiary(diaryId);
+
+        // 2. 권한 확인 (본인 글이 아니면 튕겨냄)
+        if (diary == null || !diary.getMemberId().equals(loginMember.getMemberId())) {
+            return "redirect:/diary/list";
+        }
+
+        // 3. 경기 정보 조회 (화면에 "LG vs 두산" 등을 보여주기 위함)
+        GameVO game = gameService.getGameById(diary.getGameId());
+
+        model.addAttribute("diary", diary);
+        model.addAttribute("selectedGame", game);
+
+        return "diary/diary_update";
+    }
+
+    // --- [2] 일기 수정 처리 (POST) ---
+    @PostMapping("/update")
+    public String updateAction(DiaryVO diary,
+                               @RequestParam(value = "file", required = false) MultipartFile file,
+                               HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        try {
+            diary.setMemberId(loginMember.getMemberId());
+
+            // [이미지 처리 로직]
+            if (file != null && !file.isEmpty()) {
+                // 1. 새 파일이 업로드된 경우 -> 저장 후 경로 교체
+                String savedFileName = saveFile(file);
+                diary.setImageUrl("/uploads/" + savedFileName);
+            }
+            // 2. 새 파일이 없는 경우
+            // -> JSP의 <input type="hidden" name="imageUrl" value="...">에 의해
+            //    기존 diary.imageUrl 값이 그대로 넘어오므로 별도 처리 불필요.
+
+            // 3. DB 업데이트
+            diaryService.modifyDiary(diary);
+
+            return "redirect:/diary/detail?diaryId=" + diary.getDiaryId();
+
+        } catch (Exception e) {
+            log.error("일기 수정 실패", e);
+            model.addAttribute("error", e.getMessage());
+            // 에러 발생 시 수정 페이지로 되돌아가기 (ID 유지)
+            return "redirect:/diary/update?diaryId=" + diary.getDiaryId();
+        }
+    }
+
+    // --- [파일 저장 유틸 메소드] ---
+    // 사용자 홈 디렉터리(user.home) 밑에 저장하여 배포 시에도 유지됨
+    private String saveFile(MultipartFile file) throws Exception {
+        if (file.isEmpty()) return null;
+
+        String uploadDir = getUploadDir();
+
+        File dir = new File(uploadDir);
+        if (!dir.exists()) dir.mkdirs();
+
+        // 파일명 중복 방지 (UUID 사용)
+        String uuid = UUID.randomUUID().toString();
+        String originalName = file.getOriginalFilename();
+        String savedName = uuid + "_" + originalName;
+
+        // 실제 파일 저장
+        File dest = new File(dir, savedName);
+        file.transferTo(dest);
+
+        log.info("파일 업로드 완료: {}", dest.getAbsolutePath());
+        return savedName;
     }
 
     // 3. 작성 완료 페이지
@@ -211,6 +301,56 @@ public class DiaryController {
             log.error("일기 삭제 실패", e);
             return "fail";
         }
+    }
+
+    // [변경] 저장 경로 가져오기 (OS 독립적)
+    private String getUploadDir() {
+        return Paths.get(System.getProperty("user.home"), "viotory", "upload").toString();
+    }
+
+    // [신규] 친구 일기 전체 목록 페이지
+    @GetMapping("/friend/list")
+    public String friendListPage(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        List<DiaryVO> list = diaryService.getAllFriendDiaries(loginMember.getMemberId());
+        model.addAttribute("list", list);
+
+        return "diary/friend_list"; // views/diary/friend_list.jsp
+    }
+
+    // 친구 일기 상세 페이지
+    @GetMapping("/friend/detail")
+    public String friendDetailPage(@RequestParam("diaryId") Long diaryId,
+                                   HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        // 1. 일기 정보 조회
+        DiaryVO diary = diaryService.getDiary(diaryId);
+        if (diary == null) return "redirect:/diary/friend/list";
+
+        // 2. 작성자(친구) 정보 조회
+        Long writerId = diary.getMemberId();
+        MemberVO writer = memberService.getMemberById(writerId);
+
+        // 3. 작성자의 승요력(승률) 조회
+        WinYoAnalysisDTO writerWinYo = winYoService.analyzeWinYoPower(writerId);
+
+        // 4. 팔로우 여부 확인
+        boolean isFollowing = memberService.isFollowing(loginMember.getMemberId(), writerId);
+
+        // 5. 댓글 조회
+        List<CommentDTO> comments = commentService.getCommentsByDiaryId(diaryId);
+
+        model.addAttribute("diary", diary);
+        model.addAttribute("writer", writer);
+        model.addAttribute("writerWinYo", writerWinYo);
+        model.addAttribute("isFollowing", isFollowing);
+        model.addAttribute("comments", comments);
+
+        return "diary/friend_detail";
     }
 
 }

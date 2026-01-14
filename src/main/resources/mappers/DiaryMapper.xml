@@ -56,6 +56,9 @@
             one_line_comment = #{oneLineComment},
             rating           = #{rating},
             is_public        = #{isPublic},
+            pred_score_home  = #{predScoreHome},
+            pred_score_away  = #{predScoreAway},
+            image_url        = #{imageUrl},
             updated_at       = NOW()
         WHERE diary_id = #{diaryId}
           AND member_id = #{memberId}
@@ -123,17 +126,16 @@
     </select>
 
     <insert id="insertDiary" parameterType="com.viotory.diary.vo.DiaryVO" useGeneratedKeys="true" keyProperty="diaryId">
-        INSERT INTO diaries (
-            member_id, game_id, snapshot_team_code,
-            pred_score_home, pred_score_away, pred_hero, hero_name,
-            content, one_line_comment, rating,
-            status, is_public, created_at, updated_at
-        ) VALUES (
-                     #{memberId}, #{gameId}, #{snapshotTeamCode},
-                     #{predScoreHome}, #{predScoreAway}, #{predHero}, #{heroName},
-                     #{content}, #{oneLineComment}, #{rating},
-                     'COMPLETED', IFNULL(#{isPublic}, 'PUBLIC'), NOW(), NOW()
-                 )
+        INSERT INTO diaries (member_id, game_id, snapshot_team_code,
+                             pred_score_home, pred_score_away, pred_hero, hero_name,
+                             content, one_line_comment, rating,
+                             image_url,
+                             status, is_public, created_at, updated_at)
+        VALUES (#{memberId}, #{gameId}, #{snapshotTeamCode},
+                #{predScoreHome}, #{predScoreAway}, #{predHero}, #{heroName},
+                #{content}, #{oneLineComment}, #{rating},
+                #{imageUrl},
+                'COMPLETED', IFNULL(#{isPublic}, 'PUBLIC'), NOW(), NOW())
     </insert>
 
     <select id="selectDiaryById" resultType="com.viotory.diary.vo.DiaryVO">
@@ -228,5 +230,32 @@
         WHERE diary_id = #{diaryId}
           AND member_id = #{memberId} -- 본인 확인
     </update>
+
+    <select id="selectAllFriendDiaries" resultType="com.viotory.diary.vo.DiaryVO">
+        SELECT
+            d.diary_id, d.member_id, d.one_line_comment, d.rating,
+            g.game_date, g.home_team_code, g.away_team_code,
+            g.score_home, g.score_away,
+            t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
+            m.nickname, m.my_team_code AS snapshotTeamCode,
+
+            CASE
+                WHEN g.winning_team = m.my_team_code THEN 'WIN'
+                WHEN g.winning_team = 'DRAW' THEN 'DRAW'
+                WHEN g.winning_team IS NOT NULL THEN 'LOSE'
+                ELSE 'NONE'
+                END AS gameResult
+
+        FROM diaries d
+                 JOIN follows f ON d.member_id = f.following_id
+                 JOIN members m ON d.member_id = m.member_id
+                 JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        WHERE f.follower_id = #{memberId}
+          AND d.status = 'COMPLETED'
+          AND d.is_public IN ('PUBLIC', 'FRIENDS')
+        ORDER BY g.game_date DESC
+    </select>
 
 </mapper>

@@ -266,4 +266,11 @@
         WHERE follower_id = #{myMemberId} AND following_id = #{targetMemberId}
     </delete>
 
+    <select id="checkFollow" resultType="int">
+        SELECT COUNT(*)
+        FROM follows
+        WHERE follower_id = #{followerId}
+          AND following_id = #{followingId}
+    </select>
+
 </mapper>

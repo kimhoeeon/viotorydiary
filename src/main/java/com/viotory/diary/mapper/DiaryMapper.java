@@ -41,4 +41,6 @@ public interface DiaryMapper {
                           @Param("memberId") Long memberId,
                           @Param("status") String status);
 
+    List<DiaryVO> selectAllFriendDiaries(Long memberId);
+
 }

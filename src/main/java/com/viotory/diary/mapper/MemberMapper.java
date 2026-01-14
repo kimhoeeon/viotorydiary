@@ -78,6 +78,9 @@ public interface MemberMapper {
     List<com.viotory.diary.dto.FollowDTO> selectFollowerList(Long myMemberId);
 
     int insertFollow(@Param("myMemberId") Long myMemberId, @Param("targetMemberId") Long targetMemberId);
+
     int deleteFollow(@Param("myMemberId") Long myMemberId, @Param("targetMemberId") Long targetMemberId);
+
+    int checkFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
 
 }
