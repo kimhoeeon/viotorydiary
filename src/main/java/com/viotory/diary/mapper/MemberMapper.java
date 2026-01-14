@@ -1,5 +1,6 @@
 package com.viotory.diary.mapper;
 
+import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.vo.MemberVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -73,14 +74,13 @@ public interface MemberMapper {
     // 알림 설정 변경
     void updateAlarmSetting(MemberVO member);
 
-    // 팔로우 관련
-    List<com.viotory.diary.dto.FollowDTO> selectFollowingList(Long myMemberId);
-    List<com.viotory.diary.dto.FollowDTO> selectFollowerList(Long myMemberId);
-
-    int insertFollow(@Param("myMemberId") Long myMemberId, @Param("targetMemberId") Long targetMemberId);
-
-    int deleteFollow(@Param("myMemberId") Long myMemberId, @Param("targetMemberId") Long targetMemberId);
-
+    // [신규] 팔로우 관련
     int checkFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
+    int insertFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
+    int deleteFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
+
+    // 목록 조회
+    List<FollowDTO> selectFollowerList(@Param("targetMemberId") Long targetMemberId, @Param("myMemberId") Long myMemberId);
+    List<FollowDTO> selectFollowingList(@Param("targetMemberId") Long targetMemberId);
 
 }

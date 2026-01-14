@@ -199,8 +199,34 @@
     <script>
         // 팔로우 토글 (기능 구현 시 연동)
         function toggleFollow(memberId) {
-            // TODO: 팔로우 API 호출
-            alert('팔로우 기능은 준비 중입니다.');
+            // 버튼 요소 선택
+            const $btn = $('.follow-btn button');
+
+            // 현재 상태 파악 (following 클래스가 있으면 '언팔로우' 할 차례)
+            const isFollowing = $btn.hasClass('following');
+            const action = isFollowing ? 'unfollow' : 'follow';
+
+            // API 호출
+            $.post('/member/follow/toggle', { targetId: memberId, action: action }, function(res) {
+                if (res === 'ok') {
+                    if (action === 'follow') {
+                        // 팔로우 성공 -> '팔로잉' 상태로 변경
+                        $btn.removeClass('follow').addClass('following').text('팔로잉');
+                    } else {
+                        // 언팔로우 성공 -> '팔로우' 상태로 변경
+                        $btn.removeClass('following').addClass('follow').text('팔로우');
+                    }
+                } else if (res.startsWith('fail:login')) {
+                    alert('로그인이 필요합니다.');
+                    location.href = '/member/login';
+                } else if (res === 'fail:self') {
+                    alert('자기 자신은 팔로우할 수 없습니다.');
+                } else {
+                    alert('요청 처리에 실패했습니다.');
+                }
+            }).fail(function() {
+                alert('서버 통신 오류가 발생했습니다.');
+            });
         }
 
         // 댓글 관련 스크립트 (기존과 동일)

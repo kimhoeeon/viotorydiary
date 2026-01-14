@@ -424,48 +424,50 @@ public class MemberController {
         }
     }
 
-    // 팔로우 관리 페이지 (탭 구분: following / follower)
+    // 팔로우/팔로잉 목록 페이지
     @GetMapping("/follow/list")
-    public String followListPage(@RequestParam(value = "tab", defaultValue = "following") String tab,
-                                 HttpSession session,
-                                 Model model) {
+    public String followListPage(@RequestParam(value = "type", defaultValue = "following") String type,
+                                 @RequestParam(value = "memberId", required = false) Long memberId,
+                                 HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
-        List<FollowDTO> list;
+        // memberId 파라미터가 없으면 내 목록 조회
+        Long targetId = (memberId != null) ? memberId : loginMember.getMemberId();
 
-        if ("follower".equals(tab)) {
-            list = memberService.getFollowerList(loginMember.getMemberId());
+        List<com.viotory.diary.dto.FollowDTO> list;
+        if ("follower".equals(type)) {
+            // 팔로워 목록 조회 (맞팔 확인을 위해 내 ID도 전달)
+            list = memberService.getFollowerList(targetId, loginMember.getMemberId());
         } else {
-            list = memberService.getFollowingList(loginMember.getMemberId());
+            // 팔로잉 목록 조회
+            list = memberService.getFollowingList(targetId);
         }
 
         model.addAttribute("list", list);
-        model.addAttribute("tab", tab); // 현재 탭 정보
+        model.addAttribute("type", type);
+        model.addAttribute("targetId", targetId);
+
+        // 상단 타이틀용 (내 목록인지 남의 목록인지 확인)
+        boolean isMyList = targetId.equals(loginMember.getMemberId());
+        model.addAttribute("isMyList", isMyList);
 
         return "member/follow_list";
     }
 
-    // 팔로우 / 언팔로우 실행 (AJAX)
+    // [신규 API] 팔로우 토글
     @PostMapping("/follow/toggle")
     @ResponseBody
-    public String followToggle(@RequestParam("targetId") Long targetId,
-                               @RequestParam("action") String action, // 'follow' or 'unfollow'
-                               HttpSession session) {
+    public String toggleFollow(@RequestParam("targetId") Long targetId, HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "fail:login";
 
-        try {
-            if ("follow".equals(action)) {
-                memberService.addFollow(loginMember.getMemberId(), targetId);
-            } else {
-                memberService.removeFollow(loginMember.getMemberId(), targetId);
-            }
-            return "ok";
-        } catch (Exception e) {
-            log.error("팔로우 처리 오류", e);
-            return "fail";
+        if (loginMember.getMemberId().equals(targetId)) {
+            return "fail:self"; // 자기 자신 팔로우 불가
         }
+
+        boolean result = memberService.toggleFollow(loginMember.getMemberId(), targetId);
+        return result ? "followed" : "unfollowed";
     }
 
     // ==========================================

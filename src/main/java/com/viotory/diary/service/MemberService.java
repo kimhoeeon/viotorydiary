@@ -364,32 +364,34 @@ public class MemberService {
         memberMapper.updateAlarmSetting(member);
     }
 
-    // 팔로잉 목록
-    public List<FollowDTO> getFollowingList(Long memberId) {
-        return memberMapper.selectFollowingList(memberId);
-    }
-
-    // 팔로워 목록
-    public List<FollowDTO> getFollowerList(Long memberId) {
-        return memberMapper.selectFollowerList(memberId);
-    }
-
-    public void addFollow(Long myId, Long targetId) {
-        memberMapper.insertFollow(myId, targetId);
-    }
-
-    public void removeFollow(Long myId, Long targetId) {
-        memberMapper.deleteFollow(myId, targetId);
-    }
-
-    // 회원 ID로 정보 조회
-    public MemberVO getMemberById(Long memberId) {
-        return memberMapper.selectMemberById(memberId);
-    }
-
-    // 팔로우 여부 확인
+    // [신규] 팔로우 여부 확인
     public boolean isFollowing(Long followerId, Long followingId) {
         return memberMapper.checkFollow(followerId, followingId) > 0;
+    }
+
+    /**
+     * [신규] 팔로우 토글 (이미 팔로우 중이면 취소, 아니면 추가)
+     * 리턴: true(팔로우 상태가 됨), false(언팔로우 상태가 됨)
+     */
+    @Transactional
+    public boolean toggleFollow(Long followerId, Long followingId) {
+        if (isFollowing(followerId, followingId)) {
+            memberMapper.deleteFollow(followerId, followingId);
+            return false; // 언팔로우됨
+        } else {
+            memberMapper.insertFollow(followerId, followingId);
+            return true; // 팔로우됨
+        }
+    }
+
+    // [신규] 팔로워 목록 조회
+    public List<FollowDTO> getFollowerList(Long targetMemberId, Long myMemberId) {
+        return memberMapper.selectFollowerList(targetMemberId, myMemberId);
+    }
+
+    // [신규] 팔로잉 목록 조회
+    public List<FollowDTO> getFollowingList(Long targetMemberId) {
+        return memberMapper.selectFollowingList(targetMemberId);
     }
 
 }
