@@ -14,7 +14,7 @@
     <title>일기 작성 | 승요일기</title>
 
     <style>
-        /* [추가] 선택된 항목 하이라이트 스타일 */
+        /* 선택된 항목 하이라이트 스타일 */
         .select-sheet_list li button.active {
             background-color: #f5f5f5;
             color: #2c7fff; /* 메인 컬러(파랑) */

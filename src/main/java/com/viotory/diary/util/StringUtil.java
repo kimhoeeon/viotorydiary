@@ -375,7 +375,7 @@ public class StringUtil {
     }
 
     /**
-     * [추가] 이메일 마스킹 처리 (앞 3자리 노출 후 *** 마스킹)
+     * 이메일 마스킹 처리 (앞 3자리 노출 후 *** 마스킹)
      * 예: abcdefg@naver.com -> abc***@naver.com
      * 예: ab@naver.com -> a***@naver.com (3자리 미만 시 1자리 노출)
      */

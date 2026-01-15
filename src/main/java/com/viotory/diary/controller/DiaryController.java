@@ -308,18 +308,6 @@ public class DiaryController {
         return Paths.get(System.getProperty("user.home"), "viotory", "upload").toString();
     }
 
-    // 친구 일기 전체 목록 페이지
-    @GetMapping("/friend/list")
-    public String friendListPage(HttpSession session, Model model) {
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "redirect:/member/login";
-
-        List<DiaryVO> list = diaryService.getAllFriendDiaries(loginMember.getMemberId());
-        model.addAttribute("list", list);
-
-        return "diary/friend_list"; // views/diary/friend_list.jsp
-    }
-
     // 친구 일기 상세 페이지
     @GetMapping("/friend/detail")
     public String friendDetailPage(@RequestParam("diaryId") Long diaryId,
@@ -359,11 +347,27 @@ public class DiaryController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
-        // Service에 selectFriendDiaries 호출 메소드 추가 필요 (DiaryMapper 연결)
-        List<DiaryVO> list = diaryService.getFriendDiaries(loginMember.getMemberId());
+        List<DiaryVO> list = diaryService.getAllFriendDiaries(loginMember.getMemberId());
         model.addAttribute("list", list);
 
         return "diary/friend_list"; // views/diary/friend_list.jsp
+    }
+
+    // 공유 링크 발급 (AJAX)
+    @PostMapping("/share/create")
+    @ResponseBody
+    public String createShareLink(@RequestParam("diaryId") Long diaryId, HttpSession session) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "fail:login";
+
+        try {
+            // 본인 확인 로직 필요 (Service에서 처리 권장)
+            // 여기서는 간단히 UUID 생성 호출
+            return diaryService.generateShareLink(diaryId); // 클라이언트에 UUID 반환 -> URL 완성
+        } catch (Exception e) {
+            log.error("공유 링크 생성 실패", e);
+            return "fail";
+        }
     }
 
 }

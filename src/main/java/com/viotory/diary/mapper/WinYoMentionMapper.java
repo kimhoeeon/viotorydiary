@@ -1,9 +1,7 @@
 package com.viotory.diary.mapper;
 
-import com.viotory.diary.vo.DiaryVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import java.util.List;
 
 @Mapper
 public interface WinYoMentionMapper {

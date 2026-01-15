@@ -1,5 +1,6 @@
 package com.viotory.diary.scheduler;
 
+import com.viotory.diary.service.AlarmService;
 import com.viotory.diary.service.GameDataService;
 import com.viotory.diary.service.GameService;
 import com.viotory.diary.service.PlayService;
@@ -19,6 +20,7 @@ public class GameScheduleTask {
     private final GameDataService gameDataService;
     private final GameService gameService; // DB 조회용
     private final PlayService playService; // 승부예측 처리용
+    private final AlarmService alarmService; // 알림 서비스 주입
 
     /**
      * [ 네이버/API ]
@@ -75,6 +77,21 @@ public class GameScheduleTask {
                 // 특정 경기 업데이트 실패 시 로그만 남기고 다음 경기로 진행
                 log.error(">>> [라이브 스케줄러] 경기({}) 업데이트 실패: {}", game.getGameId(), e.getMessage());
             }
+        }
+    }
+
+    /**
+     * [알림 정리] 매일 새벽 4시
+     * - 7일이 지난 오래된 알림 데이터 삭제
+     */
+    @Scheduled(cron = "0 0 4 * * *")
+    public void runAlarmCleanup() {
+        log.info("### [스케줄러] 오래된 알림 삭제 시작 (새벽 4시)");
+        try {
+            alarmService.deleteExpiredAlarms();
+            log.info("### [스케줄러] 오래된 알림 삭제 완료");
+        } catch (Exception e) {
+            log.error("### [스케줄러] 알림 삭제 중 에러 발생: {}", e.getMessage());
         }
     }
 

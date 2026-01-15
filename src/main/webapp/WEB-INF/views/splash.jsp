@@ -34,7 +34,7 @@
                     splash.style.display = 'none';
                     document.body.classList.remove('no-scroll');
 
-                    // [추가] 애니메이션이 끝나면 로그인 페이지로 이동
+                    // 애니메이션이 끝나면 로그인 페이지로 이동
                     location.href = '/member/login';
                 }, 300);
             }, 2500); // 2.5초 후 실행

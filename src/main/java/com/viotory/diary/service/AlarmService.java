@@ -40,4 +40,12 @@ public class AlarmService {
     public int getUnreadCount(Long memberId) {
         return alarmMapper.countUnread(memberId);
     }
+
+    // 오래된 알림 삭제 (스케줄러용)
+    @Transactional
+    public void deleteExpiredAlarms() {
+        int deletedCount = alarmMapper.deleteOldAlarms();
+        // 로그가 필요하면 @Slf4j 추가 후 log.info("삭제된 알림 수: " + deletedCount);
+    }
+
 }

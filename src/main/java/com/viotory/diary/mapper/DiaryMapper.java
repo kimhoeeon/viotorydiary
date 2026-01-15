@@ -43,5 +43,10 @@ public interface DiaryMapper {
 
     List<DiaryVO> selectAllFriendDiaries(Long memberId);
 
-    List<DiaryVO> selectFriendDiaries(Long memberId);
+    // 공유 UUID 업데이트
+    int updateShareUuid(@Param("diaryId") Long diaryId, @Param("uuid") String uuid);
+
+    // UUID로 일기 조회 (비회원용)
+    DiaryVO selectDiaryByUuid(String uuid);
+
 }

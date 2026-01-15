@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -116,9 +117,26 @@ public class DiaryService {
         return diaryMapper.selectAllFriendDiaries(memberId);
     }
 
-    // [신규] 친구(팔로잉)들의 일기 목록 조회
-    public List<DiaryVO> getFriendDiaries(Long memberId) {
-        return diaryMapper.selectFriendDiaries(memberId);
+    // 공유 링크 생성 (UUID 발급)
+    @Transactional
+    public String generateShareLink(Long diaryId) {
+        DiaryVO diary = diaryMapper.selectDiaryById(diaryId);
+        if (diary == null) throw new IllegalArgumentException("일기가 존재하지 않습니다.");
+
+        // 이미 UUID가 있다면 기존 값 반환
+        if (diary.getShareUuid() != null && !diary.getShareUuid().isEmpty()) {
+            return diary.getShareUuid();
+        }
+
+        // 없으면 새로 생성 후 저장
+        String uuid = UUID.randomUUID().toString().replace("-", ""); // 깔끔하게 하이픈 제거
+        diaryMapper.updateShareUuid(diaryId, uuid);
+        return uuid;
+    }
+
+    // 공유 일기 조회 (UUID 기반)
+    public DiaryVO getSharedDiary(String uuid) {
+        return diaryMapper.selectDiaryByUuid(uuid);
     }
 
 }

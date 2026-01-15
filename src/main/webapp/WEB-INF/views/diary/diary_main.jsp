@@ -17,9 +17,16 @@
 
 <body>
     <div class="app">
-        <div class="top_wrap">
-            <div class="main-top">
-                <div class="main-title">직관일기</div>
+        <div class="top_wrap" style="position:sticky; top:0; background:#fff; z-index:10; border-bottom:1px solid #f0f0f0;">
+            <div class="main-top" style="display:flex; align-items:center; justify-content:space-between; padding: 16px 20px;">
+
+                <div style="width: 24px;"></div>
+
+                <div style="display:flex; gap: 20px;">
+                    <a href="/diary/winyo" style="font-size:18px; color:#000; font-weight:700; border-bottom:2px solid #000; padding-bottom:4px;">나의 기록</a>
+                    <a href="/diary/friend/list" style="font-size:18px; color:#999; font-weight:500;">친구 일기</a>
+                </div>
+
                 <button class="noti-btn has-badge" onclick="location.href='/alarm/setting'">
                     <span class="noti-btn_icon"><img src="/img/ico_noti.svg" alt="알림"></span>
                     <span class="noti-dot"></span>
@@ -29,6 +36,15 @@
 
         <div class="app-main">
             <div class="page-main_wrap">
+                <div class="winyo-mention" style="padding: 24px 20px 0 20px;">
+                    <h2 style="font-size: 22px; font-weight: 700; color: #111; line-height: 1.4; word-break: keep-all;">
+                        <%-- 메인 메시지 (승률 기반) --%>
+                        <c:out value="${winYo.mainMessage}" default="승요력을 쌓아보세요!" />
+                    </h2>
+                    <%-- 서브 메시지 (최근 흐름 등 - 필요 시 주석 해제하여 사용) --%>
+                    <p style="font-size: 14px; color: #666; margin-top: 8px;">${winYo.subMessage}</p>
+                </div>
+
                 <div class="history">
                     <div class="history-list">
 

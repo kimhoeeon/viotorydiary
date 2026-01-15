@@ -33,7 +33,7 @@ public class WinYoService {
         int loses = 0;
         int draws = 0;
 
-        // [추가] 구장별 방문 횟수 카운팅용 맵
+        // 구장별 방문 횟수 카운팅용 맵
         Map<String, Integer> stadiumCountMap = new HashMap<>();
 
         // 2. 승/패/무 카운트
@@ -42,13 +42,13 @@ public class WinYoService {
             else if ("LOSE".equals(d.getGameResult())) loses++;
             else draws++;
 
-            // 2. [추가] 구장 카운트
+            // 2. 구장 카운트
             if (d.getStadiumName() != null) {
                 stadiumCountMap.put(d.getStadiumName(), stadiumCountMap.getOrDefault(d.getStadiumName(), 0) + 1);
             }
         }
 
-        // [추가] 최다 방문 구장 찾기
+        // 최다 방문 구장 찾기
         String topStadium = "-";
         int maxCount = 0;
         for (Map.Entry<String, Integer> entry : stadiumCountMap.entrySet()) {

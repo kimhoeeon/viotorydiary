@@ -28,6 +28,11 @@
             <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
+
+            <c:if test="${isOwner and diary.isPublic ne 'PRIVATE'}">
+                <button class="app-header_btn" type="button" onclick="shareDiary()" style="margin-left:auto;">
+                    <img src="/img/ico_clip.svg" alt="공유하기"> </button>
+            </c:if>
         </header>
 
         <div class="app-main">
@@ -160,6 +165,32 @@
         function editDiary() {
             // 수정 페이지 이동
             location.href = '/diary/update?diaryId=${diary.diaryId}';
+        }
+
+        // 공유하기 기능
+        function shareDiary() {
+            $.post('/diary/share/create', { diaryId: '${diary.diaryId}' }, function(uuid) {
+                if(uuid.startsWith('fail')) {
+                    alert('로그인이 필요하거나 오류가 발생했습니다.');
+                    return;
+                }
+
+                const shareUrl = window.location.origin + '/share/diary/' + uuid;
+
+                // 모바일 공유 기능 (Navigator Share API)
+                if (navigator.share) {
+                    navigator.share({
+                        title: '${diary.nickname}님의 승요일기',
+                        text: '오늘의 직관 기록을 확인해보세요!',
+                        url: shareUrl
+                    }).catch(console.error);
+                } else {
+                    // PC 등에서는 클립보드 복사
+                    navigator.clipboard.writeText(shareUrl).then(() => {
+                        alert('공유 링크가 복사되었습니다!');
+                    });
+                }
+            });
         }
     </script>
 </body>
