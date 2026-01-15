@@ -88,4 +88,6 @@ public interface MemberMapper {
 
     List<MemberVO> searchMembers(@Param("keyword") String keyword, @Param("myMemberId") Long myMemberId);
 
+    int countTodayMembers();
+
 }

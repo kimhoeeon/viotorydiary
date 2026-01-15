@@ -82,11 +82,4 @@ public class GlobalController {
         return isGroupActive;
     }
 
-    // 약관 페이지 통합 매핑
-    // /policy/privacy, /policy/terms, /policy/location 요청을 처리
-    @GetMapping("/policy/{type}")
-    public String policyPage(@PathVariable String type) {
-        return "policy/" + type; // views/policy/privacy.jsp 등으로 이동
-    }
-
 }

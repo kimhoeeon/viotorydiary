@@ -1,9 +1,7 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.MenuItem;
-import com.viotory.diary.service.AdminService;
-import com.viotory.diary.service.GameDataService;
-import com.viotory.diary.service.MenuService;
+import com.viotory.diary.service.*;
 import com.viotory.diary.vo.AdminVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +20,9 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;     // DB 로그인용
-    private final GameDataService gameDataService; // 경기 데이터 관리용
+    private final GameService gameService;
+    private final MemberService memberService;
+    private final DiaryService diaryService;
 
     // --- 1. 로그인 및 메인 ---
 
@@ -70,7 +70,25 @@ public class AdminController {
     @GetMapping("/main.do")
     public String mainPage(Model model) {
 
-        // TODO: 대시보드 통계 데이터 추가 가능
+        // [대시보드 통계 데이터 조회]
+
+        // 1. 회원 현황
+        int totalMembers = memberService.countMembers("", "");
+        int todayMembers = memberService.countTodayMembers();
+
+        // 2. 일기 현황
+        int totalDiaries = diaryService.countTotalDiaries();
+        int todayDiaries = diaryService.countTodayDiaries();
+
+        // 3. 오늘 경기 수
+        int todayGames = gameService.countTodayGames();
+
+        model.addAttribute("totalMembers", totalMembers);
+        model.addAttribute("todayMembers", todayMembers);
+        model.addAttribute("totalDiaries", totalDiaries);
+        model.addAttribute("todayDiaries", todayDiaries);
+        model.addAttribute("todayGames", todayGames);
+
         return "mng/main";
     }
 
@@ -136,37 +154,5 @@ public class AdminController {
         gameDataService.fetchFromRapid(targetDate);
         return targetDate + " 경기 데이터 업데이트 요청 완료!";
     }*/
-
-    /**
-     * 관리자가 직접 특정 년/월 데이터를 업데이트 하는 API
-     * 예: /admin/game/sync?year=2025&month=05
-     */
-    @GetMapping("/game/sync")
-    @ResponseBody
-    public String manualSync(@RequestParam String year, @RequestParam String month) {
-        gameDataService.syncMonthlyData(year, month);
-        return String.format("%s년 %s월 데이터 동기화 요청이 처리되었습니다.", year, month);
-    }
-
-    /**
-     * 특정 연도 전체(3월~11월) 데이터 동기화
-     * 예: /admin/game/sync-year?year=2025
-     */
-    @GetMapping("/game/sync-year")
-    @ResponseBody
-    public String syncYearlyData(@RequestParam String year) {
-        // 비동기로 실행하고 싶다면 Thread를 사용하거나 @Async를 사용해야 하지만,
-        // 우선은 로그를 확인하며 기다리는 방식으로 구현합니다.
-        gameDataService.syncYearlyData(year);
-        return String.format("%s년도 시즌 전체 데이터 수집이 완료되었습니다. (로그 확인 요망)", year);
-    }
-
-    // 기존 월별 동기화 API
-    @GetMapping("/sync-month")
-    @ResponseBody
-    public String syncMonthlyData(@RequestParam String year, @RequestParam String month) {
-        gameDataService.syncMonthlyData(year, month);
-        return String.format("%s년 %s월 시즌 데이터 수집이 완료되었습니다. (로그 확인 요망)", year, month);
-    }
 
 }

@@ -139,4 +139,12 @@ public class DiaryService {
         return diaryMapper.selectDiaryByUuid(uuid);
     }
 
+    public int countTotalDiaries() {
+        return diaryMapper.countTotalDiaries();
+    }
+
+    public int countTodayDiaries() {
+        return diaryMapper.countTodayDiaries();
+    }
+
 }

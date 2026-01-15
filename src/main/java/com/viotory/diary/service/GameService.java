@@ -50,4 +50,8 @@ public class GameService {
         return gameMapper.selectStadiumById(stadiumId);
     }
 
+    public int countTodayGames() {
+        return gameMapper.countTodayGames();
+    }
+
 }

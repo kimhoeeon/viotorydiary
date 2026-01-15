@@ -54,7 +54,7 @@
             const nickname = $('#nickname').val().trim();
             const errorMsg = $('#nickErrorMsg');
 
-            // [신규] 닉네임 정규식 검사 (한글, 영문 대소문자 2~6자리)
+            // 닉네임 정규식 검사 (한글, 영문 대소문자 2~6자리)
             const nickRegex = /^[가-힣a-zA-Z]{2,6}$/;
 
             if (!nickname) {

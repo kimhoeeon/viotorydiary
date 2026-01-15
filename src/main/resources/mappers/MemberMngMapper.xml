@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.viotory.diary.mapper.MemberMngMapper">
+
+    <sql id="criteria">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (email LIKE CONCAT('%', #{keyword}, '%')
+                OR nickname LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectMemberListWithPaging" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT *
+        FROM members
+        <include refid="criteria"></include>
+        ORDER BY created_at DESC
+        LIMIT #{amount} OFFSET ${(pageNum - 1) * amount}
+    </select>
+
+    <select id="getTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM members
+        <include refid="criteria"></include>
+    </select>
+
+    <select id="selectMemberById" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT * FROM members WHERE member_id = #{memberId}
+    </select>
+
+    <update id="updateMemberStatus">
+        UPDATE members
+        SET status = #{status},
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
+</mapper>

@@ -49,4 +49,7 @@ public interface DiaryMapper {
     // UUID로 일기 조회 (비회원용)
     DiaryVO selectDiaryByUuid(String uuid);
 
+    int countTotalDiaries();
+
+    int countTodayDiaries();
 }

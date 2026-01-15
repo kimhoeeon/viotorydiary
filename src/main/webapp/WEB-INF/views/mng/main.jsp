@@ -34,41 +34,128 @@
         <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
             <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
 
-                <jsp:include page="/WEB-INF/views/mng/include/header.jsp" />
+                <jsp:include page="/WEB-INF/views/mng/include/header.jsp"/>
 
                 <div class="app-wrapper flex-column flex-row-fluid" id="kt_app_wrapper">
-
-                    <jsp:include page="/WEB-INF/views/mng/include/sidebar.jsp" />
+                    <jsp:include page="/WEB-INF/views/mng/include/sidebar.jsp"/>
 
                     <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
                         <div class="d-flex flex-column flex-column-fluid">
-
                             <div id="kt_app_content" class="app-content flex-column-fluid">
                                 <div id="kt_app_content_container" class="app-container container-xxl pt-10">
 
-                                    <div class="card shadow-sm mb-5 mb-xl-10">
-                                        <div class="card-header">
-                                            <div class="card-title">
-                                                <h3>⚾ 경기 데이터 수동 동기화</h3>
+                                    <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
+
+                                        <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-md-5 mb-xl-10">
+                                            <div class="card card-flush h-md-50 mb-5 mb-xl-10">
+                                                <div class="card-header pt-5">
+                                                    <div class="card-title d-flex flex-column">
+                                                        <span class="fs-2hx fw-bold text-dark me-2 lh-1 ls-n2">${totalMembers}</span>
+                                                        <span class="text-gray-400 pt-1 fw-semibold fs-6">전체 회원 수</span>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body pt-2 pb-4 d-flex align-items-center">
+                                                    <div class="d-flex flex-center me-5 pt-2">
+                                                        <div id="kt_card_widget_17_chart"
+                                                             style="min-width: 70px; min-height: 70px" data-kt-size="70"
+                                                             data-kt-line="11">
+                                                            <i class="ki-duotone ki-people fs-2tx text-primary"><span
+                                                                    class="path1"></span><span class="path2"></span><span
+                                                                    class="path3"></span><span class="path4"></span><span
+                                                                    class="path5"></span></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex flex-column content-justify-center w-100">
+                                                        <div class="d-flex fs-6 fw-semibold align-items-center">
+                                                            <div class="bullet w-8px h-3px rounded-2 bg-success me-3"></div>
+                                                            <div class="text-gray-500 flex-grow-1 me-4">오늘 가입</div>
+                                                            <div class="fw-bolder text-gray-700 text-xxl-end">
+                                                                +${todayMembers}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="card-body">
-                                            <p class="text-muted mb-5">네이버 스포츠 API를 통해 경기 일정과 결과를 수동으로 가져옵니다.</p>
-
-                                            <div class="d-flex gap-2">
-                                                <button onclick="syncData('2025', '03', this)" class="btn btn-primary">2025년 3월 동기화</button>
-                                                <button onclick="syncData('2025', '04', this)" class="btn btn-primary">4월</button>
-                                                <button onclick="syncData('2025', '05', this)" class="btn btn-primary">5월</button>
-                                                <div class="vr"></div>
-                                                <button onclick="syncYear('2025')" class="btn btn-success">2025 시즌 전체 동기화</button>
+                                        <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-md-5 mb-xl-10">
+                                            <div class="card card-flush h-md-50 mb-5 mb-xl-10">
+                                                <div class="card-header pt-5">
+                                                    <div class="card-title d-flex flex-column">
+                                                        <span class="fs-2hx fw-bold text-dark me-2 lh-1 ls-n2">${totalDiaries}</span>
+                                                        <span class="text-gray-400 pt-1 fw-semibold fs-6">누적 일기 수</span>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body pt-2 pb-4 d-flex align-items-center">
+                                                    <div class="d-flex flex-center me-5 pt-2">
+                                                        <i class="ki-duotone ki-book-open fs-2tx text-success"><span
+                                                                class="path1"></span><span class="path2"></span><span
+                                                                class="path3"></span><span class="path4"></span></i>
+                                                    </div>
+                                                    <div class="d-flex flex-column content-justify-center w-100">
+                                                        <div class="d-flex fs-6 fw-semibold align-items-center">
+                                                            <div class="bullet w-8px h-3px rounded-2 bg-danger me-3"></div>
+                                                            <div class="text-gray-500 flex-grow-1 me-4">오늘 작성</div>
+                                                            <div class="fw-bolder text-gray-700 text-xxl-end">
+                                                                +${todayDiaries}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-md-5 mb-xl-10">
+                                            <div class="card card-flush h-md-50 mb-5 mb-xl-10">
+                                                <div class="card-header pt-5">
+                                                    <div class="card-title d-flex flex-column">
+                                                        <span class="fs-2hx fw-bold text-dark me-2 lh-1 ls-n2">${todayGames}</span>
+                                                        <span class="text-gray-400 pt-1 fw-semibold fs-6">오늘 예정 경기</span>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body pt-2 pb-4 d-flex align-items-center">
+                                                    <div class="d-flex flex-center me-5 pt-2">
+                                                        <i class="ki-duotone ki-calendar-tick fs-2tx text-warning"><span
+                                                                class="path1"></span><span class="path2"></span><span
+                                                                class="path3"></span></i>
+                                                    </div>
+                                                    <div class="d-flex flex-column content-justify-center w-100">
+                                                        <div class="d-flex fs-6 fw-semibold align-items-center">
+                                                            <div class="text-gray-500 flex-grow-1 me-4">데이터 관리 바로가기</div>
+                                                            <a href="/mng/game/syncPage"
+                                                               class="btn btn-sm btn-light-primary fw-bold">이동</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 col-lg-6 col-xl-6 col-xxl-3 mb-md-5 mb-xl-10">
+                                            <div class="card card-flush h-md-50 mb-5 mb-xl-10">
+                                                <div class="card-header pt-5">
+                                                    <div class="card-title d-flex flex-column">
+                                                        <span class="fs-2hx fw-bold text-dark me-2 lh-1 ls-n2">SYSTEM</span>
+                                                        <span class="text-gray-400 pt-1 fw-semibold fs-6">상태</span>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body pt-2 pb-4 d-flex align-items-center">
+                                                    <div class="d-flex flex-column content-justify-center w-100">
+                                                        <div class="d-flex fs-6 fw-semibold align-items-center mb-3">
+                                                            <div class="bullet w-8px h-3px rounded-2 bg-success me-3"></div>
+                                                            <div class="text-gray-500 flex-grow-1 me-4">DB 상태</div>
+                                                            <div class="fw-bolder text-success text-xxl-end">정상</div>
+                                                        </div>
+                                                        <div class="d-flex fs-6 fw-semibold align-items-center">
+                                                            <div class="bullet w-8px h-3px rounded-2 bg-primary me-3"></div>
+                                                            <div class="text-gray-500 flex-grow-1 me-4">관리자</div>
+                                                            <div class="fw-bolder text-gray-700 text-xxl-end">${sessionScope.adminName}</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
-
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -76,44 +163,6 @@
         </div>
         <script src="/assets/plugins/global/plugins.bundle.js"></script>
         <script src="/assets/js/scripts.bundle.js"></script>
-
-        <script>
-            function syncData(year, month, btnElement) {
-                if(!confirm(year + "년 " + month + "월 데이터를 동기화하시겠습니까?")) return;
-
-                const originalText = btnElement ? btnElement.innerText : "";
-                if(btnElement) {
-                    btnElement.innerText = "처리중...";
-                    btnElement.disabled = true;
-                }
-
-                fetch('/mng/game/sync?year=' + year + '&month=' + month)
-                    .then(res => res.text())
-                    .then(msg => {
-                        alert(msg);
-                        if(btnElement) {
-                            btnElement.innerText = originalText;
-                            btnElement.disabled = false;
-                        }
-                    })
-                    .catch(err => {
-                        alert("오류 발생: " + err);
-                        if(btnElement) {
-                            btnElement.innerText = originalText;
-                            btnElement.disabled = false;
-                        }
-                    });
-            }
-
-            function syncYear(year) {
-                if(!confirm(year + "년도 전체 데이터를 동기화하시겠습니까? (시간이 걸릴 수 있습니다)")) return;
-
-                fetch('/mng/game/sync-year?year=' + year)
-                    .then(res => res.text())
-                    .then(msg => alert(msg))
-                    .catch(err => alert("오류 발생: " + err));
-            }
-        </script>
     </c:if>
 </body>
 </html>

@@ -310,4 +310,12 @@
         /* is_public 체크는 서비스 로직에서 처리 (삭제된 글 안내 등을 위해) */
     </select>
 
+    <select id="countTotalDiaries" resultType="int">
+        SELECT COUNT(*) FROM diaries WHERE status = 'COMPLETED'
+    </select>
+
+    <select id="countTodayDiaries" resultType="int">
+        SELECT COUNT(*) FROM diaries WHERE status = 'COMPLETED' AND DATE(created_at) = CURDATE()
+    </select>
+
 </mapper>

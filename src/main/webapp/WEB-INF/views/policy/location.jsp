@@ -1,21 +1,67 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
-    <title>약관 상세</title>
+    <title>위치정보 이용약관 | 승요일기</title>
+    <style>
+        /* 약관 내용 스타일 보정 */
+        .policy-content {
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap; /* 줄바꿈 유지 */
+            word-break: break-all;
+        }
+
+        .policy-date {
+            padding: 0 20px 30px;
+            text-align: right;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
-<div class="app">
     <header class="app-header">
-        <button class="app-header_btn" onclick="history.back()"><img src="/img/ico_back_arrow.svg"></button>
-        <div class="page-tit">약관 상세</div>
+        <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
+            <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
+        </button>
+        <h1 class="app-header_title">
+            <c:out value="${term.title != null ? term.title : '위치정보 이용약관'}" />
+        </h1>
     </header>
-    <div class="app-main" style="padding:20px;">
-        <p>약관 내용이 들어갈 자리입니다. (준비 중)</p>
+
+    <div class="app-container">
+        <div class="policy-content">
+            <c:choose>
+                <c:when test="${not empty term}">
+                    <c:out value="${term.content}" escapeXml="false"/>
+                </c:when>
+                <c:otherwise>
+                    <div style="text-align:center; padding:50px 0; color:#999;">
+                        등록된 약관 내용이 없습니다.
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </div>
+
+        <c:if test="${not empty term}">
+            <div class="policy-date">
+                시행일자 :
+                <fmt:parseDate value="${term.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" type="both"/>
+                <fmt:formatDate value="${parsedDate}" pattern="yyyy년 MM월 dd일"/>
+            </div>
+        </c:if>
     </div>
-</div>
 </body>
 </html>

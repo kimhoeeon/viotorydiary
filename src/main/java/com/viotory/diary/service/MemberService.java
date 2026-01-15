@@ -424,4 +424,8 @@ public class MemberService {
         return memberMapper.searchMembers(keyword, myMemberId);
     }
 
+    public int countTodayMembers() {
+        return memberMapper.countTodayMembers();
+    }
+
 }

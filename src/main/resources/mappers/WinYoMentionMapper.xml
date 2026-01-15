@@ -4,13 +4,50 @@
 <mapper namespace="com.viotory.diary.mapper.WinYoMentionMapper">
 
     <select id="selectMessage" resultType="string">
-        <![CDATA[
         SELECT message
         FROM winyo_mentions
         WHERE category = #{category}
           AND condition_code = #{code}
+        ORDER BY priority DESC, mention_id DESC -- 우선순위 적용
         LIMIT 1
-        ]]>
     </select>
+
+    <select id="selectMentionList" resultType="com.viotory.diary.vo.WinYoMentionVO">
+        SELECT *
+        FROM winyo_mentions
+        <where>
+            <if test="category != null and category != ''">
+                category = #{category}
+            </if>
+        </where>
+        ORDER BY category ASC, priority DESC, condition_code ASC
+    </select>
+
+    <select id="selectMentionById" resultType="com.viotory.diary.vo.WinYoMentionVO">
+        SELECT * FROM winyo_mentions WHERE mention_id = #{mentionId}
+    </select>
+
+    <insert id="insertMention" parameterType="com.viotory.diary.vo.WinYoMentionVO">
+        INSERT INTO winyo_mentions (
+            category, condition_code, message, priority, description, created_at, updated_at
+        ) VALUES (
+                     #{category}, #{conditionCode}, #{message}, IFNULL(#{priority}, 0), #{description}, NOW(), NOW()
+                 )
+    </insert>
+
+    <update id="updateMention" parameterType="com.viotory.diary.vo.WinYoMentionVO">
+        UPDATE winyo_mentions
+        SET category = #{category},
+            condition_code = #{conditionCode},
+            message = #{message},
+            priority = #{priority},
+            description = #{description},
+            updated_at = NOW()
+        WHERE mention_id = #{mentionId}
+    </update>
+
+    <delete id="deleteMention">
+        DELETE FROM winyo_mentions WHERE mention_id = #{mentionId}
+    </delete>
 
 </mapper>

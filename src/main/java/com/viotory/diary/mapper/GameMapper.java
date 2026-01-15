@@ -50,4 +50,9 @@ public interface GameMapper {
 
     StadiumVO selectStadiumById(Integer stadiumId);
 
+    // [관리자] 월별 경기 목록 조회 (YYYY-MM)
+    List<GameVO> selectGameListByMonth(@Param("yearMonth") String yearMonth);
+
+    int countTodayGames();
+
 }

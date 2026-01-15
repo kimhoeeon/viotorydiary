@@ -257,4 +257,8 @@
         ORDER BY nickname ASC
     </select>
 
+    <select id="countTodayMembers" resultType="int">
+        SELECT COUNT(*) FROM members WHERE DATE(created_at) = CURDATE()
+    </select>
+
 </mapper>
