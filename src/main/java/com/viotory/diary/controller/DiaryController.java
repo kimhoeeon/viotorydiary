@@ -3,9 +3,11 @@ package com.viotory.diary.controller;
 import com.viotory.diary.dto.CommentDTO;
 import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.service.*;
+import com.viotory.diary.util.DistanceUtil;
 import com.viotory.diary.vo.DiaryVO;
 import com.viotory.diary.vo.GameVO;
 import com.viotory.diary.vo.MemberVO;
+import com.viotory.diary.vo.StadiumVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -367,6 +369,43 @@ public class DiaryController {
         } catch (Exception e) {
             log.error("공유 링크 생성 실패", e);
             return "fail";
+        }
+    }
+
+    // [준비] GPS 직관 인증 API
+    // GPS 직관 인증 API (실제 운용 가능)
+    @PostMapping("/verify/gps")
+    @ResponseBody
+    public String verifyGps(@RequestParam("gameId") Long gameId,
+                            @RequestParam("lat") Double userLat,
+                            @RequestParam("lon") Double userLon) {
+        try {
+            // 1. 경기 정보 조회
+            GameVO game = gameService.getGameById(gameId);
+            if (game == null) return "fail:game_not_found";
+
+            // 2. 구장 정보 및 좌표 조회
+            StadiumVO stadium = gameService.getStadium(game.getStadiumId());
+            if (stadium == null || stadium.getLat() == null || stadium.getLon() == null) {
+                // 구장 좌표 데이터가 DB에 없는 경우
+                return "fail:stadium_info_missing";
+            }
+
+            // 3. 거리 계산 (반경 2km 이내 인정)
+            double distance = DistanceUtil.distance(userLat, userLon, stadium.getLat(), stadium.getLon());
+
+            log.info("GPS 인증 시도 - 경기: {}, 유저위치: ({}, {}), 구장: {}, 거리: {}km",
+                    gameId, userLat, userLon, stadium.getName(), String.format("%.2f", distance));
+
+            if (distance <= 2.0) { // 2km 이내
+                return "ok"; // 인증 성공
+            } else {
+                return "fail:distance"; // 거리가 멉니다
+            }
+
+        } catch (Exception e) {
+            log.error("GPS 인증 처리 중 오류", e);
+            return "fail:error";
         }
     }
 

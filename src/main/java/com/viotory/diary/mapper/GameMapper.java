@@ -1,6 +1,7 @@
 package com.viotory.diary.mapper;
 
 import com.viotory.diary.vo.GameVO;
+import com.viotory.diary.vo.StadiumVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -46,5 +47,7 @@ public interface GameMapper {
     void updateGameScoreAndStatus(GameVO game);
 
     GameVO selectGameByApiId(String apiGameId);
+
+    StadiumVO selectStadiumById(Integer stadiumId);
 
 }

@@ -2,6 +2,7 @@ package com.viotory.diary.service;
 
 import com.viotory.diary.mapper.GameMapper;
 import com.viotory.diary.vo.GameVO;
+import com.viotory.diary.vo.StadiumVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,4 +44,10 @@ public class GameService {
     public GameVO getGameById(Long gameId) {
         return gameMapper.selectGameById(gameId);
     }
+
+    // 구장 정보 조회
+    public StadiumVO getStadium(Integer stadiumId) {
+        return gameMapper.selectStadiumById(stadiumId);
+    }
+
 }

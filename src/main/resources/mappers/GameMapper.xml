@@ -105,4 +105,8 @@
         SELECT * FROM games WHERE api_game_id = #{apiGameId}
     </select>
 
+    <select id="selectStadiumById" resultType="com.viotory.diary.vo.StadiumVO">
+        SELECT * FROM stadiums WHERE stadium_id = #{stadiumId}
+    </select>
+
 </mapper>
