@@ -4,7 +4,9 @@ import com.viotory.diary.dto.MenuItem;
 import com.viotory.diary.service.MenuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -79,4 +81,12 @@ public class GlobalController {
 
         return isGroupActive;
     }
+
+    // 약관 페이지 통합 매핑
+    // /policy/privacy, /policy/terms, /policy/location 요청을 처리
+    @GetMapping("/policy/{type}")
+    public String policyPage(@PathVariable String type) {
+        return "policy/" + type; // views/policy/privacy.jsp 등으로 이동
+    }
+
 }

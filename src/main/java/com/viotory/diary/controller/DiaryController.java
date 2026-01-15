@@ -333,7 +333,7 @@ public class DiaryController {
 
         // 2. 작성자(친구) 정보 조회
         Long writerId = diary.getMemberId();
-        MemberVO writer = memberService.getMemberById(writerId);
+        MemberVO writer = memberService.getMemberInfo(writerId);
 
         // 3. 작성자의 승요력(승률) 조회
         WinYoAnalysisDTO writerWinYo = winYoService.analyzeWinYoPower(writerId);
@@ -351,6 +351,19 @@ public class DiaryController {
         model.addAttribute("comments", comments);
 
         return "diary/friend_detail";
+    }
+
+    // 친구 일기 목록 (피드)
+    @GetMapping("/friend/list")
+    public String friendDiaryList(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        // Service에 selectFriendDiaries 호출 메소드 추가 필요 (DiaryMapper 연결)
+        List<DiaryVO> list = diaryService.getFriendDiaries(loginMember.getMemberId());
+        model.addAttribute("list", list);
+
+        return "diary/friend_list"; // views/diary/friend_list.jsp
     }
 
 }

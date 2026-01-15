@@ -76,11 +76,16 @@ public interface MemberMapper {
 
     // 팔로우 관련
     int checkFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
+
     int insertFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
+
     int deleteFollow(@Param("followerId") Long followerId, @Param("followingId") Long followingId);
 
     // 목록 조회
     List<FollowDTO> selectFollowerList(@Param("targetMemberId") Long targetMemberId, @Param("myMemberId") Long myMemberId);
+
     List<FollowDTO> selectFollowingList(@Param("targetMemberId") Long targetMemberId);
+
+    List<MemberVO> searchMembers(@Param("keyword") String keyword, @Param("myMemberId") Long myMemberId);
 
 }

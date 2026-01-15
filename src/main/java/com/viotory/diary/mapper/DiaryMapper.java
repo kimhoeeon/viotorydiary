@@ -43,4 +43,5 @@ public interface DiaryMapper {
 
     List<DiaryVO> selectAllFriendDiaries(Long memberId);
 
+    List<DiaryVO> selectFriendDiaries(Long memberId);
 }

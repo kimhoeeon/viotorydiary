@@ -548,5 +548,25 @@ public class MemberController {
             return "redirect:/member/mypage";
         }
     }
+
+    // 사용자 검색 페이지
+    @GetMapping("/search")
+    public String searchPage() {
+        return "member/search";
+    }
+
+    // 검색 수행 (결과 조회)
+    @GetMapping("/search/result")
+    public String searchResult(@RequestParam("keyword") String keyword,
+                               HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        List<MemberVO> result = memberService.searchMembers(keyword, loginMember.getMemberId());
+        model.addAttribute("list", result);
+        model.addAttribute("keyword", keyword);
+
+        return "member/search"; // 같은 페이지에 결과 뿌리기
+    }
     
 }

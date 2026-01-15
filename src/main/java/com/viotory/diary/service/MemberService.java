@@ -419,4 +419,9 @@ public class MemberService {
         }
     }
 
+    // 회원 검색
+    public List<MemberVO> searchMembers(String keyword, Long myMemberId) {
+        return memberMapper.searchMembers(keyword, myMemberId);
+    }
+
 }

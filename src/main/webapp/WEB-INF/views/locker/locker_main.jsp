@@ -157,9 +157,7 @@
             </div>
         </div>
 
-        <nav class="app-tabbar" aria-label="하단 메뉴">
-            <%@ include file="../include/tabbar.jsp" %>
-        </nav>
+        <%@ include file="../include/tabbar.jsp" %>
     </div>
 
     <script src="/js/script.js"></script>

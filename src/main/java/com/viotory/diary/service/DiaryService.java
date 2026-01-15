@@ -116,4 +116,9 @@ public class DiaryService {
         return diaryMapper.selectAllFriendDiaries(memberId);
     }
 
+    // [신규] 친구(팔로잉)들의 일기 목록 조회
+    public List<DiaryVO> getFriendDiaries(Long memberId) {
+        return diaryMapper.selectFriendDiaries(memberId);
+    }
+
 }

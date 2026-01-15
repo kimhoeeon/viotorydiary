@@ -247,4 +247,14 @@
           AND following_id = #{followingId}
     </select>
 
+    <select id="searchMembers" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT
+            member_id, nickname, profile_image, my_team_code,
+            (SELECT name_kr FROM teams WHERE team_code = members.my_team_code) AS myTeamName
+        FROM members
+        WHERE nickname LIKE CONCAT('%', #{keyword}, '%')
+          AND member_id != #{myMemberId}
+        ORDER BY nickname ASC
+    </select>
+
 </mapper>
