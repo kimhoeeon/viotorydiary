@@ -98,6 +98,8 @@
         </c:if>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script>
@@ -149,11 +151,15 @@
             // AJAX로 삭제 요청
             $.post('/diary/delete', { diaryId: '${diary.diaryId}' }, function(res) {
                 if (res === 'ok') {
-                    alert('일기가 삭제되었습니다.');
-                    location.href = '/diary/list'; // 목록으로 이동
+                    // 팝업 확인 후 목록으로 이동
+                    alert('일기가 삭제되었습니다.', function() {
+                        location.href = '/diary/list';
+                    });
                 } else if (res.startsWith('fail:login')) {
-                    alert('로그인이 필요합니다.');
-                    location.href = '/member/login';
+                    // 팝업 확인 후 목록으로 이동
+                    alert('로그인이 필요합니다.', function() {
+                        location.href = '/member/login';
+                    });
                 } else {
                     alert('일기 삭제에 실패했습니다. (권한이 없거나 이미 삭제됨)');
                 }

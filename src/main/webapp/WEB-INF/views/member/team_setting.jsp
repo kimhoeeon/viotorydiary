@@ -132,6 +132,8 @@
         </button>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="/js/script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

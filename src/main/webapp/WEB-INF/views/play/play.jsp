@@ -213,391 +213,393 @@
         </div>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
 
     <script>
-    $(document).ready(function() {
+        $(document).ready(function() {
 
-        // 탭 전환
-        $('.tab-btn').on('click', function() {
-            $('.tab-btn').removeClass('active');
-            $(this).addClass('active');
-            $('.tab-content').hide();
-            $('#' + $(this).data('tab')).show();
-        });
+            // 탭 전환
+            $('.tab-btn').on('click', function() {
+                $('.tab-btn').removeClass('active');
+                $(this).addClass('active');
+                $('.tab-content').hide();
+                $('#' + $(this).data('tab')).show();
+            });
 
-        // ============================================================
-        // [경기 달력 Logic] - date-picker.js 기반 재작성 (AJAX 연동)
-        // ============================================================
-        (function () {
-            const weekLabelEl    = document.getElementById('weekLabel');
-            const dateGridEl     = document.getElementById('dateGrid');
-            const prevWeekBtn    = document.getElementById('prevWeek');
-            const nextWeekBtn    = document.getElementById('nextWeek');
-            const selectedInput  = document.getElementById('selectedDate');
-            const pickerPopupBtn = document.querySelector('.picker-popup');
+            // ============================================================
+            // [경기 달력 Logic] - date-picker.js 기반 재작성 (AJAX 연동)
+            // ============================================================
+            (function () {
+                const weekLabelEl    = document.getElementById('weekLabel');
+                const dateGridEl     = document.getElementById('dateGrid');
+                const prevWeekBtn    = document.getElementById('prevWeek');
+                const nextWeekBtn    = document.getElementById('nextWeek');
+                const selectedInput  = document.getElementById('selectedDate');
+                const pickerPopupBtn = document.querySelector('.picker-popup');
 
-            // 바텀시트(월 캘린더)
-            const monthSheetBackdrop = document.getElementById('monthPickerSheet');
-            const monthLabelEl  = document.getElementById('monthLabel');
-            const monthGridEl   = document.getElementById('monthGrid');
-            const monthPrevBtn  = document.getElementById('monthPrev');
-            const monthNextBtn  = document.getElementById('monthNext');
-            const monthApplyBtn = document.getElementById('monthApplyBtn');
-            const monthCloseBtn = document.getElementById('monthCloseBtn');
+                // 바텀시트(월 캘린더)
+                const monthSheetBackdrop = document.getElementById('monthPickerSheet');
+                const monthLabelEl  = document.getElementById('monthLabel');
+                const monthGridEl   = document.getElementById('monthGrid');
+                const monthPrevBtn  = document.getElementById('monthPrev');
+                const monthNextBtn  = document.getElementById('monthNext');
+                const monthApplyBtn = document.getElementById('monthApplyBtn');
+                const monthCloseBtn = document.getElementById('monthCloseBtn');
 
-            // 오늘의 경기 박스 (팝업 내부)
-            const monthMatchBox   = document.querySelector('.month-match');
-            const monthMatchLabel = document.getElementById('monthMatchLabel');
-            const monthMatchText  = document.getElementById('monthMatchText');
+                // 오늘의 경기 박스 (팝업 내부)
+                const monthMatchBox   = document.querySelector('.month-match');
+                const monthMatchLabel = document.getElementById('monthMatchLabel');
+                const monthMatchText  = document.getElementById('monthMatchText');
 
-            // 상태 변수
-            let currentWeekDate = new Date();     // 주간 달력 기준일
-            let monthCursor     = new Date();     // 월간 팝업 기준월
-            monthCursor.setDate(1);
-            let popupSelectedDateStr = '';        // 팝업에서 선택한 날짜
+                // 상태 변수
+                let currentWeekDate = new Date();     // 주간 달력 기준일
+                let monthCursor     = new Date();     // 월간 팝업 기준월
+                monthCursor.setDate(1);
+                let popupSelectedDateStr = '';        // 팝업에서 선택한 날짜
 
-            // --- 유틸 함수 ---
-            function formatYMD(date) {
-                const y = date.getFullYear();
-                const m = String(date.getMonth() + 1).padStart(2, '0');
-                const d = String(date.getDate()).padStart(2, '0');
-                return y + '-' + m + '-' + d;
-            }
+                // --- 유틸 함수 ---
+                function formatYMD(date) {
+                    const y = date.getFullYear();
+                    const m = String(date.getMonth() + 1).padStart(2, '0');
+                    const d = String(date.getDate()).padStart(2, '0');
+                    return y + '-' + m + '-' + d;
+                }
 
-            function parseYMD(str) {
-                if (!str) return null;
-                const parts = str.split('-');
-                return new Date(parts[0], parts[1] - 1, parts[2]);
-            }
+                function parseYMD(str) {
+                    if (!str) return null;
+                    const parts = str.split('-');
+                    return new Date(parts[0], parts[1] - 1, parts[2]);
+                }
 
-            function getSundayOfWeek(date) {
-                const copy = new Date(date);
-                const dow  = copy.getDay(); // 0=일
-                copy.setDate(copy.getDate() - dow);
-                return copy;
-            }
+                function getSundayOfWeek(date) {
+                    const copy = new Date(date);
+                    const dow  = copy.getDay(); // 0=일
+                    copy.setDate(copy.getDate() - dow);
+                    return copy;
+                }
 
-            function getWeekLabel(date) {
-                const year  = date.getFullYear();
-                const month = date.getMonth();
-                const day   = date.getDate();
-                const yy = String(year).slice(-2);
+                function getWeekLabel(date) {
+                    const year  = date.getFullYear();
+                    const month = date.getMonth();
+                    const day   = date.getDate();
+                    const yy = String(year).slice(-2);
 
-                // 해당 월 기준 몇 주차인지 계산
-                const firstOfMonth = new Date(year, month, 1);
-                const firstDow     = firstOfMonth.getDay();
-                const weekIndex = Math.floor((firstDow + day - 1) / 7) + 1;
+                    // 해당 월 기준 몇 주차인지 계산
+                    const firstOfMonth = new Date(year, month, 1);
+                    const firstDow     = firstOfMonth.getDay();
+                    const weekIndex = Math.floor((firstDow + day - 1) / 7) + 1;
 
-                return yy + '년 ' + (month + 1) + '월 ' + weekIndex + '주';
-            }
+                    return yy + '년 ' + (month + 1) + '월 ' + weekIndex + '주';
+                }
 
-            // --- 주간 뷰 렌더링 ---
-            function renderWeekView() {
-                if (!weekLabelEl || !dateGridEl) return;
+                // --- 주간 뷰 렌더링 ---
+                function renderWeekView() {
+                    if (!weekLabelEl || !dateGridEl) return;
 
-                weekLabelEl.textContent = getWeekLabel(currentWeekDate);
-                dateGridEl.innerHTML = '';
+                    weekLabelEl.textContent = getWeekLabel(currentWeekDate);
+                    dateGridEl.innerHTML = '';
 
-                const ctxYear  = currentWeekDate.getFullYear();
-                const ctxMonth = currentWeekDate.getMonth();
-                const sunday = getSundayOfWeek(currentWeekDate);
-                const todayStr = formatYMD(new Date());
-                const selectedStr = selectedInput.value || todayStr;
+                    const ctxYear  = currentWeekDate.getFullYear();
+                    const ctxMonth = currentWeekDate.getMonth();
+                    const sunday = getSundayOfWeek(currentWeekDate);
+                    const todayStr = formatYMD(new Date());
+                    const selectedStr = selectedInput.value || todayStr;
 
-                for (let i = 0; i < 7; i++) {
-                    const d = new Date(sunday);
-                    d.setDate(sunday.getDate() + i);
+                    for (let i = 0; i < 7; i++) {
+                        const d = new Date(sunday);
+                        d.setDate(sunday.getDate() + i);
 
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'schedule-day';
-                    btn.textContent = d.getDate();
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'schedule-day';
+                        btn.textContent = d.getDate();
 
-                    const ymd = formatYMD(d);
-                    btn.dataset.date = ymd;
+                        const ymd = formatYMD(d);
+                        btn.dataset.date = ymd;
 
-                    // 다른 월 흐릿하게
-                    if (d.getFullYear() !== ctxYear || d.getMonth() !== ctxMonth) {
-                        btn.classList.add('is-other-month');
-                    }
-                    // 오늘
-                    if (ymd === todayStr) {
-                        btn.classList.add('is-today');
-                    }
-                    // 선택됨
-                    if (ymd === selectedStr) {
-                        btn.classList.add('is-selected');
-                    }
-
-                    // 클릭 이벤트: 날짜 선택 및 리스트 로드
-                    btn.addEventListener('click', () => {
-                        const isOtherMonth = (d.getFullYear() !== ctxYear || d.getMonth() !== ctxMonth);
-                        selectedInput.value = ymd;
-
-                        if (isOtherMonth) {
-                            currentWeekDate = d;
-                            renderWeekView();
-                        } else {
-                            document.querySelectorAll('.schedule-day.is-selected').forEach(el => el.classList.remove('is-selected'));
+                        // 다른 월 흐릿하게
+                        if (d.getFullYear() !== ctxYear || d.getMonth() !== ctxMonth) {
+                            btn.classList.add('is-other-month');
+                        }
+                        // 오늘
+                        if (ymd === todayStr) {
+                            btn.classList.add('is-today');
+                        }
+                        // 선택됨
+                        if (ymd === selectedStr) {
                             btn.classList.add('is-selected');
                         }
 
-                        // [중요] 실제 데이터 로드
-                        loadGames(ymd);
-                    });
+                        // 클릭 이벤트: 날짜 선택 및 리스트 로드
+                        btn.addEventListener('click', () => {
+                            const isOtherMonth = (d.getFullYear() !== ctxYear || d.getMonth() !== ctxMonth);
+                            selectedInput.value = ymd;
 
-                    dateGridEl.appendChild(btn);
-                }
-            }
+                            if (isOtherMonth) {
+                                currentWeekDate = d;
+                                renderWeekView();
+                            } else {
+                                document.querySelectorAll('.schedule-day.is-selected').forEach(el => el.classList.remove('is-selected'));
+                                btn.classList.add('is-selected');
+                            }
 
-            // --- 월간 팝업 렌더링 ---
-            function renderMonthView() {
-                if (!monthLabelEl || !monthGridEl) return;
-
-                const year  = monthCursor.getFullYear();
-                const month = monthCursor.getMonth();
-
-                monthLabelEl.textContent = year + '년 ' + (month + 1) + '월';
-                monthGridEl.innerHTML = '';
-
-                const firstDay = new Date(year, month, 1);
-                const firstDow = firstDay.getDay();
-                const lastDay  = new Date(year, month + 1, 0).getDate();
-                const todayStr = formatYMD(new Date());
-
-                // 빈칸 채우기
-                for (let i = 0; i < firstDow; i++) {
-                    const empty = document.createElement('div');
-                    empty.className = 'month-day is-empty';
-                    monthGridEl.appendChild(empty);
-                }
-
-                // 날짜 채우기
-                for (let d = 1; d <= lastDay; d++) {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'month-day';
-                    btn.textContent = d;
-
-                    const dateObj = new Date(year, month, d);
-                    const ymd = formatYMD(dateObj);
-                    btn.dataset.date = ymd;
-
-                    if (ymd === todayStr) btn.classList.add('is-today');
-                    if (ymd === popupSelectedDateStr) btn.classList.add('is-selected');
-
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.month-day.is-selected').forEach(el => el.classList.remove('is-selected'));
-                        btn.classList.add('is-selected');
-
-                        popupSelectedDateStr = ymd;
-                        updateMonthApplyBtn();
-                        updateMonthMatchInfo(ymd); // 선택한 날짜의 경기 미리보기 로드
-                    });
-
-                    monthGridEl.appendChild(btn);
-                }
-            }
-
-            // 팝업 하단 미리보기 (AJAX)
-            function updateMonthMatchInfo(dateStr) {
-                if (!monthMatchLabel || !monthMatchText) return;
-
-                // 초기화
-                monthMatchText.innerHTML = '<div style="color:#999; padding:10px;">로딩중...</div>';
-                monthMatchBox.classList.add('is-show');
-
-                $.get('/play/games', { date: dateStr }, function(data) {
-                    if (data && data.length > 0) {
-                        let html = '<ul class="month-match_list">';
-                        data.forEach(game => {
-                            html += '<li class="month-match_item">' +
-                                    game.gameTime.substring(0,5) + ' ' +
-                                    game.homeTeamName + ' vs ' + game.awayTeamName +
-                                    '</li>';
+                            // [중요] 실제 데이터 로드
+                            loadGames(ymd);
                         });
-                        html += '</ul>';
-                        monthMatchText.innerHTML = html;
-                    } else {
-                        monthMatchText.innerHTML = '<div style="color:#999;">경기가 없습니다.</div>';
+
+                        dateGridEl.appendChild(btn);
                     }
-                });
-            }
-
-            function updateMonthApplyBtn() {
-                if (!monthApplyBtn) return;
-                monthApplyBtn.disabled = !popupSelectedDateStr;
-            }
-
-            // --- 이벤트 핸들러 ---
-
-            // 1. 팝업 열기
-            pickerPopupBtn?.addEventListener('click', () => {
-                const baseDate = parseYMD(selectedInput.value) || new Date();
-                monthCursor = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
-                popupSelectedDateStr = selectedInput.value;
-
-                renderMonthView();
-                updateMonthApplyBtn();
-                // 처음 열 때는 미리보기 비움
-                monthMatchBox.classList.remove('is-show');
-                monthSheetBackdrop.classList.add('is-open');
-            });
-
-            // 2. 팝업 닫기
-            function closeMonthSheet() {
-                monthSheetBackdrop.classList.remove('is-open');
-            }
-            monthCloseBtn?.addEventListener('click', closeMonthSheet);
-            monthSheetBackdrop?.addEventListener('click', (e) => {
-                if (e.target === monthSheetBackdrop) closeMonthSheet();
-            });
-
-            // 3. 월 이동
-            monthPrevBtn?.addEventListener('click', () => {
-                monthCursor.setMonth(monthCursor.getMonth() - 1);
-                renderMonthView();
-            });
-            monthNextBtn?.addEventListener('click', () => {
-                monthCursor.setMonth(monthCursor.getMonth() + 1);
-                renderMonthView();
-            });
-
-            // 4. 적용 버튼
-            monthApplyBtn?.addEventListener('click', () => {
-                if (!popupSelectedDateStr) return;
-
-                selectedInput.value = popupSelectedDateStr;
-                const d = parseYMD(popupSelectedDateStr);
-
-                if (d) {
-                    currentWeekDate = d; // 선택한 날짜가 포함된 주간으로 이동
-                    renderWeekView();
-                    loadGames(popupSelectedDateStr); // 리스트 갱신
                 }
-                closeMonthSheet();
-            });
 
-            // 5. 주간 이동
-            prevWeekBtn?.addEventListener('click', () => {
-                currentWeekDate.setDate(currentWeekDate.getDate() - 7);
+                // --- 월간 팝업 렌더링 ---
+                function renderMonthView() {
+                    if (!monthLabelEl || !monthGridEl) return;
+
+                    const year  = monthCursor.getFullYear();
+                    const month = monthCursor.getMonth();
+
+                    monthLabelEl.textContent = year + '년 ' + (month + 1) + '월';
+                    monthGridEl.innerHTML = '';
+
+                    const firstDay = new Date(year, month, 1);
+                    const firstDow = firstDay.getDay();
+                    const lastDay  = new Date(year, month + 1, 0).getDate();
+                    const todayStr = formatYMD(new Date());
+
+                    // 빈칸 채우기
+                    for (let i = 0; i < firstDow; i++) {
+                        const empty = document.createElement('div');
+                        empty.className = 'month-day is-empty';
+                        monthGridEl.appendChild(empty);
+                    }
+
+                    // 날짜 채우기
+                    for (let d = 1; d <= lastDay; d++) {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'month-day';
+                        btn.textContent = d;
+
+                        const dateObj = new Date(year, month, d);
+                        const ymd = formatYMD(dateObj);
+                        btn.dataset.date = ymd;
+
+                        if (ymd === todayStr) btn.classList.add('is-today');
+                        if (ymd === popupSelectedDateStr) btn.classList.add('is-selected');
+
+                        btn.addEventListener('click', () => {
+                            document.querySelectorAll('.month-day.is-selected').forEach(el => el.classList.remove('is-selected'));
+                            btn.classList.add('is-selected');
+
+                            popupSelectedDateStr = ymd;
+                            updateMonthApplyBtn();
+                            updateMonthMatchInfo(ymd); // 선택한 날짜의 경기 미리보기 로드
+                        });
+
+                        monthGridEl.appendChild(btn);
+                    }
+                }
+
+                // 팝업 하단 미리보기 (AJAX)
+                function updateMonthMatchInfo(dateStr) {
+                    if (!monthMatchLabel || !monthMatchText) return;
+
+                    // 초기화
+                    monthMatchText.innerHTML = '<div style="color:#999; padding:10px;">로딩중...</div>';
+                    monthMatchBox.classList.add('is-show');
+
+                    $.get('/play/games', { date: dateStr }, function(data) {
+                        if (data && data.length > 0) {
+                            let html = '<ul class="month-match_list">';
+                            data.forEach(game => {
+                                html += '<li class="month-match_item">' +
+                                        game.gameTime.substring(0,5) + ' ' +
+                                        game.homeTeamName + ' vs ' + game.awayTeamName +
+                                        '</li>';
+                            });
+                            html += '</ul>';
+                            monthMatchText.innerHTML = html;
+                        } else {
+                            monthMatchText.innerHTML = '<div style="color:#999;">경기가 없습니다.</div>';
+                        }
+                    });
+                }
+
+                function updateMonthApplyBtn() {
+                    if (!monthApplyBtn) return;
+                    monthApplyBtn.disabled = !popupSelectedDateStr;
+                }
+
+                // --- 이벤트 핸들러 ---
+
+                // 1. 팝업 열기
+                pickerPopupBtn?.addEventListener('click', () => {
+                    const baseDate = parseYMD(selectedInput.value) || new Date();
+                    monthCursor = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
+                    popupSelectedDateStr = selectedInput.value;
+
+                    renderMonthView();
+                    updateMonthApplyBtn();
+                    // 처음 열 때는 미리보기 비움
+                    monthMatchBox.classList.remove('is-show');
+                    monthSheetBackdrop.classList.add('is-open');
+                });
+
+                // 2. 팝업 닫기
+                function closeMonthSheet() {
+                    monthSheetBackdrop.classList.remove('is-open');
+                }
+                monthCloseBtn?.addEventListener('click', closeMonthSheet);
+                monthSheetBackdrop?.addEventListener('click', (e) => {
+                    if (e.target === monthSheetBackdrop) closeMonthSheet();
+                });
+
+                // 3. 월 이동
+                monthPrevBtn?.addEventListener('click', () => {
+                    monthCursor.setMonth(monthCursor.getMonth() - 1);
+                    renderMonthView();
+                });
+                monthNextBtn?.addEventListener('click', () => {
+                    monthCursor.setMonth(monthCursor.getMonth() + 1);
+                    renderMonthView();
+                });
+
+                // 4. 적용 버튼
+                monthApplyBtn?.addEventListener('click', () => {
+                    if (!popupSelectedDateStr) return;
+
+                    selectedInput.value = popupSelectedDateStr;
+                    const d = parseYMD(popupSelectedDateStr);
+
+                    if (d) {
+                        currentWeekDate = d; // 선택한 날짜가 포함된 주간으로 이동
+                        renderWeekView();
+                        loadGames(popupSelectedDateStr); // 리스트 갱신
+                    }
+                    closeMonthSheet();
+                });
+
+                // 5. 주간 이동
+                prevWeekBtn?.addEventListener('click', () => {
+                    currentWeekDate.setDate(currentWeekDate.getDate() - 7);
+                    renderWeekView();
+                });
+                nextWeekBtn?.addEventListener('click', () => {
+                    currentWeekDate.setDate(currentWeekDate.getDate() + 7);
+                    renderWeekView();
+                });
+
+                // 초기 실행
+                const initDate = parseYMD(selectedInput.value);
+                if(initDate) currentWeekDate = initDate;
                 renderWeekView();
+
+            })(); // End of Calendar IIFE
+
+        });
+
+        // ==========================================
+        // [공통] 경기 리스트 로드 및 승부예측 기능
+        // ==========================================
+
+        function loadGames(dateStr) {
+            $('#selectedDateTitle').text(dateStr + ' 경기');
+
+            $.get('/play/games', { date: dateStr }, function(data) {
+                const list = $('#gameListArea');
+                list.empty();
+
+                if (!data || data.length === 0) {
+                    list.html('<div class="no-data" style="text-align:center; padding:40px 0; color:#999;"><div class="nodt_tit">해당 날짜에 경기가 없습니다.</div></div>');
+                    return;
+                }
+
+                data.forEach(game => {
+                    let btnHtml = '';
+                    if (game.myPredictedTeam) {
+                        btnHtml = '<button type="button" class="btn btn-gray w-auto" disabled>예측완료</button>';
+                    } else {
+                        btnHtml = `<button type="button" class="btn btn-primary w-auto"
+                                    onclick="openPredictPopup(\${game.gameId}, '\${game.homeTeamName}', '\${game.awayTeamName}', '\${game.homeTeamCode}', '\${game.awayTeamCode}')">
+                                    승부예측
+                                   </button>`;
+                    }
+
+                    const item = `
+                        <div class="game-list_item">
+                            <div class="time">\${game.gameTime.substring(0, 5)}</div>
+                            <div class="match-info">
+                                <div class="team home">
+                                    <div class="logo \${(game.homeTeamCode || '').toLowerCase()}"></div>
+                                    <div class="name">\${game.homeTeamName}</div>
+                                </div>
+                                <div class="vs">vs</div>
+                                <div class="team away">
+                                    <div class="logo \${(game.awayTeamCode || '').toLowerCase()}"></div>
+                                    <div class="name">\${game.awayTeamName}</div>
+                                </div>
+                            </div>
+                            <div class="place">\${game.stadiumName}</div>
+                            \${btnHtml}
+                        </div>`;
+                    list.append(item);
+                });
             });
-            nextWeekBtn?.addEventListener('click', () => {
-                currentWeekDate.setDate(currentWeekDate.getDate() + 7);
-                renderWeekView();
-            });
+        }
 
-            // 초기 실행
-            const initDate = parseYMD(selectedInput.value);
-            if(initDate) currentWeekDate = initDate;
-            renderWeekView();
+        let selectedGameId = null;
+        let selectedTeamCode = null;
 
-        })(); // End of Calendar IIFE
+        function openPredictPopup(gameId, homeName, awayName, homeCode, awayCode) {
+            selectedGameId = gameId;
+            selectedTeamCode = null;
 
-    });
+            $('#popGameId').val(gameId);
+            $('#popHomeName').text(homeName);
+            $('#popAwayName').text(awayName);
 
-    // ==========================================
-    // [공통] 경기 리스트 로드 및 승부예측 기능
-    // ==========================================
+            $('#btnHome').data('code', homeCode).removeClass('active').css({'background':'#fff', 'color':'#000', 'border-color':'#ddd'});
+            $('#btnAway').data('code', awayCode).removeClass('active').css({'background':'#fff', 'color':'#000', 'border-color':'#ddd'});
 
-    function loadGames(dateStr) {
-        $('#selectedDateTitle').text(dateStr + ' 경기');
+            $('#predictPopup').css('display', 'flex');
+        }
 
-        $.get('/play/games', { date: dateStr }, function(data) {
-            const list = $('#gameListArea');
-            list.empty();
+        function selectTeam(side) {
+            $('.team-select-btn').removeClass('active').css({'background':'#fff', 'color':'#000', 'border-color':'#ddd'});
 
-            if (!data || data.length === 0) {
-                list.html('<div class="no-data" style="text-align:center; padding:40px 0; color:#999;"><div class="nodt_tit">해당 날짜에 경기가 없습니다.</div></div>');
+            if (side === 'HOME') {
+                $('#btnHome').addClass('active').css({'background':'#e6f7ff', 'color':'#2c7fff', 'border-color':'#2c7fff'});
+                selectedTeamCode = $('#btnHome').data('code');
+            } else {
+                $('#btnAway').addClass('active').css({'background':'#e6f7ff', 'color':'#2c7fff', 'border-color':'#2c7fff'});
+                selectedTeamCode = $('#btnAway').data('code');
+            }
+        }
+
+        function submitPrediction() {
+            if (!selectedTeamCode) {
+                alert('승리할 팀을 선택해주세요.');
                 return;
             }
 
-            data.forEach(game => {
-                let btnHtml = '';
-                if (game.myPredictedTeam) {
-                    btnHtml = '<button type="button" class="btn btn-gray w-auto" disabled>예측완료</button>';
+            $.post('/play/predict', {
+                gameId: selectedGameId,
+                teamCode: selectedTeamCode
+            }, function(res) {
+                if (res === 'ok') {
+                    alert('예측이 저장되었습니다.');
+                    location.reload();
+                } else if (res === 'fail:login') {
+                    alert('로그인이 필요합니다.');
+                    location.href = '/member/login';
                 } else {
-                    btnHtml = `<button type="button" class="btn btn-primary w-auto"
-                                onclick="openPredictPopup(\${game.gameId}, '\${game.homeTeamName}', '\${game.awayTeamName}', '\${game.homeTeamCode}', '\${game.awayTeamCode}')">
-                                승부예측
-                               </button>`;
+                    alert('오류가 발생했습니다.');
                 }
-
-                const item = `
-                    <div class="game-list_item">
-                        <div class="time">\${game.gameTime.substring(0, 5)}</div>
-                        <div class="match-info">
-                            <div class="team home">
-                                <div class="logo \${(game.homeTeamCode || '').toLowerCase()}"></div>
-                                <div class="name">\${game.homeTeamName}</div>
-                            </div>
-                            <div class="vs">vs</div>
-                            <div class="team away">
-                                <div class="logo \${(game.awayTeamCode || '').toLowerCase()}"></div>
-                                <div class="name">\${game.awayTeamName}</div>
-                            </div>
-                        </div>
-                        <div class="place">\${game.stadiumName}</div>
-                        \${btnHtml}
-                    </div>`;
-                list.append(item);
             });
-        });
-    }
-
-    let selectedGameId = null;
-    let selectedTeamCode = null;
-
-    function openPredictPopup(gameId, homeName, awayName, homeCode, awayCode) {
-        selectedGameId = gameId;
-        selectedTeamCode = null;
-
-        $('#popGameId').val(gameId);
-        $('#popHomeName').text(homeName);
-        $('#popAwayName').text(awayName);
-
-        $('#btnHome').data('code', homeCode).removeClass('active').css({'background':'#fff', 'color':'#000', 'border-color':'#ddd'});
-        $('#btnAway').data('code', awayCode).removeClass('active').css({'background':'#fff', 'color':'#000', 'border-color':'#ddd'});
-
-        $('#predictPopup').css('display', 'flex');
-    }
-
-    function selectTeam(side) {
-        $('.team-select-btn').removeClass('active').css({'background':'#fff', 'color':'#000', 'border-color':'#ddd'});
-
-        if (side === 'HOME') {
-            $('#btnHome').addClass('active').css({'background':'#e6f7ff', 'color':'#2c7fff', 'border-color':'#2c7fff'});
-            selectedTeamCode = $('#btnHome').data('code');
-        } else {
-            $('#btnAway').addClass('active').css({'background':'#e6f7ff', 'color':'#2c7fff', 'border-color':'#2c7fff'});
-            selectedTeamCode = $('#btnAway').data('code');
         }
-    }
-
-    function submitPrediction() {
-        if (!selectedTeamCode) {
-            alert('승리할 팀을 선택해주세요.');
-            return;
-        }
-
-        $.post('/play/predict', {
-            gameId: selectedGameId,
-            teamCode: selectedTeamCode
-        }, function(res) {
-            if (res === 'ok') {
-                alert('예측이 저장되었습니다.');
-                location.reload();
-            } else if (res === 'fail:login') {
-                alert('로그인이 필요합니다.');
-                location.href = '/member/login';
-            } else {
-                alert('오류가 발생했습니다.');
-            }
-        });
-    }
     </script>
 
     <style>

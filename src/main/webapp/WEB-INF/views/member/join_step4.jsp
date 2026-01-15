@@ -62,6 +62,8 @@
         </div>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="/js/script.js"></script>
     <script src="/js/date-picker.js"></script>
     <script>

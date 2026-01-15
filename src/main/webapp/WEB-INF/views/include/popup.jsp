@@ -33,7 +33,10 @@
         const title = document.getElementById('commonPopupTitle');
         const footerConfirm = document.getElementById('popupFooterConfirm');
         const footerAlert = document.getElementById('popupFooterAlert');
-        const confirmBtn = document.getElementById('popupConfirmBtn');
+
+        // 각 버튼 요소 가져오기
+        const confirmBtn = document.getElementById('popupConfirmBtn'); // Confirm용 확인 버튼
+        const alertBtn = footerAlert.querySelector('button');          // Alert용 확인 버튼
 
         // 텍스트 설정
         title.innerHTML = text;
@@ -43,14 +46,21 @@
             footerConfirm.style.display = 'flex';
             footerAlert.style.display = 'none';
 
-            // 확인 버튼 이벤트 연결
+            // Confirm 확인 버튼 클릭 시
             confirmBtn.onclick = function () {
-                if (confirmCallback) confirmCallback();
-                closePopup();
+                closePopup(); // 팝업 닫기
+                if (confirmCallback) confirmCallback(); // 콜백 실행
             };
         } else {
+            // Alert 타입
             footerConfirm.style.display = 'none';
             footerAlert.style.display = 'block';
+
+            // Alert 확인 버튼 클릭 시에도 콜백 실행 가능하도록 변경
+            alertBtn.onclick = function() {
+                closePopup();
+                if (confirmCallback) confirmCallback();
+            };
         }
 
         popup.style.display = 'block';

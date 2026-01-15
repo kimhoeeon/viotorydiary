@@ -70,6 +70,8 @@
         </div>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="/js/script.js"></script>
     <script src="/js/date-picker.js"></script> <script>
         // [JS] 선택된 날짜를 히든 인풋에 바인딩하는 로직 보완

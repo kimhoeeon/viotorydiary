@@ -74,6 +74,8 @@
         </div>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="/js/script.js"></script>
     <script>
         // script.js의 토글 기능은 ID 기반이므로 form ID가 바뀌어도 정상 작동합니다.

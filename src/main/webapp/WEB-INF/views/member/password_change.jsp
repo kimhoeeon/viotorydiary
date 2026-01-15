@@ -83,6 +83,8 @@
         <button type="button" class="btn btn-primary" id="submitBtn" disabled onclick="submitForm()">변경 완료</button>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="/js/script.js"></script>
     <script>
         const currentPw = document.getElementById('currentPassword');

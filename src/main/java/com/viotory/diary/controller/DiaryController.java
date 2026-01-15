@@ -360,15 +360,31 @@ public class DiaryController {
     @ResponseBody
     public String createShareLink(@RequestParam("diaryId") Long diaryId, HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "fail:login";
+        if (loginMember == null) return "fail:login"; // 로그인 필요
 
         try {
-            // 본인 확인 로직 필요 (Service에서 처리 권장)
-            // 여기서는 간단히 UUID 생성 호출
-            return diaryService.generateShareLink(diaryId); // 클라이언트에 UUID 반환 -> URL 완성
+            // 1. 일기 정보 조회 (존재 여부 확인)
+            DiaryVO diary = diaryService.getDiary(diaryId);
+            if (diary == null) {
+                return "fail:not_found"; // 일기가 없음
+            }
+
+            // 2. 권한 체크 (작성자 본인만 공유 링크 생성 가능)
+            if (!diary.getMemberId().equals(loginMember.getMemberId())) {
+                return "fail:permission"; // 권한 없음 (남의 글)
+            }
+
+            // 3. 비공개 글인지 체크 (선택 사항: 비공개 글은 공유 불가 정책이라면 추가)
+            if ("PRIVATE".equals(diary.getIsPublic())) {
+                return "fail:private"; // 비공개 글은 공유 불가
+            }
+
+            // 4. 공유 UUID 생성 및 반환
+            return diaryService.generateShareLink(diaryId);
+
         } catch (Exception e) {
             log.error("공유 링크 생성 실패", e);
-            return "fail";
+            return "fail:error";
         }
     }
 

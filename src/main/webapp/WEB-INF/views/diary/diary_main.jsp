@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
-    <title>승요일기</title>
+    <title>직관 일기 메인 | 승요일기</title>
 </head>
 
 <body>
@@ -196,6 +196,8 @@
 
         <%@ include file="../include/tabbar.jsp" %>
     </div>
+
+    <%@ include file="../include/popup.jsp" %>
 
     <script src="/js/script.js"></script>
 </body>

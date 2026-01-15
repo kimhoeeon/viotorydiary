@@ -160,6 +160,8 @@
         <%@ include file="../include/tabbar.jsp" %>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="/js/script.js"></script>
     <script>
         // 탭바 활성화 처리 (라커룸 탭 Active)

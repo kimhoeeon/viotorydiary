@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
-    <title>직관 일기 공유 | 승요일기</title>
+    <title>직관일기 공유 | 승요일기</title>
 </head>
 
 <body>

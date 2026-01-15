@@ -54,6 +54,8 @@
         <%@ include file="../include/tabbar.jsp" %>
     </div>
 
+    <%@ include file="../include/popup.jsp" %>
+
     <script src="/js/script.js"></script>
     <script>
         function toggleFollow(targetId) {

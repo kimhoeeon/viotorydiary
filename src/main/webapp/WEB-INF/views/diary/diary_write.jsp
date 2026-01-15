@@ -203,6 +203,8 @@
 
   </div>
 
+  <%@ include file="../include/popup.jsp" %>
+
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="/js/script.js"></script>
   <script>
@@ -337,11 +339,16 @@
       // 4. 제출
       function submitDiary() {
           if (!$('#gameId').val()) {
-              alert('경기를 선택해주세요.');
+              alert('경기를 선택해주세요.', function() {
+                  // 경기 선택 팝업 열기 등의 후속 조치
+                  openGameSheet();
+              });
               return;
           }
           if (!$('#oneLine').val()) {
-              alert('오늘 경기에 대한 한줄평을 남겨주세요!');
+              alert('오늘 경기에 대한 한줄평을 남겨주세요!', function() {
+                  $('#oneLine').focus();
+              });
               return;
           }
           $('#diaryForm').submit();

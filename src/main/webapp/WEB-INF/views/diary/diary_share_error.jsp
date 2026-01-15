@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
-    <title>승요일기</title>
+    <title>직관일기 로드 실패 | 승요일기</title>
 </head>
 
 <body>

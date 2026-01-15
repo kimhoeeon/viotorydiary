@@ -1,3 +1,32 @@
+/**
+ * [공통] 브라우저 기본 Alert 오버라이딩
+ * 기본 alert() 호출 시 커스텀 팝업(showPopup)이 뜨도록 변경
+ * 사용법: alert('메시지', function() { 페이지이동 등 후속작업 });
+ */
+const nativeAlert = window.alert; // 기본 alert 백업
+
+window.alert = function(message, callback) {
+    // showPopup 함수가 정의되어 있으면(popup.jsp가 include된 페이지면) 커스텀 팝업 사용
+    if (typeof showPopup === 'function') {
+        showPopup('alert', message, callback);
+    } else {
+        // popup.jsp가 없는 페이지라면 기본 alert 사용
+        nativeAlert(message);
+        if (callback) callback();
+    }
+};
+
+// [옵션] Confirm도 커스텀으로 쓰고 싶다면 아래 함수 사용 (기존 confirm은 동기식이라 오버라이딩 불가)
+window.customConfirm = function(message, callback) {
+    if (typeof showPopup === 'function') {
+        showPopup('confirm', message, callback);
+    } else {
+        if(confirm(message)) {
+            if(callback) callback();
+        }
+    }
+};
+
 // ios 높이 대응
 function setVH() {
   document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
