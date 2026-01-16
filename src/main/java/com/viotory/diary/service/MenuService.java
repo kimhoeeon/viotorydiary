@@ -39,9 +39,21 @@ public class MenuService {
         List<MenuItem> subContent = new ArrayList<>();
         subContent.add(new MenuItem("이벤트 관리", "/mng/content/events", "", 0));
         subContent.add(new MenuItem("구단 콘텐츠 관리", "/mng/content/teams", "", 0));
+        subContent.add(new MenuItem("구단 정보 관리", "/mng/content/team-info/list", "", 0));
         menus.add(new MenuItem("콘텐츠 관리", "#", "ki-folder", 2, subContent));
 
-        // 6. 시스템 관리 (그룹)
+        // 7. 통계 관리 (그룹)
+        List<MenuItem> subStats = new ArrayList<>();
+        subStats.add(new MenuItem("직관 승률 랭킹", "/mng/stats/ranking", "", 0));
+        menus.add(new MenuItem("통계 관리", "#", "ki-chart-line-up", 2, subStats));
+
+        // 6. 고객센터 관리 (그룹)
+        List<MenuItem> subSupport = new ArrayList<>();
+        subSupport.add(new MenuItem("FAQ 관리", "/mng/support/faq/list", "", 0));
+        subSupport.add(new MenuItem("1:1 문의 관리", "/mng/support/inquiry/list", "", 0));
+        menus.add(new MenuItem("고객센터", "#", "ki-question", 2, subSupport));
+
+        // 7. 시스템 관리 (그룹)
         List<MenuItem> subSys = new ArrayList<>();
         subSys.add(new MenuItem("공지사항 관리", "/mng/system/notices", "", 0));
         subSys.add(new MenuItem("앱 버전 관리", "/mng/system/versions", "", 0));

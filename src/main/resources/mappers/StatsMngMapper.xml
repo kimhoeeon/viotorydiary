@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.viotory.diary.mapper.StatsMngMapper">
+
+    <select id="selectWinRateRanking" resultType="com.viotory.diary.vo.UserStatsVO">
+        SELECT
+            m.member_id,
+            m.nickname,
+            m.my_team_code,
+            t.name_kr AS myTeamName,
+            COUNT(d.diary_id) AS totalGames,
+
+            -- 승리 횟수 집계
+            SUM(CASE
+                    WHEN (g.home_team_code = m.my_team_code AND g.score_home > g.score_away) THEN 1
+                    WHEN (g.away_team_code = m.my_team_code AND g.score_away > g.score_home) THEN 1
+                    ELSE 0
+                END) AS winGames,
+
+            -- 패배 횟수 집계
+            SUM(CASE
+                    WHEN (g.home_team_code = m.my_team_code AND g.score_home &lt; g.score_away) THEN 1
+                    WHEN (g.away_team_code = m.my_team_code AND g.score_away &lt; g.score_home) THEN 1
+                    ELSE 0
+                END) AS loseGames,
+
+            -- 무승부/취소 등
+            SUM(CASE
+                    WHEN (g.score_home = g.score_away) OR g.status IN ('CANCEL', 'RAIN') THEN 1
+                    ELSE 0
+                END) AS drawGames
+
+        FROM diaries d
+                 JOIN members m ON d.member_id = m.member_id
+                 JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN teams t ON m.my_team_code = t.team_code
+        WHERE d.status = 'COMPLETED'  -- 정상 등록된 일기만
+          AND g.status = 'END'        -- 종료된 경기만
+        GROUP BY m.member_id
+        ORDER BY winGames DESC, totalGames DESC -- 승리수 > 직관수 순 정렬
+        LIMIT 100 -- 상위 100명만
+    </select>
+
+</mapper>

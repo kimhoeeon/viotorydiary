@@ -18,7 +18,7 @@
     <select id="selectMemberListWithPaging" resultType="com.viotory.diary.vo.MemberVO">
         SELECT *
         FROM members
-        <include refid="criteria"></include>
+        <include refid="criteria"/>
         ORDER BY created_at DESC
         LIMIT #{amount} OFFSET ${(pageNum - 1) * amount}
     </select>
@@ -26,7 +26,7 @@
     <select id="getTotalCount" resultType="int">
         SELECT COUNT(*)
         FROM members
-        <include refid="criteria"></include>
+        <include refid="criteria"/>
     </select>
 
     <select id="selectMemberById" resultType="com.viotory.diary.vo.MemberVO">

@@ -28,7 +28,7 @@
         m.email
         FROM comments c
         JOIN members m ON c.member_id = m.member_id
-        <include refid="criteria"></include>
+        <include refid="criteria"/>
         ORDER BY c.created_at DESC
         LIMIT #{amount} OFFSET ${(pageNum - 1) * amount}
     </select>
@@ -37,7 +37,7 @@
         SELECT COUNT(*)
         FROM comments c
         JOIN members m ON c.member_id = m.member_id
-        <include refid="criteria"></include>
+        <include refid="criteria"/>
     </select>
 
     <update id="deleteComment">

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.viotory.diary.mapper.TeamInfoMngMapper">
+
+    <select id="selectTeamList" resultType="com.viotory.diary.vo.TeamVO">
+        SELECT * FROM teams ORDER BY sort_order ASC, name_kr ASC
+    </select>
+
+    <select id="selectTeamByCode" resultType="com.viotory.diary.vo.TeamVO">
+        SELECT * FROM teams WHERE team_code = #{teamCode}
+    </select>
+
+    <update id="updateTeam" parameterType="com.viotory.diary.vo.TeamVO">
+        UPDATE teams
+        SET name_kr = #{nameKr},
+            name_en = #{nameEn},
+            short_name = #{shortName},
+            color_main_hex = #{colorMainHex},
+            logo_image_url = #{logoImageUrl},
+            sort_order = #{sortOrder},
+            homepage_url = #{homepageUrl}
+        WHERE team_code = #{teamCode}
+    </update>
+
+</mapper>
