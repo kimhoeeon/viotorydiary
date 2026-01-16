@@ -58,7 +58,13 @@ public class MenuService {
         subSys.add(new MenuItem("공지사항 관리", "/mng/system/notices", "", 0));
         subSys.add(new MenuItem("앱 버전 관리", "/mng/system/versions", "", 0));
         subSys.add(new MenuItem("약관/정책 관리", "/mng/system/terms", "", 0));
+        subSys.add(new MenuItem("푸시 알림 발송", "/mng/system/push/list", "", 0));
         menus.add(new MenuItem("시스템 관리", "#", "ki-setting-2", 2, subSys));
+
+        // 8. 개발사 (그룹) - 신규
+        List<MenuItem> subDev = new ArrayList<>();
+        subDev.add(new MenuItem("요청사항 & 문의", "/mng/dev/list", "", 0));
+        menus.add(new MenuItem("개발사", "#", "ki-message-text-2", 2, subDev));
 
         return menus;
     }

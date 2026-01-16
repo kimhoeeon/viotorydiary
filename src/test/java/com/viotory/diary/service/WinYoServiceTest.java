@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @SpringBootTest
-// ▼ [핵심] application.properties 파일을 무시하고 이 설정을 강제로 사용합니다.
 @TestPropertySource(properties = {
         "spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver",
         "spring.datasource.url=jdbc:mysql://1.234.80.223:3306/viotorydiary?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true&useSSL=false",
@@ -23,6 +23,32 @@ class WinYoServiceTest {
 
     @Autowired
     private WinYoService winYoService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Test
+    @DisplayName("관리자 및 발주사 비밀번호 해시값 생성")
+    void generatePasswordHash() {
+        // 1. 암호화할 평문 비밀번호
+        String adminPwRaw = "fan2meeting!@";
+        String clientPwRaw = "1234";
+
+        // 2. BCrypt 암호화 수행
+        String adminPwHash = passwordEncoder.encode(adminPwRaw);
+        String clientPwHash = passwordEncoder.encode(clientPwRaw);
+
+        // 3. 결과 출력 (로그 확인)
+        log.info("==================================================");
+        log.info("[관리자 계정] ID: meetingfan");
+        log.info("  - 평문 비번: {}", adminPwRaw);
+        log.info("  - 해시 비번: {}", adminPwHash);
+        log.info("--------------------------------------------------");
+        log.info("[발주사 계정] ID: admin");
+        log.info("  - 평문 비번: {}", clientPwRaw);
+        log.info("  - 해시 비번: {}", clientPwHash);
+        log.info("==================================================");
+    }
 
     @Test
     @DisplayName("승요력 분석 엔진 테스트 - 2승 1패 시나리오")
@@ -60,4 +86,5 @@ class WinYoServiceTest {
         System.out.println(">>> 메인 멘트: " + result.getMainMessage());
         System.out.println(">>> 서브 멘트: " + result.getSubMessage());
     }
+
 }

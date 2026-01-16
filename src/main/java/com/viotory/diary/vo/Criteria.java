@@ -9,6 +9,7 @@ public class Criteria {
 
     private String type;  // 검색 조건 (E:이메일, N:닉네임 - 관리자용은 통합 검색이라 사용 안 할 수도 있음)
     private String keyword; // 검색어
+    private String category;
     private String status;  // 필터 (ACTIVE, SUSPENDED, WITHDRAWN)
 
     public Criteria() {

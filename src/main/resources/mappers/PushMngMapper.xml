@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.viotory.diary.mapper.PushMngMapper">
+
+    <select id="selectPushLogList" resultType="com.viotory.diary.vo.PushLogVO">
+        SELECT * FROM push_logs
+        ORDER BY created_at DESC
+    </select>
+
+    <insert id="insertPushLog" parameterType="com.viotory.diary.vo.PushLogVO">
+        INSERT INTO push_logs (title, content, link_url, target_user, send_count, status, created_at)
+        VALUES (#{title}, #{content}, #{linkUrl}, 'ALL', #{sendCount}, 'SUCCESS', NOW())
+    </insert>
+
+    <select id="countAllMembers" resultType="int">
+        SELECT COUNT(*) FROM members WHERE status = 'ACTIVE'
+    </select>
+
+</mapper>

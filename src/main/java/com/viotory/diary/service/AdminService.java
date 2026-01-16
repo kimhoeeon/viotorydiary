@@ -10,6 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class AdminService {
     public AdminVO login(String loginId, String password, String clientIp) throws Exception {
 
         // 임시 코드: 콘솔에 '1234'의 암호화된 값을 출력
-        System.out.println("생성된 비밀번호: " + passwordEncoder.encode("1234"));
+        //System.out.println("생성된 비밀번호: " + passwordEncoder.encode("1234"));
 
         // 1. 관리자 정보 조회
         AdminVO admin = adminMapper.selectAdminByLoginId(loginId);
@@ -46,11 +48,22 @@ public class AdminService {
             throw new Exception("비밀번호가 일치하지 않습니다.");
         }
 
-        // 3. 지정 IP 체크 (allowed_ip 컬럼 확인)
-        if (admin.getAllowedIp() != null && !admin.getAllowedIp().isEmpty()) {
-            if (!admin.getAllowedIp().equals(clientIp)) {
-                log.warn("로그인 차단 - 허용되지 않은 IP 접속 시도. ID: {}, IP: {}, Allowed: {}",
-                        loginId, clientIp, admin.getAllowedIp());
+        // 3. [수정] 허용 IP 목록 별도 조회 및 검증
+        // Service에서 IP 목록을 가져와서 VO에 세팅합니다.
+        List<String> allowedIps = adminMapper.selectAllowedIpsByAdminId(admin.getAdminId());
+        admin.setAllowedIpList(allowedIps); // VO에 주입
+
+        // IP 검증 로직
+        if (allowedIps != null && !allowedIps.isEmpty()) {
+            boolean isAllowed = false;
+            for (String ip : allowedIps) {
+                if (ip.equals(clientIp)) {
+                    isAllowed = true;
+                    break;
+                }
+            }
+            if (!isAllowed) {
+                log.warn("로그인 차단 - 허용되지 않은 IP. ID: {}, IP: {}", loginId, clientIp);
                 throw new Exception("접속이 허용되지 않은 IP입니다.");
             }
         }

@@ -3,30 +3,37 @@
 
 <mapper namespace="com.viotory.diary.mapper.AdminMapper">
 
-    <select id="selectAdminByLoginId" parameterType="string" resultType="com.viotory.diary.vo.AdminVO">
+    <select id="selectAdminByLoginId" resultType="com.viotory.diary.vo.AdminVO">
         SELECT
-            admin_id AS adminId,
-            login_id AS loginId,
+            admin_id,
+            login_id,
             password,
             name,
             role,
-            allowed_ip AS allowedIp,
-            last_login_at AS lastLoginAt,
-            created_at AS createdAt
+            last_login_at,
+            created_at
         FROM admins
         WHERE login_id = #{loginId}
     </select>
 
-    <update id="updateLastLogin" parameterType="long">
-        UPDATE admins
-        SET last_login_at = NOW()
+    <select id="selectAllowedIpsByAdminId" resultType="string">
+        SELECT ip_address
+        FROM admin_access_ips
         WHERE admin_id = #{adminId}
+    </select>
+
+    <select id="selectAdminEmailsByAdminId" resultType="com.viotory.diary.vo.AdminEmailVO">
+        SELECT *
+        FROM admin_emails
+        WHERE admin_id = #{adminId}
+    </select>
+
+    <update id="updateLastLogin" parameterType="long">
+        UPDATE admins SET last_login_at = NOW() WHERE admin_id = #{adminId}
     </update>
 
     <update id="updatePassword">
-        UPDATE admins
-        SET password = #{password}
-        WHERE login_id = #{loginId}
+        UPDATE admins SET password = #{password} WHERE login_id = #{loginId}
     </update>
 
 </mapper>

@@ -3,6 +3,7 @@ package com.viotory.diary.config;
 import com.viotory.diary.service.GameDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component

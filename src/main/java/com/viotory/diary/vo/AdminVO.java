@@ -2,15 +2,20 @@ package com.viotory.diary.vo;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class AdminVO {
-    private Long adminId;           // admin_id (PK)
-    private String loginId;         // login_id (관리자 ID, UK)
-    private String password;        // password (암호화된 비밀번호)
-    private String name;            // name (관리자 이름)
-    private String role;            // role (ENUM: 'SUPER', 'MANAGER')
-    private String allowedIp;       // allowed_ip (지정 IP, NULL이면 전역 설정 따름)
-    private LocalDateTime lastLoginAt; // last_login_at (마지막 로그인 일시)
-    private LocalDateTime createdAt;   // created_at (생성 일시)
+    private Long adminId;
+    private String loginId;
+    private String password;
+    private String name;
+    private String role; // SUPER, MANAGER, CLIENT
+
+    private LocalDateTime lastLoginAt;
+    private LocalDateTime createdAt;
+
+    // 하위 테이블 데이터 (MyBatis Collection 매핑용)
+    private List<String> allowedIpList;     // 허용 IP 목록
+    private List<AdminEmailVO> emailList;   // 이메일 목록
 }
