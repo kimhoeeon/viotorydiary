@@ -2,6 +2,7 @@ package com.viotory.diary.controller;
 
 import com.viotory.diary.mapper.GameMapper;
 import com.viotory.diary.service.GameDataService;
+import com.viotory.diary.service.GameMngService;
 import com.viotory.diary.vo.GameVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.List;
 public class GameMngController {
 
     private final GameDataService gameDataService;
+    private final GameMngService gameMngService;
     private final GameMapper gameMapper;
 
     /**
@@ -75,4 +77,47 @@ public class GameMngController {
             return "fail: " + e.getMessage();
         }
     }
+
+    // 경기 관리 목록 (동기화 페이지 겸용)
+    // 목록 페이지
+    @GetMapping("/list")
+    public String gameList(Model model, @RequestParam(value = "ym", required = false) String ym) {
+        if (ym == null) {
+            ym = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        }
+
+        List<GameVO> list = gameMngService.getGameList(ym);
+        model.addAttribute("list", list);
+        model.addAttribute("ym", ym);
+
+        return "mng/game/game_list";
+    }
+
+    // 상세 조회 (AJAX)
+    @GetMapping("/get")
+    @ResponseBody
+    public GameVO getGame(@RequestParam("gameId") Long gameId) {
+        return gameMngService.getGame(gameId);
+    }
+
+    // 저장
+    @PostMapping("/save")
+    public String saveGame(GameVO game) {
+        gameMngService.saveGame(game);
+        String ym = game.getGameDate().substring(0, 7); // yyyy-MM
+        return "redirect:/mng/game/list?ym=" + ym;
+    }
+
+    // 삭제
+    @PostMapping("/delete")
+    @ResponseBody
+    public String deleteGame(@RequestParam("gameId") Long gameId) {
+        try {
+            gameMngService.deleteGame(gameId);
+            return "ok";
+        } catch (Exception e) {
+            return "fail";
+        }
+    }
+
 }

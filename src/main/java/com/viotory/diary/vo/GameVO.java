@@ -26,6 +26,9 @@ public class GameVO {
     private Integer scoreAway;
 
     private String status;
+
+    private String etcInfo;
+
     private String cancelReason;
 
     private String mvpPlayer;       // MVP 선수
