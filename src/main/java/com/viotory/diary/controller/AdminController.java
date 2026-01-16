@@ -44,22 +44,28 @@ public class AdminController {
             // 접속자 IP 추출 (개별 IP 제한 체크용)
             String clientIp = getClientIp(request);
 
-            // DB 로그인 시도
+            HttpSession session = request.getSession();
+
+            // 1. 로그인 서비스 호출 (다중 IP 체크 포함된 버전)
             AdminVO admin = adminService.login(id, pw, clientIp);
 
-            // 세션 생성 및 정보 저장
-            HttpSession session = request.getSession();
-            session.setAttribute("adminId", admin.getLoginId());
-            session.setAttribute("adminName", admin.getName());
-            session.setAttribute("status", "logon");
-            session.setAttribute("gbn", admin.getRole()); // 'SUPER' or 'MANAGER'
+            if (admin != null) {
+                // 2. 세션에 AdminVO 객체 저장 (Key: "admin")
+                session.setAttribute("admin", admin);
 
-            log.info("관리자 로그인 성공: {} ({})", admin.getLoginId(), admin.getName());
-            return "redirect:/mng/main.do";
+                // 기존 호환성 유지 (필요하다면)
+                session.setAttribute("adminId", admin.getLoginId());
+                session.setAttribute("status", "logon");
+
+                return "redirect:/mng/main"; // 또는 "redirect:/mng/main.do"
+            } else {
+                model.addAttribute("msg", "아이디 또는 비밀번호를 확인해주세요.");
+                return "mng/index";
+            }
 
         } catch (Exception e) {
             log.warn("관리자 로그인 실패: {}", e.getMessage());
-            model.addAttribute("error", e.getMessage());
+            model.addAttribute("msg", e.getMessage()); // 예: "접속이 허용되지 않은 IP입니다."
             return "mng/index";
         }
     }

@@ -23,14 +23,6 @@
       data-kt-app-toolbar-enabled="true"
       class="app-default">
 
-<c:if test="${sessionScope.status ne 'logon'}">
-    <script>
-        alert("로그인해 주세요.");
-        location.href = '/mng/index.do';
-    </script>
-</c:if>
-
-<c:if test="${sessionScope.status eq 'logon'}">
     <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
         <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
 
@@ -173,7 +165,7 @@
                                                     <div class="d-flex fs-6 fw-semibold align-items-center">
                                                         <div class="bullet w-8px h-3px rounded-2 bg-primary me-3"></div>
                                                         <div class="text-gray-500 flex-grow-1 me-4">관리자</div>
-                                                        <div class="fw-bolder text-gray-700 text-xxl-end">${sessionScope.adminName}</div>
+                                                        <div class="fw-bolder text-gray-700 text-xxl-end">${sessionScope.admin.name}</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -190,6 +182,5 @@
     </div>
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
-</c:if>
 </body>
 </html>
