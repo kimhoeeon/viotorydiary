@@ -6,7 +6,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8">
-    <title>회원 관리 | Viotory Admin</title>
+    <title>회원 관리 | 승요일기 관리자</title>
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">

@@ -5,7 +5,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8">
-    <title>관리자 계정 ${empty vo ? '등록' : '수정'} | Viotory Admin</title>
+    <title>관리자 계정 ${empty vo ? '등록' : '수정'} | 승요일기 관리자</title>
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">

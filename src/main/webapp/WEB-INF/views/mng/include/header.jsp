@@ -8,7 +8,7 @@
             <a href="/mng/main.do" class="d-lg-none">
                 <img alt="Logo" src="/assets/media/logos/default-small.svg" class="h-30px" />
             </a>
-            <span class="fw-bold fs-3 ms-2 ms-lg-0 d-none d-md-block">Viotory Admin</span>
+            <span class="fw-bold fs-3 ms-2 ms-lg-0 d-none d-md-block">승요일기 관리자</span>
         </div>
 
         <div class="app-navbar flex-shrink-0">

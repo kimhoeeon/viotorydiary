@@ -6,7 +6,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8">
-    <title>직관 승률 랭킹 | Viotory Admin</title>
+    <title>직관 승률 랭킹 | 승요일기 관리자</title>
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
