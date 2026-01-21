@@ -48,7 +48,7 @@ public class AdminService {
             throw new Exception("비밀번호가 일치하지 않습니다.");
         }
 
-        // 3. [수정] 허용 IP 목록 별도 조회 및 검증
+        // 3. 허용 IP 목록 별도 조회 및 검증
         // Service에서 IP 목록을 가져와서 VO에 세팅합니다.
         List<String> allowedIps = adminMapper.selectAllowedIpsByAdminId(admin.getAdminId());
         admin.setAllowedIpList(allowedIps); // VO에 주입

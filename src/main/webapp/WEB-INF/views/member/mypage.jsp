@@ -10,8 +10,10 @@
     <meta name="format-detection" content="telephone=no,email=no,address=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
 
-    <link rel="icon" href="/img/favicon.png" />
-    <link rel="shortcut icon" href="/img/favicon.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
@@ -32,7 +34,7 @@
         <div class="app-main">
 
             <div class="profile-area" style="text-align:center; margin-top:24px; margin-bottom:12px;">
-                <div class="img-box" style="width:100px; height:100px; margin:0 auto; border-radius:50%; overflow:hidden; border:1px solid #eee;">
+                <div class="img-box" style="width:50px; height:50px; margin:0 auto; border-radius:50%; overflow:hidden; border:1px solid #eee;">
                     <img src="${not empty member.profileImage ? member.profileImage : '/img/ico_user.svg'}"
                          alt="프로필 이미지"
                          onclick="location.href='/member/update/profile'"
@@ -65,10 +67,7 @@
                                 <div class="nae">${member.email}</div>
                             </li>
                             <li>
-                                <a href="/member/update/password">
-                                    비밀번호 변경
-                                    <img src="/img/ico_next_arrow.svg" alt="이동" class="ml-auto">
-                                </a>
+                                <a href="/member/update/password">비밀번호 변경</a>
                             </li>
                         </ul>
                     </div>
@@ -77,17 +76,10 @@
                         <div class="tit">서비스 관리</div>
                         <ul>
                             <li>
-                                <a href="/member/update/profile">
-                                    프로필 설정
-                                </a>
+                                <a href="/member/update/profile">프로필 설정</a>
                             </li>
                             <li>
-                                <a href="/member/team-setting">
-                                    응원 팀 관리
-                                    <span class="val" style="float: right; color: #999; font-size: 14px; margin-right: 24px;">
-                                        ${not empty member.myTeamName ? member.myTeamName : ''}
-                                    </span>
-                                </a>
+                                <a href="/member/team-setting">응원 팀 관리</a>
                             </li>
                             <li>
                                 <a href="/member/follow/list">팔로우 관리</a>
@@ -132,7 +124,6 @@
             </div>
         </div>
 
-        <%@ include file="../include/tabbar.jsp" %>
     </div>
 
     <%@ include file="../include/popup.jsp" %>

@@ -4,6 +4,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
@@ -29,7 +36,7 @@
             <div class="login-form gap-50">
                 <div class="login-field_wrap">
                     <div class="dob-wrap">
-                        <div class="dob-picker" id="pickerPopupBtn">
+                        <div class="dob-picker" id="picker">
                             <div class="dob-picker_value" id="dobValue" style="color: #999;">YYYY.MM.DD</div>
                         </div>
                         <input type="hidden" id="birthdateInput">

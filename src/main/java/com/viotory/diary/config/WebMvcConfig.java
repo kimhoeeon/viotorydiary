@@ -17,6 +17,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private HttpsRedirectInterceptor httpsRedirectInterceptor;
 
+    @Autowired
+    private AutoLoginInterceptor autoLoginInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 1. HTTPS 리다이렉트 (모든 경로에 적용)
@@ -34,6 +37,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(adminInterceptor)
                 .addPathPatterns("/mng/**")
                 .excludePathPatterns("/mng/login", "/mng/loginAction");
+
+        registry.addInterceptor(autoLoginInterceptor)
+                .addPathPatterns("/**") // 모든 경로에서 체크
+                .excludePathPatterns("/mng/**", "/member/login", "/member/join", "/member/logout", "/assets/**", "/css/**", "/js/**", "/img/**");
     }
 
     // 정적 리소스(이미지) 경로 매핑

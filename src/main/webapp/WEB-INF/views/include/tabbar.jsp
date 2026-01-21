@@ -1,3 +1,4 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <nav class="app-tabbar" aria-label="하단 메뉴">
     <a class="app-tabbar_item" href="/" aria-current="page">
         <span aria-hidden="true"><img src="/img/tabbar_home_active.svg" alt="홈 아이콘"></span>

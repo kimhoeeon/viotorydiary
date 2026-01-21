@@ -8,9 +8,16 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <title>관리자 로그인 | 승요일기</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>

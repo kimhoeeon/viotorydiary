@@ -1,7 +1,6 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.WinYoAnalysisDTO;
-import com.viotory.diary.mapper.AdminMngMapper;
 import com.viotory.diary.service.DiaryService;
 import com.viotory.diary.service.GameService;
 import com.viotory.diary.service.LockerService;
@@ -17,7 +16,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.servlet.http.HttpSession;
-import java.io.File;
 import java.util.List;
 
 @Slf4j
@@ -66,7 +64,6 @@ public class MainController {
             model.addAttribute("diaries", recentDiaries);
 
             // 5. [이벤트] 라커룸 'EVENT' 카테고리 최신글 1개 조회 (배너용)
-            // (getPostList는 category, page, size를 받음)
             List<LockerVO> events = lockerService.getPostList("EVENT", 1, 1);
             if (!events.isEmpty()) {
                 model.addAttribute("latestEvent", events.get(0));

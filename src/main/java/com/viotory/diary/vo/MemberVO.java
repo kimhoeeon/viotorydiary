@@ -1,6 +1,8 @@
 package com.viotory.diary.vo;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -11,6 +13,7 @@ public class MemberVO {
     private String password;
     private String nickname;
     private String phoneNumber;     // 본인인증된 번호
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthdate;    // 생년월일 (통계용)
     private String gender;          // 'M', 'F', 'U'
     private String myTeamCode;      // 응원팀 코드

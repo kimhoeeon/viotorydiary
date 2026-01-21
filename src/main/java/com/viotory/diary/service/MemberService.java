@@ -428,4 +428,7 @@ public class MemberService {
         return memberMapper.countTodayMembers();
     }
 
+    public MemberVO getMemberByEmail(String userEmail) {
+        return memberMapper.selectMemberByEmail(userEmail);
+    }
 }

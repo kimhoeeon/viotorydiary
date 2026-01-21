@@ -287,7 +287,8 @@ body.no-scroll {overflow: hidden;height: 100%;touch-action: none;}
 .team .team-name{display: flex; align-items: center; justify-content: center; font-size: var(--fs-12);}
 .team::before{content: '';display: block;min-width: 48px;height: 48px; background-position: center center !important;}
 .team .my-team{font-size: 9px; background: var(--eventColor); color: #000; position: absolute; font-weight: 700; padding: 2px 5px; border-radius: 10px; left: -50%;}
-.lg::before{background: url(/img/logo_lg.svg) no-repeat; margin: 0 auto;}
+
+/*.lg::before{background: url(/img/logo_lg.svg) no-repeat; margin: 0 auto;}
 .doosan::before{background: url(/img/logo_doosan.svg) no-repeat; margin: 0 auto;}
 .hanwha::before{background: url(/img/logo_hanwha.svg) no-repeat; margin: 0 auto;}
 .ssg::before{background: url(/img/logo_ssg.svg) no-repeat; margin: 0 auto;}
@@ -296,7 +297,7 @@ body.no-scroll {overflow: hidden;height: 100%;touch-action: none;}
 .kt::before{background: url(/img/logo_kt.svg) no-repeat; margin: 0 auto;}
 .lotte::before{background: url(/img/logo_lotte.svg) no-repeat; margin: 0 auto;}
 .kia::before{background: url(/img/logo_kia.svg) no-repeat; margin: 0 auto;}
-.kiwoom::before{background: url(/img/logo_kiwoom.svg) no-repeat; margin: 0 auto;}
+.kiwoom::before{background: url(/img/logo_kiwoom.svg) no-repeat; margin: 0 auto;}*/
 
 @media screen and (max-width:360px) {
     .score_list .img{max-width: 120px;}

@@ -9,8 +9,10 @@
     <meta name="format-detection" content="telephone=no,email=no,address=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
 
-    <link rel="icon" href="/img/favicon.png" />
-    <link rel="shortcut icon" href="/img/favicon.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
@@ -44,8 +46,8 @@
                                    onchange="updateAlarm('marketing', this)"
                             ${member.marketingAgree == 'Y' ? 'checked' : ''}>
                             <span class="toggle_track">
-                                    <span class="toggle_thumb"></span>
-                                </span>
+                                <span class="toggle_thumb"></span>
+                            </span>
                         </label>
                     </div>
 
@@ -56,8 +58,8 @@
                                    onchange="updateAlarm('game', this)"
                             ${member.gameAlarm == 'Y' ? 'checked' : ''}>
                             <span class="toggle_track">
-                                    <span class="toggle_thumb"></span>
-                                </span>
+                                <span class="toggle_thumb"></span>
+                            </span>
                         </label>
                     </div>
 
@@ -68,8 +70,8 @@
                                    onchange="updateAlarm('friend', this)"
                             ${member.friendAlarm == 'Y' ? 'checked' : ''}>
                             <span class="toggle_track">
-                                    <span class="toggle_thumb"></span>
-                                </span>
+                                <span class="toggle_thumb"></span>
+                            </span>
                         </label>
                     </div>
 

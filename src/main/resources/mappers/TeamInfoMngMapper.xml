@@ -3,8 +3,21 @@
 
 <mapper namespace="com.viotory.diary.mapper.TeamInfoMngMapper">
 
-    <select id="selectTeamList" resultType="com.viotory.diary.vo.TeamVO">
+    <select id="getTeamList" resultType="com.viotory.diary.vo.TeamVO">
         SELECT * FROM teams ORDER BY sort_order ASC, name_kr ASC
+    </select>
+
+    <select id="selectTeamList" parameterType="com.viotory.diary.vo.Criteria" resultType="com.viotory.diary.vo.TeamVO">
+        SELECT team_code,
+               name_kr,
+               name_en,
+               short_name,
+               color_main_hex,
+               logo_image_url,
+               homepage_url,
+               sort_order
+        FROM teams
+        ORDER BY sort_order ASC, name_kr ASC
     </select>
 
     <select id="selectTeamByCode" resultType="com.viotory.diary.vo.TeamVO">

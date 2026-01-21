@@ -6,10 +6,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
 
-    <link rel="icon" href="/img/favicon.png" />
-    <link rel="shortcut icon" href="/img/favicon.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
@@ -42,9 +45,7 @@
                             </button>
                         </div>
 
-                        <div class="login-message ${not empty error ? 'is-show is-error' : ''}" id="loginMessage" role="status" aria-live="polite">
-                            ${error}
-                        </div>
+                        <div class="login-message" id="loginMessage" role="status" aria-live="polite"></div>
                     </div>
                 </div>
                 <div class="login-bottom">
@@ -84,6 +85,51 @@
 
     <%@ include file="../include/popup.jsp" %>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. 요소 선택
+            const idInput = document.getElementById('loginId');
+            const pwInput = document.getElementById('loginPw');
+            const loginMessage = document.getElementById('loginMessage');
+
+            // 2. 에러 메시지 숨김 처리 함수
+            function hideErrorMessage() {
+                if (loginMessage && loginMessage.classList.contains('is-show')) {
+                    loginMessage.classList.remove('is-show', 'is-error');
+                    loginMessage.innerText = '';
+                }
+            }
+
+            // 3. 입력 필드에 이벤트 리스너 추가 (타이핑 시 에러 숨김)
+            if (idInput) { idInput.addEventListener('input', hideErrorMessage); }
+            if (pwInput) { pwInput.addEventListener('input', hideErrorMessage); }
+
+            // [추가] AJAX 로그인 전송
+            $('#loginForm').on('submit', function(e) {
+                e.preventDefault(); // 페이지 새로고침 방지
+
+                $.ajax({
+                    url: '/member/login',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(res) {
+                        if (res.status === 'ok') {
+                            // 로그인 성공 시 페이지 이동
+                            location.replace(res.redirect);
+                        } else {
+                            // 로그인 실패 시 에러 메시지만 노출 (페이지 리로드 X)
+                            $('#loginMessage').text(res.message).addClass('is-show is-error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                        alert('로그인 처리 중 오류가 발생했습니다.');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

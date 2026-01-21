@@ -8,12 +8,34 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <link rel="icon" href="/img/favicon.png" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
     <title>승요일기</title>
+
+    <style>
+        /* [추가] 데이터 없음 이미지 사이즈 강제 제어 */
+        .clip_list .img img,
+        .no-data-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 영역에 꽉 차게 */
+        }
+        /* 로고 이미지 크기 제어 */
+        .team_logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
 </head>
 
 <body>
@@ -24,15 +46,15 @@
                     <span id="userName">${sessionScope.loginMember.nickname}</span>님
                 </div>
 
-                <div class="main-profile" style="width:40px; height:40px; border-radius:50%; overflow:hidden; margin-left: auto; margin-right: 10px;">
+                <%--<div class="main-profile" style="width:40px; height:40px; border-radius:50%; overflow:hidden; margin-left: auto; margin-right: 10px;">
                     <img src="${not empty sessionScope.loginMember.profileImage ? sessionScope.loginMember.profileImage : '/img/ico_user.svg'}"
                          alt="내 프로필"
                          onclick="location.href='/member/mypage'"
                          style="width:100%; height:100%; object-fit:cover; cursor:pointer;">
-                </div>
-                <button class="noti-btn has-badge" onclick="location.href='/alarm/list'">
-                    <span class="noti-btn_icon" aria-hidden="true"><img src="/img/ico_noti.svg" alt="알림 아이콘"></span>
-                    <span class="noti-dot" aria-hidden="true"></span>
+                </div>--%>
+
+                <button class="noti-btn ${loginMember.friendAlarm eq 'Y' ? 'has-badge' : ''}" onclick="location.href='/member/alarm/list'">
+                    <img src="/img/ico_noti.svg" alt="알림">
                 </button>
             </div>
         </div>

@@ -4,11 +4,32 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
     <title>휴대폰 인증 | 승요일기</title>
+
+    <style>
+        /* Chrome, Safari, Edge, Opera */
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
 </head>
 <body class="page-login">
     <header class="app-header">

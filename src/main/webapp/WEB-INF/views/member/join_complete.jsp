@@ -2,6 +2,15 @@
 <!doctype html>
 <html lang="ko">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
@@ -9,11 +18,6 @@
     <title>가입완료 | 승요일기</title>
 </head>
 <body class="page-login">
-    <header class="app-header">
-        <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
-            <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
-        </button>
-    </header>
 
     <div class="page-login_wrap">
         <div class="login-card">

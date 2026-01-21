@@ -4,6 +4,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
@@ -45,7 +52,8 @@
                         </div>
                         <div class="login-message" id="pwMessage" role="status"></div>
                         <ul class="word">
-                            <li>* 영문 대/소문자 + 숫자 + 특수문자 중 2종 이상 포함하여 8~14자리 이내</li>
+                            <li>* 영문, 숫자, 특수문자 중 2종 이상 조합 (8~14자)</li>
+                            <li>* 사용 가능 특수문자: ! @ # $ % ^ & * - _ ?</li>
                         </ul>
                     </div>
                 </div>
@@ -70,8 +78,9 @@
         const msg = document.getElementById('pwMessage');
 
         function checkPw() {
-            // 정규식: 영문, 숫자, 특수문자 중 2종 이상, 8~14자
-            const reg = /^(?!((?:[A-Za-z]+)|(?:[~!@#$%^&*()_+=]+)|(?:[0-9]+))$)[A-Za-z\d~!@#$%^&*()_+=]{8,14}$/;
+            // 정규식 업데이트: 물음표(?) 추가 허용
+            // 정규식 설명: 영문/숫자/특수문자(!@#$%^&*-_?) 중 하나로만 구성되지 않음(즉 2종 이상) AND 8~14자
+            const reg = /^(?!((?:[A-Za-z]+)|(?:[!@#$%^&*_\-?]+)|(?:[0-9]+))$)[A-Za-z\d!@#$%^&*_\-?]{8,14}$/;
 
             if(!reg.test(pw.value)) {
                 msg.textContent = '비밀번호 규칙에 맞지 않습니다.';

@@ -124,7 +124,7 @@ setupPasswordToggle(pwInput, togglePw);
 setupPasswordToggle(pwConfirmInput, togglePwCheck);
 
 // 로그인폼
-if (form && btn) {
+/*if (form && btn) {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -155,7 +155,7 @@ if (form && btn) {
         if (first === 'loginId' && idInput) idInput.focus();
         if (first === 'loginPw' && pwInput) pwInput.focus();
     });
-}
+}*/
 
 // 인증번호 입력 6자리
 const numberCert = document.getElementById('number_cert');
@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
             privacy: document.getElementById('agreePrivacy')?.checked || false,
             marketing: document.getElementById('agreeMarketing')?.checked || false
         };
-        console.log('약관 동의 상태:', result);
+        //console.log('약관 동의 상태:', result);
         // TODO: 서버 전송 or 다음 페이지 이동
     });
 });

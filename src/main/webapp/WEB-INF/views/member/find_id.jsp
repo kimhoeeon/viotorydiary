@@ -4,7 +4,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <link rel="icon" href="/img/favicon.png" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
@@ -31,7 +37,7 @@
                     <div class="login-field">
                         <label class="login-label">생년월일</label>
                         <div class="dob-wrap">
-                            <div class="dob-picker" id="pickerPopupBtn">
+                            <div class="dob-picker" id="picker">
                                 <div class="dob-picker_value" id="dobValue" style="color: #999;">생년월일 선택</div>
                             </div>
                             <input type="hidden" name="birthdate" id="birthdateInput">
@@ -73,7 +79,8 @@
     <%@ include file="../include/popup.jsp" %>
 
     <script src="/js/script.js"></script>
-    <script src="/js/date-picker.js"></script> <script>
+    <script src="/js/date-picker.js"></script>
+    <script>
         // [JS] 선택된 날짜를 히든 인풋에 바인딩하는 로직 보완
         document.addEventListener('DOMContentLoaded', () => {
             const applyBtn = document.getElementById('pickerApply');

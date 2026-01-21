@@ -30,7 +30,7 @@ public class AdminInterceptor implements HandlerInterceptor {
             String clientIp = getClientIp(request);
             log.info("관리자 비로그인 접근 차단: IP={} / URI={}", clientIp, requestURI);
 
-            // [수정] 바로 리다이렉트 하지 않고, 알림창을 띄운 후 이동하도록 스크립트 전송
+            // 바로 리다이렉트 하지 않고, 알림창을 띄운 후 이동하도록 스크립트 전송
             response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();
 

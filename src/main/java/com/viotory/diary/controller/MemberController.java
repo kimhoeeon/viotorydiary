@@ -1,23 +1,30 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.CommentDTO;
-import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.service.CommentService;
 import com.viotory.diary.service.MemberService;
 import com.viotory.diary.service.SmsService;
+import com.viotory.diary.service.TeamInfoMngService;
+import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.MemberVO;
+import com.viotory.diary.vo.TeamVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -29,6 +36,7 @@ public class MemberController {
     private final MemberService memberService;
     private final SmsService smsService;
     private final CommentService commentService;
+    private final TeamInfoMngService teamInfoMngService;
 
     // ==========================================
     // 1. 로그인 & 로그아웃
@@ -44,33 +52,68 @@ public class MemberController {
      * MemberVO를 사용하여 파라미터를 받고, 세션에 저장
      */
     @PostMapping("/login")
-    public String loginAction(MemberVO member, HttpServletRequest request, Model model) {
+    @ResponseBody
+    public Map<String, Object> loginAction(MemberVO member,
+                                           @RequestParam(value = "remember", required = false) String remember,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response) {
+
+        Map<String, Object> result = new HashMap<>();
+
         try {
+            // 로그인 서비스 호출
             MemberVO loginMember = memberService.login(member.getEmail(), member.getPassword());
 
             // 세션에 회원 정보 저장
             HttpSession session = request.getSession();
             session.setAttribute("loginMember", loginMember);
 
-            // 팀 설정이 안 되어있다면(NONE) 설정 페이지로 리다이렉트 (스토리보드 정책)
-            if ("NONE".equals(loginMember.getMyTeamCode())) {
-                return "redirect:/member/team-setting";
+            // 자동 로그인 처리 (쿠키 설정)
+            if ("on".equals(remember) || "true".equals(remember)) {
+                // 30일간 유지되는 쿠키 생성 (보안을 위해 추후 암호화된 토큰 사용 권장)
+                Cookie cookie = new Cookie("remember_me", loginMember.getEmail());
+                cookie.setMaxAge(60 * 60 * 24 * 30); // 30일 (초 단위)
+                cookie.setPath("/"); // 모든 경로에서 유효
+                response.addCookie(cookie);
+            } else {
+                // 체크 해제 시 기존 쿠키 삭제
+                Cookie cookie = new Cookie("remember_me", null);
+                cookie.setMaxAge(0);
+                cookie.setPath("/");
+                response.addCookie(cookie);
             }
 
-            return "redirect:/main"; // 메인 페이지로
+            // 성공 응답 및 리다이렉트 주소 설정
+            result.put("status", "ok");
+            if ("NONE".equals(loginMember.getMyTeamCode())) {
+                result.put("redirect", "/member/team-setting");
+            } else {
+                result.put("redirect", "/main");
+            }
+
         } catch (Exception e) {
             log.warn("로그인 실패: {}", e.getMessage());
-            model.addAttribute("error", e.getMessage());
-            return "member/login";
+            // 실패 응답
+            result.put("status", "fail");
+            result.put("message", e.getMessage());
         }
+
+        return result;
     }
 
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request) {
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
+
+        // 로그아웃 시 자동 로그인 쿠키 삭제
+        javax.servlet.http.Cookie cookie = new javax.servlet.http.Cookie("remember_me", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
         return "redirect:/member/login";
     }
 
@@ -101,15 +144,23 @@ public class MemberController {
     public String joinStep6() { return "member/join_step6"; }
 
     @PostMapping("/join")
-    public String joinAction(MemberVO member, Model model) {
+    @ResponseBody
+    public String joinAction(MemberVO member, BindingResult result) {
+        // 1. 데이터 바인딩 에러(400 Bad Request 원인) 체크
+        if (result.hasErrors()) {
+            StringBuilder sb = new StringBuilder();
+            result.getAllErrors().forEach(error -> {
+                sb.append(error.getDefaultMessage()).append("\n");
+            });
+            return "입력 정보가 올바르지 않습니다.\n" + sb.toString();
+        }
+
         try {
             memberService.registerMember(member);
-            return "member/join_complete"; // 가입 성공 페이지
+            return "ok"; // 성공 시 "ok" 문자열 반환 (AJAX에서 확인)
         } catch (Exception e) {
-            // 실패 시 에러 메시지를 담아 다시 가입 페이지로
-            model.addAttribute("error", e.getMessage());
-            model.addAttribute("member", member); // 입력했던 정보 유지용
-            return "member/join";
+            log.error("회원가입 실패", e);
+            return "가입 처리에 실패했습니다: " + e.getMessage();
         }
     }
 
@@ -307,6 +358,12 @@ public class MemberController {
         if (loginMember == null) {
             return "redirect:/member/login";
         }
+
+        // 팀 목록 조회하여 모델에 추가 (10개 구단 모두 조회)
+        Criteria cri = new Criteria();
+        cri.setAmount(20); // 10개 구단 충분히 조회되도록 설정
+        List<TeamVO> teamList = teamInfoMngService.selectTeamList(cri);
+        model.addAttribute("teamList", teamList);
         return "member/team_setting";
     }
 
@@ -336,6 +393,11 @@ public class MemberController {
 
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
+            // 에러 시 다시 목록 불러와서 페이지 이동
+            Criteria cri = new Criteria();
+            cri.setAmount(20);
+            List<TeamVO> teamList = teamInfoMngService.selectTeamList(cri);
+            model.addAttribute("teamList", teamList);
             return "member/team_setting";
         }
     }

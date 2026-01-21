@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       wheel.scrollTop = targetScrollTop;
 
-      console.log(selected.offsetTop, wheel.clientHeight, selected.offsetHeight, wheel.scrollTop);
+      //console.log(selected.offsetTop, wheel.clientHeight, selected.offsetHeight, wheel.scrollTop);
     }
 
     function markSelected(wheel) {

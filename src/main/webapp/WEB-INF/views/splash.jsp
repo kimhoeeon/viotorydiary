@@ -7,8 +7,10 @@
     <meta name="format-detection" content="telephone=no,email=no,address=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
 
-    <link rel="icon" href="/img/favicon.png" />
-    <link rel="shortcut icon" href="/img/favicon.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">

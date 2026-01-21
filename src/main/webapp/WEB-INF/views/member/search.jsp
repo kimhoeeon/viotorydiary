@@ -4,8 +4,18 @@
 <!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <link rel="stylesheet" href="/css/reset.css">
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
     <title>친구 찾기</title>
 </head>

@@ -6,7 +6,14 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <meta property="og:title" content="${diary.nickname}님의 직관 일기">
     <meta property="og:description" content="${diary.oneLineComment}">
     <meta property="og:image" content="${not empty diary.imageUrl ? diary.imageUrl : '/img/logo.png'}">

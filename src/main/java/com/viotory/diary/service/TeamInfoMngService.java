@@ -1,6 +1,7 @@
 package com.viotory.diary.service;
 
 import com.viotory.diary.mapper.TeamInfoMngMapper;
+import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.TeamVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ public class TeamInfoMngService {
     private final TeamInfoMngMapper teamInfoMngMapper;
 
     public List<TeamVO> getTeamList() {
-        return teamInfoMngMapper.selectTeamList();
+        return teamInfoMngMapper.getTeamList();
     }
 
     public TeamVO getTeam(String teamCode) {
@@ -25,4 +26,9 @@ public class TeamInfoMngService {
     public void updateTeam(TeamVO team) {
         teamInfoMngMapper.updateTeam(team);
     }
+
+    public List<TeamVO> selectTeamList(Criteria cri) {
+        return teamInfoMngMapper.selectTeamList(cri);
+    }
+
 }

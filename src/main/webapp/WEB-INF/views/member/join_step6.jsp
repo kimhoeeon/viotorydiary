@@ -2,6 +2,15 @@
 <!doctype html>
 <html lang="ko">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no,email=no,address=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
@@ -16,15 +25,40 @@
     </header>
 
     <div class="page-login_wrap">
-        <div class="login-form gap-50">
-            <div class="login-field">
-                <input class="login-input" id="nickname" type="text" placeholder="닉네임 (2~6자)">
-                <p id="nickErrorMsg" style="display:none; color:#FF2F32; font-size:12px; margin-top:5px; padding-left:8px;">
-                    2~6자리의 한글 또는 영문만 가능합니다.
-                </p>
+        <div class="login-card">
+            <div class="login">
+                <img src="/img/ico_check.svg" alt="체크이미지">
+                <div class="login-txt">
+                    <h1 class="login_title">닉네임을 입력해 주세요</h1>
+                </div>
             </div>
-            <div class="login-bottom">
-                <button class="join-btn btn-primary" id="finalBtn" onclick="submitJoin()">가입 완료</button>
+
+            <div class="login-form gap-50">
+                <div class="login-field_wrap gap-16">
+                    <div class="login-field">
+                        <div class="login-inputwrap">
+                            <div class="auth_number mt-8">
+                                <input class="login-input" id="nickname" name="nickname" type="text" autocomplete="nickname" placeholder="닉네임 (2~6자 한글 또는 영문)" required>
+
+                                <div class="login-message" id="loginMessage" role="status" aria-live="polite"></div>
+
+                                <span class="field-field-icon" id="certFailIcon" style="display:none;">
+                                        <img src="/img/ico_field_fail.svg" alt="실패">
+                                    </span>
+                            </div>
+                        </div>
+                        <ul class="word">
+                            <li>* 만 14세 이상 가입 가능합니다.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="login-bottom">
+                    <div class="login-actions">
+                        <button class="join-btn btn-primary" id="termsNext" onclick="submitJoin()">
+                            가입 완료
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -36,15 +70,19 @@
 
     <script>
         /* * [비정상 접근 차단]
-         * 페이지 진입 시점에 이전 단계 데이터가 있는지 체크합니다.
          */
         $(document).ready(function() {
             if (!sessionStorage.getItem('join_email')) {
-                // 데이터가 없으면 경고 후 첫 단계로 이동
                 alert('잘못된 접근입니다.\n처음부터 다시 시도해주세요.', function() {
                     location.replace('/member/join');
                 });
             }
+
+            // 입력 시 에러 초기화 리스너 추가
+            $('#nickname').on('input', function() {
+                $('#loginMessage').removeClass('is-show is-error').text('');
+                $('#certFailIcon').hide();
+            });
         });
 
         /* * [가입 완료 처리]
@@ -52,38 +90,40 @@
         function submitJoin() {
             // 1. 닉네임 입력 체크
             const nickname = $('#nickname').val().trim();
-            const errorMsg = $('#nickErrorMsg');
+            const errorMsg = $('#loginMessage'); // 변경된 ID
+            const failIcon = $('#certFailIcon'); // 변경된 ID
 
             // 닉네임 정규식 검사 (한글, 영문 대소문자 2~6자리)
             const nickRegex = /^[가-힣a-zA-Z]{2,6}$/;
 
             if (!nickname) {
-                alert('닉네임을 입력해주세요.');
+                errorMsg.text('닉네임을 입력해주세요.').addClass('is-show is-error');
+                failIcon.show();
                 return;
             }
 
             if (!nickRegex.test(nickname)) {
-                // 입력창 아래 빨간색 에러 메시지 표시
-                errorMsg.show();
-                // 또는 팝업으로 알림
-                alert('닉네임은 2~6자리의 한글 또는 영문만 가능합니다.');
+                errorMsg.text('2~6자리의 한글 또는 영문만 가능합니다.').addClass('is-show is-error');
+                failIcon.show();
                 return;
             } else {
-                errorMsg.hide();
+                errorMsg.removeClass('is-show is-error').text('');
+                failIcon.hide();
             }
 
             // 전송할 데이터 준비 (세션 스토리지)
+            const rawBirth = sessionStorage.getItem('join_birth') || '';
             const data = {
                 email: sessionStorage.getItem('join_email'),
                 password: sessionStorage.getItem('join_pw'),
                 phoneNumber: sessionStorage.getItem('join_phone'),
-                birthdate: sessionStorage.getItem('join_birth'),
+                birthdate: rawBirth.replace(/\./g, '-'),
                 nickname: nickname,
                 gender: 'U',
                 marketingAgree: sessionStorage.getItem('join_marketing') || 'N'
             };
 
-            // 데이터 누락 확인 (방어 로직)
+            // 데이터 누락 확인
             if (!data.email || !data.password || !data.phoneNumber) {
                 alert('필수 정보가 누락되었습니다.\n처음부터 다시 시도해주세요.', function() {
                     location.replace('/member/join');
@@ -93,25 +133,25 @@
 
             // 4. 중복 클릭 방지
             let isSubmitting = true;
-            $('#finalBtn').prop('disabled', true).text('처리중...');
+            $('#termsNext').prop('disabled', true).text('처리중...');
 
             // 5. 서버 전송
             $.post('/member/join', data, function(res) {
                 if (res === 'ok') {
-                    // 성공 시: 세션 스토리지 비우고 완료 페이지 이동
+                    // 성공 시
                     sessionStorage.clear();
                     location.replace('/member/join/complete?name=' + encodeURIComponent(data.nickname));
                 } else {
-                    // 실패 시: 에러 메시지 출력 후 버튼 복구
+                    // 실패 시
                     alert(res);
                     isSubmitting = false;
-                    $('#finalBtn').prop('disabled', false).text('가입 완료');
+                    $('#termsNext').prop('disabled', false).text('가입 완료');
                 }
             }).fail(function() {
                 // 통신 오류 시
                 alert('서버 통신 중 오류가 발생했습니다.');
                 isSubmitting = false;
-                $('#finalBtn').prop('disabled', false).text('가입 완료');
+                $('#termsNext').prop('disabled', false).text('가입 완료');
             });
         }
     </script>
