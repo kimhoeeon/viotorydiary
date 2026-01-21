@@ -7,6 +7,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.PrintWriter;
 
 @Slf4j
 @Component
@@ -27,10 +28,21 @@ public class AdminInterceptor implements HandlerInterceptor {
         // AdminController에서 session.setAttribute("admin", admin); 로 저장된 객체 확인
         if (session == null || session.getAttribute("admin") == null) {
             String clientIp = getClientIp(request);
-            log.info("관리자 페이지 비로그인 접근 차단: IP={} / URI={}", clientIp, requestURI);
+            log.info("관리자 비로그인 접근 차단: IP={} / URI={}", clientIp, requestURI);
 
-            response.sendRedirect("/mng/index.do");
-            return false; // 컨트롤러 진입 차단
+            // [수정] 바로 리다이렉트 하지 않고, 알림창을 띄운 후 이동하도록 스크립트 전송
+            response.setContentType("text/html; charset=UTF-8");
+            PrintWriter out = response.getWriter();
+
+            out.println("<script>");
+            out.println("alert('로그인이 필요한 서비스입니다.');");
+            out.println("location.href='/mng/index.do';"); // 로그인 페이지로 이동
+            out.println("</script>");
+
+            out.flush();
+            out.close(); // 더 이상 컨트롤러로 진행하지 않음
+
+            return false; // 컨트롤러 실행 차단
         }
 
         return true; // 통과

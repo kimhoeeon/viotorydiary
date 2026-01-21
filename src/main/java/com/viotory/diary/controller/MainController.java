@@ -30,8 +30,6 @@ public class MainController {
     private final DiaryService diaryService;
     private final LockerService lockerService;
 
-    private final AdminMngMapper adminMngMapper;
-
     // 1. 처음 접속 시 스플래시 화면 노출
     @GetMapping("/")
     public String splashPage(HttpSession session) {
@@ -80,9 +78,6 @@ public class MainController {
                 model.addAttribute("latestContent", contents.get(0));
             }
 
-            // [신규] 시스템 상태 정보 수집
-            addSystemStatus(model);
-
         } catch (Exception e) {
             log.error("메인 화면 데이터 로딩 중 오류 발생", e);
         }
@@ -91,57 +86,6 @@ public class MainController {
 
         // 서비스 준비중 페이지로 연결
         //return "maintenance";
-    }
-
-    // --- 시스템 상태 정보 수집 메소드 ---
-    private void addSystemStatus(Model model) {
-        // 1. DB 연결 상태 체크
-        boolean dbStatus = false;
-        try {
-            // [요청사항 반영] adminMngMapper를 이용한 테스트 쿼리 실행
-            // "admin"이라는 ID가 존재하는지 체크하는 가벼운 쿼리
-            adminMngMapper.checkLoginId("admin");
-            dbStatus = true;
-        } catch (Exception e) {
-            log.error("DB Connection Check Failed", e);
-            dbStatus = false;
-        }
-        model.addAttribute("sysDbStatus", dbStatus);
-
-        // 2. JVM 메모리 상태 (MB)
-        Runtime runtime = Runtime.getRuntime();
-        long totalMemory = runtime.totalMemory() / (1024 * 1024);
-        long freeMemory = runtime.freeMemory() / (1024 * 1024);
-        long usedMemory = totalMemory - freeMemory;
-
-        // 0으로 나누기 방지
-        int memoryUsage = 0;
-        if (totalMemory > 0) {
-            memoryUsage = (int) ((double) usedMemory / totalMemory * 100);
-        }
-
-        model.addAttribute("sysMemoryUsed", usedMemory);
-        model.addAttribute("sysMemoryTotal", totalMemory);
-        model.addAttribute("sysMemoryUsage", memoryUsage);
-
-        // 3. 디스크 공간 (GB)
-        File root = new File("/");
-        long totalSpace = root.getTotalSpace() / (1024 * 1024 * 1024);
-        long freeSpace = root.getUsableSpace() / (1024 * 1024 * 1024);
-        long usedSpace = totalSpace - freeSpace;
-
-        int diskUsage = 0;
-        if (totalSpace > 0) {
-            diskUsage = (int) ((double) usedSpace / totalSpace * 100);
-        }
-
-        model.addAttribute("sysDiskUsed", usedSpace);
-        model.addAttribute("sysDiskTotal", totalSpace);
-        model.addAttribute("sysDiskUsage", diskUsage);
-
-        // 4. 기타 정보
-        model.addAttribute("sysOsName", System.getProperty("os.name"));
-        model.addAttribute("sysJavaVer", System.getProperty("java.version"));
     }
 
 }

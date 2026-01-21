@@ -48,7 +48,12 @@
 
 #login .brand-logo {
     text-align: center;
-    padding: 30px 0;
+    padding: 30px 0 20px 0;
+}
+
+#login .brand-logo .mngLogo{
+    margin: 0 auto;
+    width: 150px;
 }
 
 #login .brand-logo #logo_txt{

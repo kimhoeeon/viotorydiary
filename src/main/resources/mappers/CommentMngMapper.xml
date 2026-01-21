@@ -23,6 +23,7 @@
         c.diary_id AS diaryId,
         c.content,
         c.created_at AS createdAt,
+        c.updated_at AS updatedAt,
         c.del_yn AS delYn,
         m.nickname,
         m.email

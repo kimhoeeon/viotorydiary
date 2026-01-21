@@ -1,16 +1,20 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.MenuItem;
+import com.viotory.diary.mapper.AdminMngMapper;
 import com.viotory.diary.service.*;
 import com.viotory.diary.vo.AdminVO;
+import com.viotory.diary.vo.GameVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.util.List;
 
 @Slf4j
@@ -23,6 +27,8 @@ public class AdminController {
     private final GameService gameService;
     private final MemberService memberService;
     private final DiaryService diaryService;
+
+    private final AdminMngMapper adminMngMapper;
 
     // --- 1. 로그인 및 메인 ---
 
@@ -39,7 +45,7 @@ public class AdminController {
     public String loginAction(@RequestParam("adminId") String id,
                               @RequestParam("adminPw") String pw,
                               HttpServletRequest request,
-                              Model model) {
+                              RedirectAttributes rttr) {
         try {
             // 접속자 IP 추출 (개별 IP 제한 체크용)
             String clientIp = getClientIp(request);
@@ -57,17 +63,26 @@ public class AdminController {
                 session.setAttribute("adminId", admin.getLoginId());
                 session.setAttribute("status", "logon");
 
-                return "redirect:/mng/main"; // 또는 "redirect:/mng/main.do"
+                return "redirect:/mng/main.do";
             } else {
-                model.addAttribute("msg", "아이디 또는 비밀번호를 확인해주세요.");
-                return "mng/index";
+                rttr.addFlashAttribute("msg", "아이디 또는 비밀번호를 확인해주세요.");
+
+                // [변경 3] 주소를 로그인 페이지로 완전히 변경 (리다이렉트)
+                return "redirect:/mng/index.do";
             }
 
         } catch (Exception e) {
             log.warn("관리자 로그인 실패: {}", e.getMessage());
-            model.addAttribute("msg", e.getMessage()); // 예: "접속이 허용되지 않은 IP입니다."
-            return "mng/index";
+
+            // [변경 4] 예외 발생 시에도 리다이렉트로 처리
+            rttr.addFlashAttribute("msg", e.getMessage());
+            return "redirect:/mng/index.do";
         }
+    }
+
+    @GetMapping("/login")
+    public String loginGetRedirect() {
+        return "redirect:/mng/index.do";
     }
 
     /**
@@ -87,17 +102,76 @@ public class AdminController {
         int todayDiaries = diaryService.countTodayDiaries();
 
         // 3. 오늘 경기 수
-        int todayGames = gameService.countTodayGames();
+        //int todayGames = gameService.countTodayGames();
+        List<GameVO> todayGameList = gameService.getAllGamesToday();
 
         model.addAttribute("totalMembers", totalMembers);
         model.addAttribute("todayMembers", todayMembers);
         model.addAttribute("totalDiaries", totalDiaries);
         model.addAttribute("todayDiaries", todayDiaries);
-        model.addAttribute("todayGames", todayGames);
+        //model.addAttribute("todayGames", todayGames);
+        model.addAttribute("todayGameList", todayGameList);
+
+        // 시스템 상태 정보 수집
+        addSystemStatus(model);
 
         return "mng/main";
     }
 
+    // --- 시스템 상태 정보 수집 메소드 ---
+    private void addSystemStatus(Model model) {
+        // 1. DB 연결 상태 체크
+        boolean dbStatus = false;
+        try {
+            // 간단한 쿼리로 DB 연결 확인 (예: 회원 수 조회 재활용)
+            adminMngMapper.checkLoginId("admin");
+            dbStatus = true;
+        } catch (Exception e) {
+            log.error("DB Connection Check Failed", e);
+            dbStatus = false;
+        }
+        model.addAttribute("sysDbStatus", dbStatus);
+
+        // 2. JVM 메모리 상태 (MB)
+        Runtime runtime = Runtime.getRuntime();
+        long totalMemory = runtime.totalMemory() / (1024 * 1024);
+        long freeMemory = runtime.freeMemory() / (1024 * 1024);
+        long usedMemory = totalMemory - freeMemory;
+
+        // 0으로 나누기 방지
+        int memoryUsage = 0;
+        if (totalMemory > 0) {
+            memoryUsage = (int) ((double) usedMemory / totalMemory * 100);
+        }
+
+        model.addAttribute("sysMemoryUsed", usedMemory);
+        model.addAttribute("sysMemoryTotal", totalMemory);
+        model.addAttribute("sysMemoryUsage", memoryUsage);
+
+        // 3. 디스크 공간 (GB)
+        File root = new File("/");
+        long totalSpace = root.getTotalSpace() / (1024 * 1024 * 1024);
+        long freeSpace = root.getUsableSpace() / (1024 * 1024 * 1024);
+        long usedSpace = totalSpace - freeSpace;
+
+        int diskUsage = 0;
+        if (totalSpace > 0) {
+            diskUsage = (int) ((double) usedSpace / totalSpace * 100);
+        }
+
+        model.addAttribute("sysDiskUsed", usedSpace);
+        model.addAttribute("sysDiskTotal", totalSpace);
+        model.addAttribute("sysDiskUsage", diskUsage);
+
+        // (4) 스레드 및 코어 정보
+        model.addAttribute("sysActiveThreads", Thread.activeCount());
+        model.addAttribute("sysCpuCores", runtime.availableProcessors());
+
+        // (5) OS 정보
+        model.addAttribute("sysOsName", System.getProperty("os.name"));
+        model.addAttribute("sysJavaVer", System.getProperty("java.version"));
+    }
+    
     /**
      * 로그아웃
      */

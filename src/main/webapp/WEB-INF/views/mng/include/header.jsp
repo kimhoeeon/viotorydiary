@@ -6,12 +6,24 @@
 
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
             <a href="/mng/main.do" class="d-lg-none">
-                <img alt="Logo" src="/assets/media/logos/default-small.svg" class="h-30px" />
+                <img alt="Logo" src="/img/logo.svg" class="h-30px" />
             </a>
-            <span class="fw-bold fs-3 ms-2 ms-lg-0 d-none d-md-block">승요일기 관리자</span>
+            <div class="d-none d-md-flex align-items-center ms-2">
+                <span class="fs-4 fw-bold text-gray-800">승요일기</span>
+                <span class="badge badge-light-primary fw-bold fs-7 ms-2 px-2 py-1">Manager</span>
+            </div>
         </div>
 
         <div class="app-navbar flex-shrink-0">
+
+            <div class="app-navbar-item ms-1 ms-md-3">
+                <div class="btn btn-icon btn-custom btn-icon-muted btn-active-light btn-active-color-primary w-30px h-30px w-md-40px h-md-40px"
+                     data-bs-toggle="modal" data-bs-target="#kt_modal_full_menu" title="전체 메뉴 보기">
+                    <i class="ki-duotone ki-element-11 fs-2 fs-md-1">
+                        <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
+                    </i>
+                </div>
+            </div>
 
             <div class="app-navbar-item ms-1 ms-md-3" id="kt_header_user_menu_toggle">
 
@@ -99,6 +111,62 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="kt_modal_full_menu" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content shadow-none">
+            <div class="modal-header">
+                <h3 class="modal-title fw-bold">전체 메뉴 (Sitemap)</h3>
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+            </div>
+            <div class="modal-body scroll-y bg-light">
+                <div class="container-xxl">
+                    <div class="row g-5">
+                        <c:forEach var="menu" items="${menuItems}">
+                            <div class="col-sm-6 col-md-4 col-lg-3">
+                                <div class="card h-100 border border-gray-300 shadow-sm hover-elevate-up">
+                                    <div class="card-body p-6">
+                                        <div class="d-flex align-items-center mb-4 border-bottom pb-3">
+                                            <span class="symbol symbol-40px me-3">
+                                                <span class="symbol-label bg-light-primary text-primary">
+                                                    <i class="ki-duotone ${menu.icon} fs-2">
+                                                        <c:if test="${menu.pathCount > 0}">
+                                                            <c:forEach begin="1" end="${menu.pathCount}" var="i">
+                                                                <span class="path${i}"></span>
+                                                            </c:forEach>
+                                                        </c:if>
+                                                    </i>
+                                                </span>
+                                            </span>
+                                            <a href="${empty menu.children ? menu.url : '#'}" class="fs-4 fw-bold text-gray-800 text-hover-primary text-truncate">
+                                                ${menu.title}
+                                            </a>
+                                        </div>
+
+                                        <c:if test="${not empty menu.children}">
+                                            <div class="d-flex flex-column ms-2 gap-2">
+                                                <c:forEach var="sub" items="${menu.children}">
+                                                    <a href="${sub.url}" class="d-flex align-items-center text-gray-600 text-hover-primary py-1 fs-6">
+                                                        <i class="ki-duotone ki-right-square fs-6 me-2 text-gray-400">
+                                                            <span class="path1"></span><span class="path2"></span>
+                                                        </i>
+                                                        ${sub.title}
+                                                    </a>
+                                                </c:forEach>
+                                            </div>
+                                        </c:if>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

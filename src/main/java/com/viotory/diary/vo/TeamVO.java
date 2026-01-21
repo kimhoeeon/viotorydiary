@@ -12,4 +12,6 @@ public class TeamVO {
     private String mainColor;   // 메인 컬러 (#FFFFFF)
     private Integer sortOrder;  // 정렬 순서
     private String homepageUrl; // 구단 홈페이지
+    private String logoImageUrl; // 로고이미지경로
+    private String colorMainHex; // Color
 }

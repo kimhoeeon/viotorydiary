@@ -11,8 +11,17 @@
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
 </head>
-<body id="kt_app_body" class="app-default" data-kt-app-layout="dark-sidebar" data-kt-app-header-fixed="true"
-      data-kt-app-sidebar-enabled="true" data-kt-app-sidebar-fixed="true">
+<body id="kt_app_body"
+      data-kt-app-layout="dark-sidebar"
+      data-kt-app-header-fixed="true"
+      data-kt-app-sidebar-enabled="true"
+      data-kt-app-sidebar-fixed="true"
+      data-kt-app-sidebar-hoverable="true"
+      data-kt-app-sidebar-push-header="true"
+      data-kt-app-sidebar-push-toolbar="true"
+      data-kt-app-sidebar-push-footer="true"
+      data-kt-app-toolbar-enabled="true"
+      class="app-default">
 
     <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
         <div class="app-page flex-column flex-column-fluid" id="kt_app_page">
@@ -22,6 +31,31 @@
 
                 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
                     <div class="d-flex flex-column flex-column-fluid">
+
+                        <div id="kt_app_toolbar" class="app-toolbar pt-6 pb-2 pt-lg-10 pb-lg-2">
+                            <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
+                                <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+                                    <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
+                                        요청사항 & 문의
+                                    </h1>
+
+                                    <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                                        <li class="breadcrumb-item text-muted">
+                                            <a href="/mng/main.do" class="text-muted text-hover-primary">Home</a>
+                                        </li>
+                                        <li class="breadcrumb-item">
+                                            <span class="bullet bg-gray-400 w-5px h-2px"></span>
+                                        </li>
+                                        <li class="breadcrumb-item text-muted">개발사</li>
+                                        <li class="breadcrumb-item">
+                                            <span class="bullet bg-gray-400 w-5px h-2px"></span>
+                                        </li>
+                                        <li class="breadcrumb-item text-dark">요청사항 & 문의</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
                         <div id="kt_app_content" class="app-content flex-column-fluid">
                             <div id="kt_app_content_container" class="app-container container-xxl pt-10">
 

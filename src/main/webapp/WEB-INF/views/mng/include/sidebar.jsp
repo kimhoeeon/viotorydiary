@@ -6,11 +6,12 @@
      data-kt-drawer-overlay="true" data-kt-drawer-width="225px" data-kt-drawer-direction="start"
      data-kt-drawer-toggle="#kt_app_sidebar_mobile_toggle">
 
-    <div class="app-sidebar-logo px-6" id="kt_app_sidebar_logo">
+    <div class="app-sidebar-logo px-6 justify-content-center" id="kt_app_sidebar_logo">
         <a href="/mng/main.do">
-            <img alt="Logo" src="/assets/media/logos/default-dark.svg" class="h-25px app-sidebar-logo-default" />
-            <img alt="Logo" src="/assets/media/logos/default-small.svg" class="h-20px app-sidebar-logo-minimize" />
+            <img alt="Logo" src="/img/logo.svg" class="h-40px app-sidebar-logo-default theme-light-show" style="object-fit: contain;" />
+            <img alt="Logo" src="/img/logo.svg" class="h-25px app-sidebar-logo-minimize" style="object-fit: contain;" />
         </a>
+
         <div id="kt_app_sidebar_toggle" class="app-sidebar-toggle btn btn-icon btn-shadow btn-sm btn-color-muted btn-active-color-primary body-bg h-30px w-30px position-absolute top-50 start-100 translate-middle rotate"
              data-kt-toggle="true" data-kt-toggle-state="active" data-kt-toggle-target="body" data-kt-toggle-name="app-sidebar-minimize">
             <i class="ki-duotone ki-double-left fs-2 rotate-180">
@@ -18,6 +19,7 @@
             </i>
         </div>
     </div>
+
     <div class="app-sidebar-menu overflow-hidden flex-column-fluid">
         <div id="kt_app_sidebar_menu_wrapper" class="app-sidebar-wrapper hover-scroll-overlay-y my-5"
              data-kt-scroll="true" data-kt-scroll-activate="true" data-kt-scroll-height="auto"

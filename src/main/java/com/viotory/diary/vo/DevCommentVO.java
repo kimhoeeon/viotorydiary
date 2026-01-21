@@ -22,6 +22,6 @@ public class DevCommentVO {
     private int depth;
     private List<DevFileVO> fileList;
 
-    // [추가] 삭제할 파일 ID 목록
+    // 삭제할 파일 ID 목록
     private List<Long> deleteFileIds;
 }
