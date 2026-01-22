@@ -233,7 +233,8 @@
 
       // 1. 경기 선택 팝업 열기
       function openGameSheet() {
-          $('#selectSheet').show();
+          $('#selectSheet').addClass('is-open');
+
           // 팝업 열 때마다 초기화
           tempSelectedGame = null;
           $('#selectSheetApply').prop('disabled', true);
@@ -270,7 +271,7 @@
       }
 
       function closeGameSheet() {
-          $('#selectSheet').hide();
+          $('#selectSheet').removeClass('is-open');
       }
 
       // 리스트 아이템 클릭 시 (바로 닫지 않고 선택 상태만 변경)
@@ -292,29 +293,71 @@
           $('#selectSheetApply').prop('disabled', false);
       }
 
-      // 저장 버튼 클릭 시 실제 반영
+      /**
+       * [최종] 경기 선택 적용 함수
+       * 1. UI: 내 응원팀을 무조건 왼쪽(HOME 위치)에 배치하여 입력 편의성 제공
+       * 2. Data: 실제 홈/원정 여부에 따라 input name 속성을 동적으로 변경하여 서버 데이터 정합성 유지
+       */
       function applyGameSelection() {
           if (!tempSelectedGame) return;
 
           const g = tempSelectedGame;
+          const myTeamCode = '${sessionScope.loginMember.myTeamCode}'; // 세션에서 내 팀 코드 가져오기
 
-          // 폼 값 적용
-          $('#gameId').val(g.id);
-          $('#gameSelectText').text(g.homeName + ' vs ' + g.awayName).css('color', '#000').css('font-weight', 'bold');
+          // 1. 게임 ID 설정
+          $('#gameId').val(g.gameId);
 
-          // 스코어 보드 업데이트
-          $('#homeTeamName').text(g.homeName);
-          $('#awayTeamName').text(g.awayName);
+          // 2. 상단 텍스트는 혼동 방지를 위해 원래 대진표(Home vs Away)대로 표기 (선택 사항)
+          $('#gameSelectText').text(g.homeName + ' vs ' + g.awayName)
+              .css('color', '#000').css('font-weight', 'bold');
 
-          // 내 팀 배지 표시
-          const myTeam = '${sessionScope.loginMember.myTeamCode}';
-          $('#homeMyTeam').hide();
-          $('#awayMyTeam').hide();
-          if (g.homeCode === myTeam) $('#homeMyTeam').show();
-          if (g.awayCode === myTeam) $('#awayMyTeam').show();
+          // 3. 점수 입력칸 요소 찾기 (DOM 순서상 첫번째가 왼쪽, 두번째가 오른쪽)
+          const $leftInput = $('input[name^="predScore"]').eq(0);  // 왼쪽 입력칸
+          const $rightInput = $('input[name^="predScore"]').eq(1); // 오른쪽 입력칸
 
+          let leftName, rightName;
+          let showLeftBadge = false;
+          let showRightBadge = false;
+
+          // 4. 로직 분기: 내 팀 위치에 따라 UI와 데이터 속성(name) 스왑
+          if (g.awayCode === myTeamCode) {
+              // [CASE 1] 내가 원정팀인 경우 -> UI와 데이터를 뒤집음
+
+              // 4-1. UI 배치: 왼쪽(내팀=Away), 오른쪽(상대=Home)
+              leftName = g.awayName;
+              rightName = g.homeName;
+              showLeftBadge = true; // 왼쪽에 'MY' 뱃지
+
+              // 4-2. 데이터 매핑: 왼쪽 입력값 -> predScoreAway, 오른쪽 입력값 -> predScoreHome
+              $leftInput.attr('name', 'predScoreAway');
+              $rightInput.attr('name', 'predScoreHome');
+
+          } else {
+              // [CASE 2] 내가 홈팀이거나 제3자 경기인 경우 -> 정배치 (원래대로)
+
+              // 4-1. UI 배치: 왼쪽(Home), 오른쪽(Away)
+              leftName = g.homeName;
+              rightName = g.awayName;
+
+              if (g.homeCode === myTeamCode) {
+                  showLeftBadge = true; // 왼쪽에 'MY' 뱃지
+              }
+
+              // 4-2. 데이터 매핑: 왼쪽 입력값 -> predScoreHome, 오른쪽 입력값 -> predScoreAway
+              $leftInput.attr('name', 'predScoreHome');
+              $rightInput.attr('name', 'predScoreAway');
+          }
+
+          // 5. 화면 업데이트 적용
+          $('#homeTeamName').text(leftName);   // 왼쪽 팀 이름 영역
+          $('#awayTeamName').text(rightName);  // 오른쪽 팀 이름 영역
+
+          // 뱃지 표시 제어
+          if (showLeftBadge) $('#homeMyTeam').show(); else $('#homeMyTeam').hide();
+          if (showRightBadge) $('#awayMyTeam').show(); else $('#awayMyTeam').hide(); // (오른쪽 뱃지는 현재 로직상 사용 안함)
+
+          // 6. 버튼 활성화 및 팝업 닫기
           $('#btnNext').prop('disabled', false);
-
           closeGameSheet();
       }
 

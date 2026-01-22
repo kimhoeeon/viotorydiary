@@ -23,112 +23,104 @@
 
 <body>
     <div class="app">
-        <div class="top_wrap" style="position:sticky; top:0; background:#fff; z-index:10; border-bottom:1px solid #f0f0f0;">
-            <div class="main-top" style="justify-content: center; gap: 24px; padding: 16px 0;">
-                <a href="/diary/winyo" style="font-size:18px; color:#999; font-weight:500;">나의 기록</a>
-                <a href="/diary/friend/list"
-                   style="font-size:18px; color:#000; font-weight:700; border-bottom:2px solid #000; padding-bottom:4px;">친구
-                    일기</a>
-            </div>
-        </div>
+        <header class="app-header">
+            <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
+                <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
+            </button>
+        </header>
 
         <div class="app-main">
-            <div class="page-main_wrap">
 
-                <div class="mt-24">
-                    <c:choose>
-                        <%-- 친구 일기가 없을 때 --%>
-                        <c:when test="${empty list}">
-                            <div class="no-data" style="text-align:center; padding:60px 0;">
-                                <div style="margin-bottom:16px;">
-                                    <img src="/img/ico_friend.svg" alt="친구 없음" style="width:48px; opacity:0.5;">
-                                </div>
-                                <div style="color:#999; font-size:14px; margin-bottom:24px;">
-                                    아직 친구들의 소식이 없어요.<br>
-                                    새로운 승요 친구를 찾아보세요!
-                                </div>
-                                <a href="/member/search" class="btn btn-sm btn-secondary"
-                                   style="display:inline-block; width:auto; padding:8px 20px;">
-                                    새 친구 찾기
-                                </a>
-                            </div>
-                        </c:when>
-
-                        <%-- 친구 일기 리스트 --%>
-                        <c:otherwise>
-                            <c:forEach var="item" items="${list}">
-                                <div class="card_item mb-16" onclick="location.href='/diary/detail?diaryId=${item.diaryId}'"
-                                     style="cursor:pointer; background:#fff; padding:20px; border-radius:16px;">
-
-                                    <div class="row align-center mb-12">
-                                        <div class="profile-img"
-                                             style="width:36px; height:36px; border-radius:50%; overflow:hidden; margin-right:10px; border:1px solid #eee;">
-                                            <img src="${not empty item.profileImage ? item.profileImage : '/img/ico_user.svg'}"
-                                                 alt="프로필" style="width:100%; height:100%; object-fit:cover;">
-                                        </div>
-                                        <div class="info">
-                                            <div class="nickname"
-                                                 style="font-weight:700; font-size:14px;">${item.nickname}</div>
-                                            <div class="date" style="font-size:12px; color:#999;">
-                                                <fmt:parseDate value="${item.gameDate}" pattern="yyyy-MM-dd" var="pDate"
-                                                               type="date"/>
-                                                <fmt:formatDate value="${pDate}" pattern="yyyy년 M월 d일"/> 직관
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="diary-content">
-                                        <div class="match-info mb-8" style="font-size:13px; color:#555;">
-                                            <span style="font-weight:bold; color:#2c7fff;">${item.homeTeamName}</span> vs
-                                            <span>${item.awayTeamName}</span>
-                                            <c:if test="${not empty item.gameResult}">
-                                                    <span class="badge ${item.gameResult == 'WIN' ? 'badge-win' : 'badge-lose'}"
-                                                          style="margin-left:6px; font-size:11px; padding:2px 6px; border-radius:4px; background:${item.gameResult == 'WIN' ? '#e8f3ff' : '#ffe8e8'}; color:${item.gameResult == 'WIN' ? '#2c7fff' : '#ff4d4f'};">
-                                                            ${item.gameResult == 'WIN' ? '승리' : (item.gameResult == 'DRAW' ? '무승부' : '패배')}
-                                                    </span>
-                                            </c:if>
-                                        </div>
-
-                                        <div class="text text-ellipsis-2"
-                                             style="font-size:14px; line-height:1.5; color:#333;">
-                                                ${item.content}
-                                        </div>
-
-                                        <c:if test="${not empty item.imageUrl}">
-                                            <div class="thum mt-12"
-                                                 style="height:160px; border-radius:8px; overflow:hidden;">
-                                                <img src="${item.imageUrl}" alt="일기 사진"
-                                                     style="width:100%; height:100%; object-fit:cover;">
-                                            </div>
-                                        </c:if>
-                                    </div>
-
-                                </div>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
+            <div class="app-tit">
+                <div class="page-tit">
+                    친구들의 직관
                 </div>
+            </div>
 
+            <div class="tab-pill">
+                <button type="button" class="tab-pill_btn ${param.tab == null || param.tab == 'all' ? 'on' : ''}" onclick="location.href='?tab=all'">
+                    전체
+                </button>
+                <button type="button" class="tab-pill_btn ${param.tab == 'follower' ? 'on' : ''}" onclick="location.href='?tab=follower'">
+                    팔로우
+                </button>
+                <button type="button" class="tab-pill_btn ${param.tab == 'following' ? 'on' : ''}" onclick="location.href='?tab=following'">
+                    팔로잉
+                </button>
+            </div>
+
+            <div class="page-main_wrap">
+                <div class="history">
+                    <div class="history-list mt-24">
+                        <div class="score_wrap row_wrap">
+
+                            <c:choose>
+                                <%-- 데이터가 없을 때 --%>
+                                <c:when test="${empty list}">
+                                    <div class="score_list nodt_list">
+                                        <div class="nodt_wrap">
+                                            <div class="cont">
+                                                <img src="/img/ico_not_mark.svg" alt="데이터 비었을 때">
+                                                <div class="nodt_tit">아직 작성한 직관 기록이 없어요.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </c:when>
+
+                                <%-- 데이터 리스트 출력 --%>
+                                <c:otherwise>
+                                    <c:forEach var="item" items="${list}">
+                                        <div class="score_list" onclick="location.href='/diary/detail?diaryId=${item.diaryId}'" style="cursor: pointer;">
+                                            <div class="img">
+                                                <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}"
+                                                     alt="스코어카드 이미지" style="width:100%; height:100%; object-fit:cover;">
+                                            </div>
+                                            <div class="column gap-16" style="flex:1;">
+                                                <div class="score_txt">
+                                                    <div class="txt_box">
+                                                        <div class="tit">
+                                                            ${item.homeTeamName} ${item.scoreHome} vs ${item.scoreAway} ${item.awayTeamName}
+                                                        </div>
+                                                        <div class="date">
+                                                            ${item.nickname}
+                                                        </div>
+                                                    </div>
+
+                                                    <c:if test="${item.gameResult eq 'WIN'}">
+                                                        <div class="score_win">
+                                                            <img src="/img/ico_check.svg" alt="승리">
+                                                        </div>
+                                                    </c:if>
+                                                    </div>
+
+                                                <div class="diary_review text-ellipsis-1">
+                                                    ${item.oneLineComment}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <a href="/diary/write" class="floating-btn">
-            <img src="/img/ico_plus.svg" alt="글쓰기">
-        </a>
 
         <%@ include file="../include/tabbar.jsp" %>
     </div>
 
     <%@ include file="../include/popup.jsp" %>
-
     <script src="/js/script.js"></script>
     <style>
-        .text-ellipsis-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+        /* 한줄평 말줄임 처리 */
+        .text-ellipsis-1 {
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 14px;
+            color: #333;
         }
     </style>
 </body>

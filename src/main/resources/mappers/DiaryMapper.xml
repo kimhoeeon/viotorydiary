@@ -139,17 +139,36 @@
     </insert>
 
     <select id="selectDiaryById" resultType="com.viotory.diary.vo.DiaryVO">
-        SELECT d.*,
-               g.home_team_code,
-               g.away_team_code,
-               g.score_home,
-               g.score_away,
-               g.game_date,
-               g.game_time,
-               s.name AS stadiumName
+        SELECT
+            d.*,
+            m.nickname,
+            m.profile_image,
+
+            /* 경기 정보 및 팀명 */
+            g.game_date,
+            g.game_time,
+            s.name AS stadiumName,
+            t1.name_kr AS homeTeamName,
+            t2.name_kr AS awayTeamName,
+
+            /* [추가] 팀 로고 조회 */
+            t1.logo_image_url AS homeTeamLogo,
+            t2.logo_image_url AS awayTeamLogo,
+
+            g.score_home,
+            g.score_away,
+            g.home_team_code,
+            g.away_team_code
+
         FROM diaries d
-        JOIN games g ON d.game_id = g.game_id
-        LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+                 JOIN members m ON d.member_id = m.member_id
+                 JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+
+            /* 팀 정보 조인 (로고 조회를 위해 필수) */
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+
         WHERE d.diary_id = #{diaryId}
     </select>
 
@@ -202,6 +221,8 @@
                m.nickname,
                m.profile_image,
                m.my_team_code AS snapshotTeamCode,
+               t1.logo_image_url AS homeTeamLogo,
+               t2.logo_image_url AS awayTeamLogo,
                CASE
                    WHEN g.winning_team = m.my_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'

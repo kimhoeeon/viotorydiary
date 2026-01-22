@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        <div class="bottom-action bottom-main">
+        <div class="bottom-action bottom-main" style="gap: 0 !important;">
             <button type="button" class="btn border" onclick="history.back()">
                 다시 시도하기
             </button>

@@ -22,19 +22,25 @@
     <title>승요일기</title>
 
     <style>
-        /* [추가] 데이터 없음 이미지 사이즈 강제 제어 */
-        .clip_list .img img,
-        .no-data-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* 영역에 꽉 차게 */
-        }
-        /* 로고 이미지 크기 제어 */
-        .team_logo img {
-            width: 100%;
-            height: 100%;
+        /* 로고 이미지 스타일 강제 적용 (기존 bg 방식 덮어쓰기) */
+        .team img {
+            width: 48px;
+            height: 48px;
             object-fit: contain;
+            display: block;
+            margin: 0 auto;
         }
+        /* 데이터 없음 이미지 사이즈 제어 */
+        .score_list .img img,
+        .clip_list .img img,
+        .nodt_wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        /* 알림 배지 */
+        .noti-btn .noti-dot { display: none; }
+        .noti-btn.has-badge .noti-dot { display: block; position: absolute; top: 0; right: 0; width: 4px; height: 4px; background: #FF4D4D; border-radius: 50%; }
     </style>
 </head>
 
@@ -43,33 +49,76 @@
         <div class="top_wrap">
             <div class="main-top">
                 <div class="main-title">
-                    <span id="userName">${sessionScope.loginMember.nickname}</span>님
+                    <span id="userName">${loginMember.nickname}</span>님
                 </div>
 
-                <%--<div class="main-profile" style="width:40px; height:40px; border-radius:50%; overflow:hidden; margin-left: auto; margin-right: 10px;">
-                    <img src="${not empty sessionScope.loginMember.profileImage ? sessionScope.loginMember.profileImage : '/img/ico_user.svg'}"
-                         alt="내 프로필"
-                         onclick="location.href='/member/mypage'"
-                         style="width:100%; height:100%; object-fit:cover; cursor:pointer;">
-                </div>--%>
-
-                <button class="noti-btn ${loginMember.friendAlarm eq 'Y' ? 'has-badge' : ''}" onclick="location.href='/member/alarm/list'">
-                    <img src="/img/ico_noti.svg" alt="알림">
+                <button class="noti-btn ${loginMember.friendAlarm eq 'Y' ? 'has-badge' : ''}" onclick="location.href='/alarm/list'">
+                    <span class="noti-btn_icon" aria-hidden="true"><img src="/img/ico_noti.svg" alt="알림 아이콘"></span>
+                    <span class="noti-dot" aria-hidden="true"></span>
                 </button>
             </div>
         </div>
 
         <div class="app-main">
             <div class="page-main_wrap">
+
                 <div class="history">
                     <div class="history-list">
 
                         <div class="card_wrap game">
                             <div class="tit game_tit">오늘 우리팀 경기는?</div>
                             <div class="card_item">
+
                                 <c:choose>
-                                    <%-- 경기가 없는 경우 --%>
-                                    <c:when test="${empty todayGame}">
+                                    <c:when test="${not empty todayGame}">
+                                        <div class="game-board" onclick="location.href='/play'">
+                                            <div class="row row-center gap-24">
+                                                <div class="team ${todayGame.status == 'END' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
+                                                    <img src="${todayGame.homeTeamLogo}" alt="${todayGame.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                                    </div>
+
+                                                <c:set var="statusClass" value="schedule" />
+                                                <c:if test="${todayGame.status == 'LIVE'}"><c:set var="statusClass" value="during" /></c:if>
+                                                <c:if test="${todayGame.status == 'END'}"><c:set var="statusClass" value="end" /></c:if>
+                                                <c:if test="${todayGame.status == 'CANCEL'}"><c:set var="statusClass" value="cancel" /></c:if>
+
+                                                <div class="game-score ${statusClass}">
+                                                    <div class="left-team-score ${todayGame.scoreHome > todayGame.scoreAway ? 'high' : ''}">
+                                                        ${todayGame.status == 'PRE' ? '-' : todayGame.scoreHome}
+                                                    </div>
+
+                                                    <div class="game-info-wrap">
+                                                        <div class="badge">
+                                                            <c:choose>
+                                                                <c:when test="${todayGame.status == 'PRE'}">예정</c:when>
+                                                                <c:when test="${todayGame.status == 'LIVE'}">LIVE</c:when>
+                                                                <c:when test="${todayGame.status == 'END'}">종료</c:when>
+                                                                <c:when test="${todayGame.status == 'CANCEL'}">취소</c:when>
+                                                            </c:choose>
+                                                        </div>
+                                                        <div class="game-info">
+                                                            <div class="day">
+                                                                <c:out value="${fn:substring(todayGame.gameTime, 0, 5)}" />
+                                                            </div>
+                                                            <div class="place">${todayGame.stadiumName}</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="right-team-score ${todayGame.scoreAway > todayGame.scoreHome ? 'high' : ''}">
+                                                        ${todayGame.status == 'PRE' ? '-' : todayGame.scoreAway}
+                                                    </div>
+                                                </div>
+
+                                                <div class="team ${todayGame.status == 'END' && todayGame.scoreAway > todayGame.scoreHome ? 'win' : ''}">
+                                                    <img src="${todayGame.awayTeamLogo}" alt="${todayGame.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="btn-wrap mt-16">
+                                            <a href="/play" class="btn btn-primary">오늘의 경기 기록하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
                                         <div class="nodt_wrap">
                                             <div class="cont">
                                                 <img src="/img/ico_not.svg" alt="데이터 없음">
@@ -77,66 +126,18 @@
                                                 <div class="nodt_txt">대진표를 확인해 보세요!</div>
                                             </div>
                                         </div>
-                                        <div class="btn-wrap mt-16">
-                                            <a href="/play" class="btn btn-secondary">전체 일정 보기</a>
-                                        </div>
-                                    </c:when>
-
-                                    <%-- 경기가 있는 경우 --%>
-                                    <c:otherwise>
-                                        <div class="game-board">
-                                            <div class="row row-center gap-24">
-                                                <div class="team ${todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
-                                                    <img src="/img/logo/logo_${todayGame.homeTeamCode}.png" alt="${todayGame.homeTeamCode}" class="team-logo" style="width:50px;">
-                                                    <div class="starting">
-                                                        <div class="start-name">${todayGame.homeTeamName}</div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="game-score ${todayGame.status == 'FINISHED' ? 'end' : (todayGame.status == 'LIVE' ? 'during' : 'schedule')}">
-                                                    <div class="left-team-score ${todayGame.scoreHome > todayGame.scoreAway ? 'high' : ''}">${todayGame.scoreHome}</div>
-
-                                                    <div class="game-info-wrap">
-                                                        <div class="badge">
-                                                            <c:choose>
-                                                                <c:when test="${todayGame.status == 'SCHEDULED'}">예정</c:when>
-                                                                <c:when test="${todayGame.status == 'LIVE'}">경기중</c:when>
-                                                                <c:when test="${todayGame.status == 'FINISHED'}">종료</c:when>
-                                                                <c:when test="${todayGame.status == 'CANCELLED'}">취소</c:when>
-                                                            </c:choose>
-                                                        </div>
-                                                        <div class="game-info">
-                                                            <div class="day"><fmt:formatDate value="${todayGame.gameTime}" pattern="HH:mm"/></div>
-                                                            <div class="place">${todayGame.stadiumName}</div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="right-team-score ${todayGame.scoreAway > todayGame.scoreHome ? 'high' : ''}">${todayGame.scoreAway}</div>
-                                                </div>
-
-                                                <div class="team ${todayGame.scoreAway > todayGame.scoreHome ? 'win' : ''}">
-                                                    <img src="/img/logo/logo_${todayGame.awayTeamCode}.png" alt="${todayGame.awayTeamCode}" class="team-logo" style="width:50px;">
-                                                    <div class="starting">
-                                                        <div class="start-name">${todayGame.awayTeamName}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="btn-wrap mt-16">
-                                            <a href="/diary/write?gameId=${todayGame.gameId}" class="btn btn-primary">오늘의 경기 기록하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>
-                                        </div>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
                         </div>
 
-                        <div class="card_wrap live">
+                        <div class="card_wrap live" onclick="location.href='/diary/winyo'">
                             <div class="tit live_tit">나의 승요력은 얼마?</div>
                             <div class="card_item gap-16">
                                 <ul class="live-score">
                                     <li>
                                         <p>승률</p>
-                                        <div class="data"><fmt:formatNumber value="${winYo.winRate}" pattern="#,##0"/>%</div>
+                                        <div class="data">${winYo.winRate}%</div>
                                     </li>
                                     <li>
                                         <p>직관</p>
@@ -154,52 +155,41 @@
                             </div>
                         </div>
 
-                        <div class="card_wrap event">
-                            <c:choose>
-                                <c:when test="${not empty latestEvent}">
-                                    <a href="/locker/content/detail?postId=${latestEvent.postId}">
-                                        <img src="${not empty latestEvent.imageUrl ? latestEvent.imageUrl : '/img/card_event.png'}"
-                                             alt="이벤트 배너" style="width:100%; border-radius:12px; object-fit:cover;">
-                                    </a>
-                                </c:when>
-                                <c:otherwise>
-                                    <a href="/locker/main">
-                                        <img src="/img/card_event.png" alt="이벤트 준비중">
-                                    </a>
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
+                        <c:if test="${not empty latestEvent}">
+                            <div class="card_wrap event" onclick="location.href='/locker/detail?postId=${latestEvent.postId}'">
+                                <img src="${not empty latestEvent.imageUrl ? latestEvent.imageUrl : '/img/card_event.png'}"
+                                     alt="이벤트 이미지" style="width:100%; object-fit:cover; border-radius:12px;">
+                            </div>
+                        </c:if>
 
                         <div class="card_wrap score_card">
                             <div class="row history-head">
                                 <div class="tit score_card_tit">직관 일기 다시 보기</div>
-                                <a href="/diary/list">
+                                <a href="/diary/winyo">
                                     <img src="/img/ico_next_arrow.svg" alt="모두 보기">
                                 </a>
                             </div>
                             <div class="card_item">
                                 <div class="score_wrap">
                                     <c:choose>
-                                        <c:when test="${empty diaries}">
-                                            <div class="text-center py-3 text-gray-500">작성된 일기가 없습니다.</div>
-                                        </c:when>
-                                        <c:otherwise>
+                                        <c:when test="${not empty diaries}">
                                             <c:forEach var="diary" items="${diaries}">
                                                 <div class="score_list" onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'">
                                                     <div class="img">
-                                                        <img src="/img/card_defalut.svg" alt="일기 썸네일">
+                                                        <c:choose>
+                                                            <c:when test="${diary.gameResult == 'WIN'}"><img src="/img/ico_diary_comp.svg" alt="승리"></c:when>
+                                                            <c:when test="${diary.gameResult == 'LOSE'}"><img src="/img/ico_diary_fail.svg" alt="패배"></c:when>
+                                                            <c:otherwise><img src="/img/card_defalut.svg" alt="기본"></c:otherwise>
+                                                        </c:choose>
                                                     </div>
                                                     <div class="score_txt">
                                                         <div class="txt_box">
                                                             <div class="tit">
-                                                                    ${diary.snapshotTeamCode} vs ${diary.snapshotTeamCode eq diary.homeTeamCode ? diary.awayTeamCode : diary.homeTeamCode}
+                                                                ${diary.homeTeamName} ${diary.scoreHome} vs ${diary.scoreAway} ${diary.awayTeamName}
                                                             </div>
-                                                            <div class="date">
-                                                                <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="parsedDate" type="date"/>
-                                                                <fmt:formatDate value="${parsedDate}" pattern="yyyy.MM.dd"/>
-                                                            </div>
+                                                            <div class="date">${diary.gameDate}</div>
                                                         </div>
-                                                        <c:if test="${diary.gameResult eq 'WIN'}">
+                                                        <c:if test="${diary.gameResult == 'WIN'}">
                                                             <div class="score_win">
                                                                 <img src="/img/ico_check.svg" alt="승리">
                                                             </div>
@@ -207,6 +197,15 @@
                                                     </div>
                                                 </div>
                                             </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="score_list empty">
+                                                <div class="score_txt" style="justify-content: center; width: 100%;">
+                                                    <div class="txt_box" style="text-align: center;">
+                                                        <div class="tit">작성된 일기가 없어요</div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
@@ -216,60 +215,50 @@
                         <div class="card_wrap clip">
                             <div class="row history-head">
                                 <div class="tit clip_tit">우리 팀 새 소식</div>
-                                <a href="/locker/content/list">
+                                <a href="/locker/main">
                                     <img src="/img/ico_next_arrow.svg" alt="모두 보기">
                                 </a>
                             </div>
                             <div class="card_item">
                                 <div class="clip_wrap">
-
                                     <c:choose>
-                                        <%-- 최신 소식이 있을 때 --%>
                                         <c:when test="${not empty latestContent}">
-                                            <div class="clip_list" onclick="location.href='/locker/content/detail?postId=${latestContent.postId}'" style="cursor:pointer;">
-                                                <div class="img">
-                                                    <img src="${not empty latestContent.imageUrl ? latestContent.imageUrl : '/img/card_defalut.svg'}"
-                                                         alt="콘텐츠 썸네일" style="width:100%; height:100%; object-fit:cover;">
-                                                </div>
-                                                <div class="clip_txt">
-                                                    <div class="txt_box">
-                                                        <div class="tit text-ellipsis">${latestContent.title}</div>
-                                                        <div class="date">
-                                                            <fmt:parseDate value="${latestContent.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="cDate" type="both"/>
-                                                            <fmt:formatDate value="${cDate}" pattern="yyyy.MM.dd"/>
+                                            <c:forEach var="content" items="${latestContent}">
+                                                <div class="clip_list" onclick="location.href='/locker/detail?postId=${content.postId}'">
+                                                    <div class="img">
+                                                        <img src="${not empty content.thumbnailUrl ? content.thumbnailUrl : '/img/card_defalut.svg'}" alt="썸네일">
+                                                    </div>
+                                                    <div class="clip_txt">
+                                                        <div class="txt_box">
+                                                            <div class="tit">${content.title}</div>
+                                                            <div class="date">${fn:substring(content.createdAt, 0, 10)}</div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </c:forEach>
                                         </c:when>
-
-                                        <%-- 소식이 없을 때 --%>
                                         <c:otherwise>
-                                            <div class="clip_list">
-                                                <div class="img"><img src="/img/card_defalut.svg" alt="clip"></div>
-                                                <div class="clip_txt">
-                                                    <div class="txt_box">
+                                            <div class="clip_list empty">
+                                                <div class="clip_txt" style="justify-content: center; width: 100%;">
+                                                    <div class="txt_box" style="text-align: center;">
                                                         <div class="tit">새로운 소식이 없습니다.</div>
-                                                        <div class="date">-</div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </c:otherwise>
                                     </c:choose>
-
                                 </div>
                             </div>
                         </div>
 
                     </div>
                 </div>
+
             </div>
         </div>
 
         <%@ include file="include/tabbar.jsp" %>
     </div>
-
-    <%@ include file="include/popup.jsp" %>
 
     <script src="/js/script.js"></script>
 </body>

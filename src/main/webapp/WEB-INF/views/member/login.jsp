@@ -106,7 +106,7 @@
             if (idInput) { idInput.addEventListener('input', hideErrorMessage); }
             if (pwInput) { pwInput.addEventListener('input', hideErrorMessage); }
 
-            // [추가] AJAX 로그인 전송
+            // AJAX 로그인 전송
             $('#loginForm').on('submit', function(e) {
                 e.preventDefault(); // 페이지 새로고침 방지
 

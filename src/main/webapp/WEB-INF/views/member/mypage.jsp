@@ -33,17 +33,21 @@
 
         <div class="app-main">
 
-            <div class="profile-area" style="text-align:center; margin-top:24px; margin-bottom:12px;">
+            <%--<div class="profile-area" style="text-align:center; margin-top:24px; margin-bottom:12px;">
                 <div class="img-box" style="width:50px; height:50px; margin:0 auto; border-radius:50%; overflow:hidden; border:1px solid #eee;">
                     <img src="${not empty member.profileImage ? member.profileImage : '/img/ico_user.svg'}"
                          alt="프로필 이미지"
                          onclick="location.href='/member/update/profile'"
                          style="width:100%; height:100%; object-fit:cover; cursor:pointer; display:block;">
                 </div>
-            </div>
+            </div>--%>
 
             <div class="app-tit">
-                <div class="page-tit"><span id="userName">${member.nickname}</span> 님</div>
+                <div class="page-tit">
+                    <span id="userName">
+                        <a href="javascript:location.href='/member/update/profile'">${member.nickname}</a>
+                    </span> 님
+                </div>
             </div>
 
             <div class="stack mt-24">
@@ -85,7 +89,7 @@
                                 <a href="/member/follow/list">팔로우 관리</a>
                             </li>
                             <li>
-                                <a href="/alarm/setting">알림 설정</a>
+                                <a href="/member/alarm/setting">알림 설정</a>
                             </li>
                             <li>
                                 <a href="/member/review/list">댓글 관리</a>
@@ -124,6 +128,7 @@
             </div>
         </div>
 
+        <%@ include file="../include/tabbar.jsp" %>
     </div>
 
     <%@ include file="../include/popup.jsp" %>

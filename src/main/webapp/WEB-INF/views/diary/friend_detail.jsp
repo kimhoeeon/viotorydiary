@@ -20,17 +20,20 @@
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
     <title>친구들의 직관 | 승요일기</title>
+
     <style>
-        .review_list li.hidden-cmt {
-            display: none;
+        /* 로고 이미지 스타일 강제 적용 */
+        .team img {
+            width: 48px; height: 48px; object-fit: contain; display: block; margin: 0 auto;
         }
+        .review_list li.hidden-cmt { display: none; }
     </style>
 </head>
 
 <body>
     <div class="app">
 
-        <header class="app-header">
+        <header class="app-header" style="position:sticky; top:0; left:0; transform:none; width:100%; max-width:460px; margin:0 auto; background:#fff; z-index:100; border-bottom:1px solid #f0f0f0;">
             <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
@@ -39,14 +42,16 @@
         <div class="app-main">
 
             <div class="app-tit">
-                <div class="page-tit">친구들의 직관</div>
+                <div class="page-tit">
+                    친구들의 직관
+                </div>
                 <div class="location-certify">
                     <c:choose>
                         <c:when test="${diary.isVerified}">
                             <div class="certify_mes"><img src="/img/ico_certify-comp_p.svg" alt="인증완료">직관 인증완료!</div>
                         </c:when>
                         <c:otherwise>
-                            <div class="certify_mes" style="color:#999;">인증하지 않았어요</div>
+                            <div class="certify_mes"><img src="/img/ico_certify-not_p.svg" alt="미인증">인증하지 않았어요</div>
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -56,27 +61,22 @@
                 <div class="history">
                     <div class="history-list mt-24">
                         <div class="diary_write_form">
+
                             <div class="diary_write_list nodt_line friend_info_wrap">
                                 <div class="friend_info">
                                     <div class="friend_item">
                                         <div class="name">${writer.nickname}</div>
                                         <div class="friend_team">${writer.myTeamCode}</div>
                                     </div>
-                                    <div class="win_rate">승요력 <fmt:formatNumber value="${writerWinYo.winRate}"
-                                                                                pattern="#,##0"/>%
-                                    </div>
+                                    <div class="win_rate">승요력 <fmt:formatNumber value="${writerWinYo.winRate}" pattern="#,##0"/>%</div>
                                 </div>
                                 <div class="follow-btn">
                                     <c:choose>
                                         <c:when test="${isFollowing}">
-                                            <button class="btn following w-auto" type="button"
-                                                    onclick="toggleFollow(${writer.memberId})">팔로잉
-                                            </button>
+                                            <button class="btn following w-auto" type="button" onclick="toggleFollow(${writer.memberId})">팔로잉</button>
                                         </c:when>
                                         <c:otherwise>
-                                            <button class="btn follow w-auto" type="button"
-                                                    onclick="toggleFollow(${writer.memberId})">팔로우
-                                            </button>
+                                            <button class="btn follow w-auto" type="button" onclick="toggleFollow(${writer.memberId})">팔로우</button>
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
@@ -85,12 +85,11 @@
                             <div class="diary_write_list">
                                 <div class="tit">직관할 경기</div>
                                 <button class="select-field" disabled>
-                                        <span class="select-field_value">
-                                            [${diary.stadiumName}] ${diary.homeTeamName} vs ${diary.awayTeamName}
-                                            <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate"
-                                                           type="date"/>
-                                            <fmt:formatDate value="${pDate}" pattern="MM. dd"/> ${diary.gameTime}
-                                        </span>
+                                    <span class="select-field_value">
+                                        [${diary.stadiumName}] ${diary.homeTeamName} vs ${diary.awayTeamName}
+                                        <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
+                                        <fmt:formatDate value="${pDate}" pattern="MM. dd"/> ${diary.gameTime}
+                                    </span>
                                 </button>
                             </div>
 
@@ -103,8 +102,10 @@
                                                 <c:if test="${diary.homeTeamCode eq writer.myTeamCode}">
                                                     <div class="my-team">MY</div>
                                                 </c:if>
-                                                <div class="team-name">${diary.homeTeamName}</div>
+                                                <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                                <div class="team-name mt-4">${diary.homeTeamName}</div>
                                             </div>
+
                                             <div class="game-score schedule">
                                                 <div class="left-team-score">
                                                     <div class="score-data">${diary.predScoreHome}</div>
@@ -114,11 +115,13 @@
                                                     <div class="score-data">${diary.predScoreAway}</div>
                                                 </div>
                                             </div>
+
                                             <div class="team">
                                                 <c:if test="${diary.awayTeamCode eq writer.myTeamCode}">
                                                     <div class="my-team">MY</div>
                                                 </c:if>
-                                                <div class="team-name">${diary.awayTeamName}</div>
+                                                <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                                <div class="team-name mt-4">${diary.awayTeamName}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -129,10 +132,12 @@
                                 <div class="tit">오늘의 히어로는 누구일까?</div>
                                 <input type="text" value="${diary.heroName}" disabled>
                             </div>
+
                             <div class="diary_write_list">
                                 <div class="tit">오늘의 경기를 한 마디로 평가한다면?!</div>
                                 <input type="text" value="${diary.oneLineComment}" disabled>
                             </div>
+
                             <div class="diary_write_list">
                                 <div class="tit">오늘의 경기를 기록해 보세요</div>
                                 <textarea disabled>${diary.content}</textarea>
@@ -144,7 +149,7 @@
                                     <img src="${diary.imageUrl}" alt="업로드 이미지" style="width:100%; border-radius:8px;">
                                 </c:if>
                                 <c:if test="${empty diary.imageUrl}">
-                                    <div style="color:#999; font-size:13px;">등록된 사진이 없습니다.</div>
+                                    <div style="color:#999; font-size:13px; padding:10px 0;">등록된 사진이 없습니다.</div>
                                 </c:if>
                             </div>
                         </div>
@@ -157,15 +162,16 @@
                                             <li class="${status.index >= 5 ? 'hidden-cmt' : ''}">
                                                 <div class="name"><span>${cmt.memberTeamCode}</span> ${cmt.nickname}</div>
                                                 <div class="nae">${cmt.content}</div>
+
                                                 <c:if test="${cmt.memberId eq sessionScope.loginMember.memberId}">
-                                                    <button class="del-btn" onclick="deleteComment(${cmt.commentId}, this)">
-                                                        <span><img src="/img/ico_del.svg" alt="삭제"></span>
+                                                    <button class="del-btn" style="float:right;" onclick="deleteComment(${cmt.commentId}, this)">
+                                                        <img src="/img/ico_del.svg" alt="삭제" style="width:16px;">
                                                     </button>
                                                 </c:if>
                                             </li>
                                         </c:forEach>
                                         <c:if test="${empty comments}">
-                                            <li style="text-align:center; padding:10px; color:#999;">댓글이 없습니다.</li>
+                                            <li style="text-align:center; padding:20px; color:#999;">작성된 댓글이 없습니다.</li>
                                         </c:if>
                                     </ul>
 
@@ -178,8 +184,7 @@
                                     <div class="review_write">
                                         <div class="tit">댓글 작성하기</div>
                                         <div class="write_input">
-                                            <input type="text" id="cmtContent" placeholder="댓글을 입력하세요."
-                                                   onkeyup="checkCmtInput()">
+                                            <input type="text" id="cmtContent" placeholder="댓글을 입력하세요. (30자 내 이내)" onkeyup="checkCmtInput()">
                                             <button class="send wpx-80" id="btnCmtSend" disabled onclick="submitComment()">
                                                 작성
                                             </button>
@@ -190,6 +195,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -201,27 +207,21 @@
     </div>
 
     <%@ include file="../include/popup.jsp" %>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
-    <script>
-        // 팔로우 토글 (기능 구현 시 연동)
-        function toggleFollow(memberId) {
-            // 버튼 요소 선택
-            const $btn = $('.follow-btn button');
 
-            // 현재 상태 파악 (following 클래스가 있으면 '언팔로우' 할 차례)
+    <script>
+        // 팔로우 토글
+        function toggleFollow(memberId) {
+            const $btn = $('.follow-btn button');
             const isFollowing = $btn.hasClass('following');
             const action = isFollowing ? 'unfollow' : 'follow';
 
-            // API 호출
             $.post('/member/follow/toggle', { targetId: memberId, action: action }, function(res) {
                 if (res === 'ok') {
                     if (action === 'follow') {
-                        // 팔로우 성공 -> '팔로잉' 상태로 변경
                         $btn.removeClass('follow').addClass('following').text('팔로잉');
                     } else {
-                        // 언팔로우 성공 -> '팔로우' 상태로 변경
                         $btn.removeClass('following').addClass('follow').text('팔로우');
                     }
                 } else if (res.startsWith('fail:login')) {
@@ -237,21 +237,23 @@
             });
         }
 
-        // 댓글 관련 스크립트 (기존과 동일)
+        // 댓글 입력 감지
         function checkCmtInput() {
             const val = $('#cmtContent').val().trim();
             $('#btnCmtSend').prop('disabled', val.length === 0);
         }
 
+        // 댓글 등록
         function submitComment() {
             const content = $('#cmtContent').val();
             if (!content) return;
             $.post('/diary/comment/write', {diaryId: '${diary.diaryId}', content: content}, function (res) {
                 if (res === 'ok') location.reload();
-                else alert('실패');
+                else alert('댓글 등록 실패');
             });
         }
 
+        // 댓글 삭제
         function deleteComment(id, btn) {
             if (!confirm('삭제하시겠습니까?')) return;
             $.post('/diary/comment/delete', {commentId: id}, function (res) {
@@ -259,6 +261,7 @@
             });
         }
 
+        // 댓글 더보기
         function showAllComments() {
             $('.hidden-cmt').slideDown();
             $('#moreBtn').hide();

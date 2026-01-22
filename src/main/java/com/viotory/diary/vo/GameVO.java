@@ -46,4 +46,8 @@ public class GameVO {
 
     private String winningTeam;
     private String myPredictedTeam;
+
+    // 로고 이미지 경로 (Mapper에서 조회)
+    private String homeTeamLogo;
+    private String awayTeamLogo;
 }

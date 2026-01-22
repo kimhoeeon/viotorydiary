@@ -59,11 +59,12 @@
     </select>
 
     <select id="selectTodayGame" resultType="com.viotory.diary.vo.GameVO">
-        SELECT
-            g.*,
-            t1.name_kr AS homeTeamName,
-            t2.name_kr AS awayTeamName,
-            s.name AS stadiumName
+        SELECT g.*,
+               t1.name_kr        AS homeTeamName,
+               t2.name_kr        AS awayTeamName,
+               s.name            AS stadiumName,
+               t1.logo_image_url AS homeTeamLogo,
+               t2.logo_image_url AS awayTeamLogo
         FROM games g
                  JOIN teams t1 ON g.home_team_code = t1.team_code
                  JOIN teams t2 ON g.away_team_code = t2.team_code

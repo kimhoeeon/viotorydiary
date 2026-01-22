@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <div class="bottom-action bottom-main">
+        <div class="bottom-action bottom-main" style="gap: 0 !important;">
             <button type="button" class="btn border" onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'">
                 내가 쓴 일기 보기
             </button>

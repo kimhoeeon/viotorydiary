@@ -23,49 +23,48 @@
 
 <body>
     <div class="app">
-        <div class="top_wrap" style="position:sticky; top:0; background:#fff; z-index:10; border-bottom:1px solid #f0f0f0;">
-            <div class="main-top" style="display:flex; align-items:center; justify-content:space-between; padding: 16px 20px;">
-
-                <div style="width: 24px;"></div>
-
-                <div style="display:flex; gap: 20px;">
-                    <a href="/diary/winyo" style="font-size:18px; color:#000; font-weight:700; border-bottom:2px solid #000; padding-bottom:4px;">나의 기록</a>
-                    <a href="/diary/friend/list" style="font-size:18px; color:#999; font-weight:500;">친구 일기</a>
+        <div class="top_wrap">
+            <div class="main-top">
+                <div class="main-title" style="display: flex; align-items: center; gap: 12px;">
+                    <a href="/diary/winyo" style="font-size: clamp(18px, 5vw, 20px); font-weight:700; color:#0E0F12; border-bottom:2px solid #0E0F12; padding-bottom:2px; line-height: 1.2;">
+                        나의 기록
+                    </a>
+                    <a href="/diary/friend/list" style="font-size: clamp(18px, 5vw, 20px); font-weight:400; color:#A6A9B0; line-height: 1.2;">
+                        친구 일기
+                    </a>
                 </div>
 
-                <button class="noti-btn has-badge" onclick="location.href='/alarm/setting'">
-                    <span class="noti-btn_icon"><img src="/img/ico_noti.svg" alt="알림"></span>
-                    <span class="noti-dot"></span>
+                <button class="noti-btn has-badge" onclick="location.href='/alarm/list'">
+                    <span class="noti-btn_icon" aria-hidden="true"><img src="/img/ico_noti.svg" alt="알림 아이콘"></span>
+                    <span class="noti-dot" aria-hidden="true"></span>
                 </button>
             </div>
         </div>
 
         <div class="app-main">
             <div class="page-main_wrap">
-                <div class="winyo-mention" style="padding: 24px 20px 0 20px;">
-                    <h2 style="font-size: 22px; font-weight: 700; color: #111; line-height: 1.4; word-break: keep-all;">
-                        <%-- 메인 메시지 (승률 기반) --%>
-                        <c:out value="${winYo.mainMessage}" default="승요력을 쌓아보세요!" />
-                    </h2>
-                    <%-- 서브 메시지 (최근 흐름 등 - 필요 시 주석 해제하여 사용) --%>
-                    <p style="font-size: 14px; color: #666; margin-top: 8px;">${winYo.subMessage}</p>
-                </div>
 
                 <div class="history">
                     <div class="history-list">
 
                         <div class="card_wrap fire">
-                            <div class="tit fire_tit">${winYo.mainMessage}</div>
+                            <div class="tit fire_tit" style="font-size: var(--fs-16);">
+                                <c:out value="${winYo.mainMessage}" default="승요력 상승 중! 이번주도 직관 파이팅!" />
+                            </div>
+
                             <div class="card_item gap-16">
                                 <div class="live-certify">
                                     <a href="/diary/write" class="btn btn-primary">
-                                        오늘의 직관 일기 쓰기<span><img src="/img/ico_right_arrow.svg" alt=""></span>
+                                        오늘의 직관 일기 쓰기
+                                        <span><img src="/img/ico_right_arrow.svg" alt=""></span>
                                     </a>
                                 </div>
                                 <ul class="live-score">
                                     <li>
                                         <p>승률</p>
-                                        <div class="data"><fmt:formatNumber value="${winYo.winRate}" pattern="#,##0"/>%</div>
+                                        <div class="data">
+                                            <fmt:formatNumber value="${winYo.winRate}" pattern="#,##0"/>%
+                                        </div>
                                     </li>
                                     <li>
                                         <p>직관</p>
@@ -103,7 +102,7 @@
                                     <c:forEach var="item" items="${myDiaries}">
                                         <div class="score_list" onclick="location.href='/diary/detail?diaryId=${item.diaryId}'">
                                             <div class="img">
-                                                <img src="/img/card_defalut.svg" alt="썸네일">
+                                                <img src="/img/card_defalut.svg" alt="스코어카드 이미지">
                                             </div>
                                             <div class="score_txt">
                                                 <div class="txt_box">
@@ -138,7 +137,7 @@
                                 <c:if test="${empty friendDiaries}">
                                     <div class="nodt_wrap only_txt">
                                         <div class="cont">
-                                            <div class="nodt_txt">아직 친구들의 기록이 없어요.</div>
+                                            <div class="nodt_txt">아직 친구들의 직관 기록이 없어요.</div>
                                         </div>
                                     </div>
                                 </c:if>
@@ -151,18 +150,13 @@
                                             </div>
                                             <div class="score_txt">
                                                 <div class="txt_box">
-                                                    <div class="tit" style="font-size:13px; margin-bottom:4px;">
-                                                        <span style="color:#2c7fff;">${item.nickname}</span>님의 직관
-                                                    </div>
                                                     <div class="tit">
-                                                        ${item.homeTeamName} vs ${item.awayTeamName}
+                                                        ${item.homeTeamName} ${item.scoreHome} vs ${item.scoreAway} ${item.awayTeamName}
+                                                    </div>
+                                                    <div class="date">
+                                                        ${item.nickname}
                                                     </div>
                                                 </div>
-                                                <c:if test="${item.gameResult eq 'WIN'}">
-                                                    <div class="score_win">
-                                                        <img src="/img/ico_check.svg" alt="승리">
-                                                    </div>
-                                                </c:if>
                                             </div>
                                         </div>
                                     </c:forEach>
@@ -178,7 +172,7 @@
                                 <div class="score_card_wrap">
                                     <div class="tit">9개 구장 중, ${visitedCount}개 구장에 방문했어요!</div>
                                     <ul class="score_card_item">
-                                        <c:forEach var="visited" items="${stadiumStatus}" varStatus="status">
+                                        <c:forEach var="visited" items="${stadiumStatus}">
                                             <li>
                                                 <c:choose>
                                                     <c:when test="${visited}">
@@ -188,8 +182,9 @@
                                                         <img src="/img/score_off.svg" alt="미방문">
                                                     </c:otherwise>
                                                 </c:choose>
-                                                </li>
+                                            </li>
                                         </c:forEach>
+                                        <%-- 데이터 개수가 부족할 경우 빈 칸 채우기 (옵션) --%>
                                     </ul>
                                 </div>
                             </div>
@@ -197,6 +192,7 @@
 
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -204,7 +200,6 @@
     </div>
 
     <%@ include file="../include/popup.jsp" %>
-
     <script src="/js/script.js"></script>
 </body>
 </html>

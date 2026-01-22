@@ -27,9 +27,10 @@
         <div class="top_wrap">
             <div class="main-top">
                 <div class="main-title">라커룸</div>
+
                 <button class="noti-btn has-badge" onclick="location.href='/alarm/list'">
-                    <span class="noti-btn_icon"><img src="/img/ico_noti.svg" alt="알림"></span>
-                    <span class="noti-dot"></span>
+                    <span class="noti-btn_icon" aria-hidden="true"><img src="/img/ico_noti.svg" alt="알림 아이콘"></span>
+                    <span class="noti-dot" aria-hidden="true"></span>
                 </button>
             </div>
         </div>
@@ -169,18 +170,6 @@
     <%@ include file="../include/popup.jsp" %>
 
     <script src="/js/script.js"></script>
-    <script>
-        // 탭바 활성화 처리 (라커룸 탭 Active)
-        $(document).ready(function () {
-            $('.app-tabbar_item').removeClass('active'); // 기존 active 제거
-            // 라커룸 링크를 찾아 active 추가 (href에 locker가 포함된 요소)
-            $('.app-tabbar_item[href*="/locker/"]').addClass('active');
-
-            // 이미지 변경 (active 아이콘으로)
-            $('.app-tabbar_item.active img').attr('src', '/img/tabbar_locker_active.svg');
-        });
-    </script>
-
     <style>
         /* 가로 스크롤 숨김 처리 */
         .score_wrap::-webkit-scrollbar {

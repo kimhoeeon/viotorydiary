@@ -21,7 +21,6 @@ import java.util.UUID;
 public class DiaryService {
 
     private final DiaryMapper diaryMapper;
-    private final MemberMapper memberMapper; // 회원 정보 조회용
     // GameMapper는 필요하다면 사용 (예: 경기 존재 여부 확인)
 
     /**
