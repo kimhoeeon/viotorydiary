@@ -36,7 +36,7 @@
                 <div class="page-tit">비밀번호 변경</div>
             </div>
 
-            <form id="pwChangeForm" action="/member/update/password" method="post">
+            <form id="pwChangeForm" onsubmit="return false;">
                 <div class="stack mt-24">
 
                     <div class="password_info">
@@ -60,7 +60,7 @@
                                 <div class="input">
                                     <input type="password" id="confirmPassword" placeholder="변경할 비밀번호를 한번 더 입력해 주세요." required>
                                 </div>
-                                <div class="input-msg is-error" id="pwMatchMsg" style="display:none; margin-top:5px; font-size:12px;">
+                                <div class="input-msg is-error" id="pwMatchMsg" style="display:none; margin-top:5px; font-size:12px; color: #FF0000;">
                                     비밀번호가 일치하지 않습니다.
                                 </div>
                             </div>
@@ -71,9 +71,6 @@
                             <li>* 비밀번호를 변경하면, 로그인된 모든 디바이스에서 자동으로 로그아웃돼요</li>
                         </ul>
 
-                        <c:if test="${not empty error}">
-                            <div class="login-message is-show is-error" style="margin-top: 20px; text-align: center;">${error}</div>
-                        </c:if>
                     </div>
 
                 </div>
@@ -87,6 +84,7 @@
 
     <%@ include file="../include/popup.jsp" %>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script>
         const currentPw = document.getElementById('currentPassword');
@@ -95,28 +93,21 @@
         const submitBtn = document.getElementById('submitBtn');
         const pwMatchMsg = document.getElementById('pwMatchMsg');
 
-        // [입력 감지] 버튼 활성화 및 일치 여부 실시간 검사
+        // [입력 감지]
         [currentPw, newPw, confirmPw].forEach(el => {
             el.addEventListener('input', validateForm);
         });
 
         function validateForm() {
-            // 사용자가 재입력을 시작하면 서버 에러 메시지를 숨김
-            const serverError = document.querySelector('.login-message.is-error');
-            if (serverError) {
-                serverError.style.display = 'none';
-            }
-
             const isCurrentFilled = currentPw.value.length > 0;
             const isNewFilled = newPw.value.length > 0;
             const isConfirmFilled = confirmPw.value.length > 0;
 
-            // 비밀번호 일치 여부 UI 표시
             if (isNewFilled && isConfirmFilled) {
                 if (newPw.value !== confirmPw.value) {
                     pwMatchMsg.style.display = 'block';
                     submitBtn.disabled = true;
-                    return; // 불일치하면 버튼 비활성 상태 유지
+                    return;
                 } else {
                     pwMatchMsg.style.display = 'none';
                 }
@@ -124,7 +115,6 @@
                 pwMatchMsg.style.display = 'none';
             }
 
-            // 모든 필드가 채워지고 비밀번호가 일치하면 버튼 활성화
             if (isCurrentFilled && isNewFilled && isConfirmFilled && (newPw.value === confirmPw.value)) {
                 submitBtn.disabled = false;
             } else {
@@ -132,34 +122,48 @@
             }
         }
 
-        // [제출 전 검사]
+        // [제출]
         function submitForm() {
             const currentVal = currentPw.value;
             const newVal = newPw.value;
 
-            // 1. 기존 비밀번호 입력 확인
-            if (!currentVal) {
-                alert('기존 비밀번호를 입력해주세요.');
-                return;
-            }
+            if (!currentVal) { alert('기존 비밀번호를 입력해주세요.'); return; }
+            if (currentVal === newVal) { alert('기존 비밀번호와 다른 비밀번호를 입력해주세요.'); return; }
 
-            // 2. 기존 비밀번호와 새 비밀번호 동일 여부 체크
-            if (currentVal === newVal) {
-                alert('기존 비밀번호와 다른 비밀번호를 입력해주세요.');
-                return;
-            }
-
-            // 3. 비밀번호 규칙 검사 (가입 시와 동일한 정규식 적용)
-            // 영문, 숫자, 특수문자(!@#$%^&*-_?) 중 2종 이상 조합, 8~14자
             const regExp = /^(?!((?:[A-Za-z]+)|(?:[!@#$%^&*_\-?]+)|(?:[0-9]+))$)[A-Za-z\d!@#$%^&*_\-?]{8,14}$/;
-
             if (!regExp.test(newVal)) {
                 alert('비밀번호는 영문, 숫자, 특수문자(!@#$%^&*-_?) 중 2종 이상을 조합하여 8~14자로 입력해주세요.');
                 return;
             }
 
-            // 4. 폼 제출
-            document.getElementById('pwChangeForm').submit();
+            //console.log("[Client] 비밀번호 변경 요청 전송");
+
+            $.ajax({
+                type: 'POST',
+                url: '/member/update/password',
+                data: {
+                    currentPassword: currentVal,
+                    newPassword: newVal
+                },
+                dataType: 'text',
+                success: function(res) {
+                    //console.log("[Client] 응답 수신:", res);
+
+                    if (res && res.trim() === 'ok') {
+                        // 성공 시 공통 팝업(alert) 띄우고 확인 클릭 시 로그인 페이지로 이동
+                        alert('비밀번호 변경이 완료되었습니다.<br>다시 로그인해주세요.', function() {
+                            location.replace('/member/login');
+                        });
+                    } else {
+                        // 실패 시 에러 메시지 팝업
+                        alert(res);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("[Client] AJAX Error:", status, error);
+                    alert('서버 통신 중 오류가 발생했습니다.');
+                }
+            });
         }
     </script>
 </body>

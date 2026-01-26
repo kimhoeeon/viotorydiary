@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!doctype html>
 <html lang="ko">
@@ -19,21 +20,13 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <title>팔로우 관리 | 승요일기</title>
-
-    <style>
-        /* 탭 메뉴 스타일 (제공된 CSS에 없다면 추가) */
-        .tab-wrap { display: flex; border-bottom: 1px solid #F5F5F5; background: #fff; }
-        .tab-item { flex: 1; text-align: center; padding: 14px 0; font-size: 15px; color: #999; font-weight: 500; cursor: pointer; }
-        .tab-item.active { color: #0E0F12; border-bottom: 2px solid #0E0F12; font-weight: 700; }
-        .no-data { text-align: center; padding: 60px 0; color: #999; font-size: 14px; }
-    </style>
 </head>
 
 <body>
     <div class="app">
 
         <header class="app-header">
-            <button class="app-header_btn app-header_back" type="button" onclick="location.href='/member/mypage'">
+            <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
         </header>
@@ -44,75 +37,108 @@
                 <div class="page-tit">팔로우 관리</div>
             </div>
 
-            <div class="tab-wrap">
-                <div class="tab-item ${tab eq 'following' ? 'active' : ''}" onclick="location.href='/member/follow/list?tab=following'">
-                    팔로잉
-                </div>
-                <div class="tab-item ${tab eq 'follower' ? 'active' : ''}" onclick="location.href='/member/follow/list?tab=follower'">
-                    팔로워
-                </div>
-            </div>
-
             <div class="stack mt-24">
-                <div class="my-follow_list">
-                    <ul>
+
+                <ul class="tab_menu">
+                    <li class="${param.tab eq 'following' ? 'on' : ''}" onclick="location.href='/member/follow/list?tab=following'">
+                        팔로잉
+                    </li>
+                    <li class="${empty param.tab or param.tab eq 'follower' ? 'on' : ''}" onclick="location.href='/member/follow/list?tab=follower'">
+                        팔로워
+                    </li>
+                </ul>
+
+                <div class="tab_cont ${param.tab eq 'following' ? 'on' : ''}">
+                    <c:if test="${param.tab eq 'following'}">
                         <c:choose>
                             <c:when test="${empty list}">
-                                <li class="no-data">
-                                    <c:if test="${tab eq 'following'}">아직 팔로우한 친구가 없어요.</c:if>
-                                    <c:if test="${tab eq 'follower'}">아직 나를 팔로우한 친구가 없어요.</c:if>
-                                </li>
+                                <div class="score_list nodt_list pd-24">
+                                    <div class="nodt_wrap">
+                                        <div class="cont">
+                                            <img src="/img/ico_not_mark.svg" alt="데이터 비었을 때">
+                                            <div class="nodt_tit">아직 팔로잉하는 친구가 없어요.<br /><span style="font-size: var(--fs-15);">친구를 추가해 직관 기록을 함께 확인해 보세요.</span></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </c:when>
                             <c:otherwise>
-                                <c:forEach var="item" items="${list}">
-                                    <li>
-                                        <div class="diary_write_list nodt_line friend_info_wrap bg-gray">
-                                            <div class="friend_info">
-                                                <div class="friend_item ${item.mutual ? 'follow-back' : ''}">
-                                                    <div class="name">${item.nickname}</div>
-                                                    <div class="friend_team">${item.myTeamCode}</div>
+                                <div class="people">${fn:length(list)}명</div>
+                                <ul class="make gap-16">
+                                    <c:forEach var="item" items="${list}">
+                                        <li>
+                                            <div class="diary_write_list nodt_line friend_info_wrap bg-gray">
+                                                <div class="friend_info" onclick="location.href='/diary/friend/view?memberId=${item.memberId}'" style="cursor:pointer;">
+                                                    <div class="friend_item ${item.mutual ? 'follow-back' : ''}">
+                                                        <div class="name">${item.nickname}</div>
+                                                        <c:if test="${not empty item.myTeamCode}">
+                                                            <div class="friend_team">${item.myTeamCode}</div>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="win_rate">승요력 ${item.winRate}%</div>
                                                 </div>
-                                                <div class="win_rate">승요력 ${item.winRate}%</div>
+                                                <div class="follow-btn">
+                                                    <button class="btn not-follow w-auto" type="button"
+                                                            onclick="toggleFollow(${item.memberId}, 'unfollow', this)">취소</button>
+                                                </div>
                                             </div>
-
-                                            <div class="follow-btn">
-                                                <c:choose>
-                                                    <%-- [팔로잉 탭] 항상 '취소' 버튼 --%>
-                                                    <c:when test="${tab eq 'following'}">
-                                                        <button class="btn not-follow w-auto" type="button"
-                                                                onclick="toggleFollow(${item.memberId}, 'unfollow', this)">
-                                                            취소
-                                                        </button>
-                                                    </c:when>
-
-                                                    <%-- [팔로워 탭] 내가 팔로우 중이면 '취소', 아니면 '팔로우' --%>
-                                                    <c:when test="${tab eq 'follower'}">
-                                                        <c:choose>
-                                                            <c:when test="${item.following}">
-                                                                <button class="btn not-follow w-auto" type="button"
-                                                                        onclick="toggleFollow(${item.memberId}, 'unfollow', this)">
-                                                                    취소
-                                                                </button>
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <button class="btn follow w-auto" type="button"
-                                                                        onclick="toggleFollow(${item.memberId}, 'follow', this)">
-                                                                    팔로우
-                                                                </button>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </c:when>
-                                                </c:choose>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </c:forEach>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
                             </c:otherwise>
                         </c:choose>
-                    </ul>
+                    </c:if>
                 </div>
-            </div>
 
+                <div class="tab_cont ${empty param.tab or param.tab eq 'follower' ? 'on' : ''}">
+                    <c:if test="${empty param.tab or param.tab eq 'follower'}">
+                        <c:choose>
+                            <c:when test="${empty list}">
+                                <div class="score_list nodt_list pd-24">
+                                    <div class="nodt_wrap">
+                                        <div class="cont">
+                                            <img src="/img/ico_not_mark.svg" alt="데이터 비었을 때">
+                                            <div class="nodt_tit">아직 나를 팔로우하는 친구가 없어요.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="people">${fn:length(list)}명</div>
+                                <ul class="make gap-16">
+                                    <c:forEach var="item" items="${list}">
+                                        <li>
+                                            <div class="diary_write_list nodt_line friend_info_wrap bg-gray">
+                                                <div class="friend_info" onclick="location.href='/diary/friend/view?memberId=${item.memberId}'" style="cursor:pointer;">
+                                                    <div class="friend_item ${item.mutual ? 'follow-back' : ''}">
+                                                        <div class="name">${item.nickname}</div>
+                                                        <c:if test="${not empty item.myTeamCode}">
+                                                            <div class="friend_team">${item.myTeamCode}</div>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="win_rate">승요력 ${item.winRate}%</div>
+                                                </div>
+                                                <div class="follow-btn">
+                                                    <c:choose>
+                                                        <c:when test="${item.mutual}">
+                                                            <button class="btn not-follow w-auto" type="button"
+                                                                    onclick="toggleFollow(${item.memberId}, 'unfollow', this)">취소</button>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <button class="btn follow w-auto" type="button"
+                                                                    onclick="toggleFollow(${item.memberId}, 'follow', this)">팔로우</button>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </c:forEach>
+                                </ul>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:if>
+                </div>
+
+            </div>
         </div>
     </div>
 
@@ -122,23 +148,23 @@
     <script src="/js/script.js"></script>
     <script>
         function toggleFollow(targetId, action, btn) {
-            // 중복 클릭 방지
             if (btn.disabled) return;
             const $btn = $(btn);
+            $btn.prop('disabled', true);
 
             $.post('/member/follow/toggle', { targetId: targetId, action: action }, function(res) {
                 if (res === 'ok') {
                     if (action === 'follow') {
-                        // 팔로우 성공 -> 취소 버튼으로 변경
+                        // 팔로우 성공 (파란색 -> 회색)
                         $btn.removeClass('follow').addClass('not-follow').text('취소');
                         $btn.attr('onclick', "toggleFollow(" + targetId + ", 'unfollow', this)");
                     } else {
                         // 언팔로우 성공
-                        if ('${tab}' === 'following') {
-                            // 팔로잉 목록에서는 항목 삭제
+                        if ('${param.tab}' === 'following') {
+                            // 팔로잉 목록에서는 즉시 삭제
                             $btn.closest('li').fadeOut(300, function() { $(this).remove(); });
                         } else {
-                            // 팔로워 목록에서는 팔로우 버튼으로 변경
+                            // 팔로워 목록에서는 버튼 변경 (회색 -> 파란색)
                             $btn.removeClass('not-follow').addClass('follow').text('팔로우');
                             $btn.attr('onclick', "toggleFollow(" + targetId + ", 'follow', this)");
                         }
@@ -148,6 +174,8 @@
                 }
             }).fail(function() {
                 alert('서버 통신 오류가 발생했습니다.');
+            }).always(function() {
+                $btn.prop('disabled', false);
             });
         }
     </script>

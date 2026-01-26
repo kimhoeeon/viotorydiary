@@ -316,7 +316,7 @@
                 return `\${yy}년 \${month + 1}월 \${weekIndex}주`;
             }
 
-            // [수정] 주간 렌더링 - 클래스명 'schedule-day' 적용
+            // 주간 렌더링 - 클래스명 'schedule-day' 적용
             function renderWeekView() {
                 if (!weekLabelEl || !dateGridEl) return;
 
@@ -353,7 +353,7 @@
                 }
             }
 
-            // [수정] 월간 팝업 렌더링 - 클래스명 'month-day' 적용
+            // 월간 팝업 렌더링 - 클래스명 'month-day' 적용
             function renderMonthView() {
                 if (!monthLabelEl || !monthGridEl) return;
 

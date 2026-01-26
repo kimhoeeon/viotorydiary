@@ -20,6 +20,60 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <title>마이페이지 | 승요일기</title>
+
+    <style>
+        /* 프로필 영역을 가로 배치(Flex)로 변경 */
+        .mypage-profile {
+            display: flex !important;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: left;
+            padding: 20px 0;
+        }
+
+        /* 썸네일 크기 축소 및 여백 조정 */
+        .mypage-profile .thumb {
+            width: 72px !important;  /* 기존보다 작게 설정 */
+            height: 72px !important;
+            flex-shrink: 0;          /* 줄어들지 않도록 고정 */
+            margin: 0 20px 0 0 !important; /* 오른쪽 여백 추가, 기존 중앙 정렬(auto) 제거 */
+        }
+
+        /* 프로필 정보 영역 (닉네임 + 버튼) */
+        .mypage-profile .profile-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* 왼쪽 정렬 */
+        }
+
+        /* 닉네임 스타일 보정 */
+        .mypage-profile .nickname {
+            margin-top: 0 !important;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 팀 로고 크기 조정 */
+        .my-team-logo {
+            width: 22px;
+            height: 22px;
+            vertical-align: middle;
+        }
+
+        /* 프로필 관리 버튼 위치 조정 */
+        .mypage-profile .btn-manage {
+            margin-top: 8px;
+            margin-left: 0;
+            height: 32px;
+            line-height: 30px;
+            font-size: 13px;
+            padding: 0 14px;
+        }
+    </style>
 </head>
 
 <body>
@@ -33,17 +87,14 @@
 
         <div class="app-main">
 
-            <%--<div class="profile-area" style="text-align:center; margin-top:24px; margin-bottom:12px;">
-                <div class="img-box" style="width:50px; height:50px; margin:0 auto; border-radius:50%; overflow:hidden; border:1px solid #eee;">
+            <div class="app-tit" style="margin-top:24px; justify-content: flex-start; gap: 12px; align-items: center;">
+                <div class="img-box" style="width:42px; height:42px; border-radius:50%; overflow:hidden; border:1px solid #eee; flex-shrink: 0;">
                     <img src="${not empty member.profileImage ? member.profileImage : '/img/ico_user.svg'}"
                          alt="프로필 이미지"
                          onclick="location.href='/member/update/profile'"
                          style="width:100%; height:100%; object-fit:cover; cursor:pointer; display:block;">
                 </div>
-            </div>--%>
-
-            <div class="app-tit">
-                <div class="page-tit">
+                <div class="page-tit" style="font-size: 20px; font-weight: 700;">
                     <span id="userName">
                         <a href="javascript:location.href='/member/update/profile'">${member.nickname}</a>
                     </span> 님

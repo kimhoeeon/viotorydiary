@@ -152,9 +152,10 @@ public class MemberService {
             throw new Exception("현재 비밀번호가 일치하지 않습니다.");
         }
 
-        // 3. 새 비밀번호 유효성 검사 (8~14자, 영문/숫자/특수문자 중 2가지 이상)
+        // 3. 새 비밀번호 유효성 검사
         if (!isValidPassword(newPassword)) {
-            throw new Exception("비밀번호는 8~14자이며, 영문/숫자/특수문자 중 2개 이상을 포함해야 합니다.");
+            // 메시지도 프론트엔드와 일치시킴
+            throw new Exception("비밀번호는 영문, 숫자, 특수문자(!@#$%^&*-_?) 중 2종 이상을 조합하여 8~14자로 입력해주세요.");
         }
 
         // 4. 새 비밀번호 암호화 및 저장
@@ -221,9 +222,14 @@ public class MemberService {
             return false;
         }
         int typeCount = 0;
-        if (Pattern.compile("[a-zA-Z]").matcher(password).find()) typeCount++; // 영문
-        if (Pattern.compile("[0-9]").matcher(password).find()) typeCount++;    // 숫자
-        if (Pattern.compile("[!@#$%^&*?_~]").matcher(password).find()) typeCount++; // 특수문자
+        // 영문
+        if (Pattern.compile("[a-zA-Z]").matcher(password).find()) typeCount++;
+        // 숫자
+        if (Pattern.compile("[0-9]").matcher(password).find()) typeCount++;
+        // 특수문자 (프론트엔드와 동일하게 '-' 포함, '~' 제외 등 규칙 통일)
+        // [!@#$%^&*_\-?]
+        if (Pattern.compile("[!@#$%^&*_\\-?]").matcher(password).find()) typeCount++;
+
         return typeCount >= 2;
     }
 

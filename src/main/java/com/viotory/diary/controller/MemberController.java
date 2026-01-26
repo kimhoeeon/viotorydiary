@@ -260,27 +260,30 @@ public class MemberController {
 
     // 비밀번호 변경 처리
     @PostMapping("/update/password")
+    @ResponseBody
     public String updatePasswordAction(@RequestParam("currentPassword") String currentPassword,
                                        @RequestParam("newPassword") String newPassword,
-                                       HttpSession session,
-                                       Model model) {
+                                       HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "redirect:/member/login";
+        if (loginMember == null) {
+            return "로그인이 필요한 서비스입니다.";
+        }
 
         try {
             // 비밀번호 변경 서비스 호출
             memberService.changePassword(loginMember.getMemberId(), currentPassword, newPassword);
 
-            // 변경 성공 시 로그아웃 처리 후 로그인 페이지로 이동 (보안 정책)
             session.invalidate();
-            return "redirect:/member/login?msg=pwChanged";
 
-            // 또는 마이페이지로 이동하려면:
-            // return "redirect:/member/mypage?status=pw_success";
+            return "ok";
+
         } catch (Exception e) {
-            // 실패 시 다시 변경 페이지로 이동하며 에러 메시지 전달
-            model.addAttribute("error", e.getMessage());
-            return "member/password_change";
+            // Service에서 비밀번호가 틀렸을 때 예외(Exception)를 던진다면 여기서 잡힘
+            e.printStackTrace();
+
+            // 예외 메시지(예: "기존 비밀번호가 일치하지 않습니다.")를 그대로 화면에 전달
+            // 만약 Service가 구체적인 메시지를 주지 않는다면 "기존 비밀번호가 일치하지 않습니다."로 하드코딩해도 됩니다.
+            return e.getMessage();
         }
     }
 
@@ -418,12 +421,12 @@ public class MemberController {
 
     // 프로필 수정 처리
     @PostMapping("/update/profile")
+    @ResponseBody
     public String updateProfileAction(@RequestParam("nickname") String nickname,
                                       @RequestParam(value = "file", required = false) MultipartFile file, // 파일 추가
-                                      HttpSession session,
-                                      Model model) {
+                                      HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "redirect:/member/login";
+        if (loginMember == null) return "로그인이 필요한 서비스입니다.";
 
         try {
             // 1. 이미지 파일 업로드 처리
@@ -434,11 +437,12 @@ public class MemberController {
             }
 
             // 2. 서비스 호출 (닉네임 + 이미지 업데이트)
-            // (MemberService에 updateProfile 메소드를 새로 만들거나, 기존 updateMemberInfo 활용)
             MemberVO updateVO = new MemberVO();
             updateVO.setMemberId(loginMember.getMemberId());
             updateVO.setNickname(nickname);
-            updateVO.setProfileImage(profileImagePath);
+            if (profileImagePath != null) {
+                updateVO.setProfileImage(profileImagePath);
+            }
 
             memberService.updateMemberInfo(updateVO); // Mapper 쿼리가 수정되었으므로 이것만 호출하면 됨
 
@@ -449,16 +453,11 @@ public class MemberController {
             }
             session.setAttribute("loginMember", loginMember);
 
-            return "redirect:/member/mypage";
+            return "ok";
 
         } catch (Exception e) {
             log.error("프로필 수정 실패", e);
-            model.addAttribute("error", "프로필 수정 중 오류가 발생했습니다.");
-
-            // 기존 정보 복구하여 화면 유지
-            MemberVO memberInfo = memberService.getMemberInfo(loginMember.getMemberId());
-            model.addAttribute("member", memberInfo);
-            return "member/profile_update";
+            return "프로필 수정 중 오류가 발생했습니다."; // 실패 시 에러 메시지 반환
         }
     }
 

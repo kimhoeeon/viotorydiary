@@ -63,7 +63,7 @@
 
                         <div class="auth_number mt-8" id="authBox" style="display:none;">
                             <div class="login-inputwrap">
-                                <input class="login-input" id="authCode" name="authCode" type="number"
+                                <input class="login-input" id="authCode" name="authCode" type="number" maxlength="6"
                                        inputmode="numeric" autocomplete="one-time-code" placeholder="인증번호를 입력해주세요" required>
 
                                 <span class="field-check-icon" id="certCheckIcon" style="display:none;">
@@ -117,7 +117,7 @@
                 if(res.trim() !== 'fail') {
                     alert('인증번호가 발송되었습니다.');
 
-                    // [수정] 재전송 시 입력칸 초기화
+                    // 재전송 시 입력칸 초기화
                     $('#authCode').val('');
                     $('#certCheckIcon').hide();
 
@@ -136,7 +136,7 @@
 
         // 2. 인증번호 입력 감지
         $('#authCode').on('input', function() {
-            if (this.value.length >= 4) {
+            if (this.value.length === 6) {
                 $('#certCheckIcon').show();
             } else {
                 $('#certCheckIcon').hide();

@@ -19,6 +19,22 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <title>프로필 수정 | 승요일기</title>
+
+    <style>
+        .input { position: relative; }
+        .btn-del {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 100%;
+            background: url(/img/ico_del.svg) no-repeat center;
+            border: none;
+            cursor: pointer;
+            display: none; /* 기본 숨김 */
+        }
+    </style>
 </head>
 
 <body>
@@ -59,9 +75,17 @@
                             <div class="nae">
                                 <div class="input">
                                     <input type="text" id="newNickname" name="nickname"
-                                           value="${member.nickname}" <%-- 기존 값 넣어주기 --%>
+                                           value="${member.nickname}"
                                            placeholder="변경할 닉네임을 입력해 주세요." autocomplete="off">
+
+                                    <button type="button" class="btn-del" id="clearBtn"></button>
                                 </div>
+
+                                <div id="validMsg" class="login-message is-error" style="display:none; margin-top:5px; color:#ff0000; font-size:12px;"></div>
+
+                                <c:if test="${not empty error}">
+                                    <div id="serverMsg" class="login-message is-show is-error" style="margin-top:5px; color:#ff0000; font-size:12px;">${error}</div>
+                                </c:if>
                             </div>
                         </div>
                     </div>
@@ -76,6 +100,7 @@
 
     <%@ include file="../include/popup.jsp" %>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script>
         const input = document.getElementById('newNickname');
@@ -124,9 +149,39 @@
             input.focus();
         });
 
+        // AJAX 전송 및 결과 팝업 처리
         function submitForm() {
-            // 최종 제출 전 한 번 더 검사 (현재 닉네임과 동일한지 등 체크 가능)
-            document.getElementById('profileForm').submit();
+            const nicknameVal = input.value;
+            if (!nickRegex.test(nicknameVal)) {
+                alert('닉네임 형식이 올바르지 않습니다.');
+                return;
+            }
+
+            // FormData 객체 생성 (파일 + 텍스트 데이터)
+            const form = document.getElementById('profileForm');
+            const formData = new FormData(form);
+
+            $.ajax({
+                type: 'POST',
+                url: '/member/update/profile',
+                data: formData,
+                processData: false, // 파일 전송 시 필수
+                contentType: false, // 파일 전송 시 필수
+                success: function(res) {
+                    if (res === 'ok') {
+                        // 성공 팝업 (확인 클릭 시 마이페이지 이동)
+                        alert('프로필이 수정되었습니다.', function() {
+                            location.href = '/member/mypage';
+                        });
+                    } else {
+                        // 실패 팝업
+                        alert(res);
+                    }
+                },
+                error: function() {
+                    alert('서버 통신 중 오류가 발생했습니다.');
+                }
+            });
         }
 
         function previewImage(input) {
