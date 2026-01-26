@@ -41,7 +41,7 @@
                 <div class="page-tit">댓글 관리</div>
             </div>
 
-            <div class="review mt-24">
+            <div class="review review_wrap mt-24">
                 <ul class="review_list">
                     <c:choose>
                         <c:when test="${empty list}">
@@ -50,12 +50,8 @@
                         <c:otherwise>
                             <c:forEach var="item" items="${list}">
                                 <li>
-                                    <div class="name">
-                                        <span>${item.diaryTeamCode}</span>
-                                            ${item.diaryTitle}
-                                    </div>
+                                    <div class="name"><span>${item.diaryTeamCode}</span> ${item.diaryTitle}</div>
                                     <div class="nae">${item.content}</div>
-
                                     <button class="del-btn" type="button" onclick="deleteComment(${item.commentId}, this)">
                                         <span><img src="/img/ico_del.svg" alt="삭제 아이콘"></span>
                                     </button>

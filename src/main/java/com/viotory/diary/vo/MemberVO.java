@@ -23,9 +23,10 @@ public class MemberVO {
     private String socialUid;
     private String role;            // 'USER', 'ADMIN'
     private String status;          // 'ACTIVE', 'INACTIVE' 등
+    private String pushYn;        // 전체 알림 (push_yn)
+    private String gameAlarm;     // 경기 알림 (game_alarm)
+    private String friendAlarm;   // 친구 알림 (friend_alarm)
     private String marketingAgree;
-    private String gameAlarm;      // 경기 알림 (Y/N)
-    private String friendAlarm;    // 친구 알림 (Y/N)
     private String profileImage; // 프로필 이미지 경로
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;

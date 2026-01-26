@@ -26,7 +26,7 @@
     <div class="app">
 
         <header class="app-header">
-            <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
+            <button class="app-header_btn app-header_back" type="button" onclick="location.href='/member/mypage'">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
         </header>

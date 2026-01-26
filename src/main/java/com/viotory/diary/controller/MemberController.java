@@ -500,13 +500,26 @@ public class MemberController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "fail:not_login";
 
+        // [중요] 2. Null 체크 및 대문자 변환 (방어 로직)
+        if (type == null || type.trim().isEmpty()) {
+            return "fail:invalid_type";
+        }
+
         try {
+
+            // 대소문자 통일을 위해 대문자로 변환 (PUSH, GAME, FRIEND, MARKETING)
+            String upperType = type.toUpperCase();
+
+            // 1. DB 업데이트 (Service 호출)
             memberService.updateAlarm(loginMember.getMemberId(), type, value);
 
             // 세션 정보도 갱신 (선택사항)
-            if("marketing".equals(type)) loginMember.setMarketingAgree(value);
-            else if("game".equals(type)) loginMember.setGameAlarm(value);
-            else if("friend".equals(type)) loginMember.setFriendAlarm(value);
+            switch (upperType) {
+                case "PUSH": loginMember.setPushYn(value); break;
+                case "GAME": loginMember.setGameAlarm(value); break;
+                case "FRIEND": loginMember.setFriendAlarm(value); break;
+                case "MARKETING": loginMember.setMarketingAgree(value); break;
+            }
             session.setAttribute("loginMember", loginMember);
 
             return "ok";

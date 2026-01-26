@@ -180,7 +180,7 @@ public class MemberService {
             throw new Exception("팀을 선택해주세요.");
         }
 
-        // [신규 로직] 팀 변경 제한 체크 (월 1회)
+        // 팀 변경 제한 체크 (월 1회)
         // 기존 팀이 있고(NONE이 아님), 변경 이력이 있는 경우 날짜 비교
         if (!"NONE".equals(member.getMyTeamCode()) && member.getTeamChangeDate() != null) {
             // 마지막 변경일로부터 30일이 지났는지 확인 (또는 월 단위 로직)
@@ -358,14 +358,17 @@ public class MemberService {
      */
     @Transactional
     public void updateAlarm(Long memberId, String type, String value) throws Exception {
+        // 1. 현재 회원 정보 조회
         MemberVO member = memberMapper.selectMemberById(memberId);
         if (member == null) throw new Exception("회원 정보가 없습니다.");
 
-        // 변경된 타입에 따라 값 설정
+        // 2. 타입에 따라 값 변경 (Controller에서 대문자로 넘겨줌)
         switch (type) {
-            case "marketing": member.setMarketingAgree(value); break;
-            case "game": member.setGameAlarm(value); break;
-            case "friend": member.setFriendAlarm(value); break;
+            case "PUSH": member.setPushYn(value); break;      // [추가] 전체 알림
+            case "GAME": member.setGameAlarm(value); break;
+            case "FRIEND": member.setFriendAlarm(value); break;
+            case "MARKETING": member.setMarketingAgree(value); break;
+            default: throw new Exception("잘못된 알림 타입입니다: " + type);
         }
 
         memberMapper.updateAlarmSetting(member);

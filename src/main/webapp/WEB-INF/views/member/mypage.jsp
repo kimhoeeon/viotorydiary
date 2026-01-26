@@ -87,7 +87,7 @@
 
         <div class="app-main">
 
-            <div class="app-tit" style="margin-top:24px; justify-content: flex-start; gap: 12px; align-items: center;">
+            <div class="app-tit" style="justify-content: flex-start; gap: 12px; align-items: center;">
                 <div class="img-box" style="width:42px; height:42px; border-radius:50%; overflow:hidden; border:1px solid #eee; flex-shrink: 0;">
                     <img src="${not empty member.profileImage ? member.profileImage : '/img/ico_user.svg'}"
                          alt="프로필 이미지"

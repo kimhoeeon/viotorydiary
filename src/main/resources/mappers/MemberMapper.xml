@@ -201,13 +201,13 @@
         WHERE member_id = #{memberId}
     </update>
 
-    <update id="updateAlarmSetting">
+    <update id="updateAlarmSetting" parameterType="com.viotory.diary.vo.MemberVO">
         UPDATE members
-        SET
+        SET push_yn         = #{pushYn},
+            game_alarm      = #{gameAlarm},
+            friend_alarm    = #{friendAlarm},
             marketing_agree = #{marketingAgree},
-            game_alarm = #{gameAlarm},
-            friend_alarm = #{friendAlarm},
-            updated_at = NOW()
+            updated_at      = NOW()
         WHERE member_id = #{memberId}
     </update>
 
