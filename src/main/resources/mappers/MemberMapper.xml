@@ -187,6 +187,13 @@
           AND status = 'ACTIVE'
     </select>
 
+    <select id="findMemberByEmailAndPhone" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT * FROM members
+        WHERE email = #{email}
+          AND phone_number = #{phoneNumber}
+          AND status = 'ACTIVE'
+    </select>
+
     <update id="updateNickname">
         UPDATE members
         SET nickname = #{nickname},

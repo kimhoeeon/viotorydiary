@@ -1,22 +1,28 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.MenuItem;
+import com.viotory.diary.service.AlarmService;
 import com.viotory.diary.service.MenuService;
+import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ui.Model;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
-// 모든 컨트롤러에 적용 (assignableTypes 제거)
+import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+
+@Slf4j
 @ControllerAdvice
 @RequiredArgsConstructor
 public class GlobalController {
 
     private final MenuService menuService;
+    private final AlarmService alarmService;
 
     /**
      * 모든 요청 시 모델에 'menuItems'를 자동으로 담아줌
@@ -80,6 +86,30 @@ public class GlobalController {
         }
 
         return isGroupActive;
+    }
+
+    // 모든 요청에 대해 실행되어 jsp에서 ${hasUnreadAlarm} 사용 가능하게 함
+    @ModelAttribute
+    public void addGlobalAttributes(HttpServletRequest request, Model model) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+            if (loginMember != null) {
+                // 읽지 않은 알림 체크
+                int unreadCount = alarmService.getUnreadCount(loginMember.getMemberId());
+                model.addAttribute("hasUnreadAlarm", unreadCount > 0);
+            }
+        }
+    }
+
+    /**
+     * 405 Method Not Allowed 예외 처리
+     * 잘못된 HTTP 메서드 요청 시 경고 로그를 남기고 메인으로 리다이렉트
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public String handleMethodNotSupported(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
+        log.warn("잘못된 요청 감지 (405): {} {}", request.getMethod(), request.getRequestURI());
+        return "redirect:/"; // 메인 페이지로 이동
     }
 
 }

@@ -151,7 +151,7 @@
             t1.name_kr AS homeTeamName,
             t2.name_kr AS awayTeamName,
 
-            /* [추가] 팀 로고 조회 */
+            /* 팀 로고 조회 */
             t1.logo_image_url AS homeTeamLogo,
             t2.logo_image_url AS awayTeamLogo,
 

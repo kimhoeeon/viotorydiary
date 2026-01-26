@@ -316,7 +316,7 @@ public class MemberController {
 
     // 비밀번호 초기화 및 임시 비밀번호 발송
     @PostMapping("/find-password/reset")
-    public String resetPassword(@RequestParam("userName") String userName,
+    public String resetPassword(@RequestParam("memberId") String memberId,
                                 @RequestParam("phoneNumber") String phoneNumber,
                                 @RequestParam("authCode") String authCode,
                                 Model model) {
@@ -332,9 +332,9 @@ public class MemberController {
 
         // 2. 회원 확인 및 임시 비밀번호 발송
         try {
-            boolean success = memberService.resetAndSendPassword(userName, cleanNumber);
+            boolean success = memberService.resetAndSendPassword(memberId, cleanNumber);
             if (success) {
-                model.addAttribute("name", userName);
+                model.addAttribute("name", memberId);
                 return "member/find_password_result";
             } else {
                 model.addAttribute("error", "입력하신 정보와 일치하는 회원이 없습니다.");

@@ -67,7 +67,7 @@
                         </div>
 
                         <ul class="pre">
-                            <li>* 영문 대/소문자, 숫자, 특수문자 중 2종 이상 포함하여 8~14자리 이내</li>
+                            <li>* 영문, 숫자, 특수문자(!@#$%^&*-_?) 중 2종 이상 조합 (8~14자)</li>
                             <li>* 비밀번호를 변경하면, 로그인된 모든 디바이스에서 자동으로 로그아웃돼요</li>
                         </ul>
 
@@ -95,28 +95,36 @@
         const submitBtn = document.getElementById('submitBtn');
         const pwMatchMsg = document.getElementById('pwMatchMsg');
 
-        // 입력 감지하여 버튼 활성화 및 유효성 검사
+        // [입력 감지] 버튼 활성화 및 일치 여부 실시간 검사
         [currentPw, newPw, confirmPw].forEach(el => {
             el.addEventListener('input', validateForm);
         });
 
         function validateForm() {
+            // 사용자가 재입력을 시작하면 서버 에러 메시지를 숨김
+            const serverError = document.querySelector('.login-message.is-error');
+            if (serverError) {
+                serverError.style.display = 'none';
+            }
+
             const isCurrentFilled = currentPw.value.length > 0;
             const isNewFilled = newPw.value.length > 0;
             const isConfirmFilled = confirmPw.value.length > 0;
 
-            // 비밀번호 일치 여부 확인
+            // 비밀번호 일치 여부 UI 표시
             if (isNewFilled && isConfirmFilled) {
                 if (newPw.value !== confirmPw.value) {
                     pwMatchMsg.style.display = 'block';
                     submitBtn.disabled = true;
-                    return;
+                    return; // 불일치하면 버튼 비활성 상태 유지
                 } else {
                     pwMatchMsg.style.display = 'none';
                 }
+            } else {
+                pwMatchMsg.style.display = 'none';
             }
 
-            // 모든 필드가 채워지고 일치하면 버튼 활성화
+            // 모든 필드가 채워지고 비밀번호가 일치하면 버튼 활성화
             if (isCurrentFilled && isNewFilled && isConfirmFilled && (newPw.value === confirmPw.value)) {
                 submitBtn.disabled = false;
             } else {
@@ -124,16 +132,33 @@
             }
         }
 
+        // [제출 전 검사]
         function submitForm() {
-            // 정규식 검사 (영문, 숫자, 특수문자 중 2종 이상, 8~14자)
-            const pw = newPw.value;
-            const regExp = /^(?!((?:[A-Za-z]+)|(?:[~!@#$%^&*()_+=]+)|(?:[0-9]+))$)[A-Za-z\d~!@#$%^&*()_+=]{8,14}$/;
+            const currentVal = currentPw.value;
+            const newVal = newPw.value;
 
-            if (!regExp.test(pw)) {
-                alert('비밀번호는 8~14자이며, 영문/숫자/특수문자 중 2개 이상을 포함해야 합니다.');
+            // 1. 기존 비밀번호 입력 확인
+            if (!currentVal) {
+                alert('기존 비밀번호를 입력해주세요.');
                 return;
             }
 
+            // 2. 기존 비밀번호와 새 비밀번호 동일 여부 체크
+            if (currentVal === newVal) {
+                alert('기존 비밀번호와 다른 비밀번호를 입력해주세요.');
+                return;
+            }
+
+            // 3. 비밀번호 규칙 검사 (가입 시와 동일한 정규식 적용)
+            // 영문, 숫자, 특수문자(!@#$%^&*-_?) 중 2종 이상 조합, 8~14자
+            const regExp = /^(?!((?:[A-Za-z]+)|(?:[!@#$%^&*_\-?]+)|(?:[0-9]+))$)[A-Za-z\d!@#$%^&*_\-?]{8,14}$/;
+
+            if (!regExp.test(newVal)) {
+                alert('비밀번호는 영문, 숫자, 특수문자(!@#$%^&*-_?) 중 2종 이상을 조합하여 8~14자로 입력해주세요.');
+                return;
+            }
+
+            // 4. 폼 제출
             document.getElementById('pwChangeForm').submit();
         }
     </script>

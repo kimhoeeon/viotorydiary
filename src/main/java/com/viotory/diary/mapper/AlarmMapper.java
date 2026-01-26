@@ -14,7 +14,7 @@ public interface AlarmMapper {
 
     int updateReadStatus(@Param("alarmId") Long alarmId, @Param("memberId") Long memberId);
 
-    int countUnread(Long memberId);
-
     int deleteOldAlarms();
+
+    int selectUnreadCount(Long memberId);
 }

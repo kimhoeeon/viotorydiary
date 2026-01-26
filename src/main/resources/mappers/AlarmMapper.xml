@@ -36,4 +36,11 @@
         WHERE created_at &lt; DATE_SUB(NOW(), INTERVAL 7 DAY)
     </delete>
 
+    <select id="selectUnreadCount" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM alarms
+        WHERE member_id = #{memberId}
+          AND is_read = 'N'
+    </select>
+
 </mapper>

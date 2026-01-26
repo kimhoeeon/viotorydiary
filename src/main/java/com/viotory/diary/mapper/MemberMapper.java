@@ -90,4 +90,5 @@ public interface MemberMapper {
 
     int countTodayMembers();
 
+    MemberVO findMemberByEmailAndPhone(@Param("email") String email, @Param("phoneNumber") String phoneNumber);
 }

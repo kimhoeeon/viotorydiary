@@ -287,7 +287,7 @@ public class MemberService {
     public boolean resetAndSendPassword(String userName, String phoneNumber) throws Exception {
         // 1. 회원 조회 (이름 + 전화번호)
         // MemberMapper에 해당 메소드 추가 필요
-        MemberVO member = memberMapper.findMemberByNameAndPhone(userName, phoneNumber);
+        MemberVO member = memberMapper.findMemberByEmailAndPhone(userName, phoneNumber);
 
         if (member == null) {
             return false;
@@ -310,7 +310,7 @@ public class MemberService {
         SmsDTO smsDTO = SmsDTO.builder()
                 .receiver(phoneNumber)
                 // 발신번호는 SmsService 내부 상수를 쓰거나 설정파일에서 가져옴
-                .sender("01012345678") // 실제 운영시 등록된 발신번호 필수
+                .sender("07089498065") // 실제 운영시 등록된 발신번호 필수
                 .message(message)
                 .testmode_yn("N")
                 .build();

@@ -51,7 +51,7 @@
                     <span id="userName">${sessionScope.loginMember.nickname}</span>님
                 </div>
 
-                <button class="noti-btn has-badge" onclick="location.href='/alarm/list'">
+                <button class="noti-btn ${hasUnreadAlarm ? 'has-badge' : ''}" onclick="location.href='/alarm/list'">
                     <span class="noti-btn_icon" aria-hidden="true"><img src="/img/ico_noti.svg" alt="알림 아이콘"></span>
                     <span class="noti-dot" aria-hidden="true"></span>
                 </button>
