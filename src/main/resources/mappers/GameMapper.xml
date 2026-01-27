@@ -46,14 +46,36 @@
 
     <select id="selectGamesByDate" resultType="com.viotory.diary.vo.GameVO">
         SELECT
-            g.*,
-            t1.name_kr AS homeTeamName,
-            t2.name_kr AS awayTeamName,
+            g.game_id,
+            g.api_game_id,
+            g.game_date,
+            g.game_time,
+            g.status,
+            g.score_home,
+            g.score_away,
+            g.home_team_code,
+            g.away_team_code,
+            g.stadium_id,
+
+            -- [홈팀 정보]
+            ht.name_kr AS homeTeamName,
+            ht.logo_image_url AS homeTeamLogo,  -- DB의 로고 컬럼 사용
+
+            -- [원정팀 정보]
+            at.name_kr AS awayTeamName,
+            at.logo_image_url AS awayTeamLogo,  -- DB의 로고 컬럼 사용
+
             s.name AS stadiumName
+
+        -- (예측 정보 관련 서브쿼리나 조인이 있다면 유지)
         FROM games g
-                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
-                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+                 -- 1. 홈팀 조인
+                 LEFT JOIN teams ht ON g.home_team_code = ht.team_code
+            -- 2. 원정팀 조인
+                 LEFT JOIN teams at ON g.away_team_code = at.team_code
+            -- 3. 구장 정보 조인
                  LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+
         WHERE g.game_date = #{date}
         ORDER BY g.game_time ASC
     </select>

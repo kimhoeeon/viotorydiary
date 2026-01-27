@@ -73,26 +73,26 @@
                                     <c:when test="${not empty todayGame}">
                                         <div class="game-board" onclick="location.href='/play'">
                                             <div class="row row-center gap-24">
-                                                <div class="team ${todayGame.status == 'END' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
+                                                <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
                                                     <img src="${todayGame.homeTeamLogo}" alt="${todayGame.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
                                                     </div>
 
                                                 <c:set var="statusClass" value="schedule" />
                                                 <c:if test="${todayGame.status == 'LIVE'}"><c:set var="statusClass" value="during" /></c:if>
-                                                <c:if test="${todayGame.status == 'END'}"><c:set var="statusClass" value="end" /></c:if>
+                                                <c:if test="${todayGame.status == 'FINISHED'}"><c:set var="statusClass" value="end" /></c:if>
                                                 <c:if test="${todayGame.status == 'CANCEL'}"><c:set var="statusClass" value="cancel" /></c:if>
 
                                                 <div class="game-score ${statusClass}">
                                                     <div class="left-team-score ${todayGame.scoreHome > todayGame.scoreAway ? 'high' : ''}">
-                                                        ${todayGame.status == 'PRE' ? '-' : todayGame.scoreHome}
+                                                        ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreHome}
                                                     </div>
 
                                                     <div class="game-info-wrap">
                                                         <div class="badge">
                                                             <c:choose>
-                                                                <c:when test="${todayGame.status == 'PRE'}">예정</c:when>
+                                                                <c:when test="${todayGame.status == 'SCHEDULED'}">예정</c:when>
                                                                 <c:when test="${todayGame.status == 'LIVE'}">LIVE</c:when>
-                                                                <c:when test="${todayGame.status == 'END'}">종료</c:when>
+                                                                <c:when test="${todayGame.status == 'FINISHED'}">종료</c:when>
                                                                 <c:when test="${todayGame.status == 'CANCEL'}">취소</c:when>
                                                             </c:choose>
                                                         </div>
@@ -105,11 +105,11 @@
                                                     </div>
 
                                                     <div class="right-team-score ${todayGame.scoreAway > todayGame.scoreHome ? 'high' : ''}">
-                                                        ${todayGame.status == 'PRE' ? '-' : todayGame.scoreAway}
+                                                        ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreAway}
                                                     </div>
                                                 </div>
 
-                                                <div class="team ${todayGame.status == 'END' && todayGame.scoreAway > todayGame.scoreHome ? 'win' : ''}">
+                                                <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreAway > todayGame.scoreHome ? 'win' : ''}">
                                                     <img src="${todayGame.awayTeamLogo}" alt="${todayGame.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
                                                 </div>
                                             </div>
@@ -131,7 +131,7 @@
                             </div>
                         </div>
 
-                        <div class="card_wrap live" onclick="location.href='/diary/winyo'">
+                        <div class="card_wrap live">
                             <div class="tit live_tit">나의 승요력은 얼마?</div>
                             <div class="card_item gap-16">
                                 <ul class="live-score">
