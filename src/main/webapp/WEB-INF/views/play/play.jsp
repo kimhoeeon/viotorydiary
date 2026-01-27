@@ -523,6 +523,12 @@
                 popupSelectedDateStr = selectedInput.value;
                 renderMonthView();
                 monthSheetBackdrop.classList.add('is-open');
+
+                // 팝업이 열릴 때 선택된 날짜의 경기 정보를 즉시 불러오고, 보기 버튼 활성화
+                if (popupSelectedDateStr) {
+                    updateMonthMatchInfo(popupSelectedDateStr); // 경기 목록 로드
+                    monthApplyBtn.disabled = false;             // 보기 버튼 활성화
+                }
             });
 
             monthCloseBtn.addEventListener('click', () => monthSheetBackdrop.classList.remove('is-open'));
@@ -689,7 +695,7 @@
             });
         }
 
-        // [추가] 초기 페이지 로딩 시 오늘 날짜 데이터 강제 로드
+        // 초기 페이지 로딩 시 오늘 날짜 데이터 강제 로드
         $(document).ready(function () {
             const initDate = $('#selectedDate').val();
             if (initDate) {

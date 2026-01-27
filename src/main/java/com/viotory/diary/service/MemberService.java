@@ -364,7 +364,7 @@ public class MemberService {
 
         // 2. 타입에 따라 값 변경 (Controller에서 대문자로 넘겨줌)
         switch (type) {
-            case "PUSH": member.setPushYn(value); break;      // [추가] 전체 알림
+            case "PUSH": member.setPushYn(value); break;      // 전체 알림
             case "GAME": member.setGameAlarm(value); break;
             case "FRIEND": member.setFriendAlarm(value); break;
             case "MARKETING": member.setMarketingAgree(value); break;
