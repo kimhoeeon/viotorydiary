@@ -93,31 +93,58 @@ public class DiaryController {
 
         // 1. 기존 일기 정보 조회
         DiaryVO diary = diaryService.getDiary(diaryId);
+        if (diary == null) return "redirect:/diary/list";
 
         // 2. 권한 확인 (본인 글이 아니면 튕겨냄)
-        if (diary == null || !diary.getMemberId().equals(loginMember.getMemberId())) {
-            return "redirect:/diary/list";
+        if (!diary.getMemberId().equals(loginMember.getMemberId())) {
+            return "redirect:/diary/detail?diaryId=" + diaryId;
         }
 
         // 3. 경기 정보 조회 (화면에 "LG vs 두산" 등을 보여주기 위함)
         GameVO game = gameService.getGameById(diary.getGameId());
 
         model.addAttribute("diary", diary);
-        model.addAttribute("selectedGame", game);
+        model.addAttribute("game", game);
 
         return "diary/diary_update";
     }
 
     // --- [2] 일기 수정 처리 (POST) ---
     @PostMapping("/update")
-    public String updateAction(DiaryVO diary,
+    @ResponseBody
+    public String updateAction(@ModelAttribute DiaryVO diary,
                                @RequestParam(value = "file", required = false) MultipartFile file,
-                               HttpSession session, Model model) {
+                               HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "redirect:/member/login";
+        if (loginMember == null) {
+            return "<script>alert('로그인이 필요합니다.'); location.href='/member/login';</script>";
+        }
 
         try {
-            diary.setMemberId(loginMember.getMemberId());
+
+            // 1. 기존 일기 정보 조회 (GameId 확보용)
+            DiaryVO originalDiary = diaryService.getDiary(diary.getDiaryId());
+            if (originalDiary == null) {
+                return "<script>alert('존재하지 않는 일기입니다.'); history.back();</script>";
+            }
+
+            // 2. 작성자 본인 확인
+            if (!originalDiary.getMemberId().equals(loginMember.getMemberId())) {
+                return "<script>alert('수정 권한이 없습니다.'); history.back();</script>";
+            }
+
+            // 3. [핵심] 경기 시작 1시간 전 체크
+            // 원본 일기의 경기 정보를 가져옴
+            GameVO game = gameService.getGameById(originalDiary.getGameId());
+            if (game != null) {
+                String dateTimeStr = game.getGameDate() + " " + game.getGameTime();
+                LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); // 초 단위 포맷 주의
+
+                // 현재 시간이 (경기시작 - 1시간) 이후라면 수정 불가
+                if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                    return "<script>alert('경기 시작 1시간 전까지만 수정할 수 있습니다.'); history.back();</script>";
+                }
+            }
 
             // [이미지 처리 로직]
             if (file != null && !file.isEmpty()) {
@@ -125,20 +152,18 @@ public class DiaryController {
                 String savedFileName = saveFile(file);
                 diary.setImageUrl("/uploads/" + savedFileName);
             }
-            // 2. 새 파일이 없는 경우
-            // -> JSP의 <input type="hidden" name="imageUrl" value="...">에 의해
-            //    기존 diary.imageUrl 값이 그대로 넘어오므로 별도 처리 불필요.
+
+            // 작성자 ID 세팅 (보안)
+            diary.setMemberId(loginMember.getMemberId());
 
             // 3. DB 업데이트
             diaryService.modifyDiary(diary);
 
-            return "redirect:/diary/detail?diaryId=" + diary.getDiaryId();
+            return "<script>alert('수정되었습니다.'); location.href='/diary/detail?diaryId=" + diary.getDiaryId() + "';</script>";
 
         } catch (Exception e) {
             log.error("일기 수정 실패", e);
-            model.addAttribute("error", e.getMessage());
-            // 에러 발생 시 수정 페이지로 되돌아가기 (ID 유지)
-            return "redirect:/diary/update?diaryId=" + diary.getDiaryId();
+            return "<script>alert('수정 중 오류가 발생했습니다.'); history.back();</script>";
         }
     }
 

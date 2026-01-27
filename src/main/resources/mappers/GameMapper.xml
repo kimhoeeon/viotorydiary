@@ -4,24 +4,71 @@
 <mapper namespace="com.viotory.diary.mapper.GameMapper">
 
     <insert id="upsertGame" parameterType="com.viotory.diary.vo.GameVO">
-        INSERT INTO games (
-            api_game_id, game_date, game_time, stadium_id,
-            home_team_code, away_team_code, score_home, score_away,
-            status, cancel_reason, mvp_player, data_source, created_at
-        ) VALUES (
-                     #{apiGameId}, #{gameDate}, #{gameTime}, #{stadiumId},
-                     #{homeTeamCode}, #{awayTeamCode}, #{scoreHome}, #{scoreAway},
-                     #{status}, #{cancelReason}, #{mvpPlayer}, 'API', NOW()
-                 )
-        ON DUPLICATE KEY UPDATE
-                             game_time = VALUES(game_time),
-                             score_home = VALUES(score_home),
-                             score_away = VALUES(score_away),
-                             status = VALUES(status),
-                             cancel_reason = VALUES(cancel_reason),
-                             mvp_player = VALUES(mvp_player),
-                             updated_at = NOW()
+        INSERT INTO games (api_game_id, game_date, game_time, stadium_id,
+                           home_team_code, away_team_code,
+                           home_starter, away_starter, score_home, score_away,
+                           status, cancel_reason, mvp_player, data_source, created_at)
+        VALUES (#{apiGameId}, #{gameDate}, #{gameTime}, #{stadiumId},
+                #{homeTeamCode}, #{awayTeamCode},
+                #{homeStarter}, #{awayStarter}, #{scoreHome}, #{scoreAway},
+                #{status}, #{cancelReason}, #{mvpPlayer}, 'API', NOW())
+        ON DUPLICATE KEY UPDATE game_time     = VALUES(game_time),
+                                home_starter  = VALUES(home_starter),
+                                away_starter  = VALUES(away_starter),
+                                score_home    = VALUES(score_home),
+                                score_away    = VALUES(score_away),
+                                status        = VALUES(status),
+                                cancel_reason = VALUES(cancel_reason),
+                                mvp_player    = VALUES(mvp_player),
+                                updated_at    = NOW()
     </insert>
+
+    <select id="selectGamesByDate" resultType="com.viotory.diary.vo.GameVO">
+        SELECT
+            g.game_id,
+            g.api_game_id,
+            g.game_date,
+            g.game_time,
+            g.status,
+            g.score_home,
+            g.score_away,
+            g.home_team_code,
+            g.away_team_code,
+            g.stadium_id,
+
+            -- 선발투수 및 취소사유
+            g.home_starter,
+            g.away_starter,
+            g.cancel_reason,
+
+            -- [홈팀 정보]
+            ht.name_kr AS homeTeamName,
+            ht.logo_image_url AS homeTeamLogo,
+
+            -- [원정팀 정보]
+            at.name_kr AS awayTeamName,
+            at.logo_image_url AS awayTeamLogo,
+
+            s.name AS stadiumName,
+
+            -- 내 일기 ID (작성 여부 확인용)
+            d.diary_id AS diaryId,
+
+            d.hero_name AS myHero
+
+        FROM games g
+                 -- 1. 홈팀 조인
+                 LEFT JOIN teams ht ON g.home_team_code = ht.team_code
+            -- 2. 원정팀 조인
+                 LEFT JOIN teams at ON g.away_team_code = at.team_code
+            -- 3. 구장 정보 조인
+                 LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+            -- 4. 내 일기 조인 (로그인한 멤버의 해당 경기 일기 확인)
+                 LEFT JOIN diaries d ON g.game_id = d.game_id AND d.member_id = #{memberId}
+
+        WHERE g.game_date = #{date}
+        ORDER BY g.game_time ASC
+    </select>
 
     <select id="selectGameByDateAndTeams" resultType="com.viotory.diary.vo.GameVO">
         SELECT * FROM games
@@ -42,42 +89,6 @@
         WHERE (home_team_code = #{teamCode} OR away_team_code = #{teamCode})
           AND game_date = CURDATE()
         LIMIT 1
-    </select>
-
-    <select id="selectGamesByDate" resultType="com.viotory.diary.vo.GameVO">
-        SELECT
-            g.game_id,
-            g.api_game_id,
-            g.game_date,
-            g.game_time,
-            g.status,
-            g.score_home,
-            g.score_away,
-            g.home_team_code,
-            g.away_team_code,
-            g.stadium_id,
-
-            -- [홈팀 정보]
-            ht.name_kr AS homeTeamName,
-            ht.logo_image_url AS homeTeamLogo,  -- DB의 로고 컬럼 사용
-
-            -- [원정팀 정보]
-            at.name_kr AS awayTeamName,
-            at.logo_image_url AS awayTeamLogo,  -- DB의 로고 컬럼 사용
-
-            s.name AS stadiumName
-
-        -- (예측 정보 관련 서브쿼리나 조인이 있다면 유지)
-        FROM games g
-                 -- 1. 홈팀 조인
-                 LEFT JOIN teams ht ON g.home_team_code = ht.team_code
-            -- 2. 원정팀 조인
-                 LEFT JOIN teams at ON g.away_team_code = at.team_code
-            -- 3. 구장 정보 조인
-                 LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
-
-        WHERE g.game_date = #{date}
-        ORDER BY g.game_time ASC
     </select>
 
     <select id="selectTodayGame" resultType="com.viotory.diary.vo.GameVO">

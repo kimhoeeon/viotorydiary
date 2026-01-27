@@ -80,7 +80,7 @@
                                                 <c:set var="statusClass" value="schedule" />
                                                 <c:if test="${todayGame.status == 'LIVE'}"><c:set var="statusClass" value="during" /></c:if>
                                                 <c:if test="${todayGame.status == 'FINISHED'}"><c:set var="statusClass" value="end" /></c:if>
-                                                <c:if test="${todayGame.status == 'CANCEL'}"><c:set var="statusClass" value="cancel" /></c:if>
+                                                <c:if test="${todayGame.status == 'CANCELLED'}"><c:set var="statusClass" value="cancel" /></c:if>
 
                                                 <div class="game-score ${statusClass}">
                                                     <div class="left-team-score ${todayGame.scoreHome > todayGame.scoreAway ? 'high' : ''}">
@@ -93,7 +93,7 @@
                                                                 <c:when test="${todayGame.status == 'SCHEDULED'}">예정</c:when>
                                                                 <c:when test="${todayGame.status == 'LIVE'}">LIVE</c:when>
                                                                 <c:when test="${todayGame.status == 'FINISHED'}">종료</c:when>
-                                                                <c:when test="${todayGame.status == 'CANCEL'}">취소</c:when>
+                                                                <c:when test="${todayGame.status == 'CANCELLED'}">취소</c:when>
                                                             </c:choose>
                                                         </div>
                                                         <div class="game-info">

@@ -158,7 +158,8 @@
             g.score_home,
             g.score_away,
             g.home_team_code,
-            g.away_team_code
+            g.away_team_code,
+            g.cancel_reason
 
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id

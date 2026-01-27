@@ -115,9 +115,9 @@
                                                         <td>${item.stadiumId}</td>
                                                         <td>
                                                             <c:choose>
-                                                                <c:when test="${item.status eq 'END'}"><span
+                                                                <c:when test="${item.status eq 'FINISHED'}"><span
                                                                         class="badge badge-light-dark">종료</span></c:when>
-                                                                <c:when test="${item.status eq 'CANCEL'}"><span
+                                                                <c:when test="${item.status eq 'CANCELLED'}"><span
                                                                         class="badge badge-light-danger">취소</span></c:when>
                                                                 <c:when test="${item.status eq 'RAIN'}"><span
                                                                         class="badge badge-light-warning">우천취소</span></c:when>
@@ -191,14 +191,14 @@
                                 <select class="form-select form-select-solid" name="awayTeamCode" id="awayTeamCode">
                                     <option value="LG">LG</option>
                                     <option value="KT">KT</option>
-                                    <option value="SS">SSG</option>
+                                    <option value="SSG">SSG</option>
                                     <option value="NC">NC</option>
-                                    <option value="OB">두산</option>
-                                    <option value="HT">KIA</option>
-                                    <option value="LT">롯데</option>
-                                    <option value="SS">삼성</option>
-                                    <option value="HH">한화</option>
-                                    <option value="WO">키움</option>
+                                    <option value="DOOSAN">두산</option>
+                                    <option value="KIA">KIA</option>
+                                    <option value="LOTTE">롯데</option>
+                                    <option value="SAMSUNG">삼성</option>
+                                    <option value="HANWHA">한화</option>
+                                    <option value="KIWOOM">키움</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -206,14 +206,14 @@
                                 <select class="form-select form-select-solid" name="homeTeamCode" id="homeTeamCode">
                                     <option value="LG">LG</option>
                                     <option value="KT">KT</option>
-                                    <option value="SS">SSG</option>
+                                    <option value="SSG">SSG</option>
                                     <option value="NC">NC</option>
-                                    <option value="OB">두산</option>
-                                    <option value="HT">KIA</option>
-                                    <option value="LT">롯데</option>
-                                    <option value="SS">삼성</option>
-                                    <option value="HH">한화</option>
-                                    <option value="WO">키움</option>
+                                    <option value="DOOSAN">두산</option>
+                                    <option value="KIA">KIA</option>
+                                    <option value="LOTTE">롯데</option>
+                                    <option value="SAMSUNG">삼성</option>
+                                    <option value="HANWHA">한화</option>
+                                    <option value="KIWOOM">키움</option>
                                 </select>
                             </div>
                         </div>
@@ -233,10 +233,10 @@
                             <div class="col-md-6">
                                 <label class="fs-6 fw-semibold mb-2">상태</label>
                                 <select class="form-select form-select-solid" name="status" id="status">
-                                    <option value="READY">예정</option>
+                                    <option value="SCHEDULED">예정</option>
                                     <option value="LIVE">진행중</option>
-                                    <option value="END">종료</option>
-                                    <option value="CANCEL">취소</option>
+                                    <option value="FINISHED">종료</option>
+                                    <option value="CANCELLED">취소</option>
                                     <option value="RAIN">우천취소</option>
                                 </select>
                             </div>

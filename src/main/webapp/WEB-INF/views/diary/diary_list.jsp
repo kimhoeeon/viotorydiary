@@ -52,7 +52,7 @@
                             </c:if>
 
                             <c:forEach var="item" items="${list}">
-                                <div class="score_list ${item.gameResult eq 'CANCEL' ? 'cancel_list' : ''}"
+                                <div class="score_list ${item.gameResult eq 'CANCELLED' ? 'cancel_list' : ''}"
                                      onclick="location.href='/diary/detail?diaryId=${item.diaryId}'"
                                      style="cursor:pointer;">
                                     <div class="img">
@@ -80,7 +80,7 @@
                                                     </div>
                                                 </c:when>
                                                 <%-- 2. 취소 --%>
-                                                <c:when test="${item.gameResult eq 'CANCEL'}">
+                                                <c:when test="${item.gameResult eq 'CANCELLED'}">
                                                     <div class="cancel">
                                                         <div class="badge">취소(우천)</div>
                                                     </div>

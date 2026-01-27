@@ -29,7 +29,13 @@ public class GameVO {
 
     private String etcInfo;
 
+    private String homeStarter;   // 홈팀 선발투수 (DB: home_starter)
+    private String awayStarter;   // 원정팀 선발투수 (DB: away_starter)
     private String cancelReason;
+
+    private Long diaryId;
+
+    private String myHero;
 
     private String mvpPlayer;       // MVP 선수
 

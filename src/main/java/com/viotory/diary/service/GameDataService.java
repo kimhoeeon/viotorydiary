@@ -239,6 +239,10 @@ public class GameDataService {
             String statusCode = g.path("statusCode").asText("BEFORE"); // BEFORE, STARTED, RESULT, FINISHED
             boolean isCancel = g.path("cancel").asBoolean(false);
 
+            // 1. JSON에서 선발 투수 이름 추출 (API 필드명: homeStarterName, awayStarterName)
+            String homeStarter = g.path("homeStarterName").asText(null);
+            String awayStarter = g.path("awayStarterName").asText(null);
+
             String status = "SCHEDULED";
             String mvpName = null;
 
@@ -271,6 +275,8 @@ public class GameDataService {
                     .scoreAway(awayScore)
                     .status(status)
                     .cancelReason(isCancel ? g.path("statusInfo").asText() : null)
+                    .homeStarter(homeStarter)
+                    .awayStarter(awayStarter)
                     .mvpPlayer(mvpName)
                     .stadiumId(stadiumId)
                     .build();

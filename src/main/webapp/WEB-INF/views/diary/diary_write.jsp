@@ -123,12 +123,12 @@
 
                               <div class="diary_write_list">
                                   <div class="tit">오늘의 히어로는 누구일까?</div>
-                                  <input type="text" name="heroName" placeholder="텍스트를 입력하세요.">
+                                  <input type="text" name="heroName" id="heroName" placeholder="오늘의 히어로 선수는?">
                               </div>
 
                               <div class="diary_write_list">
                                   <div class="tit">오늘의 경기를 한 마디로 평가한다면?!</div>
-                                  <input type="text" name="oneLineComment" id="oneLine" placeholder="텍스트를 입력하세요.">
+                                  <input type="text" name="oneLineComment" id="oneLine" placeholder="오늘의 경기는 어떠셨나요?">
                               </div>
 
                               <div class="diary_write_list">
@@ -387,20 +387,46 @@
 
       // 4. 제출
       function submitDiary() {
+          // 1) 경기 선택 여부 확인
           if (!$('#gameId').val()) {
               alert('경기를 선택해주세요.', function() {
-                  // 경기 선택 팝업 열기 등의 후속 조치
                   openGameSheet();
               });
               return;
           }
-          if (!$('#oneLine').val()) {
+
+          // 2) [기획반영] 필수값 체크: 히어로
+          if (!$.trim($('#heroName').val())) {
+              alert('오늘의 히어로(MVP)를 입력해주세요!', function() {
+                  $('#heroName').focus();
+              });
+              return;
+          }
+
+          // 3) [기획반영] 필수값 체크: 한줄평
+          if (!$.trim($('#oneLine').val())) {
               alert('오늘 경기에 대한 한줄평을 남겨주세요!', function() {
                   $('#oneLine').focus();
               });
               return;
           }
-          $('#diaryForm').submit();
+
+          // 4) [기획반영] 직관 인증 여부 확인 (미인증 시 컨펌)
+          const isVerified = $('#isVerified').val();
+          if (isVerified !== 'true') {
+              // 커스텀 confirm 또는 기본 confirm 사용
+              if (confirm("정말로 직관 인증을 하지 않고 저장하시겠어요?\n인증 시, 승률 계산에 반영돼요!")) {
+                  // 확인 시 제출 진행
+                  $('#diaryForm').submit();
+              } else {
+                  // 취소 시 인증 유도 (인증 버튼 쪽으로 스크롤 이동 등)
+                  $('#btnVerify').focus();
+                  return;
+              }
+          } else {
+              // 인증된 상태면 바로 제출
+              $('#diaryForm').submit();
+          }
       }
   </script>
 </body>

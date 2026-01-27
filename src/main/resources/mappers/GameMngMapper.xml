@@ -15,28 +15,30 @@
     </select>
 
     <insert id="insertGame" parameterType="com.viotory.diary.vo.GameVO">
-        INSERT INTO games (
-            game_date, game_time, home_team_code, away_team_code,
-            stadium_id, score_home, score_away, status, etc_info, created_at
-        ) VALUES (
-                     #{gameDate}, #{gameTime}, #{homeTeamCode}, #{awayTeamCode},
-                     #{stadiumId}, IFNULL(#{scoreHome},0), IFNULL(#{scoreAway},0),
-                     #{status}, #{etcInfo}, NOW()
-                 )
+        INSERT INTO games (game_date, game_time, home_team_code, away_team_code,
+                           stadium_id, score_home, score_away, status, etc_info,
+                           home_starter, away_starter, cancel_reason, created_at)
+        VALUES (#{gameDate}, #{gameTime}, #{homeTeamCode}, #{awayTeamCode},
+                #{stadiumId}, IFNULL(#{scoreHome}, 0), IFNULL(#{scoreAway}, 0),
+                #{status}, #{etcInfo},
+                #{homeStarter}, #{awayStarter}, #{cancelReason}, NOW())
     </insert>
 
     <update id="updateGame" parameterType="com.viotory.diary.vo.GameVO">
         UPDATE games
-        SET game_date = #{gameDate},
-            game_time = #{gameTime},
+        SET game_date      = #{gameDate},
+            game_time      = #{gameTime},
             home_team_code = #{homeTeamCode},
             away_team_code = #{awayTeamCode},
-            stadium_id = #{stadiumId},
-            score_home = #{scoreHome},
-            score_away = #{scoreAway},
-            status = #{status},
-            etc_info = #{etcInfo},
-            updated_at = NOW()
+            stadium_id     = #{stadiumId},
+            score_home     = #{scoreHome},
+            score_away     = #{scoreAway},
+            status         = #{status},
+            etc_info       = #{etcInfo},
+            home_starter   = #{homeStarter},
+            away_starter   = #{awayStarter},
+            cancel_reason  = #{cancelReason},
+            updated_at     = NOW()
         WHERE game_id = #{gameId}
     </update>
 

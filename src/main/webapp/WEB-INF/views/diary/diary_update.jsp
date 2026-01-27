@@ -55,9 +55,9 @@
                                 <div class="diary_write_list req">
                                     <div class="tit">직관한 경기</div>
                                     <button type="button" class="select-field" disabled>
-                                            <span class="select-field_value" style="color:#000; font-weight:bold;">
-                                                ${selectedGame.homeTeamName} vs ${selectedGame.awayTeamName}
-                                            </span>
+                                        <span class="select-field_value" style="color:#000; font-weight:bold;">
+                                            ${game.homeTeamName} vs ${game.awayTeamName}
+                                        </span>
                                     </button>
                                 </div>
 
@@ -67,21 +67,19 @@
                                         <div class="game-board">
                                             <div class="row row-center gap-24">
                                                 <div class="team">
-                                                    <div class="team-name">${selectedGame.homeTeamName}</div>
+                                                    <div class="team-name">${game.homeTeamName}</div>
                                                 </div>
                                                 <div class="game-score schedule">
                                                     <div class="left-team-score">
-                                                        <input type="number" name="predScoreHome"
-                                                               value="${diary.predScoreHome}">
+                                                        <input type="number" name="predScoreHome" value="${diary.predScoreHome}">
                                                     </div>
                                                     <div class="game-info-wrap">VS</div>
                                                     <div class="right-team-score">
-                                                        <input type="number" name="predScoreAway"
-                                                               value="${diary.predScoreAway}">
+                                                        <input type="number" name="predScoreAway" value="${diary.predScoreAway}">
                                                     </div>
                                                 </div>
                                                 <div class="team">
-                                                    <div class="team-name">${selectedGame.awayTeamName}</div>
+                                                    <div class="team-name">${game.awayTeamName}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -90,7 +88,7 @@
 
                                 <div class="diary_write_list">
                                     <div class="tit">오늘의 히어로는 누구일까?</div>
-                                    <input type="text" name="heroName" value="${diary.heroName}">
+                                    <input type="text" name="heroName" id="heroName" value="${diary.heroName}" placeholder="오늘의 히어로 선수는?">
                                 </div>
 
                                 <div class="diary_write_list">
@@ -105,18 +103,14 @@
 
                                 <div class="diary_write_list">
                                     <div class="tit">오늘 경기 사진</div>
-                                    <button type="button" class="btn btn-primary gap-4"
-                                            onclick="document.getElementById('fileUpload').click();">
+                                    <button type="button" class="btn btn-primary gap-4" onclick="document.getElementById('fileUpload').click();">
                                         사진 변경하기
                                         <span><img src="/img/ico_plus.svg" alt="플러스"></span>
                                     </button>
-                                    <input type="file" id="fileUpload" name="file" style="display:none;" accept="image/*"
-                                           onchange="previewImage(this)">
+                                    <input type="file" id="fileUpload" name="file" style="display:none;" accept="image/*" onchange="previewImage(this)">
 
-                                    <div class="upload" id="imagePreviewBox"
-                                         style="${empty diary.imageUrl ? 'display:none;' : 'display:block;'}">
-                                        <img id="imagePreview" src="${empty diary.imageUrl ? '' : diary.imageUrl}"
-                                             alt="미리보기">
+                                    <div class="upload" id="imagePreviewBox" style="${empty diary.imageUrl ? 'display:none;' : 'display:block;'}">
+                                        <img id="imagePreview" src="${empty diary.imageUrl ? '' : diary.imageUrl}" alt="미리보기">
                                         <button class="del" type="button" onclick="deleteImage()">
                                             <img src="/img/ico_del.svg" alt="삭제">
                                         </button>
@@ -126,22 +120,19 @@
                                 <ul class="disClose">
                                     <li>
                                         <label class="check">
-                                            <input type="radio" name="isPublic"
-                                                   value="PUBLIC" ${diary.isPublic eq 'PUBLIC' ? 'checked' : ''}>
+                                            <input type="radio" name="isPublic" value="PUBLIC" ${diary.isPublic eq 'PUBLIC' ? 'checked' : ''}>
                                             전체공개
                                         </label>
                                     </li>
                                     <li>
                                         <label class="check">
-                                            <input type="radio" name="isPublic"
-                                                   value="FRIENDS" ${diary.isPublic eq 'FRIENDS' ? 'checked' : ''}>
+                                            <input type="radio" name="isPublic" value="FRIENDS" ${diary.isPublic eq 'FRIENDS' ? 'checked' : ''}>
                                             맞팔 공개
                                         </label>
                                     </li>
                                     <li>
                                         <label class="check">
-                                            <input type="radio" name="isPublic"
-                                                   value="PRIVATE" ${diary.isPublic eq 'PRIVATE' ? 'checked' : ''}>
+                                            <input type="radio" name="isPublic" value="PRIVATE" ${diary.isPublic eq 'PRIVATE' ? 'checked' : ''}>
                                             비공개
                                         </label>
                                     </li>
@@ -187,10 +178,21 @@
 
         // 제출
         function submitDiary() {
-            if (!document.getElementById('oneLine').value) {
-                alert('한줄평을 입력해주세요.');
+            // [추가] 히어로(MVP) 필수 입력 체크
+            var heroInput = document.getElementById('heroName'); // 위에서 id="heroName"을 추가해야 동작함
+            if (!heroInput || !heroInput.value.trim()) {
+                alert('오늘의 히어로(MVP)를 입력해주세요!');
+                if(heroInput) heroInput.focus();
                 return;
             }
+
+            // [기존] 한줄평 체크
+            if (!document.getElementById('oneLine').value.trim()) {
+                alert('한줄평을 입력해주세요.');
+                document.getElementById('oneLine').focus();
+                return;
+            }
+
             document.getElementById('diaryForm').submit();
         }
     </script>

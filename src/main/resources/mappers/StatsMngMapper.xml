@@ -27,7 +27,7 @@
 
             -- 무승부/취소 등
             SUM(CASE
-                    WHEN (g.score_home = g.score_away) OR g.status IN ('CANCEL', 'RAIN') THEN 1
+                    WHEN (g.score_home = g.score_away) OR g.status IN ('CANCELLED', 'RAIN') THEN 1
                     ELSE 0
                 END) AS drawGames
 

@@ -152,10 +152,10 @@
                                                                                     <c:when test="${game.status eq 'LIVE'}">
                                                                                         <span class="badge badge-danger animation-blink">LIVE</span>
                                                                                     </c:when>
-                                                                                    <c:when test="${game.status eq 'END'}">
+                                                                                    <c:when test="${game.status eq 'FINISHED'}">
                                                                                         <span class="badge badge-secondary">종료</span>
                                                                                     </c:when>
-                                                                                    <c:when test="${game.status eq 'CANCEL'}">
+                                                                                    <c:when test="${game.status eq 'CANCELLED'}">
                                                                                         <span class="badge badge-warning">취소</span>
                                                                                     </c:when>
                                                                                     <c:otherwise>
@@ -170,14 +170,14 @@
                                                                                 </div>
                                                                                 <div class="d-flex flex-column align-items-center justify-content-center mx-3" style="width: 20%; min-width: 100px;">
                                                                                     <c:choose>
-                                                                                        <c:when test="${game.status eq 'LIVE' or game.status eq 'END'}">
+                                                                                        <c:when test="${game.status eq 'LIVE' or game.status eq 'FINISHED'}">
                                                                                             <div class="d-flex align-items-center justify-content-center">
                                                                                                 <span class="fs-1 fw-bolder text-primary">${game.scoreHome}</span>
                                                                                                 <span class="fs-3 text-gray-400 mx-2">:</span>
                                                                                                 <span class="fs-1 fw-bolder text-primary">${game.scoreAway}</span>
                                                                                             </div>
                                                                                         </c:when>
-                                                                                        <c:when test="${game.status eq 'CANCEL'}">
+                                                                                        <c:when test="${game.status eq 'CANCELLED'}">
                                                                                             <span class="fs-4 fw-bold text-gray-400">CANCELED</span>
                                                                                         </c:when>
                                                                                         <c:otherwise>

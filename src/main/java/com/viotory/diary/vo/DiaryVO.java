@@ -46,6 +46,7 @@ public class DiaryVO {
     private String gameResult;       // WIN, LOSE, DRAW (승요 서비스 계산용)
 
     private String shareUuid; // 공유용 UUID
+    private String cancelReason;
 
     private String homeTeamLogo;
     private String awayTeamLogo;

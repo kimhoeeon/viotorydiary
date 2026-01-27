@@ -62,7 +62,7 @@ public class PlayService {
     @Transactional
     public void processPredictionResult(GameVO game) {
         // 결과가 없거나 취소된 경기라면 처리하지 않음
-        if (game.getWinningTeam() == null || "CANCEL".equals(game.getStatus())) {
+        if (game.getWinningTeam() == null || "CANCELLED".equals(game.getStatus())) {
             return;
         }
 

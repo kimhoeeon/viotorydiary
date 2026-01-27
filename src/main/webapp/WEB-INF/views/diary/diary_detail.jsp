@@ -22,8 +22,29 @@
     <title>상세보기 | 승요일기</title>
     <style>
         /* 더보기 기능용: 5번째 이후 댓글 숨김 */
-        .review_list li.hidden-cmt {
-            display: none;
+        .review_list li:nth-child(n+6) { display: none; }
+
+        /* 상세 페이지 전용 스타일 */
+        .diary-header-info {
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .one-line-box .label { font-size: 13px; color: #999; margin-bottom: 6px; display: block; }
+        .one-line-box .text { font-size: 18px; font-weight: 700; color: #111; line-height: 1.4; }
+
+        .hero-box { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
+        .hero-badge {
+            background: #e8f3ff; color: #2c7fff;
+            font-size: 12px; font-weight: 700;
+            padding: 4px 8px; border-radius: 6px;
+        }
+        .hero-name { font-size: 16px; font-weight: 600; color: #333; }
+
+        .cancel-badge {
+            background-color: #ffebeb; color: #ff4d4f;
+            font-size: 12px; padding: 2px 6px; border-radius: 4px;
+            margin-left: 6px; font-weight: 500;
         }
     </style>
 </head>
@@ -34,74 +55,112 @@
             <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
+            <div class="page-tit">직관일기</div>
 
-            <c:if test="${isOwner and diary.isPublic ne 'PRIVATE'}">
-                <button class="app-header_btn" type="button" onclick="shareDiary()" style="margin-left:auto;">
-                    <img src="/img/ico_clip.svg" alt="공유하기"> </button>
+            <c:if test="${isOwner}">
+                <div class="app-header_action">
+                    <c:if test="${isEditable}">
+                        <button type="button" class="btn-text" onclick="editDiary()">수정</button>
+                    </c:if>
+
+                    <button type="button" class="btn-text warning" onclick="deleteDiary()">삭제</button>
+                </div>
             </c:if>
         </header>
 
         <div class="app-main">
-            <div class="card_wrap play_wrap gap-16">
-                <div class="card_item pt-24 pb-24">
-                    <div class="review_wrap">
-                        <ul class="review_list" id="reviewList">
-                            <c:forEach var="cmt" items="${comments}" varStatus="status">
-                                <li class="${status.index >= 5 ? 'hidden-cmt' : ''}">
-                                    <div class="name"><span>${cmt.memberTeamCode}</span> ${cmt.nickname}</div>
-                                    <div class="nae">${cmt.content}</div>
+            <div class="page-main_wrap">
+                <div class="card_wrap gap-16">
 
-                                    <c:if test="${cmt.memberId eq sessionScope.loginMember.memberId or isOwner}">
-                                        <button class="del-btn" type="button"
-                                                onclick="deleteComment(${cmt.commentId}, this)">
-                                            <span><img src="/img/ico_del.svg" alt="삭제 아이콘"></span>
-                                        </button>
-                                    </c:if>
-                                </li>
-                            </c:forEach>
-                            <c:if test="${empty comments}">
-                                <li style="text-align:center; padding:10px; color:#999;">작성된 댓글이 없습니다.</li>
-                            </c:if>
-                        </ul>
+                    <div class="card_item game-item">
+                        <div class="game-board">
+                            <div class="row row-center gap-24">
+                                <div class="team ${diary.status == 'FINISHED' && diary.scoreHome > diary.scoreAway ? 'win' : ''}">
+                                    <div class="team-name mb-4">${diary.homeTeamName}</div>
+                                    <img src="/img/logo/logo_${fn:toLowerCase(diary.homeTeamCode)}.svg" alt="${diary.homeTeamName}">
+                                </div>
 
-                        <c:if test="${fn:length(comments) > 5}">
-                            <div class="more-btn" id="moreBtn" onclick="showAllComments()">
-                                <div class="btn">더 보기</div>
-                            </div>
-                        </c:if>
+                                <div class="game-score ${diary.status == 'FINISHED' ? 'end' : (diary.status == 'LIVE' ? 'during' : 'cancel')}">
+                                    <div class="left-team-score ${diary.scoreHome > diary.scoreAway ? 'high' : ''}">
+                                        ${diary.status == 'SCHEDULED' ? '-' : diary.scoreHome}
+                                    </div>
+                                    <div class="game-info-wrap">
+                                        <c:choose>
+                                            <c:when test="${diary.status == 'FINISHED'}">
+                                                <div class="badge">종료</div>
+                                            </c:when>
+                                            <c:when test="${diary.status == 'LIVE'}">
+                                                <div class="badge">경기중</div>
+                                            </c:when>
+                                            <c:when test="${diary.status == 'CANCELLED'}">
+                                                <div class="badge cancel">취소</div>
+                                                <c:if test="${not empty diary.cancelReason}">
+                                                    <span class="cancel-badge">${diary.cancelReason}</span>
+                                                </c:if>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div class="badge schedule">예정</div>
+                                            </c:otherwise>
+                                        </c:choose>
 
-                        <div class="review_write">
-                            <div class="tit">댓글 작성하기</div>
-                            <div class="write_input">
-                                <input type="text" id="cmtContent" placeholder="댓글을 입력하세요. (30자 내 이내)"
-                                       onkeyup="checkCmtInput()">
-                                <button class="send wpx-80" id="btnCmtSend" disabled onclick="submitComment()">
-                                    작성
-                                </button>
+                                        <div class="game-info">
+                                            <div class="day">${fn:substring(diary.gameDate, 5, 7)}.${fn:substring(diary.gameDate, 8, 10)} ${fn:substring(diary.gameTime, 0, 5)}</div>
+                                            <div class="place">${diary.stadiumName}</div>
+                                        </div>
+                                    </div>
+                                    <div class="right-team-score ${diary.scoreAway > diary.scoreHome ? 'high' : ''}">
+                                        ${diary.status == 'SCHEDULED' ? '-' : diary.scoreAway}
+                                    </div>
+                                </div>
+
+                                <div class="team ${diary.status == 'FINISHED' && diary.scoreAway > diary.scoreHome ? 'win' : ''}">
+                                    <div class="team-name mb-4">${diary.awayTeamName}</div>
+                                    <img src="/img/logo/logo_${fn:toLowerCase(diary.awayTeamCode)}.svg" alt="${diary.awayTeamName}">
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <div class="card_item">
+                        <div class="diary-header-info">
+                            <div class="one-line-box">
+                                <span class="label">한줄평</span>
+                                <div class="text">"${diary.oneLineComment}"</div>
+                            </div>
+
+                            <c:if test="${not empty diary.heroName}">
+                                <div class="hero-box">
+                                    <span class="hero-badge">🏆 My Hero</span>
+                                    <span class="hero-name">${diary.heroName}</span>
+                                </div>
+                            </c:if>
+                        </div>
+
+                        <div class="diary-img" style="margin-bottom:16px;">
+                            <c:choose>
+                                <c:when test="${not empty diary.imageUrl}">
+                                    <img src="${diary.imageUrl}" alt="직관 사진" onclick="viewImage(this.src)"
+                                         style="width:100%; border-radius:12px; border: 1px solid #eee;">
+                                </c:when>
+                                <c:otherwise>
+                                    <img src="/img/card_defalut.svg" alt="기본 이미지"
+                                         style="width:100%; border-radius:12px; border: 1px solid #eee; opacity: 0.8;">
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+
+                        <div class="diary-txt" style="white-space:pre-line; line-height:1.6; color:#333; font-size: 15px;">${diary.content}</div>
+                    </div>
+
                 </div>
             </div>
-
-            <c:if test="${not isEditable and isOwner}">
-                <div class="horizon-mes">
-                    <img src="/img/ico_not_mark_red.svg" alt="수정 불가"> 경기 시간이 임박하여 수정할 수 없어요.
-                </div>
-            </c:if>
         </div>
 
-        <c:if test="${isOwner}">
-            <div class="bottom-action">
-                <button type="button" class="btn border" onclick="deleteDiary()">삭제</button>
+        <div class="bottom-action bottom-main">
+            <button type="button" class="btn btn-primary" onclick="shareDiary()">공유하기</button>
+        </div>
 
-                <button type="button" class="btn btn-primary"
-                        onclick="editDiary()"
-                    ${not isEditable ? 'disabled' : ''}>
-                    수정
-                </button>
-            </div>
-        </c:if>
+        <%@ include file="../include/tabbar.jsp" %>
     </div>
 
     <%@ include file="../include/popup.jsp" %>
@@ -109,60 +168,21 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script>
-        // 댓글 입력 감지
-        function checkCmtInput() {
-            const val = $('#cmtContent').val().trim();
-            $('#btnCmtSend').prop('disabled', val.length === 0);
+        // 이미지 크게 보기 (간단 구현)
+        function viewImage(src) {
+            // 필요 시 라이트박스 플러그인 연동
+            window.open(src, '_blank');
         }
 
-        // 댓글 작성
-        function submitComment() {
-            const content = $('#cmtContent').val();
-            if (!content) return;
-
-            $.post('/diary/comment/write', {
-                diaryId: '${diary.diaryId}',
-                content: content
-            }, function (res) {
-                if (res === 'ok') location.reload();
-                else alert('작성 실패');
-            });
-        }
-
-        // 댓글 삭제
-        function deleteComment(id, btn) {
-            if (!confirm('댓글을 삭제하시겠습니까?')) return;
-
-            $.post('/diary/comment/delete', {commentId: id}, function (res) {
-                if (res === 'ok') {
-                    $(btn).closest('li').remove();
-                } else {
-                    alert('삭제 권한이 없거나 오류가 발생했습니다.');
-                }
-            });
-        }
-
-        // 댓글 더보기
-        function showAllComments() {
-            $('.hidden-cmt').slideDown();
-            $('#moreBtn').hide();
-        }
-
-        // 일기 삭제
         function deleteDiary() {
-            if(!confirm('정말 일기를 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.')) {
-                return;
-            }
+            if(!confirm('정말 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.')) return;
 
-            // AJAX로 삭제 요청
             $.post('/diary/delete', { diaryId: '${diary.diaryId}' }, function(res) {
                 if (res === 'ok') {
-                    // 팝업 확인 후 목록으로 이동
-                    alert('일기가 삭제되었습니다.', function() {
+                    alert('삭제되었습니다.', function() {
                         location.href = '/diary/list';
                     });
-                } else if (res.startsWith('fail:login')) {
-                    // 팝업 확인 후 목록으로 이동
+                } else if (res === 'fail:login') {
                     alert('로그인이 필요합니다.', function() {
                         location.href = '/member/login';
                     });
