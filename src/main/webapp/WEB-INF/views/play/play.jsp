@@ -60,7 +60,7 @@
         .cancel-reason { font-size: 12px; color: #FF2F32; margin-top: 4px; text-align: center; font-weight: 500;}
         .pitcher-name { font-size: 11px; color: #666; display: block; margin-top: 2px; }
 
-        /* [추가] 승리 팀 스타일 */
+        /* 승리 팀 스타일 */
         .team.win .team-name {
             font-weight: 700;
             color: #000;

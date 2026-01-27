@@ -62,7 +62,14 @@
                                 </div>
 
                                 <div class="diary_write_list req">
-                                    <div class="tit">스코어 예상 수정</div>
+                                    <div class="tit">
+                                        경기 전 승부예측
+                                        <c:if test="${game.status ne 'SCHEDULED'}">
+                                            <span style="font-size:12px; color:#ff4d4f; margin-left:8px; font-weight:normal;">
+                                                * 경기 시작 후에는 수정할 수 없어요.
+                                            </span>
+                                        </c:if>
+                                    </div>
                                     <div class="card_item">
                                         <div class="game-board">
                                             <div class="row row-center gap-24">
@@ -71,11 +78,13 @@
                                                 </div>
                                                 <div class="game-score schedule">
                                                     <div class="left-team-score">
-                                                        <input type="number" name="predScoreHome" value="${diary.predScoreHome}">
+                                                        <input type="number" name="predScoreHome" value="${diary.predScoreHome}"
+                                                               <c:if test="${game.status ne 'SCHEDULED'}">readonly style="background:#f5f5f5; color:#999;"</c:if> >
                                                     </div>
                                                     <div class="game-info-wrap">VS</div>
                                                     <div class="right-team-score">
-                                                        <input type="number" name="predScoreAway" value="${diary.predScoreAway}">
+                                                        <input type="number" name="predScoreAway" value="${diary.predScoreAway}"
+                                                               <c:if test="${game.status ne 'SCHEDULED'}">readonly style="background:#f5f5f5; color:#999;"</c:if> >
                                                     </div>
                                                 </div>
                                                 <div class="team">
@@ -88,7 +97,8 @@
 
                                 <div class="diary_write_list">
                                     <div class="tit">오늘의 히어로는 누구일까?</div>
-                                    <input type="text" name="heroName" id="heroName" value="${diary.heroName}" placeholder="오늘의 히어로 선수는?">
+                                    <input type="text" name="heroName" id="heroName" value="${diary.heroName}"
+                                           placeholder="오늘 나만의 MVP는 누구인가요?">
                                 </div>
 
                                 <div class="diary_write_list">
@@ -167,26 +177,25 @@
             }
         }
 
-        // 이미지 삭제 (화면상에서만 안 보이게, 실제로는 빈 값 전송 필요할 수도 있음)
+        // 이미지 삭제
         function deleteImage() {
             document.getElementById('fileUpload').value = '';
             document.getElementById('imagePreview').src = '';
             document.getElementById('imagePreviewBox').style.display = 'none';
-            // 기존 이미지도 삭제하고 싶다면 hidden input 값을 비워야 함
             document.getElementsByName('imageUrl')[0].value = '';
         }
 
         // 제출
         function submitDiary() {
-            // [추가] 히어로(MVP) 필수 입력 체크
-            var heroInput = document.getElementById('heroName'); // 위에서 id="heroName"을 추가해야 동작함
+            // 히어로(MVP) 필수 입력 체크
+            var heroInput = document.getElementById('heroName');
             if (!heroInput || !heroInput.value.trim()) {
                 alert('오늘의 히어로(MVP)를 입력해주세요!');
                 if(heroInput) heroInput.focus();
                 return;
             }
 
-            // [기존] 한줄평 체크
+            // 한줄평 체크
             if (!document.getElementById('oneLine').value.trim()) {
                 alert('한줄평을 입력해주세요.');
                 document.getElementById('oneLine').focus();
