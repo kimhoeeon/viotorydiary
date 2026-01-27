@@ -246,6 +246,21 @@
                                        placeholder="잠실, 사직..."/>
                             </div>
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="homeStarter" class="form-label">홈 선발투수</label>
+                                <input type="text" class="form-control" id="homeStarter" name="homeStarter">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="awayStarter" class="form-label">원정 선발투수</label>
+                                <input type="text" class="form-control" id="awayStarter" name="awayStarter">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="cancelReason" class="form-label">취소 사유</label>
+                            <input type="text" class="form-control" id="cancelReason" name="cancelReason" placeholder="예: 우천취소, 미세먼지 등">
+                        </div>
                         <div class="fv-row">
                             <label class="fs-6 fw-semibold mb-2">비고 (사유 등)</label>
                             <input type="text" class="form-control form-control-solid" name="etcInfo" id="etcInfo"/>
@@ -281,14 +296,15 @@
                     document.getElementById('gameTime').value = data.gameTime;
                     document.getElementById('awayTeamCode').value = data.awayTeamCode;
                     document.getElementById('homeTeamCode').value = data.homeTeamCode;
-
-                    // scoreAway, scoreHome 사용
                     document.getElementById('scoreAway').value = data.scoreAway;
                     document.getElementById('scoreHome').value = data.scoreHome;
-
                     document.getElementById('status').value = data.status;
                     document.getElementById('stadiumId').value = data.stadiumId;
                     document.getElementById('etcInfo').value = data.etcInfo;
+
+                    document.getElementById('homeStarter').value = data.homeStarter || ''; // null 방지
+                    document.getElementById('awayStarter').value = data.awayStarter || '';
+                    document.getElementById('cancelReason').value = data.cancelReason || '';
 
                     document.getElementById('modalTitle').innerText = '경기 수정';
                     modal.show();
