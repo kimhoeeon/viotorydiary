@@ -28,8 +28,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/.well-known/**");
 
-        // 2. [신규] 유지보수 모드 (백도어 기능 포함)
+        // 2. 유지보수 모드 (백도어 기능 포함)
         // 일반 사용자는 /maintenance로 강제 이동, 백도어 사용자만 통과
+        // 오픈 시: WebMvcConfig.java에서 해당 부분 주석 처리 → 배포.
+        // 점검 시: 주석 해제 → 배포.
         registry.addInterceptor(new MaintenanceInterceptor())
                 .addPathPatterns("/**") // 전체 경로 차단
                 .excludePathPatterns(

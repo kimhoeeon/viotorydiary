@@ -31,6 +31,7 @@ public class DirectSendService {
     private final String API_KEY = "L7QNsEQIyrAzNHO";
     private final String API_URL = "https://directsend.co.kr/index.php/api_v2/mail_change_word";
 
+    @SuppressWarnings("unchecked")
     public ResponseDTO processMailSend(MailRequestDTO mailRequestDTO) {
         log.info("DirectSendService > processMailSend: {}", mailRequestDTO.getSubject());
         ResponseDTO responseDto = new ResponseDTO();

@@ -92,7 +92,7 @@ public class PushMngService {
                         .addAllTokens(batchTokens)
                         .build();
 
-                BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
+                BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
                 successCount += response.getSuccessCount();
                 failureCount += response.getFailureCount();
 
