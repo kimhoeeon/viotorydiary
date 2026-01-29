@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
+
     <title>일기 작성 | 승요일기</title>
 
     <style>
@@ -35,6 +36,7 @@
             border-radius: 8px;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
@@ -213,6 +215,7 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="/js/script.js"></script>
+  <script src="/js/app_interface.js"></script>
   <script>
       // 임시 저장용 변수 (팝업 내 선택값)
       let tempSelectedGame = null;
@@ -361,11 +364,95 @@
           closeGameSheet();
       }
 
-      // 2. 직관 인증
-      function certifyLocation() {
-          $('#btnVerify').hide();
-          $('#verifyComplete').show();
-          $('#isVerified').val('true');
+      // [직관 인증 함수]
+      async function certifyLocation() {
+          // 1. 경기 선택 여부 확인
+          const gameId = $('#gameId').val();
+          if (!gameId) {
+              alert('먼저 경기를 선택해주세요.');
+              openGameSheet();
+              return;
+          }
+
+          // UI 로딩 처리
+          const $btn = $('#btnVerify');
+          const originalText = $btn.text();
+          $btn.text('위치 확인 중...').prop('disabled', true);
+
+          let lat = 0;
+          let lon = 0;
+
+          try {
+              // ----------------------------------------------------
+              // [CASE 1] Appify 앱 환경
+              // ----------------------------------------------------
+              if (typeof appify !== 'undefined' && appify.isWebview) {
+                  // 1) 권한 통합 체크 (문서 19.txt)
+                  const permStatus = await appify.permission.check('location');
+
+                  if (permStatus === 'denied') {
+                      if(confirm("위치 권한이 필요합니다. 설정으로 이동하시겠습니까?")) {
+                          await appify.linking.openSettings(); // 문서 16.txt
+                      }
+                      throw new Error("권한 거부됨");
+                  } else if (permStatus === 'undetermined') {
+                      const reqStatus = await appify.permission.request('location');
+                      if (reqStatus !== 'granted') throw new Error("권한 요청 거부됨");
+                  }
+
+                  // 2) 위치 정보 가져오기 (문서 12.txt)
+                  const position = await appify.location.getCurrentPosition();
+                  lat = position.latitude;
+                  lon = position.longitude;
+              }
+                  // ----------------------------------------------------
+                  // [CASE 2] 일반 모바일 웹 (표준 API)
+              // ----------------------------------------------------
+              else {
+                  if (!navigator.geolocation) {
+                      alert("위치 정보를 사용할 수 없는 브라우저입니다.");
+                      throw new Error("Geolocation 미지원");
+                  }
+                  const position = await new Promise((resolve, reject) => {
+                      navigator.geolocation.getCurrentPosition(resolve, reject, {
+                          enableHighAccuracy: true, timeout: 10000
+                      });
+                  });
+                  lat = position.coords.latitude;
+                  lon = position.coords.longitude;
+              }
+
+              console.log(`좌표 획득 성공: ${lat}, ${lon}`);
+
+              // 3. 서버 검증 요청 (기존 로직 유지)
+              $.ajax({
+                  url: '/diary/verify/gps',
+                  type: 'POST',
+                  data: { gameId: gameId, lat: lat, lon: lon },
+                  success: function(res) {
+                      if (res === 'ok') {
+                          alert('직관 인증 성공! 🎉');
+                          $('#btnVerify').hide();
+                          $('#verifyComplete').show();
+                          $('#isVerified').val('true');
+                      } else if (res === 'fail:distance') {
+                          alert('경기장과 거리가 너무 멀어요! 🏟️\n경기장 근처에서 다시 시도해주세요.');
+                      } else {
+                          alert('인증 실패: ' + res);
+                      }
+                  },
+                  error: function() { alert('서버 통신 오류가 발생했습니다.'); },
+                  complete: function() { $btn.text(originalText).prop('disabled', false); }
+              });
+
+          } catch (error) {
+              console.error(error);
+              // 앱이 아니거나 단순 오류일 경우 메시지 처리
+              if (error.message !== "권한 거부됨") {
+                  alert("위치 정보를 가져올 수 없습니다.\nGPS가 켜져 있는지 확인해주세요.");
+              }
+              $btn.text(originalText).prop('disabled', false);
+          }
       }
 
       // 3. 이미지 미리보기

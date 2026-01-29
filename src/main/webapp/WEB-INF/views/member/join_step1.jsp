@@ -15,7 +15,10 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
+
     <title>약관 동의 | 승요일기</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 <body class="page-login">
     <header class="app-header">
@@ -82,7 +85,9 @@
 
     <%@ include file="../include/popup.jsp" %>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
+    <script src="/js/app_interface.js"></script>
     <script>
         function goNext() {
             // 필수 약관은 버튼이 활성화되었다면 이미 체크된 것임

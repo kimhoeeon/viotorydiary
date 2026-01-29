@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <title>알림 설정 | 승요일기</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
@@ -114,6 +116,13 @@
                         전체 알림을 끄시면 설정된 개별 알림도 오지 않습니다.<br>
                         기기 설정 > 알림 > 승요일기 에서도 알림 허용이 필요합니다.
                     </div>
+
+                    <div class="alarm-setting-section" style="margin-top: 30px; padding: 20px; background-color: #f9f9f9; border-radius: 12px;">
+                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">혹시 푸시 알림이 오지 않나요?</p>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openAppSettings()" style="width: 100%;">
+                            기기 알림 설정 바로가기 >
+                        </button>
+                    </div>
                 </div>
 
             </div>
@@ -124,7 +133,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
-
+    <script src="/js/app_interface.js"></script>
     <script>
         $(document).ready(function() {
             // 페이지 로드 시 전체 알림 상태에 따라 하위 토글 제어
@@ -195,6 +204,22 @@
 
         function rollback(element, originalStatus) {
             element.checked = originalStatus;
+        }
+
+        // [앱 설정창 열기]
+        async function openAppSettings() {
+            try {
+                if (typeof appify !== 'undefined' && appify.isWebview) {
+                    // Appify SDK 표준 API 사용 (문서 16.txt)
+                    await appify.linking.openSettings();
+                } else {
+                    // 일반 웹일 경우 안내
+                    alert("모바일 앱 환경설정에서 알림을 켜주세요.");
+                }
+            } catch (e) {
+                console.error("설정창 열기 실패:", e);
+                alert("설정창을 열 수 없습니다.");
+            }
         }
     </script>
 </body>

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -84,7 +85,7 @@ public class DiaryService {
         // KBO 구장 ID 순서대로 체크 (1~9번 구장이라 가정)
         // 실제 운영 시에는 Stadium 테이블을 조회해서 매핑해야 함.
         // 여기서는 편의상 1~9번 인덱스에 매핑하여 True/False 반환
-        List<Boolean> statusList = new java.util.ArrayList<>();
+        List<Boolean> statusList = new ArrayList<>();
         for (long i = 1; i <= 9; i++) {
             statusList.add(visitedIds.contains(i));
         }

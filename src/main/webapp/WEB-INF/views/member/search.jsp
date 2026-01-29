@@ -17,7 +17,10 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
-    <title>친구 찾기</title>
+
+    <title>친구 찾기 | 승요일기</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 <body>
     <div class="app">
@@ -67,6 +70,7 @@
     <%@ include file="../include/popup.jsp" %>
 
     <script src="/js/script.js"></script>
+    <script src="/js/app_interface.js"></script>
     <script>
         function toggleFollow(targetId) {
             // 기존에 만든 팔로우 토글 API 활용

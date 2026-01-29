@@ -15,7 +15,10 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
+
     <title>계정 찾기 | 승요일기</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 <body class="page-login">
     <header class="app-header">
@@ -78,8 +81,10 @@
 
     <%@ include file="../include/popup.jsp" %>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/date-picker.js"></script>
+    <script src="/js/app_interface.js"></script>
     <script>
         // [JS] 선택된 날짜를 히든 인풋에 바인딩하는 로직 보완
         document.addEventListener('DOMContentLoaded', () => {

@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
+
     <title>친구들의 직관 | 승요일기</title>
 
     <style>
@@ -28,6 +29,7 @@
         }
         .review_list li.hidden-cmt { display: none; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
@@ -207,9 +209,10 @@
     </div>
 
     <%@ include file="../include/popup.jsp" %>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
-
+    <script src="/js/app_interface.js"></script>
     <script>
         // 팔로우 토글
         function toggleFollow(memberId) {

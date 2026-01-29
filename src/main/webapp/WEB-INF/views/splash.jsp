@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <title>승요일기</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 <body>
 
@@ -24,6 +26,9 @@
         <img src="/img/logo.svg" alt="로고" class="splash-logo">
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/app_interface.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const splash = document.getElementById('splash');

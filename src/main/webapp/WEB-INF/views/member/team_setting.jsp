@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
 
-    <title>승요일기</title>
+    <title>팀 설정 | 승요일기</title>
 
     <style>
         /* 동적 이미지 스타일링 (퍼블리싱 .team 클래스 크기에 맞춤) */
@@ -36,6 +36,7 @@
             object-fit: contain;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
@@ -94,8 +95,10 @@
     </div>
 
     <%@ include file="../include/popup.jsp" %>
-    <script src="/js/script.js"></script>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/app_interface.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const teamButtons = document.querySelectorAll('.team_info-btn');

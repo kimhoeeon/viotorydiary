@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
+
     <title>경기 | 승요일기</title>
 
     <style>
@@ -74,6 +75,7 @@
             font-weight: 800;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
@@ -185,6 +187,8 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/app_interface.js"></script>
     <script>
         const MY_TEAM_CODE = "${sessionScope.loginMember.myTeamCode}";
 

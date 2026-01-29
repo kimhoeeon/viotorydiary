@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <title>팔로우 관리 | 승요일기</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
@@ -146,6 +148,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
+    <script src="/js/app_interface.js"></script>
     <script>
         function toggleFollow(targetId, action, btn) {
             if (btn.disabled) return;

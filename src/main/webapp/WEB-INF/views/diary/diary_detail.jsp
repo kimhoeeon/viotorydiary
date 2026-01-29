@@ -19,7 +19,9 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
+
     <title>상세보기 | 승요일기</title>
+
     <style>
         /* 더보기 기능용: 5번째 이후 댓글 숨김 */
         .review_list li:nth-child(n+6) { display: none; }
@@ -47,6 +49,7 @@
             margin-left: 6px; font-weight: 500;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
@@ -136,18 +139,21 @@
                             </c:if>
                         </div>
 
-                        <div class="diary-img" style="margin-bottom:16px;">
-                            <c:choose>
-                                <c:when test="${not empty diary.imageUrl}">
-                                    <img src="${diary.imageUrl}" alt="직관 사진" onclick="viewImage(this.src)"
-                                         style="width:100%; border-radius:12px; border: 1px solid #eee;">
-                                </c:when>
-                                <c:otherwise>
-                                    <img src="/img/card_defalut.svg" alt="기본 이미지"
-                                         style="width:100%; border-radius:12px; border: 1px solid #eee; opacity: 0.8;">
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
+                        <c:if test="${not empty diary.imageUrl}">
+                            <div class="diary-img" style="margin-bottom:16px; position: relative;">
+                                <img src="${diary.imageUrl}" alt="직관 사진" onclick="viewImage(this.src)"
+                                     style="width:100%; border-radius:12px; border: 1px solid #eee;">
+
+                                <button type="button" onclick="downloadImage('${diary.imageUrl}')"
+                                        style="position: absolute; bottom: 10px; right: 10px;
+                                               background: rgba(0,0,0,0.6); color: #fff;
+                                               border: none; border-radius: 20px;
+                                               padding: 6px 12px; font-size: 12px; font-weight: bold;
+                                               display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                    <span>📥 저장</span>
+                                </button>
+                            </div>
+                        </c:if>
 
                         <div class="diary-txt" style="white-space:pre-line; line-height:1.6; color:#333; font-size: 15px;">${diary.content}</div>
                     </div>
@@ -167,6 +173,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
+    <script src="/js/app_interface.js"></script>
     <script>
         // 이미지 크게 보기 (간단 구현)
         function viewImage(src) {
@@ -223,6 +230,39 @@
                     });
                 }
             });
+        }
+
+        /* ==========================================
+           [Appify SDK] 이미지 다운로드 기능
+           ========================================== */
+        async function downloadImage(imgUrl) {
+            // 1. URL 유효성 체크
+            if (!imgUrl) {
+                alert("저장할 이미지가 없습니다.");
+                return;
+            }
+
+            // 2. Appify 앱 환경인지 확인
+            if (typeof appify !== 'undefined' && appify.isWebview) {
+                try {
+                    // [SDK 호출] 이미지 다운로드 및 갤러리 저장 (문서 17.txt 참고)
+                    const result = await appify.download.image(imgUrl);
+
+                    if (result) {
+                        alert("갤러리에 저장되었습니다. 📸");
+                    } else {
+                        alert("저장에 실패했습니다.");
+                    }
+                } catch (e) {
+                    console.error("이미지 다운로드 오류:", e);
+                    alert("오류가 발생했습니다: " + e.message);
+                }
+            } else {
+                // 3. 일반 웹 브라우저일 경우 (새 탭으로 열기 또는 다운로드 시도)
+                if (confirm("이미지를 보시겠습니까? (새 탭 열기)")) {
+                    window.open(imgUrl, '_blank');
+                }
+            }
         }
     </script>
 </body>

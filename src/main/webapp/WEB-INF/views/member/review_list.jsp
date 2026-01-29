@@ -24,6 +24,7 @@
         /* 데이터 없을 때 스타일 추가 */
         .no-data { text-align: center; padding: 60px 0; color: #999; font-size: 14px; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
@@ -69,6 +70,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
+    <script src="/js/app_interface.js"></script>
     <script>
         function deleteComment(commentId, btn) {
             if (!confirm('정말 삭제하시겠습니까?')) return;

@@ -642,5 +642,27 @@ public class MemberController {
 
         return "member/search"; // 같은 페이지에 결과 뿌리기
     }
+
+    /**
+     * [App] 푸시 토큰 갱신 API
+     * 앱 실행 시 또는 토큰 갱신 시 호출됨
+     */
+    @PostMapping("/updateToken")
+    @ResponseBody
+    public String updateToken(@RequestParam("token") String token, HttpSession session) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) {
+            return "fail:not_login"; // 로그인 안 된 상태면 패스
+        }
+
+        try {
+            log.info("푸시 토큰 갱신 요청: memberId={}, token={}", loginMember.getMemberId(), token);
+            memberService.updatePushToken(loginMember.getMemberId(), token);
+            return "ok";
+        } catch (Exception e) {
+            log.error("푸시 토큰 갱신 실패", e);
+            return "fail";
+        }
+    }
     
 }

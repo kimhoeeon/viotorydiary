@@ -440,4 +440,10 @@ public class MemberService {
     public MemberVO getMemberByEmail(String userEmail) {
         return memberMapper.selectMemberByEmail(userEmail);
     }
+
+    @Transactional
+    public void updatePushToken(Long memberId, String token) {
+        // 기존 토큰과 동일한지 체크하는 로직이 있으면 좋지만, 여기선 무조건 업데이트 (단순화)
+        memberMapper.updatePushToken(memberId, token);
+    }
 }
