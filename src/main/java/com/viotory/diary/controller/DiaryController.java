@@ -413,8 +413,7 @@ public class DiaryController {
         }
     }
 
-    // [준비] GPS 직관 인증 API
-    // GPS 직관 인증 API (실제 운용 가능)
+    // GPS 직관 인증 API
     @PostMapping("/verify/gps")
     @ResponseBody
     public String verifyGps(@RequestParam("gameId") Long gameId,

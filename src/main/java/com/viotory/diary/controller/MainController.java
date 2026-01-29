@@ -38,6 +38,12 @@ public class MainController {
         return "splash"; // /WEB-INF/views/splash.jsp
     }
 
+    // [추가] 점검 페이지 매핑
+    @GetMapping("/maintenance")
+    public String maintenance() {
+        return "maintenance"; // /WEB-INF/views/maintenance.jsp 연결
+    }
+
     @GetMapping("/main")
     public String mainPage(Model model, HttpSession session) {
 

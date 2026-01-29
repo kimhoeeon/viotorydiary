@@ -422,7 +422,7 @@
                   lon = position.coords.longitude;
               }
 
-              console.log(`좌표 획득 성공: ${lat}, ${lon}`);
+              console.log('좌표 획득 성공: ', lat, lon);
 
               // 3. 서버 검증 요청 (기존 로직 유지)
               $.ajax({

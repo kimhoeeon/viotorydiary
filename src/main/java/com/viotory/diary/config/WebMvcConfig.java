@@ -22,38 +22,75 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 1. HTTPS 리다이렉트 (모든 경로에 적용)
-        // 정적 자원(css, js 등)은 성능을 위해 제외할 수도 있지만, 보안상 전체 적용을 권장합니다.
+        // 1. HTTPS 리다이렉트 (보안 - 최우선 실행)
+        // .well-known은 SSL 인증서 발급 시 사용되므로 제외
         registry.addInterceptor(httpsRedirectInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/.well-known/**"); // [중요] SSL 인증 파일 경로는 무한 루프 방지를 위해 제외
+                .excludePathPatterns("/.well-known/**");
 
-        // 2. 기존 관리자 권한 체크 인터셉터 (관리자 경로만 적용)
+        // 2. [신규] 유지보수 모드 (백도어 기능 포함)
+        // 일반 사용자는 /maintenance로 강제 이동, 백도어 사용자만 통과
+        registry.addInterceptor(new MaintenanceInterceptor())
+                .addPathPatterns("/**") // 전체 경로 차단
+                .excludePathPatterns(
+                        "/maintenance",      // 점검 페이지 (무한 루프 방지)
+                        "/assets/**",        // 정적 자원 (CSS, JS, 이미지 등)
+                        "/css/**",
+                        "/js/**",
+                        "/img/**",
+                        "/fonts/**",
+                        "/favicon.ico",
+                        "/error",            // 에러 페이지
+                        "/.well-known/**",   // SSL 인증
+                        "/upload/**",        // 업로드 파일
+                        "/mng/**"            // 관리자 페이지는 점검 모드 영향 안 받도록 설정 (필요 시 제거 가능)
+                );
+
+        // 3. 관리자 권한 체크 (관리자 경로만 적용)
         registry.addInterceptor(adminInterceptor)
                 .addPathPatterns("/mng/**")
-                .excludePathPatterns("/mng/assets/**", "/mng/css/**", "/mng/js/**", "/mng/img/**");
+                .excludePathPatterns(
+                        "/mng/assets/**",
+                        "/mng/css/**",
+                        "/mng/js/**",
+                        "/mng/img/**",
+                        "/mng/login",
+                        "/mng/loginAction"
+                );
 
-        // 관리자 권한 체크
-        registry.addInterceptor(adminInterceptor)
-                .addPathPatterns("/mng/**")
-                .excludePathPatterns("/mng/login", "/mng/loginAction");
-
+        // 4. 자동 로그인 체크 (모든 경로)
         registry.addInterceptor(autoLoginInterceptor)
-                .addPathPatterns("/**") // 모든 경로에서 체크
-                .excludePathPatterns("/mng/**", "/member/login", "/member/join", "/member/logout", "/assets/**", "/css/**", "/js/**", "/img/**");
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/mng/**",
+                        "/member/login",
+                        "/member/join",
+                        "/member/logout",
+                        "/assets/**",
+                        "/css/**",
+                        "/js/**",
+                        "/img/**",
+                        "/fonts/**",
+                        "/favicon.ico",
+                        "/maintenance", // 점검 페이지 제외
+                        "/error"
+                );
     }
 
-    // 정적 리소스(이미지) 경로 매핑
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 1. 업로드 경로 설정 (OS에 따라 유동적)
-        // 리눅스/맥: /home/사용자/viotory/upload/
-        // 윈도우: C:/Users/사용자/viotory/upload/
+        // 리눅스/맥: /home/사용자/viotory/upload
+        // 윈도우: C:/viotory/upload
         String uploadPath = Paths.get(System.getProperty("user.home"), "viotory", "upload").toUri().toString();
 
-        // 2. URL 매핑: /uploads/파일명 -> 실제 파일 경로
-        registry.addResourceHandler("/uploads/**")
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+            uploadPath = "file:///C:/viotory/upload/";
+        }
+
+        // /upload/** URL로 요청 시 실제 서버의 저장 폴더로 연결
+        registry.addResourceHandler("/upload/**")
                 .addResourceLocations(uploadPath);
     }
-
 }
