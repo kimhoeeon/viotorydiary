@@ -110,18 +110,42 @@
 
             // AJAX 로그인 전송
             $('#loginForm').on('submit', function(e) {
-                e.preventDefault(); // 페이지 새로고침 방지
+                e.preventDefault();
 
                 $.ajax({
                     url: '/member/login',
                     type: 'POST',
                     data: $(this).serialize(),
-                    success: function(res) {
+                    // [수정 1] async 키워드 추가
+                    success: async function(res) {
                         if (res.status === 'ok') {
+
+                            // [수정 2] Appify 앱 환경일 경우 기기 정보 수집
+                            if (typeof appify !== 'undefined' && appify.isWebview) {
+                                try {
+                                    // 기기 정보 가져오기 (문서 10.txt 참고)
+                                    const info = await appify.device.getInfo();
+
+                                    console.log("📱 Appify Device Info:", info);
+
+                                    await $.post('/member/device/update', {
+                                        platform: info.platform,
+                                        model: info.model,
+                                        osVersion: info.osVersion,
+                                        appVersion: info.appVersion,
+                                        uuid: info.uniqueId
+                                    });
+
+                                } catch (err) {
+                                    console.error("기기 정보 수집 실패:", err);
+                                    // 기기 정보 수집 실패해도 로그인은 계속 진행
+                                }
+                            }
+
                             // 로그인 성공 시 페이지 이동
                             location.replace(res.redirect);
                         } else {
-                            // 로그인 실패 시 에러 메시지만 노출 (페이지 리로드 X)
+                            // 로그인 실패 시 에러 메시지 노출
                             $('#loginMessage').text(res.message).addClass('is-show is-error');
                         }
                     },

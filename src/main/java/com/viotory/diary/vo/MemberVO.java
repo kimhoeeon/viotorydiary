@@ -31,4 +31,12 @@ public class MemberVO {
     private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // [Appify] 기기 정보 수집 필드
+    private String fcmToken;
+    private String devicePlatform; // device_platform
+    private String deviceModel;    // device_model
+    private String osVersion;      // os_version
+    private String appVersion;     // app_version
+    private String deviceUuid;     // device_uuid
 }

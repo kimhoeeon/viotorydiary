@@ -208,28 +208,54 @@
 
         // 공유하기 기능
         function shareDiary() {
-            $.post('/diary/share/create', { diaryId: '${diary.diaryId}' }, function(uuid) {
+            $.post('/diary/share/create', { diaryId: '${diary.diaryId}' }, async function(uuid) {
                 if(uuid.startsWith('fail')) {
                     alert('로그인이 필요하거나 오류가 발생했습니다.');
                     return;
                 }
 
                 const shareUrl = window.location.origin + '/share/diary/' + uuid;
+                const shareTitle = '${diary.nickname}님의 승요일기';
+                const shareText = '오늘의 직관 기록을 확인해보세요!';
 
-                // 모바일 공유 기능 (Navigator Share API)
-                if (navigator.share) {
-                    navigator.share({
-                        title: '${diary.nickname}님의 승요일기',
-                        text: '오늘의 직관 기록을 확인해보세요!',
-                        url: shareUrl
-                    }).catch(console.error);
-                } else {
-                    // PC 등에서는 클립보드 복사
-                    navigator.clipboard.writeText(shareUrl).then(() => {
-                        alert('공유 링크가 복사되었습니다!');
-                    });
+                try {
+                    // 1. Appify 앱 환경인 경우
+                    if (typeof appify !== 'undefined' && appify.isWebview) {
+                        await appify.share.systemShare({
+                            title: shareTitle,
+                            message: shareText,
+                            url: shareUrl
+                        });
+                    }
+                    // 2. 일반 모바일 웹 (Navigator Share API)
+                    else if (navigator.share) {
+                        await navigator.share({
+                            title: shareTitle,
+                            text: shareText,
+                            url: shareUrl
+                        });
+                    }
+                    // 3. PC 등 미지원 환경 (클립보드 복사)
+                    else {
+                        copyToClipboard(shareUrl);
+                    }
+                } catch (e) {
+                    console.error("공유 실패:", e);
+                    // 공유 취소 등을 고려하여 에러 시 별도 처리 안 함 (필요 시 alert)
                 }
             });
+        }
+
+        // 클립보드 복사 (Appify SDK 활용)
+        async function copyToClipboard(text) {
+            if (typeof appify !== 'undefined' && appify.isWebview) {
+                const success = await appify.clipboard.setText(text);
+                if(success) alert('공유 링크가 복사되었습니다!');
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('공유 링크가 복사되었습니다!');
+                });
+            }
         }
 
         /* ==========================================

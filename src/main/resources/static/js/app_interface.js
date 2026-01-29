@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         // [초기화] 디버그 모드 활성화 (개발 중: true, 배포 시: false 권장)
-        await appify.initialize({ debug: false });
+        await appify.initialize({
+            debug: false,
+            enableRefresh: true
+        });
 
         // 2. 앱 환경인지 확인
         if (appify.isWebview) {
@@ -41,4 +44,42 @@ function updateServerToken(token) {
             localStorage.setItem("fcm_token", token);
         }
     });
+}
+
+/* ==========================================
+   [Appify] 외부 링크 처리 (시스템 브라우저로 열기)
+   ========================================== */
+$(document).on('click', 'a', function(e) {
+    const url = $(this).attr('href');
+
+    // http로 시작하고, 우리 도메인이 아닌 경우 외부 브라우저로 열기
+    if (url && (url.startsWith('http') || url.startsWith('https'))) {
+        const isMyDomain = url.includes(window.location.host);
+
+        if (!isMyDomain) {
+            e.preventDefault();
+            if (typeof appify !== 'undefined' && appify.isWebview) {
+                appify.linking.externalBrowser(url);
+            } else {
+                window.open(url, '_blank');
+            }
+        }
+    }
+});
+
+/* ==========================================
+   [UX] 햅틱 피드백 (진동)
+   ========================================== */
+function vibrateSuccess() {
+    // 짧게 한 번 진동 (안드로이드/iOS 웹뷰 지원 시 동작)
+    if (navigator.vibrate) {
+        navigator.vibrate(10); // 10ms (아주 짧게)
+    }
+}
+
+function vibrateError() {
+    // 실패 시 웅-웅 두 번
+    if (navigator.vibrate) {
+        navigator.vibrate([30, 50, 30]);
+    }
 }

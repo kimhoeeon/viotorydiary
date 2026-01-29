@@ -664,5 +664,29 @@ public class MemberController {
             return "fail";
         }
     }
+
+    // ==========================================
+    // 9. [Appify] 기기 정보 수집 API
+    // ==========================================
+    @PostMapping("/device/update")
+    @ResponseBody
+    public String updateDeviceInfo(@RequestParam Map<String, String> params, HttpSession session) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+
+        // 비로그인 상태라도 앱 실행 로그 목적으로 남길 수도 있지만,
+        // 여기서는 회원 정보에 업데이트하므로 로그인 체크를 합니다.
+        if (loginMember == null) {
+            return "fail:not_login";
+        }
+
+        try {
+            // Service 호출 (Map 파라미터 그대로 전달)
+            memberService.updateDeviceInfo(loginMember.getMemberId(), params);
+            return "ok";
+        } catch (Exception e) {
+            log.error("기기 정보 업데이트 실패", e);
+            return "fail";
+        }
+    }
     
 }

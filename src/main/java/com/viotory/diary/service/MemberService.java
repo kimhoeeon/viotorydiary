@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -446,4 +447,24 @@ public class MemberService {
         // 기존 토큰과 동일한지 체크하는 로직이 있으면 좋지만, 여기선 무조건 업데이트 (단순화)
         memberMapper.updatePushToken(memberId, token);
     }
+
+    /**
+     * [Appify] 기기 정보 업데이트
+     */
+    @Transactional
+    public void updateDeviceInfo(Long memberId, Map<String, String> info) {
+        MemberVO vo = new MemberVO();
+        vo.setMemberId(memberId);
+
+        // Map 데이터를 VO에 매핑
+        vo.setDevicePlatform(info.get("platform"));
+        vo.setDeviceModel(info.get("model"));
+        vo.setOsVersion(info.get("osVersion"));
+        vo.setAppVersion(info.get("appVersion"));
+        vo.setDeviceUuid(info.get("uuid")); // uniqueId를 uuid로 매핑
+
+        memberMapper.updateDeviceInfo(vo);
+        log.info("기기 정보 업데이트 완료: memberId={}, model={}", memberId, vo.getDeviceModel());
+    }
+
 }

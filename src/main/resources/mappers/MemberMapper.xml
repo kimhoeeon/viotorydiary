@@ -217,6 +217,18 @@
         WHERE member_id = #{memberId}
     </update>
 
+    <update id="updateDeviceInfo" parameterType="com.viotory.diary.vo.MemberVO">
+        UPDATE members
+        SET
+            device_platform = #{devicePlatform},
+            device_model    = #{deviceModel},
+            os_version      = #{osVersion},
+            app_version     = #{appVersion},
+            device_uuid     = #{deviceUuid},
+            updated_at      = NOW()
+        WHERE member_id = #{memberId}
+    </update>
+
     <select id="selectFollowingList" resultType="com.viotory.diary.dto.FollowDTO">
         SELECT
             m.member_id,

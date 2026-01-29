@@ -504,6 +504,7 @@
               // 커스텀 confirm 또는 기본 confirm 사용
               if (confirm("정말로 직관 인증을 하지 않고 저장하시겠어요?\n인증 시, 승률 계산에 반영돼요!")) {
                   // 확인 시 제출 진행
+                  vibrateSuccess(); // 햅틱 진동
                   $('#diaryForm').submit();
               } else {
                   // 취소 시 인증 유도 (인증 버튼 쪽으로 스크롤 이동 등)
@@ -512,6 +513,7 @@
               }
           } else {
               // 인증된 상태면 바로 제출
+              vibrateSuccess(); // 햅틱 진동
               $('#diaryForm').submit();
           }
       }

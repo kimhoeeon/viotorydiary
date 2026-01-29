@@ -93,4 +93,7 @@ public interface MemberMapper {
     MemberVO findMemberByEmailAndPhone(@Param("email") String email, @Param("phoneNumber") String phoneNumber);
 
     void updatePushToken(@Param("memberId") Long memberId, @Param("token") String token);
+
+    // 기기 정보 업데이트
+    void updateDeviceInfo(MemberVO member);
 }

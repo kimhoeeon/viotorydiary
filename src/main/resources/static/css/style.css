@@ -423,3 +423,25 @@
 .people{width: 100%; margin-left: auto; font-weight: 500; color:#666; text-align: right; padding: 16px 0; font-size: var(--fs-14);}
 .follow-back .name::before{content: ''; background: url(/img/follow_star.svg) no-repeat; width: 8px; height: 8px; position: absolute;top: 0; right: 6px;}
 .friend_item.follow-back .name{padding-right: 16px;}
+
+/* style.css 상단에 추가 또는 해당 클래스 수정 */
+
+/* 1. 상단 헤더: 노치 영역만큼 패딩 추가 */
+.app-header {
+    /* 기존 스타일 유지 */
+    padding-top: env(safe-area-inset-top);
+    height: calc(56px + env(safe-area-inset-top)); /* 높이 자동 계산 */
+}
+
+/* 2. 하단 탭바/버튼: 홈 인디케이터 영역만큼 패딩 추가 */
+.bottom-action, .app-nav {
+    /* 기존 스타일 유지 */
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(60px + env(safe-area-inset-bottom)); /* 예시 높이 */
+}
+
+/* 3. 전체 레이아웃 */
+.app {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}

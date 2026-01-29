@@ -14,4 +14,6 @@ public interface PushMngMapper {
 
     // 전체 회원 수 조회 (발송 대상 수 집계용)
     int countAllMembers();
+
+    List<String> selectAllFcmTokens();
 }

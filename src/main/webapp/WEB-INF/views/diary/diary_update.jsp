@@ -207,6 +207,7 @@
                 return;
             }
 
+            vibrateSuccess(); // 햅틱 진동
             document.getElementById('diaryForm').submit();
         }
     </script>
