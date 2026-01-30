@@ -107,7 +107,7 @@
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">응원 구단</label>
                                             <div class="col-lg-4"><span
-                                                    class="badge badge-light-primary fw-bold">${member.myTeam}</span></div>
+                                                    class="badge badge-light-primary fw-bold">${member.myTeamCode}</span></div>
                                             <label class="col-lg-2 fw-semibold text-muted">현재 상태</label>
                                             <div class="col-lg-4">
                                                 <c:choose>
