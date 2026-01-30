@@ -187,7 +187,7 @@
 .select-field{background: #fff; border: 1px solid #e1e1e1; color: #000; font-size: var(--fs-14);padding: 10px 8px; text-align: left; position: relative;}
 .select-field::after{content: ''; background: url(/img/ico_back_down_arrow.svg) no-repeat; width: 16px; height: 16px; position: absolute;top: 50%; right: 8px; transform: translateY(-50%);}
 .select-field[disabled]::after{display: none;}
-.select-sheet{display: flex;flex-direction: column;gap: 16px;max-width: 460px;width: 95%;margin: 0 auto;bottom: 10px;padding-top: 24px;padding-bottom: 24px;}
+.select-sheet{display: flex;flex-direction: column;gap: 16px;max-width: 460px;width: 95%;margin: 0 auto;bottom: calc(10px + env(safe-area-inset-bottom));padding-top: 24px;padding-bottom: 24px;}
 .select-sheet_title{text-align: center; font-size: var(--fs-18);}
 .select-sheet_list{text-align: center; display: grid; gap: 4px;}
 .select-sheet_list button{background: #fff;font-size: var(--fs-14);border-radius: 5px; width: 100%; color: #000; padding: 10px 0;}
@@ -327,7 +327,7 @@
 .myTeam_check{margin-left: auto;}
 
 /* 날짜 선택 팝업 */
-.month-sheet {display: flex;flex-direction: column;gap: 8px;max-width: 460px;width: 95%;margin: 0 auto;bottom: 10px;opacity: 0;}
+.month-sheet {display: flex;flex-direction: column;gap: 8px;max-width: 460px;width: 95%;margin: 0 auto;bottom: calc(10px + env(safe-area-inset-bottom));opacity: 0;}
 .month-sheet_header {display: flex;align-items: center;justify-content: space-between;margin-bottom: 4px;margin-left: auto;}
 .month-sheet_title {font-size: 15px;font-weight: 700;}
 .month-sheet_close {border: none;background: transparent;padding: 4px;display: inline-flex;align-items: center;justify-content: center;}

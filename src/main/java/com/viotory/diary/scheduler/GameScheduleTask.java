@@ -54,8 +54,8 @@ public class GameScheduleTask {
         for (GameVO game : todayGames) {
             // try-catch를 반복문 안으로 이동 (개별 경기 에러 격리)
             try {
-                // 이미 종료 처리된 경기는 패스 (결과 정정 로직이 필요 없다면)
-                if ("FINISHED".equals(game.getStatus())) {
+                // 종료(FINISHED)되었거나 취소(CANCELLED)된 경기는 업데이트 건너뛰기
+                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
                     // (선택) 종료된 경기도 알림 누락 방지 차원에서 호출 가능
                     playService.processPredictionResult(game);
                     continue;
@@ -65,10 +65,10 @@ public class GameScheduleTask {
                 GameVO updatedGame = gameDataService.updateLiveGame(game.getApiGameId());
 
                 if (updatedGame != null) {
-                    // 3. 종료 감지 시 승부예측 처리
-                    if ("FINISHED".equals(updatedGame.getStatus())) {
-                        log.info(">>> [경기종료 감지] {} vs {}, 결과 처리 시작",
-                                updatedGame.getHomeTeamName(), updatedGame.getAwayTeamName());
+                    // 3. (종료 OR 취소 시 결과 처리 시도) 감지 시 승부예측 처리
+                    if ("FINISHED".equals(updatedGame.getStatus()) || "CANCELLED".equals(updatedGame.getStatus())) {
+                        log.info(">>> [경기종료 감지] {} vs {}, 결과 처리 시도 : ({} -> {})",
+                                updatedGame.getHomeTeamName(), updatedGame.getAwayTeamName(), game.getStatus(), updatedGame.getStatus());
 
                         playService.processPredictionResult(updatedGame);
                     }
