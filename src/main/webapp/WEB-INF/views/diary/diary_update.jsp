@@ -207,6 +207,11 @@
                 return;
             }
 
+            if (!$('#fileUpload').val() && $('#imagePreview').attr('src') === "") {
+                alert('직관 인증샷을 등록해주세요! 📸');
+                return;
+            }
+
             vibrateSuccess(); // 햅틱 진동
             document.getElementById('diaryForm').submit();
         }

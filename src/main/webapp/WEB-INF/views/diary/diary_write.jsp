@@ -498,6 +498,11 @@
               return;
           }
 
+          /*if (!$('#fileUpload').val() && $('#imagePreview').attr('src') === "") {
+              alert('직관 인증샷을 등록해주세요! 📸');
+              return;
+          }*/
+
           // 4) [기획반영] 직관 인증 여부 확인 (미인증 시 컨펌)
           const isVerified = $('#isVerified').val();
           if (isVerified !== 'true') {
