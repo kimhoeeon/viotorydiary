@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="format-detection" content="telephone=no,email=no,address=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
 
     <link rel="icon" href="/favicon.ico" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -112,7 +113,7 @@
                                                         <td class="text-center">
                                                             <span class="fs-5 fw-bold">${item.scoreAway} : ${item.scoreHome}</span>
                                                         </td>
-                                                        <td>${item.stadiumId}</td>
+                                                        <td>${item.stadiumName}</td>
                                                         <td>
                                                             <c:choose>
                                                                 <c:when test="${item.status eq 'FINISHED'}"><span

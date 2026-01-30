@@ -32,6 +32,7 @@ public class PushMngService {
     public void init() {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
+                // TODO: 적용예정
                 // 프로젝트 설정 > 서비스 계정 에서 다운로드 받은 비공개 키 파일
                 ClassPathResource resource = new ClassPathResource("firebase-service-account.json");
 

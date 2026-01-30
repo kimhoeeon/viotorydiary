@@ -4,10 +4,13 @@
 <mapper namespace="com.viotory.diary.mapper.GameMngMapper">
 
     <select id="selectGameListByMonth" resultType="com.viotory.diary.vo.GameVO">
-        SELECT *
-        FROM games
-        WHERE DATE_FORMAT(game_date, '%Y-%m') = #{yearMonth}
-        ORDER BY game_date ASC, game_time ASC
+        SELECT
+            g.*,
+            s.name AS stadiumName
+        FROM games g
+            LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id -- 구장 테이블 조인
+        WHERE DATE_FORMAT(g.game_date, '%Y-%m') = #{yearMonth}
+        ORDER BY g.game_date ASC, g.game_time ASC
     </select>
 
     <select id="selectGameById" resultType="com.viotory.diary.vo.GameVO">

@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
     <meta name="format-detection" content="telephone=no,email=no,address=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
 
     <link rel="icon" href="/favicon.ico" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -115,7 +116,7 @@
                                                 <c:forEach var="item" items="${list}">
                                                     <tr>
                                                         <td>${item.diaryId}</td>
-                                                        <td><span class="text-gray-800 fw-bold">${item.memberName}</span>
+                                                        <td><span class="text-gray-800 fw-bold">${item.nickname}</span>
                                                         </td>
                                                         <td>
                                                             <a href="/mng/diary/detail?diaryId=${item.diaryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"

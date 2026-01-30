@@ -42,6 +42,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/img/**",
                         "/fonts/**",
                         "/favicon.ico",
+                        "/site.webmanifest",
                         "/error",            // 에러 페이지
                         "/.well-known/**",   // SSL 인증
                         "/upload/**",        // 업로드 파일
@@ -74,6 +75,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/img/**",
                         "/fonts/**",
                         "/favicon.ico",
+                        "/site.webmanifest",
                         "/maintenance", // 점검 페이지 제외
                         "/error"
                 );
