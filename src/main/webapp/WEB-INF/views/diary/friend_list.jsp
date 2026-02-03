@@ -76,8 +76,7 @@
                                     <c:forEach var="item" items="${list}">
                                         <div class="score_list" onclick="location.href='/diary/friend/detail?diaryId=${item.diaryId}'" style="cursor: pointer;">
                                             <div class="img">
-                                                <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}"
-                                                     alt="스코어카드 이미지" style="width:100%; height:100%; object-fit:cover;">
+                                                <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}" alt="스코어카드 이미지" style="width:100%; height:100%; object-fit:cover;">
                                             </div>
                                             <div class="column gap-16" style="flex:1;">
                                                 <div class="score_txt">

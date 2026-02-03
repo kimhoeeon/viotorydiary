@@ -223,7 +223,7 @@ public class DiaryController {
         if (diary == null) return "redirect:/diary/list";
 
         // 2. 댓글 목록 조회
-        List<com.viotory.diary.dto.CommentDTO> comments = commentService.getCommentsByDiaryId(diaryId);
+        List<CommentDTO> comments = commentService.getCommentsByDiaryId(diaryId);
 
         // 3. 권한 및 상태 체크
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");

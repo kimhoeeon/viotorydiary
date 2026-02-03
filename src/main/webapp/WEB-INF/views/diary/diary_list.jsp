@@ -29,7 +29,7 @@
     <div class="app">
 
         <header class="app-header">
-            <button class="app-header_btn app-header_back" type="button" onclick="location.href='/main'">
+            <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
         </header>
@@ -48,7 +48,7 @@
                                 <div class="score_list nodt_list">
                                     <div class="nodt_wrap">
                                         <div class="cont">
-                                            <img src="/img/ico_nodt.png" alt="데이터 없음" style="width:40px;">
+                                            <img src="/img/ico_not_mark.svg" alt="데이터 없음" style="width:40px;">
                                             <div class="nodt_tit">아직 작성한 직관 기록이 없어요.</div>
                                         </div>
                                     </div>
@@ -59,19 +59,21 @@
                                 <div class="score_list ${item.gameResult eq 'CANCELLED' ? 'cancel_list' : ''}"
                                      onclick="location.href='/diary/detail?diaryId=${item.diaryId}'"
                                      style="cursor:pointer;">
+
                                     <div class="img">
-                                        <img src="/img/card_defalut.svg" alt="스코어카드 이미지">
+                                        <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}"
+                                             alt="스코어카드 이미지"
+                                             onerror="this.src='/img/card_defalut.svg'">
                                     </div>
+
                                     <div class="column gap-16">
                                         <div class="score_txt">
                                             <div class="txt_box">
                                                 <div class="tit">
-                                                        ${item.homeTeamName} ${item.scoreHome}
-                                                    vs ${item.scoreAway} ${item.awayTeamName}
+                                                    ${item.homeTeamName} ${item.scoreHome} vs ${item.scoreAway} ${item.awayTeamName}
                                                 </div>
                                                 <div class="date">
-                                                    <fmt:parseDate value="${item.gameDate}" pattern="yyyy-MM-dd" var="pDate"
-                                                                   type="date"/>
+                                                    <fmt:parseDate value="${item.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
                                                     <fmt:formatDate value="${pDate}" pattern="yyyy-MM-dd"/>
                                                 </div>
                                             </div>
@@ -80,7 +82,7 @@
                                                 <%-- 1. 승리 --%>
                                                 <c:when test="${item.gameResult eq 'WIN'}">
                                                     <div class="score_win">
-                                                        <img src="/img/ico_check.svg" alt="승리">
+                                                        <img src="/img/ico_win.svg" alt="승리">
                                                     </div>
                                                 </c:when>
                                                 <%-- 2. 취소 --%>

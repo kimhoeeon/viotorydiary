@@ -29,6 +29,7 @@ public class DiaryVO {
 
     private String status;           // PRE_SAVED, COMPLETED...
     private String isPublic;         // PUBLIC, FRIENDS, PRIVATE
+    private int viewCount;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

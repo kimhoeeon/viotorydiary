@@ -79,7 +79,7 @@
                       <div class="history-list mt-24">
                           <div class="diary_write_form">
 
-                              <div class="diary_write_list req">
+                              <div class="diary_write_list req diary_character">
                                   <div class="tit">오늘, 직관 가세요?</div>
                                   <button type="button" class="select-field" onclick="openGameSheet()">
                                       <c:choose>
@@ -95,7 +95,7 @@
                                   </button>
                               </div>
 
-                              <div class="diary_write_list req">
+                              <div class="diary_write_list req diary_character yellow">
                                   <div class="tit">오늘의 스코어 예상해 본다면?</div>
                                   <div class="card_item">
                                       <div class="game-board">
@@ -238,7 +238,6 @@
       // 1. 경기 선택 팝업 열기
       function openGameSheet() {
           $('#selectSheet').addClass('is-open');
-
           // 팝업 열 때마다 초기화
           tempSelectedGame = null;
           $('#selectSheetApply').prop('disabled', true);
@@ -316,7 +315,7 @@
               .css('color', '#000').css('font-weight', 'bold');
 
           // 3. 점수 입력칸 요소 찾기 (DOM 순서상 첫번째가 왼쪽, 두번째가 오른쪽)
-          const $leftInput = $('input[name^="predScore"]').eq(0);  // 왼쪽 입력칸
+          const $leftInput = $('input[name^="predScore"]').eq(0); // 왼쪽 입력칸
           const $rightInput = $('input[name^="predScore"]').eq(1); // 오른쪽 입력칸
 
           let leftName, rightName;
@@ -353,8 +352,8 @@
           }
 
           // 5. 화면 업데이트 적용
-          $('#homeTeamName').text(leftName);   // 왼쪽 팀 이름 영역
-          $('#awayTeamName').text(rightName);  // 오른쪽 팀 이름 영역
+          $('#homeTeamName').text(leftName); // 왼쪽 팀 이름 영역
+          $('#awayTeamName').text(rightName); // 오른쪽 팀 이름 영역
 
           // 뱃지 표시 제어
           if (showLeftBadge) $('#homeMyTeam').show(); else $('#homeMyTeam').hide();
@@ -390,7 +389,6 @@
               if (typeof appify !== 'undefined' && appify.isWebview) {
                   // 1) 권한 통합 체크 (문서 19.txt)
                   const permStatus = await appify.permission.check('location');
-
                   if (permStatus === 'denied') {
                       if(confirm("위치 권한이 필요합니다. 설정으로 이동하시겠습니까?")) {
                           await appify.linking.openSettings(); // 문서 16.txt
@@ -510,7 +508,7 @@
               // 커스텀 confirm 또는 기본 confirm 사용
               if (confirm("정말로 직관 인증을 하지 않고 저장하시겠어요?\n인증 시, 승률 계산에 반영돼요!")) {
                   // 확인 시 제출 진행
-                  vibrateSuccess(); // 햅틱 진동
+                  // vibrateSuccess(); // 햅틱 진동
                   $('#diaryForm').submit();
               } else {
                   // 취소 시 인증 유도 (인증 버튼 쪽으로 스크롤 이동 등)
@@ -519,7 +517,7 @@
               }
           } else {
               // 인증된 상태면 바로 제출
-              vibrateSuccess(); // 햅틱 진동
+              // vibrateSuccess(); // 햅틱 진동
               $('#diaryForm').submit();
           }
       }
