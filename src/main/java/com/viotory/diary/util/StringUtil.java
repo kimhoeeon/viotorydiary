@@ -397,4 +397,19 @@ public class StringUtil {
         }
     }
 
+    /**
+     * 지정된 길이의 랜덤 문자열(영대문자+숫자) 생성
+     * @param length 생성할 문자열 길이
+     * @return Random String
+     */
+    public static String getRandomString(int length) {
+        StringBuilder sb = new StringBuilder();
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        for (int i = 0; i < length; i++) {
+            int index = (int) (Math.random() * chars.length());
+            sb.append(chars.charAt(index));
+        }
+        return sb.toString();
+    }
+
 }

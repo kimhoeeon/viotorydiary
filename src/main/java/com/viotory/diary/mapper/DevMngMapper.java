@@ -46,7 +46,7 @@ public interface DevMngMapper {
 
     // --- 알림 대상 조회 (핵심) ---
     // 1. 관리자 이메일 조회 (조건: 역할 + 요청카테고리)
-    List<String> selectAdminEmailsByCategory(@Param("category") String category);
+    List<String> selectAdminEmailsByType(@Param("type") String type);
 
     // 2. 특정 작성자(발주사)의 이메일 조회
     List<String> selectWriterEmails(Long adminId);

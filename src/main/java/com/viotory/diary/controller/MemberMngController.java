@@ -58,4 +58,15 @@ public class MemberMngController {
             return "fail";
         }
     }
+
+    // [추가] 비밀번호 초기화 (AJAX)
+    @PostMapping("/resetPassword")
+    @ResponseBody
+    public String resetPassword(@RequestParam("memberId") Long memberId) {
+        try {
+            return memberMngService.resetPassword(memberId);
+        } catch (Exception e) {
+            return "fail";
+        }
+    }
 }

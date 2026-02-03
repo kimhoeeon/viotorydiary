@@ -71,22 +71,20 @@
                                 <div class="card mb-5">
                                     <div class="card-header">
                                         <div class="card-title d-flex align-items-center">
-                                            <c:if test="${vo.urgency eq 'Y'}"><span
-                                                    class="badge badge-danger me-2">긴급</span></c:if>
+                                            <c:if test="${vo.urgency eq 'Y'}">
+                                                <span class="badge badge-danger me-2">긴급</span>
+                                            </c:if>
                                             <span class="badge badge-light-primary me-2">${vo.categoryName}</span>
                                             <h3 class="fw-bold m-0">${vo.title}</h3>
                                         </div>
                                         <div class="card-toolbar">
                                             <c:if test="${sessionScope.admin.role eq 'ADMIN' or sessionScope.admin.adminId eq vo.adminId}">
-                                                <a href="/mng/dev/write?reqId=${vo.reqId}"
-                                                   class="btn btn-sm btn-light me-2">수정</a>
+                                                <a href="/mng/dev/write?reqId=${vo.reqId}" class="btn btn-sm btn-light me-2">수정</a>
                                             </c:if>
 
                                             <c:if test="${sessionScope.admin.role ne 'CLIENT'}">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <input type="date" id="dueDate"
-                                                           class="form-control form-control-sm w-150px"
-                                                           value="${vo.dueDate}">
+                                                    <input type="date" id="dueDate" class="form-control form-control-sm w-150px" value="${vo.dueDate}">
                                                     <select id="statusSelect" class="form-select form-select-sm w-120px">
                                                         <option value="WAITING" ${vo.status eq 'WAITING' ? 'selected' : ''}>
                                                             처리대기
@@ -94,7 +92,8 @@
                                                         <option value="PROCESS" ${vo.status eq 'PROCESS' ? 'selected' : ''}>
                                                             진행중
                                                         </option>
-                                                        <option value="DONE" ${vo.status eq 'DONE' ? 'selected' : ''}>완료
+                                                        <option value="DONE" ${vo.status eq 'DONE' ? 'selected' : ''}>
+                                                            완료
                                                         </option>
                                                         <option value="DISCUSS" ${vo.status eq 'DISCUSS' ? 'selected' : ''}>
                                                             논의필요
@@ -132,8 +131,10 @@
                                                 <h5 class="fw-bold mb-3">첨부파일</h5>
                                                 <c:forEach var="file" items="${vo.fileList}">
                                                     <div class="d-flex align-items-center mb-2">
-                                                        <i class="ki-duotone ki-file fs-2 me-2"><span
-                                                                class="path1"></span><span class="path2"></span></i>
+                                                        <i class="ki-duotone ki-file fs-2 me-2">
+                                                            <span class="path1"></span>
+                                                            <span class="path2"></span>
+                                                        </i>
                                                         <a href="/upload/${file.saveFileName}"
                                                            download="${file.orgFileName}"
                                                            class="text-hover-primary">${file.orgFileName}</a>
@@ -177,16 +178,21 @@
                                                                 <button type="button"
                                                                         class="btn btn-icon btn-sm btn-active-light-primary w-20px h-20px"
                                                                         onclick="openEditModal('${co.commentId}', '${co.content}')">
-                                                                    <i class="ki-duotone ki-pencil fs-6"><span
-                                                                            class="path1"></span><span class="path2"></span></i>
+                                                                    <i class="ki-duotone ki-pencil fs-6">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                    </i>
                                                                 </button>
                                                                 <button type="button"
                                                                         class="btn btn-icon btn-sm btn-active-light-danger w-20px h-20px"
                                                                         onclick="deleteComment('${co.commentId}')">
-                                                                    <i class="ki-duotone ki-trash fs-6"><span
-                                                                            class="path1"></span><span class="path2"></span><span
-                                                                            class="path3"></span><span class="path4"></span><span
-                                                                            class="path5"></span></i>
+                                                                    <i class="ki-duotone ki-trash fs-6">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                        <span class="path3"></span>
+                                                                        <span class="path4"></span>
+                                                                        <span class="path5"></span>
+                                                                    </i>
                                                                 </button>
                                                             </c:if>
 
@@ -198,15 +204,16 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="text-gray-800 fs-6 mb-2 fw-semibold"
-                                                         style="white-space: pre-wrap;">${co.content}</div>
+                                                    <div class="text-gray-800 fs-6 mb-2 fw-semibold" style="white-space: pre-wrap;">${co.content}</div>
 
                                                     <c:if test="${not empty co.fileList}">
                                                         <div class="d-flex flex-wrap gap-2 mt-2">
                                                             <c:forEach var="cf" items="${co.fileList}">
                                                                 <div class="d-flex align-items-center bg-white rounded px-2 py-1 border shadow-sm">
-                                                                    <i class="ki-duotone ki-file fs-5 me-1 text-gray-500"><span
-                                                                            class="path1"></span><span class="path2"></span></i>
+                                                                    <i class="ki-duotone ki-file fs-5 me-1 text-gray-500">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                    </i>
                                                                     <a href="/upload/${cf.saveFileName}"
                                                                        download="${cf.orgFileName}"
                                                                        class="text-gray-700 text-hover-primary fs-8 fw-bold">${cf.orgFileName}</a>
@@ -220,18 +227,15 @@
                                                         </div>
                                                     </c:if>
 
-                                                    <div id="replyForm_${co.commentId}"
-                                                         class="d-none mt-3 bg-white p-3 rounded border">
-                                                        <form action="/mng/dev/comment/save" method="post"
-                                                              enctype="multipart/form-data">
+                                                    <div id="replyForm_${co.commentId}" class="d-none mt-3 bg-white p-3 rounded border">
+                                                        <form action="/mng/dev/comment/save" method="post" enctype="multipart/form-data">
                                                             <input type="hidden" name="reqId" value="${vo.reqId}">
                                                             <input type="hidden" name="parentId" value="${co.commentId}">
-                                                            <textarea name="content" class="form-control mb-2" rows="2"
-                                                                      placeholder="답글을 입력하세요" required></textarea>
+                                                            <textarea name="content" class="form-control mb-2" rows="2" placeholder="답글을 입력하세요" required></textarea>
                                                             <div class="d-flex justify-content-between align-items-center">
-                                                                <input type="file" name="coFiles"
-                                                                       class="form-control form-control-sm w-50" multiple>
-                                                                <button type="submit" class="btn btn-sm btn-dark">등록
+                                                                <input type="file" name="coFiles" class="form-control form-control-sm w-50" multiple>
+                                                                <button type="submit" class="btn btn-sm btn-dark">
+                                                                    등록
                                                                 </button>
                                                             </div>
                                                         </form>
@@ -241,13 +245,11 @@
                                         </div>
 
                                         <div class="border-top pt-5">
-                                            <form action="/mng/dev/comment/save" method="post"
-                                                  enctype="multipart/form-data">
+                                            <form action="/mng/dev/comment/save" method="post" enctype="multipart/form-data">
                                                 <input type="hidden" name="reqId" value="${vo.reqId}">
                                                 <div class="mb-3">
                                                     <label class="form-label fw-bold">댓글 작성</label>
-                                                    <textarea name="content" class="form-control" rows="3"
-                                                              placeholder="내용을 입력하세요" required></textarea>
+                                                    <textarea name="content" class="form-control" rows="3" placeholder="내용을 입력하세요" required></textarea>
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <input type="file" name="coFiles" class="form-control w-50" multiple>
@@ -275,16 +277,18 @@
 
                     <div class="modal-header">
                         <h3 class="fw-bold">댓글 수정</h3>
-                        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"><i
-                                class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                        <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal">
+                            <i class="ki-duotone ki-cross fs-1">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
                         </div>
                     </div>
 
                     <div class="modal-body py-5">
                         <div class="mb-3">
                             <label class="form-label">내용</label>
-                            <textarea name="content" id="editCommentContent" class="form-control" rows="4"
-                                      required></textarea>
+                            <textarea name="content" id="editCommentContent" class="form-control" rows="4" required></textarea>
                         </div>
 
                         <div class="mb-3">

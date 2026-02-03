@@ -73,7 +73,7 @@ public class DevMngController {
 
         if (vo.getReqId() == null) {
             // 신규 등록
-            devMngService.registerRequest(vo);
+            devMngService.insertRequest(vo);
         } else {
             // 수정 (내용 업데이트 + 파일 추가/삭제)
             devMngService.updateRequest(vo);

@@ -105,12 +105,15 @@
         DELETE FROM dev_files WHERE file_id = #{fileId}
     </delete>
 
-    <select id="selectAdminEmailsByCategory" resultType="string">
+    <select id="selectAdminEmailsByType" resultType="string">
         SELECT DISTINCT e.email_address
         FROM admin_emails e
                  JOIN admins a ON e.admin_id = a.admin_id
-        WHERE a.role IN ('SUPER', 'MANAGER')
-          AND (e.receive_types = 'ALL' OR e.receive_types LIKE CONCAT('%', #{category}, '%'))
+        WHERE a.role IN ('SUPER', 'MANAGER') -- 관리자 권한 체크 (필요시 제거)
+          AND (
+            e.receive_types = 'ALL'
+                OR e.receive_types LIKE CONCAT('%', #{type}, '%')
+            )
     </select>
 
     <select id="selectWriterEmails" resultType="string">

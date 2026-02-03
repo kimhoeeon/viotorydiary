@@ -83,8 +83,8 @@
                                                     <label class="required form-label">유형</label>
                                                     <select name="category" class="form-select" required>
                                                         <option value="MAINTENANCE" ${vo.category eq 'MAINTENANCE' ? 'selected' : ''}>유지보수</option>
-                                                        <option value="INQUIRY" ${vo.category eq 'INQUIRY' ? 'selected' : ''}>단순문의</option>
-                                                        <option value="BUG" ${vo.category eq 'BUG' ? 'selected' : ''}>기능오류</option>
+                                                        <option value="QUESTION" ${vo.category eq 'QUESTION' ? 'selected' : ''}>단순문의</option>
+                                                        <option value="ERROR" ${vo.category eq 'ERROR' ? 'selected' : ''}>기능오류</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-3">
@@ -114,7 +114,10 @@
                                                             <div class="form-check form-check-custom form-check-sm">
                                                                 <input class="form-check-input" type="checkbox" name="deleteFileIds" value="${file.fileId}" id="file_${file.fileId}"/>
                                                                 <label class="form-check-label text-gray-800" for="file_${file.fileId}">
-                                                                    <i class="ki-duotone ki-file fs-5 me-1"><span class="path1"></span><span class="path2"></span></i>
+                                                                    <i class="ki-duotone ki-file fs-5 me-1">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                    </i>
                                                                         ${file.orgFileName} <span class="text-danger fs-8">(삭제 선택)</span>
                                                                 </label>
                                                             </div>

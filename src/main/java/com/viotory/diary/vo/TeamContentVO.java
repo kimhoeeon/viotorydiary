@@ -10,7 +10,8 @@ public class TeamContentVO {
     private String title;
     private String contentUrl;
     private Integer sortOrder;
-    private Integer clickCount;
+    private int clickCount;
     private String status; // ACTIVE, INACTIVE
+    private String imageUrl;
     private LocalDateTime createdAt;
 }

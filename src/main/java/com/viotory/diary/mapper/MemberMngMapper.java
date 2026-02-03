@@ -19,4 +19,6 @@ public interface MemberMngMapper {
 
     // 상태 변경
     void updateMemberStatus(@Param("memberId") Long memberId, @Param("status") String status);
+
+    void updatePassword(MemberVO member);
 }

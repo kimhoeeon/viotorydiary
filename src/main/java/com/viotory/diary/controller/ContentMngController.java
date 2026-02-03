@@ -8,8 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -18,6 +21,9 @@ import java.util.List;
 public class ContentMngController {
 
     private final ContentMngMapper contentMapper;
+
+    // [설정] 파일 저장 경로 (DevMngController와 동일하게 설정 권장)
+    private final String UPLOAD_DIR = "/usr/local/tomcat/webapps/upload/";
 
     // ==========================================
     // 1. 이벤트 관리
@@ -96,7 +102,17 @@ public class ContentMngController {
     
     // 등록 및 수정 처리
     @PostMapping("/teams/save")
-    public String teamContentSave(TeamContentVO content) {
+    public String teamContentSave(TeamContentVO content,
+                                  @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        // 파일이 첨부되었다면 업로드 처리
+        if (file != null && !file.isEmpty()) {
+            String savedFileName = uploadFile(file);
+            if (savedFileName != null) {
+                content.setImageUrl(savedFileName); // 저장된 파일명 VO에 설정
+            }
+        }
+
         if (content.getContentId() == null) {
             contentMapper.insertTeamContent(content);
         } else {
@@ -124,4 +140,28 @@ public class ContentMngController {
     public TeamContentVO getTeamContent(@RequestParam("contentId") Long contentId) {
         return contentMapper.selectTeamContentById(contentId);
     }
+
+    // --- 유틸리티: 단일 파일 업로드 ---
+    private String uploadFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) return null;
+
+        File dir = new File(UPLOAD_DIR);
+        if (!dir.exists()) dir.mkdirs();
+
+        String orgName = file.getOriginalFilename();
+        String ext = "";
+        if (orgName != null && orgName.contains(".")) {
+            ext = orgName.substring(orgName.lastIndexOf("."));
+        }
+        String saveName = UUID.randomUUID().toString() + ext;
+
+        try {
+            file.transferTo(new File(UPLOAD_DIR + saveName));
+            return saveName;
+        } catch (Exception e) {
+            log.error("팀 콘텐츠 이미지 업로드 실패", e);
+            return null;
+        }
+    }
+
 }

@@ -51,7 +51,7 @@ public class DevMngService {
      * 요청글 등록 및 알림 발송
      */
     @Transactional
-    public void registerRequest(DevRequestVO vo) {
+    public void insertRequest(DevRequestVO vo) {
         // 1. DB 저장
         devMapper.insertRequest(vo);
 
@@ -118,23 +118,28 @@ public class DevMngService {
     // 관리자들에게 메일 발송
     private void sendEmailToAdmins(DevRequestVO vo, String type) {
         try {
-            // 1. 수신자 조회 (카테고리 매칭)
-            List<String> emails = devMapper.selectAdminEmailsByCategory(vo.getCategory());
+            // 1. 수신자 조회 (카테고리/Type 기준)
+            // DevMngMapper.xml의 selectAdminEmailsByType 호출
+            List<String> emails = devMapper.selectAdminEmailsByType(vo.getCategory());
             if (emails == null || emails.isEmpty()) return;
 
             // 2. 메일 제목/내용 구성
             String subject = "";
             StringBuilder body = new StringBuilder();
+            String link = "https://myseungyo.com/mng/dev/detail?reqId=" + vo.getReqId();
 
             if ("NEW_REQ".equals(type)) {
                 String urgentTag = "Y".equals(vo.getUrgency()) ? "[긴급] " : "";
-                subject = urgentTag + "[" + vo.getCategoryName() + "] 새로운 요청사항이 등록되었습니다.";
-                body.append("제목: ").append(vo.getTitle()).append("\n\n");
-                body.append("내용 확인하기: URL_TO_ADMIN_PAGE/mng/dev/detail?reqId=").append(vo.getReqId());
+                subject = urgentTag + "[개발요청] " + vo.getTitle();
+                body.append("<h3>새로운 요청사항이 등록되었습니다.</h3>");
+                body.append("<p><strong>제목:</strong> ").append(vo.getTitle()).append("</p>");
+                body.append("<p><strong>유형:</strong> ").append(vo.getCategory()).append("</p>"); // 한글변환 로직 필요시 추가
+                body.append("<br/><a href='").append(link).append("'>요청사항 확인하기</a>");
             } else if ("NEW_COMMENT".equals(type)) {
                 subject = "[댓글알림] 요청사항에 새로운 댓글이 달렸습니다.";
-                body.append("원글 제목: ").append(vo.getTitle()).append("\n\n");
-                body.append("확인하기: URL_TO_ADMIN_PAGE/mng/dev/detail?reqId=").append(vo.getReqId());
+                body.append("<h3>새로운 댓글이 등록되었습니다.</h3>");
+                body.append("<p><strong>원글 제목:</strong> ").append(vo.getTitle()).append("</p>");
+                body.append("<br/><a href='").append(link).append("'>확인하기</a>");
             }
 
             // 3. 발송 요청
@@ -148,7 +153,7 @@ public class DevMngService {
             }
             mailDto.setReceiver(receivers);
 
-            // 첨부파일 정보가 있다면 DTO에 추가 (DirectSendService에서 텍스트로 변환됨)
+            // 첨부파일 정보가 있다면 DTO에 추가
             if (vo.getFileList() != null) {
                 mailDto.setFileUrl(vo.getFileList());
             }
@@ -168,14 +173,18 @@ public class DevMngService {
 
             String subject = "";
             StringBuilder body = new StringBuilder();
+            String link = "https://myseungyo.com/mng/dev/detail?reqId=" + vo.getReqId();
 
             if ("REQ_DONE".equals(type)) {
                 subject = "[처리완료] 요청하신 사항이 완료되었습니다.";
-                body.append("제목: ").append(vo.getTitle()).append("\n");
-                body.append("처리 결과 및 내용을 확인해주세요.");
+                body.append("<h3>요청사항이 완료 처리되었습니다.</h3>");
+                body.append("<p><strong>제목:</strong> ").append(vo.getTitle()).append("</p>");
+                body.append("<br/><a href='").append(link).append("'>결과 확인하기</a>");
             } else if ("NEW_COMMENT_ADMIN".equals(type)) {
                 subject = "[답변알림] 관리자 코멘트가 등록되었습니다.";
-                body.append("원글 제목: ").append(vo.getTitle());
+                body.append("<h3>요청사항에 답변이 등록되었습니다.</h3>");
+                body.append("<p><strong>원글 제목:</strong> ").append(vo.getTitle()).append("</p>");
+                body.append("<br/><a href='").append(link).append("'>확인하기</a>");
             }
 
             MailRequestDTO mailDto = new MailRequestDTO();

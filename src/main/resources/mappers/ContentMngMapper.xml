@@ -34,26 +34,52 @@
     </delete>
 
     <select id="selectTeamContentList" resultType="com.viotory.diary.vo.TeamContentVO">
-        SELECT * FROM team_contents ORDER BY sort_order ASC, created_at DESC
+        SELECT
+            content_id, team_code, title, content_url, sort_order,
+            click_count, status, image_url, created_at
+        FROM team_contents
+        ORDER BY sort_order ASC, created_at DESC
+    </select>
+
+    <select id="selectTeamContentById" resultType="com.viotory.diary.vo.TeamContentVO">
+        SELECT * FROM team_contents WHERE content_id = #{contentId}
     </select>
 
     <insert id="insertTeamContent" parameterType="com.viotory.diary.vo.TeamContentVO">
-        INSERT INTO team_contents (team_code, title, content_url, sort_order, status, created_at)
-        VALUES (#{teamCode}, #{title}, #{contentUrl}, #{sortOrder}, #{status}, NOW())
+        INSERT INTO team_contents (
+            team_code, title, content_url, sort_order, click_count, status, image_url, created_at
+        ) VALUES (
+                     #{teamCode}, #{title}, #{contentUrl}, #{sortOrder}, 0, #{status}, #{imageUrl}, NOW()
+                 )
     </insert>
 
     <update id="updateTeamContent" parameterType="com.viotory.diary.vo.TeamContentVO">
         UPDATE team_contents
         SET team_code = #{teamCode},
-            title = #{title},
-            content_url = #{contentUrl},
-            sort_order = #{sortOrder},
-            status = #{status}
+        title = #{title},
+        content_url = #{contentUrl},
+        sort_order = #{sortOrder},
+        status = #{status}
+        <if test="imageUrl != null">, image_url = #{imageUrl}</if>
         WHERE content_id = #{contentId}
     </update>
 
     <delete id="deleteTeamContent">
         DELETE FROM team_contents WHERE content_id = #{contentId}
     </delete>
+
+    <update id="increaseClickCount">
+        UPDATE team_contents
+        SET click_count = click_count + 1
+        WHERE content_id = #{contentId}
+    </update>
+
+    <select id="selectRandomActiveContent" resultType="com.viotory.diary.vo.TeamContentVO">
+        SELECT * FROM team_contents
+        WHERE status = 'ACTIVE'
+          AND (team_code = #{teamCode} OR team_code = 'ALL')
+        ORDER BY RAND()
+        LIMIT 1
+    </select>
 
 </mapper>

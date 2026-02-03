@@ -39,4 +39,10 @@ public class MemberVO {
     private String osVersion;      // os_version
     private String appVersion;     // app_version
     private String deviceUuid;     // device_uuid
+
+    // [관리자 목록 표시용 통계 필드]
+    private int monthlyVisitCount; // 이번 달 방문 횟수
+    private int followerCount;     // 팔로워 수
+    private String winRateStr;     // 승률 (예: "84% (7승 5패)")
+
 }

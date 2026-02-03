@@ -87,6 +87,7 @@
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                                                     <th class="min-w-50px">순서</th>
                                                     <th class="min-w-100px">구단코드</th>
+                                                    <th class="min-w-100px">이미지</th>
                                                     <th class="min-w-200px">제목 / 링크</th>
                                                     <th class="min-w-100px">상태</th>
                                                     <th class="min-w-100px">조회수</th>
@@ -97,37 +98,33 @@
                                                 <c:forEach var="item" items="${contents}">
                                                     <tr>
                                                         <td>${item.sortOrder}</td>
-                                                        <td><span class="badge badge-light-primary">${item.teamCode}</span>
+                                                        <td>
+                                                            <span class="badge badge-light-primary">${item.teamCode}</span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="symbol symbol-50px">
+                                                                <img src="/upload/${item.imageUrl}" onerror="this.src='/assets/media/svg/files/blank-image.svg'" style="object-fit: cover;" alt="thumbnail"/>
+                                                            </div>
                                                         </td>
                                                         <td>
                                                             <span class="text-gray-800 fw-bold d-block mb-1 fs-6">${item.title}</span>
-                                                            <a href="${item.contentUrl}" target="_blank"
-                                                               class="text-gray-400 fs-7 d-block text-truncate"
-                                                               style="max-width: 250px;">${item.contentUrl}</a>
+                                                            <a href="${item.contentUrl}" target="_blank" class="text-gray-400 fs-7 d-block text-truncate" style="max-width: 250px;">${item.contentUrl}</a>
                                                         </td>
                                                         <td>
-                                                            <c:if test="${item.status eq 'ACTIVE'}"><span
-                                                                    class="badge badge-light-success">노출중</span></c:if>
-                                                            <c:if test="${item.status eq 'INACTIVE'}"><span
-                                                                    class="badge badge-light-secondary">숨김</span></c:if>
+                                                            <c:if test="${item.status eq 'ACTIVE'}"><span class="badge badge-light-success">노출중</span></c:if>
+                                                            <c:if test="${item.status eq 'INACTIVE'}"><span class="badge badge-light-secondary">숨김</span></c:if>
                                                         </td>
                                                         <td>${item.clickCount}</td>
                                                         <td class="text-end">
-                                                            <a href="#"
-                                                               class="btn btn-light btn-active-light-primary btn-sm"
-                                                               data-kt-menu-trigger="click"
-                                                               data-kt-menu-placement="bottom-end">
+                                                            <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
                                                                 관리 <i class="ki-duotone ki-down fs-5 m-0"></i>
                                                             </a>
-                                                            <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4"
-                                                                 data-kt-menu="true">
+                                                            <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
                                                                 <div class="menu-item px-3">
-                                                                    <a href="/mng/content/teams/detail?contentId=${item.contentId}"
-                                                                       class="menu-link px-3">상세정보</a>
+                                                                    <a href="/mng/content/teams/detail?contentId=${item.contentId}" class="menu-link px-3">상세정보</a>
                                                                 </div>
                                                                 <div class="menu-item px-3">
-                                                                    <a href="#" class="menu-link px-3 text-danger"
-                                                                       onclick="deleteContent('${item.contentId}'); return false;">삭제</a>
+                                                                    <a href="#" class="menu-link px-3 text-danger" onclick="deleteContent('${item.contentId}'); return false;">삭제</a>
                                                                 </div>
                                                             </div>
                                                         </td>
@@ -135,7 +132,7 @@
                                                 </c:forEach>
                                                 <c:if test="${empty contents}">
                                                     <tr>
-                                                        <td colspan="6" class="text-center py-10">등록된 콘텐츠가 없습니다.</td>
+                                                        <td colspan="7" class="text-center py-10">등록된 콘텐츠가 없습니다.</td>
                                                     </tr>
                                                 </c:if>
                                                 </tbody>
@@ -155,12 +152,15 @@
     <div class="modal fade" id="teamModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
-                <form id="teamForm" action="/mng/content/teams/save" method="post">
+                <form id="teamForm" action="/mng/content/teams/save" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="contentId" id="contentId">
                     <div class="modal-header">
                         <h2 class="fw-bold" id="modalTitle">콘텐츠 등록</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal"><i
-                                class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                            <i class="ki-duotone ki-cross fs-1">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
                         </div>
                     </div>
                     <div class="modal-body py-10 px-lg-17">
@@ -191,9 +191,13 @@
                             <input type="text" class="form-control form-control-solid" name="title" id="title" required/>
                         </div>
                         <div class="fv-row mb-7">
+                            <label class="required fs-6 fw-semibold mb-2">이미지 (썸네일)</label>
+                            <input type="file" class="form-control form-control-solid" name="file" accept="image/*" required/>
+                            <div class="form-text">10MB 이하의 이미지 파일만 등록 가능합니다.</div>
+                        </div>
+                        <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">콘텐츠 URL (영상/기사)</label>
-                            <input type="text" class="form-control form-control-solid" name="contentUrl" id="contentUrl"
-                                   required placeholder="https://..."/>
+                            <input type="text" class="form-control form-control-solid" name="contentUrl" id="contentUrl" required placeholder="https://..."/>
                         </div>
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">상태</label>

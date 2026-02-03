@@ -81,6 +81,9 @@
                                                 <button type="button" class="btn btn-sm btn-light-danger"
                                                         onclick="changeStatus('WITHDRAWN')">강제 탈퇴
                                                 </button>
+                                                <button type="button" class="btn btn-sm btn-light-primary me-2" onclick="resetPassword()">
+                                                    비밀번호 초기화
+                                                </button>
                                             </c:if>
                                             <c:if test="${member.status eq 'SUSPENDED'}">
                                                 <button type="button" class="btn btn-sm btn-light-success me-2"
@@ -88,6 +91,9 @@
                                                 </button>
                                                 <button type="button" class="btn btn-sm btn-light-danger"
                                                         onclick="changeStatus('WITHDRAWN')">강제 탈퇴
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-light-primary me-2" onclick="resetPassword()">
+                                                    비밀번호 초기화
                                                 </button>
                                             </c:if>
                                             <c:if test="${member.status eq 'WITHDRAWN'}">
@@ -166,6 +172,18 @@
                     } else {
                         alert('오류가 발생했습니다.');
                     }
+                });
+            }
+        }
+
+        function resetPassword() {
+            if (confirm('비밀번호를 초기화하고 회원에게 SMS를 발송하시겠습니까?')) {
+                $.post('/mng/members/resetPassword', {
+                    memberId: '${member.memberId}'
+                }, function (res) {
+                    if (res === 'ok') alert('임시 비밀번호가 발송되었습니다.');
+                    else if (res === 'no_phone') alert('등록된 연락처가 없습니다.');
+                    else alert('오류가 발생했습니다.');
                 });
             }
         }

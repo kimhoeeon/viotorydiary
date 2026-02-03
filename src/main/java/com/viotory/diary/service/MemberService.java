@@ -91,6 +91,9 @@ public class MemberService {
         if ("WITHDRAWN".equals(member.getStatus())) {
             throw new Exception("탈퇴한 회원입니다.");
         }
+        if ("SUSPENDED".equals(member.getStatus())) {
+            throw new Exception("운영정책 위반으로 활동이 정지된 계정입니다. 관리자에게 문의하세요.");
+        }
 
         // 2. 비밀번호 비교 (입력받은 비밀번호를 암호화하여 DB 값과 비교)
         String encryptedInputPassword = sha512.hash(password);

@@ -16,12 +16,63 @@
     </sql>
 
     <select id="selectMemberListWithPaging" resultType="com.viotory.diary.vo.MemberVO">
-        SELECT *
-        FROM members
+        SELECT
+        m.*,
+        -- 1. 이번 달 직관 횟수 (일기 작성 기준)
+        (SELECT COUNT(*)
+        FROM diaries d
+        JOIN games g ON d.game_id = g.game_id
+        WHERE d.member_id = m.member_id
+        AND d.status = 'COMPLETED'
+        AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
+        ) AS monthlyVisitCount,
+
+        -- 2. 팔로워 수 (follows 테이블이 있다고 가정)
+        (SELECT COUNT(*) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
+
+        -- 3. 승률 및 전적 문자열 생성 (예: "60% (3승 2패)")
+        (SELECT
+        CONCAT(
+        ROUND(
+        SUM(CASE
+        WHEN (g.home_team_code = m.my_team_code AND g.score_home > g.score_away) THEN 1
+        WHEN (g.away_team_code = m.my_team_code AND g.score_away > g.score_home) THEN 1
+        ELSE 0
+        END) / COUNT(*) * 100, 0
+        ),
+        '% (',
+        SUM(CASE
+        WHEN (g.home_team_code = m.my_team_code AND g.score_home > g.score_away) THEN 1
+        WHEN (g.away_team_code = m.my_team_code AND g.score_away > g.score_home) THEN 1
+        ELSE 0
+        END),
+        '승 ',
+        SUM(CASE
+        WHEN (g.home_team_code = m.my_team_code AND g.score_home &lt; g.score_away) THEN 1
+        WHEN (g.away_team_code = m.my_team_code AND g.score_away &lt; g.score_home) THEN 1
+        ELSE 0
+        END),
+        '패)'
+        )
+        FROM diaries d
+        JOIN games g ON d.game_id = g.game_id
+        WHERE d.member_id = m.member_id
+        AND d.status = 'COMPLETED'
+        AND g.status = 'END'
+        ) AS winRateStr
+
+        FROM members m
         <include refid="criteria"/>
-        ORDER BY created_at DESC
+        ORDER BY m.created_at DESC
         LIMIT #{amount} OFFSET ${(pageNum - 1) * amount}
     </select>
+
+    <update id="updatePassword" parameterType="com.viotory.diary.vo.MemberVO">
+        UPDATE members
+        SET password = #{password},
+            updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
 
     <select id="getTotalCount" resultType="int">
         SELECT COUNT(*)
