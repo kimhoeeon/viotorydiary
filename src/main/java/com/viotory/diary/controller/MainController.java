@@ -49,37 +49,41 @@ public class MainController {
         if (loginMember == null) return "redirect:/member/login";
 
         try {
-            // 2. [경기 일정] 내 팀 경기 정보 조회 (오늘 날짜 기준)
+
             String myTeamCode = loginMember.getMyTeamCode();
+
+            // 1. [오늘 경기]
             if (myTeamCode != null && !"NONE".equals(myTeamCode)) {
                 GameVO todayGame = gameService.getTodayGame(myTeamCode);
-                model.addAttribute("todayGame", todayGame);
+                if (todayGame != null) {
+                    model.addAttribute("todayGame", todayGame);
+                }
             }
 
-            // 3. [승요력] 나의 직관 승률 분석 데이터
+            // 2. [승요력]
             WinYoAnalysisDTO winYoStats = winYoService.analyzeWinYoPower(loginMember.getMemberId());
             model.addAttribute("winYo", winYoStats);
 
-            // 4. [직관 일기] 최근 작성한 일기 (최대 3개)
-            List<DiaryVO> recentDiaries = diaryService.getRecentDiaries(loginMember.getMemberId()); // Service에 메서드 추가 필요
-            model.addAttribute("diaries", recentDiaries);
+            // 3. [구단 콘텐츠] 랜덤 배너
+            TeamContentVO randomBanner = contentMngService.getRandomTeamContent(myTeamCode);
+            if (randomBanner != null) {
+                model.addAttribute("teamBannerItem", randomBanner);
+            }
 
-            // 5. [이벤트] 라커룸 'EVENT' 카테고리 최신글 1개 조회 (배너용)
+            // 4. [이벤트] 최신글 1개
             List<LockerVO> events = lockerService.getPostList("EVENT", 1, 1);
             if (!events.isEmpty()) {
                 model.addAttribute("latestEvent", events.get(0));
             }
 
-            // 6. [우리 팀 새 소식] 라커룸 'CONTENT' 카테고리 최신글 1개 조회
-            List<LockerVO> contents = lockerService.getPostList("CONTENT", 1, 1);
+            // 5. [직관 일기] 최근 일기 3개
+            List<DiaryVO> recentDiaries = diaryService.getRecentDiaries(loginMember.getMemberId()); // Service에 메서드 추가 필요
+            model.addAttribute("diaries", recentDiaries);
+
+            // 6. [새 소식] 최신글 리스트
+            List<LockerVO> contents = lockerService.getPostList("CONTENT", 1, 3);
             if (!contents.isEmpty()) {
                 model.addAttribute("latestContent", contents.get(0));
-            }
-
-            // 7. 구단 콘텐츠 랜덤 배너 (teamBannerItem)
-            TeamContentVO randomBanner = contentMngService.getRandomTeamContent(myTeamCode);
-            if (randomBanner != null) {
-                model.addAttribute("teamBannerItem", randomBanner);
             }
 
         } catch (Exception e) {

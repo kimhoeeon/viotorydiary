@@ -146,8 +146,9 @@ input:focus{
 }
 
 :root {
-    --mainColor: #2F6BFF;
-    --eventColor: #FFB020;
+    --mainColor: #1CCEB0;
+    --seconColor: #5994F4;
+    --eventColor: #FFE220;
     --winColor: #2ED573;
     --blackColor: #0E0F12;
     --redColor:#FF2F32;

@@ -29,13 +29,8 @@
     <div class="app">
         <div class="top_wrap">
             <div class="main-top">
-                <div class="main-title" style="display: flex; align-items: center; gap: 12px;">
-                    <a href="/diary/winyo" style="font-size: clamp(18px, 5vw, 20px); font-weight:700; color:#0E0F12; border-bottom:2px solid #0E0F12; padding-bottom:2px; line-height: 1.2;">
-                        나의 기록
-                    </a>
-                    <a href="/diary/friend/list" style="font-size: clamp(18px, 5vw, 20px); font-weight:400; color:#A6A9B0; line-height: 1.2;">
-                        친구 일기
-                    </a>
+                <div class="main-title">
+                    직관일기
                 </div>
 
                 <button class="noti-btn ${hasUnreadAlarm ? 'has-badge' : ''}" onclick="location.href='/alarm/list'">
@@ -51,49 +46,78 @@
                 <div class="history">
                     <div class="history-list">
 
-                        <div class="card_wrap fire">
-                            <div class="tit fire_tit" style="font-size: var(--fs-16);">
-                                <c:out value="${winYo.mainMessage}" default="승요력 상승 중! 이번주도 직관 파이팅!" />
-                            </div>
-
+                        <div class="card_wrap clover">
                             <div class="card_item gap-16">
+                                <div class="tit clover_tit">
+                                    <c:out value="${winYo.mainMessage}" default="승요력 상승 중! 이번주도 직관 파이팅!" />
+                                </div>
                                 <div class="live-certify">
                                     <a href="/diary/write" class="btn btn-primary">
-                                        오늘의 직관 일기 쓰기
-                                        <span><img src="/img/ico_right_arrow.svg" alt=""></span>
+                                        오늘의 직관 일기 쓰기<span><img src="/img/ico_right_arrow.svg" alt=""></span>
                                     </a>
                                 </div>
+
                                 <ul class="live-score">
                                     <li>
-                                        <p>승률</p>
-                                        <div class="data">
-                                            <fmt:formatNumber value="${winYo.winRate}" pattern="#,##0"/>%
+                                        <div>
+                                            <p>나의 직관 승률</p>
+                                            <div class="data">
+                                                <fmt:formatNumber value="${winYo.winRate}" pattern="#,##0"/>%
+                                            </div>
                                         </div>
+                                        <c:choose>
+                                            <c:when test="${winYo.winRate < 50}">
+                                                <img src="/img/score_character01-2.svg" alt="스코어 캐릭터(패배)">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img src="/img/score_character01.svg" alt="스코어 캐릭터(승리)">
+                                            </c:otherwise>
+                                        </c:choose>
                                     </li>
+
                                     <li>
-                                        <p>직관</p>
-                                        <div class="data">${winYo.totalGames}경기</div>
+                                        <div>
+                                            <p>나의 직관 경기</p>
+                                            <div class="data">${winYo.totalGames}경기</div>
+                                        </div>
+                                        <img src="/img/score_character02.svg" alt="스코어 캐릭터">
                                     </li>
+
                                     <li>
-                                        <p>전적</p>
-                                        <div class="data">${winYo.winGames}승 ${winYo.loseGames}패</div>
+                                        <div>
+                                            <p>우리팀 전적</p>
+                                            <div class="data">${winYo.winGames}승 ${winYo.loseGames}패</div>
+                                        </div>
+                                        <c:choose>
+                                            <c:when test="${winYo.winRate < 50}">
+                                                <img src="/img/score_character03-2.svg" alt="스코어 캐릭터(패배)">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img src="/img/score_character03.svg" alt="스코어 캐릭터(승리)">
+                                            </c:otherwise>
+                                        </c:choose>
                                     </li>
+
                                     <li>
-                                        <p>최다 구장</p>
-                                        <div class="data">${winYo.topStadium}</div>
+                                        <div>
+                                            <p>최다 방문 구장</p>
+                                            <div class="data">${not empty winYo.topStadium ? winYo.topStadium : '-'}</div>
+                                        </div>
+                                        <img src="/img/score_character04.svg" alt="스코어 캐릭터">
                                     </li>
                                 </ul>
                             </div>
                         </div>
 
                         <div class="card_wrap diary_card">
-                            <div class="row history-head">
-                                <div class="tit diary_card_tit">나의 직관 일기</div>
-                                <a href="/diary/list">
-                                    <img src="/img/ico_next_arrow.svg" alt="모두 보기">
-                                </a>
-                            </div>
-                            <div class="card_item">
+                            <div class="card_item gap-16">
+                                <div class="row history-head">
+                                    <div class="tit diary_card_tit">나의 직관 일기</div>
+                                    <a href="/diary/list">
+                                        <img src="/img/ico_next_arrow.svg" alt="모두 보기">
+                                    </a>
+                                </div>
+
                                 <c:if test="${empty myDiaries}">
                                     <div class="nodt_wrap only_txt">
                                         <div class="cont">
@@ -120,7 +144,7 @@
                                                 </div>
                                                 <c:if test="${item.gameResult eq 'WIN'}">
                                                     <div class="score_win">
-                                                        <img src="/img/ico_check.svg" alt="승리">
+                                                        <img src="/img/ico_win.svg" alt="승리">
                                                     </div>
                                                 </c:if>
                                             </div>
@@ -131,13 +155,14 @@
                         </div>
 
                         <div class="card_wrap friend">
-                            <div class="row history-head">
-                                <div class="tit friend_tit">친구들의 직관 일기는?</div>
-                                <a href="/diary/friend/list">
-                                    <img src="/img/ico_next_arrow.svg" alt="모두 보기">
-                                </a>
-                            </div>
-                            <div class="card_item">
+                            <div class="card_item gap-16">
+                                <div class="row history-head">
+                                    <div class="tit friend_tit">친구들의 직관 일기는?</div>
+                                    <a href="/diary/friend/list">
+                                        <img src="/img/ico_next_arrow.svg" alt="모두 보기">
+                                    </a>
+                                </div>
+
                                 <c:if test="${empty friendDiaries}">
                                     <div class="nodt_wrap only_txt">
                                         <div class="cont">
@@ -188,7 +213,6 @@
                                                 </c:choose>
                                             </li>
                                         </c:forEach>
-                                        <%-- 데이터 개수가 부족할 경우 빈 칸 채우기 (옵션) --%>
                                     </ul>
                                 </div>
                             </div>
