@@ -1,6 +1,7 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.mapper.ContentMngMapper;
+import com.viotory.diary.service.ContentMngService;
 import com.viotory.diary.vo.EventVO;
 import com.viotory.diary.vo.TeamContentVO;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ContentMngController {
 
-    private final ContentMngMapper contentMapper;
+    private final ContentMngService contentService;
 
     // [설정] 파일 저장 경로 (DevMngController와 동일하게 설정 권장)
     private final String UPLOAD_DIR = "/usr/local/tomcat/webapps/upload/";
@@ -32,7 +33,7 @@ public class ContentMngController {
     // 목록 페이지
     @GetMapping("/events")
     public String eventList(Model model) {
-        List<EventVO> events = contentMapper.selectEventList();
+        List<EventVO> events = contentService.getEventList();
         model.addAttribute("events", events);
         return "mng/content/event_list";
     }
@@ -40,20 +41,21 @@ public class ContentMngController {
     // 이벤트 상세 페이지
     @GetMapping("/events/detail")
     public String eventDetail(@RequestParam("eventId") Long eventId, Model model) {
-        EventVO event = contentMapper.selectEventById(eventId);
-        if (event == null) return "redirect:/mng/content/events";
-
-        model.addAttribute("event", event);
+        if (eventId != null) {
+            EventVO event = contentService.getEvent(eventId);
+            model.addAttribute("event", event);
+        }
         return "mng/content/event_detail";
     }
 
     // 등록 및 수정 처리
     @PostMapping("/events/save")
     public String eventSave(EventVO event) {
+        // (이벤트 파일 업로드는 기존 코드 참고해서 추가 필요)
         if (event.getEventId() == null) {
-            contentMapper.insertEvent(event);
+            contentService.insertEvent(event);
         } else {
-            contentMapper.updateEvent(event);
+            contentService.updateEvent(event);
         }
         return "redirect:/mng/content/events";
     }
@@ -63,7 +65,7 @@ public class ContentMngController {
     @ResponseBody
     public String eventDelete(@RequestParam("eventId") Long eventId) {
         try {
-            contentMapper.deleteEvent(eventId);
+            contentService.deleteEvent(eventId);
             return "ok";
         } catch (Exception e) {
             log.error("이벤트 삭제 실패", e);
@@ -75,7 +77,7 @@ public class ContentMngController {
     @GetMapping("/events/get")
     @ResponseBody
     public EventVO getEvent(@RequestParam("eventId") Long eventId) {
-        return contentMapper.selectEventById(eventId);
+        return contentService.getEvent(eventId);
     }
 
     // ==========================================
@@ -85,18 +87,18 @@ public class ContentMngController {
     // 목록 페이지
     @GetMapping("/teams")
     public String teamContentList(Model model) {
-        List<TeamContentVO> contents = contentMapper.selectTeamContentList();
+        List<TeamContentVO> contents = contentService.getTeamContentList();
         model.addAttribute("contents", contents);
-        return "mng/content/team_list"; // 퍼블리싱 파일 매핑 예정
+        return "mng/content/team_list";
     }
 
     // 구단 콘텐츠 상세 페이지
     @GetMapping("/teams/detail")
-    public String teamContentDetail(@RequestParam("contentId") Long contentId, Model model) {
-        TeamContentVO content = contentMapper.selectTeamContentById(contentId);
-        if (content == null) return "redirect:/mng/content/teams";
-
-        model.addAttribute("content", content);
+    public String teamContentForm(@RequestParam(value="contentId", required=false) Long contentId, Model model) {
+        if (contentId != null) {
+            TeamContentVO content = contentService.getTeamContent(contentId);
+            model.addAttribute("content", content);
+        }
         return "mng/content/team_detail";
     }
     
@@ -104,19 +106,17 @@ public class ContentMngController {
     @PostMapping("/teams/save")
     public String teamContentSave(TeamContentVO content,
                                   @RequestParam(value = "file", required = false) MultipartFile file) {
-
-        // 파일이 첨부되었다면 업로드 처리
         if (file != null && !file.isEmpty()) {
-            String savedFileName = uploadFile(file);
-            if (savedFileName != null) {
-                content.setImageUrl(savedFileName); // 저장된 파일명 VO에 설정
+            String savedName = uploadFile(file);
+            if (savedName != null) {
+                content.setImageUrl(savedName);
             }
         }
 
         if (content.getContentId() == null) {
-            contentMapper.insertTeamContent(content);
+            contentService.insertTeamContent(content);
         } else {
-            contentMapper.updateTeamContent(content);
+            contentService.updateTeamContent(content);
         }
         return "redirect:/mng/content/teams";
     }
@@ -126,7 +126,7 @@ public class ContentMngController {
     @ResponseBody
     public String teamContentDelete(@RequestParam("contentId") Long contentId) {
         try {
-            contentMapper.deleteTeamContent(contentId);
+            contentService.deleteTeamContent(contentId);
             return "ok";
         } catch (Exception e) {
             log.error("팀 콘텐츠 삭제 실패", e);
@@ -138,7 +138,7 @@ public class ContentMngController {
     @GetMapping("/teams/get")
     @ResponseBody
     public TeamContentVO getTeamContent(@RequestParam("contentId") Long contentId) {
-        return contentMapper.selectTeamContentById(contentId);
+        return contentService.getTeamContent(contentId);
     }
 
     // --- 유틸리티: 단일 파일 업로드 ---

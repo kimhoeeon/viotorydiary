@@ -43,6 +43,19 @@
         /* 알림 배지 */
         .noti-btn .noti-dot { display: none; }
         .noti-btn.has-badge .noti-dot { display: block; position: absolute; top: 0; right: 0; width: 4px; height: 4px; background: #FF4D4D; border-radius: 50%; }
+        /* [추가] 배너 스타일 */
+        .banner-card {
+            margin-bottom: 24px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        .banner-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
@@ -158,6 +171,15 @@
                             </div>
                         </div>
 
+                        <c:if test="${not empty teamBannerItem}">
+                            <div class="banner-card">
+                                <a href="/content/click?cid=${teamBannerItem.contentId}&url=${teamBannerItem.contentUrl}" target="_blank">
+                                    <img src="/upload/${teamBannerItem.imageUrl}"
+                                         alt="${teamBannerItem.title}"
+                                         onerror="this.style.display='none';"/>
+                                </a>
+                            </div>
+                        </c:if>
                         <c:if test="${not empty latestEvent}">
                             <div class="card_wrap event" onclick="location.href='/locker/detail?postId=${latestEvent.postId}'">
                                 <img src="${not empty latestEvent.imageUrl ? latestEvent.imageUrl : '/img/card_event.png'}"

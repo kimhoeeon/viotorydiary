@@ -1,14 +1,8 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.WinYoAnalysisDTO;
-import com.viotory.diary.service.DiaryService;
-import com.viotory.diary.service.GameService;
-import com.viotory.diary.service.LockerService;
-import com.viotory.diary.service.WinYoService;
-import com.viotory.diary.vo.DiaryVO;
-import com.viotory.diary.vo.GameVO;
-import com.viotory.diary.vo.LockerVO;
-import com.viotory.diary.vo.MemberVO;
+import com.viotory.diary.service.*;
+import com.viotory.diary.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -27,6 +21,7 @@ public class MainController {
     private final WinYoService winYoService;
     private final DiaryService diaryService;
     private final LockerService lockerService;
+    private final ContentMngService contentMngService;
 
     // 1. 처음 접속 시 스플래시 화면 노출
     @GetMapping("/")
@@ -79,6 +74,12 @@ public class MainController {
             List<LockerVO> contents = lockerService.getPostList("CONTENT", 1, 1);
             if (!contents.isEmpty()) {
                 model.addAttribute("latestContent", contents.get(0));
+            }
+
+            // 7. 구단 콘텐츠 랜덤 배너 (teamBannerItem)
+            TeamContentVO randomBanner = contentMngService.getRandomTeamContent(myTeamCode);
+            if (randomBanner != null) {
+                model.addAttribute("teamBannerItem", randomBanner);
             }
 
         } catch (Exception e) {
