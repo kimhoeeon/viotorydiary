@@ -69,6 +69,7 @@
             g.api_game_id,
             g.game_date,
             g.game_time,
+            g.game_type,
             g.status,
             g.score_home,
             g.score_away,

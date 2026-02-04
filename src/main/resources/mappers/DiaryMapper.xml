@@ -12,6 +12,7 @@
                d.is_verified,
                d.verified_at,
                g.game_date,
+               g.game_type,
                s.name  AS stadiumName,
             /* 승패 판별 로직 */
                CASE
@@ -36,6 +37,8 @@
           AND d.is_verified = 1
           AND g.status = 'FINISHED'
           AND d.status = 'COMPLETED' /* [중요] 삭제된 글('DELETED') 제외 */
+            /* [핵심 수정] 승률 통계는 정규시즌(REGULAR)과 포스트시즌(POST)만 포함 */
+          AND g.game_type IN ('REGULAR', 'POST')
         ORDER BY g.game_date DESC
         ]]>
     </select>
@@ -97,6 +100,7 @@
             d.game_id,
             d.one_line_comment, /* 메인화면 표시용 */
             g.game_date,
+            g.game_type,
             g.home_team_code,
             g.away_team_code,
             g.score_home,
@@ -181,6 +185,7 @@
                d.game_id,
                g.game_date,
                g.game_time,
+               g.game_type,
                g.home_team_code,
                g.away_team_code,
                g.score_home,

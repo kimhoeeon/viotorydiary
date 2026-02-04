@@ -56,6 +56,21 @@
                                 <div class="tit">직관한 경기</div>
                                 <button type="button" class="select-field" style="opacity: 1; cursor: default;">
                                     <span class="select-field_value" style="color: #000; font-weight: bold;">
+                                        <c:choose>
+                                            <c:when test="${diary.gameType eq 'EXHIBITION'}">
+                                                <span class="badge" style="background:#999; color:#fff; padding:2px 5px; border-radius:4px; font-size:11px; margin-right:6px; vertical-align: text-bottom;">시범</span>
+                                            </c:when>
+                                            <c:when test="${diary.gameType eq 'REGULAR'}">
+                                                <span class="badge" style="background:#0091EA; color:#fff; padding:2px 5px; border-radius:4px; font-size:11px; margin-right:6px; vertical-align: text-bottom;">정규</span>
+                                            </c:when>
+                                            <c:when test="${diary.gameType eq 'POST'}">
+                                                <span class="badge" style="background:#d12b2b; color:#fff; padding:2px 5px; border-radius:4px; font-size:11px; margin-right:6px; vertical-align: text-bottom;">포스트</span>
+                                            </c:when>
+                                            <c:when test="${diary.gameType eq 'ALLSTAR'}">
+                                                <span class="badge" style="background:#3b5bdb; color:#fff; padding:2px 5px; border-radius:4px; font-size:11px; margin-right:6px; vertical-align: text-bottom;">올스타</span>
+                                            </c:when>
+                                        </c:choose>
+
                                         [${diary.stadiumName}] ${diary.homeTeamName} vs ${diary.awayTeamName}
                                         <span style="font-weight:400; font-size:13px; margin-left:4px;">
                                             (${fn:substring(diary.gameDate, 5, 7)}.${fn:substring(diary.gameDate, 8, 10)})

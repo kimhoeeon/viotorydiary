@@ -75,6 +75,21 @@
                                                 <div class="date">
                                                     <fmt:parseDate value="${item.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
                                                     <fmt:formatDate value="${pDate}" pattern="yyyy-MM-dd"/>
+
+                                                    <c:choose>
+                                                        <c:when test="${item.gameType eq 'EXHIBITION'}">
+                                                            <span class="badge" style="background:#999; color:#fff; padding:1px 5px; border-radius:4px; font-size:10px; margin-left:6px;">시범</span>
+                                                        </c:when>
+                                                        <c:when test="${item.gameType eq 'REGULAR'}">
+                                                            <span class="badge" style="background:#0091EA; color:#fff; padding:1px 5px; border-radius:4px; font-size:10px; margin-left:6px;">정규</span>
+                                                        </c:when>
+                                                        <c:when test="${item.gameType eq 'POST'}">
+                                                            <span class="badge" style="background:#d12b2b; color:#fff; padding:1px 5px; border-radius:4px; font-size:10px; margin-left:6px;">포스트</span>
+                                                        </c:when>
+                                                        <c:when test="${item.gameType eq 'ALLSTAR'}">
+                                                            <span class="badge" style="background:#3b5bdb; color:#fff; padding:1px 5px; border-radius:4px; font-size:10px; margin-left:6px;">올스타</span>
+                                                        </c:when>
+                                                    </c:choose>
                                                 </div>
                                             </div>
 

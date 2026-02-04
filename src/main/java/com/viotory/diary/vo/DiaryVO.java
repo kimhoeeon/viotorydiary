@@ -43,6 +43,7 @@ public class DiaryVO {
     private int scoreAway;
     private String gameDate;         // yyyy-MM-dd
     private String gameTime;         // HH:mm
+    private String gameType;
     private String stadiumName;
     private String gameResult;       // WIN, LOSE, DRAW (승요 서비스 계산용)
     private String gameStatus;
