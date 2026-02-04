@@ -44,7 +44,7 @@
         .noti-btn .noti-dot { display: none; }
         .noti-btn.has-badge .noti-dot { display: block; position: absolute; top: 0; right: 0; width: 4px; height: 4px; background: #FF4D4D; border-radius: 50%; }
 
-        /* [추가] 구단 콘텐츠 배너 스타일 */
+        /* 구단 콘텐츠 배너 스타일 */
         .banner-card {
             margin-bottom: 24px;
             border-radius: 16px;

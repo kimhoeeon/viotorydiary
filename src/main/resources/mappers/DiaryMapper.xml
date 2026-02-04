@@ -272,7 +272,7 @@
                g.score_home,
                g.score_away,
 
-            /* [추가] 경기 상태 및 취소 사유 조회 */
+            /* 경기 상태 및 취소 사유 조회 */
                g.status AS gameStatus,
                g.cancel_reason AS cancelReason,
 
