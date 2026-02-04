@@ -23,6 +23,31 @@
 
     <title>라커룸 | 승요일기</title>
 
+    <style>
+        /* [추가] 가로 스크롤 전용 클래스 정의 */
+        .score_wrap.scroll-x {
+            display: flex;             /* Grid -> Flex 변경 */
+            overflow-x: auto;          /* 가로 스크롤 활성화 */
+            gap: 12px;                 /* 간격 조정 */
+            padding-bottom: 10px;      /* 스크롤바 영역 확보 */
+            grid-template-columns: none; /* 기존 Grid 속성 무력화 */
+
+            /* 스크롤바 숨김 (크롬, 사파리, 엣지) */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;     /* Firefox */
+        }
+        .score_wrap.scroll-x::-webkit-scrollbar {
+            display: none;             /* Chrome, Safari, Opera */
+        }
+
+        /* 텍스트 말줄임 처리 */
+        .text-ellipsis {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
@@ -30,7 +55,9 @@
     <div class="app">
         <div class="top_wrap">
             <div class="main-top">
-                <div class="main-title">라커룸</div>
+                <div class="main-title">
+                    라커룸
+                </div>
 
                 <button class="noti-btn ${hasUnreadAlarm ? 'has-badge' : ''}" onclick="location.href='/alarm/list'">
                     <span class="noti-btn_icon" aria-hidden="true"><img src="/img/ico_noti.svg" alt="알림 아이콘"></span>
@@ -43,19 +70,19 @@
             <div class="page-main_wrap">
 
                 <div class="history">
-                    <div class="history-list mt-24">
+                    <div class="history-list">
 
                         <div class="card_wrap ev">
-                            <div class="row history-head">
-                                <div class="tit ev_tit">야구 200% 즐기기</div>
-                            </div>
                             <div class="card_item">
+                                <div class="row history-head">
+                                    <div class="tit ev_tit">야구 200% 즐기기</div>
+                                </div>
+
                                 <c:choose>
                                     <c:when test="${not empty event}">
-                                        <div class="img" onclick="location.href='/locker/detail?postId=${event.postId}'"
-                                             style="cursor:pointer;">
+                                        <div class="img" onclick="location.href='/locker/detail?postId=${event.postId}'" style="cursor:pointer;">
                                             <img src="${not empty event.imageUrl ? event.imageUrl : '/img/card_sample02.jpg'}"
-                                                 alt="이벤트 배너" style="border-radius:12px;">
+                                                 alt="이벤트 배너" style="border-radius: 12px;">
                                         </div>
                                     </c:when>
                                     <c:otherwise>
@@ -70,71 +97,66 @@
                         </div>
 
                         <div class="card_wrap content">
-                            <div class="row history-head">
-                                <div class="tit content_tit">우리 팀 추천 콘텐츠</div>
-                                <a href="/locker/content/list">
-                                    <img src="/img/ico_next_arrow.svg" alt="모두 보기">
-                                </a>
-                            </div>
                             <div class="card_item">
-                                <div class="score_wrap"
-                                     style="display:flex; overflow-x:auto; gap:12px; padding-bottom:10px;">
-                                    <c:choose>
-                                        <c:when test="${not empty contents}">
+                                <div class="row history-head">
+                                    <div class="tit content_tit">우리 팀 추천 콘텐츠</div>
+                                    <a href="/locker/content/list">
+                                        <img src="/img/ico_next_arrow.svg" alt="모두 보기">
+                                    </a>
+                                </div>
+
+                                <c:choose>
+                                    <c:when test="${not empty contents}">
+                                        <div class="score_wrap scroll-x">
                                             <c:forEach var="content" items="${contents}">
                                                 <div class="score_list"
                                                      onclick="location.href='/locker/detail?postId=${content.postId}'"
                                                      style="min-width:140px; cursor:pointer;">
                                                     <div class="img">
                                                         <img src="${not empty content.imageUrl ? content.imageUrl : '/img/card_defalut.svg'}"
-                                                             alt="콘텐츠 이미지"
-                                                             style="width:100%; height:100px; object-fit:cover; border-radius:8px;">
+                                                             alt="콘텐츠 이미지" style="width:100%; height:100px; object-fit:cover;">
                                                     </div>
                                                     <div class="score_txt">
                                                         <div class="txt_box">
                                                             <div class="tit text-ellipsis">${content.title}</div>
                                                             <div class="date">
-                                                                <fmt:parseDate value="${content.createdAt}"
-                                                                               pattern="yyyy-MM-dd'T'HH:mm" var="pDate"
-                                                                               type="both"/>
+                                                                <fmt:parseDate value="${content.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="pDate" type="both"/>
                                                                 <fmt:formatDate value="${pDate}" pattern="yyyy-MM-dd"/>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </c:forEach>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="nodt_wrap only_txt" style="width:100%;">
-                                                <div class="cont">
-                                                    <div class="nodt_txt">등록된 콘텐츠가 없습니다.</div>
-                                                </div>
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="nodt_wrap only_txt">
+                                            <div class="cont">
+                                                <div class="nodt_txt">등록된 콘텐츠가 없습니다.</div>
                                             </div>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                         </div>
 
                         <div class="card_wrap notice">
-                            <div class="row history-head">
-                                <div class="tit notice_tit">공지 및 설문</div>
-                                <a href="/locker/notice/list">
-                                    <img src="/img/ico_next_arrow.svg" alt="모두 보기">
-                                </a>
-                            </div>
                             <div class="card_item">
+                                <div class="row history-head">
+                                    <div class="tit notice_tit">공지 및 설문</div>
+                                    <a href="/locker/notice/list">
+                                        <img src="/img/ico_next_arrow.svg" alt="모두 보기">
+                                    </a>
+                                </div>
+
                                 <div class="notice_wrap">
                                     <c:choose>
                                         <c:when test="${not empty notices}">
                                             <c:forEach var="notice" items="${notices}">
-                                                <div class="notice_list"
-                                                     onclick="location.href='/locker/detail?postId=${notice.postId}'"
-                                                     style="cursor:pointer;">
+                                                <div class="notice_list" onclick="location.href='/locker/detail?postId=${notice.postId}'" style="cursor:pointer;">
                                                     <div class="notice_thum">
                                                         <img src="${not empty notice.imageUrl ? notice.imageUrl : '/img/sample03.png'}"
-                                                             alt="공지 썸네일"
-                                                             style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
+                                                             alt="공지 썸네일">
                                                     </div>
                                                     <div class="notice_item">
                                                         <div class="notice_txt">
@@ -142,9 +164,7 @@
                                                             <div class="tit text-ellipsis">${notice.title}</div>
                                                         </div>
                                                         <div class="date">
-                                                            <fmt:parseDate value="${notice.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm" var="nDate"
-                                                                           type="both"/>
+                                                            <fmt:parseDate value="${notice.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="nDate" type="both"/>
                                                             <fmt:formatDate value="${nDate}" pattern="yyyy-MM-dd"/>
                                                         </div>
                                                     </div>
@@ -165,6 +185,7 @@
 
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -176,17 +197,5 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
-    <style>
-        /* 가로 스크롤 숨김 처리 */
-        .score_wrap::-webkit-scrollbar {
-            display: none;
-        }
-
-        .text-ellipsis {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    </style>
 </body>
 </html>

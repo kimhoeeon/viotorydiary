@@ -19,57 +19,64 @@
     <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
-    <title>서비스 이용약관 | 승요일기</title>
-    <style>
-        /* 약관 내용 스타일 보정 */
-        .policy-content {
-            padding: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-            color: #333;
-            white-space: pre-wrap; /* 줄바꿈 유지 */
-            word-break: break-all;
-        }
 
-        .policy-date {
-            padding: 0 20px 30px;
-            text-align: right;
-            font-size: 12px;
-            color: #888;
-        }
-    </style>
+    <title>서비스 이용약관 | 승요일기</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 <body>
-    <header class="app-header">
-        <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
-            <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
-        </button>
-        <h1 class="app-header_title">
-            <c:out value="${term.title != null ? term.title : '서비스 이용약관'}"/>
-        </h1>
-    </header>
+    <div class="app">
 
-    <div class="app-container">
-        <div class="policy-content">
-            <c:choose>
-                <c:when test="${not empty term}">
-                    <c:out value="${term.content}" escapeXml="false"/>
-                </c:when>
-                <c:otherwise>
-                    <div style="text-align:center; padding:50px 0; color:#999;">
-                        등록된 약관 내용이 없습니다.
-                    </div>
-                </c:otherwise>
-            </c:choose>
-        </div>
+        <header class="app-header">
+            <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
+                <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
+            </button>
+        </header>
 
-        <c:if test="${not empty term}">
-            <div class="policy-date">
-                시행일자 :
-                <fmt:parseDate value="${term.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" type="both"/>
-                <fmt:formatDate value="${parsedDate}" pattern="yyyy년 MM월 dd일"/>
+        <div class="app-main">
+
+            <div class="app-tit">
+                <div class="page-tit">
+                    <c:out value="${term.title != null ? term.title : '이용약관'}"/>
+                </div>
             </div>
-        </c:if>
+
+            <div class="stack mt-24 terms_wrap">
+
+                <c:choose>
+                    <c:when test="${not empty term}">
+                        <c:out value="${term.content}" escapeXml="false"/>
+                    </c:when>
+                    <c:otherwise>
+                        <div class="sec">
+                            <div class="text" style="text-align:center; color:#999; padding: 40px 0;">
+                                등록된 약관 내용이 없습니다.
+                            </div>
+                        </div>
+                    </c:otherwise>
+                </c:choose>
+
+                <c:if test="${not empty term and not empty term.createdAt}">
+                    <div class="sec" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+                        <div class="tit">시행일자</div>
+                        <div class="text">
+                            본 약관은
+                            <span>
+                                <fmt:parseDate value="${term.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" type="both"/>
+                                <fmt:formatDate value="${parsedDate}" pattern="yyyy년 MM월 dd일"/>
+                            </span>
+                            부터 시행합니다.
+                        </div>
+                    </div>
+                </c:if>
+
+            </div>
+
+        </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/app_interface.js"></script>
 </body>
 </html>

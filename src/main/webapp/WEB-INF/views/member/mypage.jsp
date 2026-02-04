@@ -75,6 +75,7 @@
             padding: 0 14px;
         }
     </style>
+
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 

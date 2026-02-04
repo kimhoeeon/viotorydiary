@@ -271,6 +271,11 @@
                g.away_team_code,
                g.score_home,
                g.score_away,
+
+            /* [추가] 경기 상태 및 취소 사유 조회 */
+               g.status AS gameStatus,
+               g.cancel_reason AS cancelReason,
+
                t1.name_kr     AS homeTeamName,
                t2.name_kr     AS awayTeamName,
                m.nickname,

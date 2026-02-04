@@ -24,19 +24,27 @@
     <title>친구들의 직관 | 승요일기</title>
 
     <style>
-        /* 로고 이미지 스타일 강제 적용 */
+        /* [외부 CSS에 정의되지 않아 유지 필요한 스타일] */
+
+        /* 1. 팀 로고 이미지 강제 사이즈 (style.css는 background-image 방식만 지원함) */
         .team img {
             width: 48px; height: 48px; object-fit: contain; display: block; margin: 0 auto;
         }
+
+        /* 2. 댓글 더보기 기능을 위한 숨김 클래스 */
         .review_list li.hidden-cmt { display: none; }
+
+        /* 3. 삭제 버튼 초기화 */
+        .del-btn { background: none; border: none; padding: 0; cursor: pointer; }
     </style>
+
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
     <div class="app">
 
-        <header class="app-header" style="position:sticky; top:0; left:0; transform:none; width:100%; max-width:460px; margin:0 auto; background:#fff; z-index:100; border-bottom:1px solid #f0f0f0;">
+        <header class="app-header">
             <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
@@ -45,16 +53,19 @@
         <div class="app-main">
 
             <div class="app-tit">
-                <div class="page-tit">
-                    친구들의 직관
-                </div>
+                <div class="page-tit">친구들의 직관</div>
+
                 <div class="location-certify">
                     <c:choose>
-                        <c:when test="${diary.isVerified}">
-                            <div class="certify_mes"><img src="/img/ico_certify-comp_p.svg" alt="인증완료">직관 인증완료!</div>
+                        <c:when test="${diary.verified}">
+                            <div class="certify_mes">
+                                <img src="/img/ico_certify-comp_p.svg" alt="인증완료">직관 인증완료!
+                            </div>
                         </c:when>
                         <c:otherwise>
-                            <div class="certify_mes"><img src="/img/ico_certify-not_p.svg" alt="미인증">인증하지 않았어요</div>
+                            <div class="certify_mes" style="opacity: 0.5; filter: grayscale(1);">
+                                <img src="/img/ico_certify-not_p.svg" alt="미인증">인증하지 않았어요
+                            </div>
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -71,32 +82,45 @@
                                         <div class="name">${writer.nickname}</div>
                                         <div class="friend_team">${writer.myTeamCode}</div>
                                     </div>
-                                    <div class="win_rate">승요력 <fmt:formatNumber value="${writerWinYo.winRate}" pattern="#,##0"/>%</div>
+                                    <div class="win_rate">
+                                        승요력 <fmt:formatNumber value="${writerWinYo.winRate}" pattern="#,##0"/>%
+                                    </div>
                                 </div>
+
                                 <div class="follow-btn">
                                     <c:choose>
-                                        <c:when test="${isFollowing}">
-                                            <button class="btn following w-auto" type="button" onclick="toggleFollow(${writer.memberId})">팔로잉</button>
-                                        </c:when>
+                                        <c:when test="${writer.memberId eq sessionScope.loginMember.memberId}">
+                                            </c:when>
                                         <c:otherwise>
-                                            <button class="btn follow w-auto" type="button" onclick="toggleFollow(${writer.memberId})">팔로우</button>
+                                            <c:choose>
+                                                <c:when test="${isFollowing}">
+                                                    <button class="btn following w-auto" type="button" onclick="toggleFollow(${writer.memberId})">팔로잉</button>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <button class="btn follow w-auto" type="button" onclick="toggleFollow(${writer.memberId})">팔로우</button>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
                             </div>
 
-                            <div class="diary_write_list">
+                            <div class="diary_write_list diary_character">
                                 <div class="tit">직관할 경기</div>
                                 <button class="select-field" disabled>
                                     <span class="select-field_value">
                                         [${diary.stadiumName}] ${diary.homeTeamName} vs ${diary.awayTeamName}
-                                        <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
-                                        <fmt:formatDate value="${pDate}" pattern="MM. dd"/> ${diary.gameTime}
+                                        <c:if test="${not empty diary.gameDate}">
+                                            <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
+                                            <span style="font-weight:400; color:#666; font-size:13px; margin-left:4px;">
+                                                <fmt:formatDate value="${pDate}" pattern="MM. dd"/> ${diary.gameTime}
+                                            </span>
+                                        </c:if>
                                     </span>
                                 </button>
                             </div>
 
-                            <div class="diary_write_list">
+                            <div class="diary_write_list diary_character yellow">
                                 <div class="tit">오늘의 스코어 예상해 본다면?</div>
                                 <div class="card_item">
                                     <div class="game-board">
@@ -113,7 +137,7 @@
                                                 <div class="left-team-score">
                                                     <div class="score-data">${diary.predScoreHome}</div>
                                                 </div>
-                                                <div class="game-info-wrap">VS</div>
+                                                <div class="game-info-wrap" style="color:#ccc; font-weight:700;">VS</div>
                                                 <div class="right-team-score">
                                                     <div class="score-data">${diary.predScoreAway}</div>
                                                 </div>
@@ -148,12 +172,16 @@
 
                             <div class="diary_write_list">
                                 <div class="tit">오늘 경기 사진</div>
-                                <c:if test="${not empty diary.imageUrl}">
-                                    <img src="${diary.imageUrl}" alt="업로드 이미지" style="width:100%; border-radius:8px;">
-                                </c:if>
-                                <c:if test="${empty diary.imageUrl}">
-                                    <div style="color:#999; font-size:13px; padding:10px 0;">등록된 사진이 없습니다.</div>
-                                </c:if>
+                                <c:choose>
+                                    <c:when test="${not empty diary.imageUrl}">
+                                        <div style="border-radius:8px; overflow:hidden; border:1px solid #eee;">
+                                            <img src="${diary.imageUrl}" alt="업로드 이미지" style="width:100%; display:block;">
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div style="color:#999; font-size:13px; padding:10px 0;">등록된 사진이 없습니다.</div>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                         </div>
 
@@ -163,18 +191,26 @@
                                     <ul class="review_list" id="reviewList">
                                         <c:forEach var="cmt" items="${comments}" varStatus="status">
                                             <li class="${status.index >= 5 ? 'hidden-cmt' : ''}">
-                                                <div class="name"><span>${cmt.memberTeamCode}</span> ${cmt.nickname}</div>
+                                                <div class="name">
+                                                    <c:if test="${not empty cmt.memberTeamCode}">
+                                                        <span>${cmt.memberTeamCode}</span>
+                                                    </c:if>
+                                                    ${cmt.nickname}
+                                                </div>
                                                 <div class="nae">${cmt.content}</div>
 
                                                 <c:if test="${cmt.memberId eq sessionScope.loginMember.memberId}">
                                                     <button class="del-btn" style="float:right;" onclick="deleteComment(${cmt.commentId}, this)">
-                                                        <img src="/img/ico_del.svg" alt="삭제" style="width:16px;">
+                                                        <img src="/img/ico_del.svg" alt="삭제" style="width:16px; opacity:0.5;">
                                                     </button>
                                                 </c:if>
                                             </li>
                                         </c:forEach>
+
                                         <c:if test="${empty comments}">
-                                            <li style="text-align:center; padding:20px; color:#999;">작성된 댓글이 없습니다.</li>
+                                            <li style="text-align:center; padding:20px; color:#999; border:none;">
+                                                아직 작성된 댓글이 없습니다.
+                                            </li>
                                         </c:if>
                                     </ul>
 
@@ -187,7 +223,7 @@
                                     <div class="review_write">
                                         <div class="tit">댓글 작성하기</div>
                                         <div class="write_input">
-                                            <input type="text" id="cmtContent" placeholder="댓글을 입력하세요. (30자 내 이내)" onkeyup="checkCmtInput()">
+                                            <input type="text" id="cmtContent" placeholder="댓글을 입력하세요. (30자 이내)" maxlength="30" onkeyup="checkCmtInput()">
                                             <button class="send wpx-80" id="btnCmtSend" disabled onclick="submitComment()">
                                                 작성
                                             </button>
@@ -214,58 +250,62 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
-    <script>
-        // 팔로우 토글
-        function toggleFollow(memberId) {
-            const $btn = $('.follow-btn button');
-            const isFollowing = $btn.hasClass('following');
-            const action = isFollowing ? 'unfollow' : 'follow';
 
-            $.post('/member/follow/toggle', { targetId: memberId, action: action }, function(res) {
-                if (res === 'ok') {
-                    if (action === 'follow') {
-                        $btn.removeClass('follow').addClass('following').text('팔로잉');
-                    } else {
-                        $btn.removeClass('following').addClass('follow').text('팔로우');
-                    }
+    <script>
+        function toggleFollow(targetId) {
+            const $btn = $('.follow-btn button');
+            $btn.prop('disabled', true);
+
+            $.post('/member/follow/toggle', { targetId: targetId }, function(res) {
+                if (res === 'followed') {
+                    $btn.removeClass('follow').addClass('following').text('팔로잉');
+                } else if (res === 'unfollowed') {
+                    $btn.removeClass('following').addClass('follow').text('팔로우');
                 } else if (res.startsWith('fail:login')) {
                     alert('로그인이 필요합니다.');
                     location.href = '/member/login';
                 } else if (res === 'fail:self') {
                     alert('자기 자신은 팔로우할 수 없습니다.');
                 } else {
-                    alert('요청 처리에 실패했습니다.');
+                    alert('오류가 발생했습니다.');
                 }
-            }).fail(function() {
-                alert('서버 통신 오류가 발생했습니다.');
-            });
+            })
+            .fail(function() { alert('서버 오류'); })
+            .always(function() { $btn.prop('disabled', false); });
         }
 
-        // 댓글 입력 감지
         function checkCmtInput() {
             const val = $('#cmtContent').val().trim();
             $('#btnCmtSend').prop('disabled', val.length === 0);
         }
 
-        // 댓글 등록
         function submitComment() {
-            const content = $('#cmtContent').val();
+            const content = $('#cmtContent').val().trim();
+            const diaryId = '${diary.diaryId}';
             if (!content) return;
-            $.post('/diary/comment/write', {diaryId: '${diary.diaryId}', content: content}, function (res) {
+
+            $('#btnCmtSend').prop('disabled', true).text('등록중..');
+            $.post('/diary/comment/write', { diaryId: diaryId, content: content }, function (res) {
                 if (res === 'ok') location.reload();
-                else alert('댓글 등록 실패');
+                else if (res.startsWith('fail:login')) {
+                    alert('로그인 필요'); location.href = '/member/login';
+                } else {
+                    alert('등록 실패'); $('#btnCmtSend').prop('disabled', false).text('작성');
+                }
             });
         }
 
-        // 댓글 삭제
-        function deleteComment(id, btn) {
+        function deleteComment(commentId, btn) {
             if (!confirm('삭제하시겠습니까?')) return;
-            $.post('/diary/comment/delete', {commentId: id}, function (res) {
-                if (res === 'ok') $(btn).closest('li').remove();
+            $.post('/diary/comment/delete', { commentId: commentId }, function (res) {
+                if (res === 'ok') {
+                    $(btn).closest('li').fadeOut(300, function() { $(this).remove(); });
+                } else {
+                    alert('삭제 권한이 없거나 실패했습니다.');
+                }
             });
         }
 
-        // 댓글 더보기
         function showAllComments() {
             $('.hidden-cmt').slideDown();
             $('#moreBtn').hide();

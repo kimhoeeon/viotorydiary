@@ -45,6 +45,7 @@ public class DiaryVO {
     private String gameTime;         // HH:mm
     private String stadiumName;
     private String gameResult;       // WIN, LOSE, DRAW (승요 서비스 계산용)
+    private String gameStatus;
 
     private String shareUuid; // 공유용 UUID
     private String cancelReason;

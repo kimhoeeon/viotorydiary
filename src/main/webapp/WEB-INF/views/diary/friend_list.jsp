@@ -1,3 +1,4 @@
+<%-- views/diary/friend_list.jsp --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -34,23 +35,14 @@
         </header>
 
         <div class="app-main">
-
             <div class="app-tit">
-                <div class="page-tit">
-                    친구들의 직관
-                </div>
+                <div class="page-tit">친구들의 직관</div>
             </div>
 
             <div class="tab-pill">
-                <button type="button" class="tab-pill_btn ${param.tab == null || param.tab == 'all' ? 'on' : ''}" onclick="location.href='?tab=all'">
-                    전체
-                </button>
-                <button type="button" class="tab-pill_btn ${param.tab == 'follower' ? 'on' : ''}" onclick="location.href='?tab=follower'">
-                    팔로우
-                </button>
-                <button type="button" class="tab-pill_btn ${param.tab == 'following' ? 'on' : ''}" onclick="location.href='?tab=following'">
-                    팔로잉
-                </button>
+                <button type="button" class="tab-pill_btn ${param.tab == null || param.tab == 'all' ? 'on' : ''}" onclick="location.href='?tab=all'">전체</button>
+                <button type="button" class="tab-pill_btn ${param.tab == 'follower' ? 'on' : ''}" onclick="location.href='?tab=follower'">팔로우</button>
+                <button type="button" class="tab-pill_btn ${param.tab == 'following' ? 'on' : ''}" onclick="location.href='?tab=following'">팔로잉</button>
             </div>
 
             <div class="page-main_wrap">
@@ -59,7 +51,6 @@
                         <div class="score_wrap row_wrap">
 
                             <c:choose>
-                                <%-- 데이터가 없을 때 --%>
                                 <c:when test="${empty list}">
                                     <div class="score_list nodt_list">
                                         <div class="nodt_wrap">
@@ -71,13 +62,17 @@
                                     </div>
                                 </c:when>
 
-                                <%-- 데이터 리스트 출력 --%>
                                 <c:otherwise>
                                     <c:forEach var="item" items="${list}">
-                                        <div class="score_list" onclick="location.href='/diary/friend/detail?diaryId=${item.diaryId}'" style="cursor: pointer;">
+                                        <div class="score_list ${item.gameStatus == 'CANCELLED' ? 'cancel_list' : ''}"
+                                             onclick="location.href='/diary/friend/detail?diaryId=${item.diaryId}'"
+                                             style="cursor: pointer;">
+
                                             <div class="img">
-                                                <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}" alt="스코어카드 이미지" style="width:100%; height:100%; object-fit:cover;">
+                                                <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}"
+                                                     alt="스코어카드 이미지" style="width:100%; height:100%; object-fit:cover;">
                                             </div>
+
                                             <div class="column gap-16" style="flex:1;">
                                                 <div class="score_txt">
                                                     <div class="txt_box">
@@ -85,15 +80,33 @@
                                                             ${item.homeTeamName} ${item.scoreHome} vs ${item.scoreAway} ${item.awayTeamName}
                                                         </div>
                                                         <div class="date">
-                                                            ${item.nickname}
-                                                        </div>
+                                                            ${item.gameDate} </div>
                                                     </div>
 
-                                                    <c:if test="${item.gameResult eq 'WIN'}">
-                                                        <div class="score_win">
-                                                            <img src="/img/ico_check.svg" alt="승리">
-                                                        </div>
-                                                    </c:if>
+                                                    <c:choose>
+                                                        <%-- Case 1: 경기 중 --%>
+                                                        <c:when test="${item.gameStatus eq 'LIVE'}">
+                                                            <div class="during">
+                                                                <div class="badge">경기중</div>
+                                                            </div>
+                                                        </c:when>
+
+                                                        <%-- Case 2: 경기 취소 --%>
+                                                        <c:when test="${item.gameStatus eq 'CANCELLED'}">
+                                                            <div class="cancel">
+                                                                <div class="badge">
+                                                                    취소${not empty item.cancelReason ? '(' += item.cancelReason += ')' : ''}
+                                                                </div>
+                                                            </div>
+                                                        </c:when>
+
+                                                        <%-- Case 3: 승리 (경기 종료 & 승리) --%>
+                                                        <c:when test="${item.gameStatus eq 'FINISHED' and item.gameResult eq 'WIN'}">
+                                                            <div class="score_win">
+                                                                <img src="/img/ico_check.svg" alt="승리">
+                                                            </div>
+                                                        </c:when>
+                                                    </c:choose>
                                                     </div>
 
                                                 <div class="diary_review text-ellipsis-1">
