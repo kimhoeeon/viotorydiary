@@ -143,13 +143,16 @@
                                                     <div class="tit">
                                                         <c:choose>
                                                             <c:when test="${item.gameType eq 'EXHIBITION'}">
-                                                                <span style="display:inline-block; vertical-align:middle; background:#999; color:#fff; padding:1px 4px; border-radius:3px; font-size:10px; margin-right:4px;">시범</span>
+                                                                <span class="badge-game-type badge-exhibition">시범</span>
+                                                            </c:when>
+                                                            <c:when test="${item.gameType eq 'REGULAR'}">
+                                                                <span class="badge-game-type badge-regular">정규</span>
                                                             </c:when>
                                                             <c:when test="${item.gameType eq 'POST'}">
-                                                                <span style="display:inline-block; vertical-align:middle; background:#d12b2b; color:#fff; padding:1px 4px; border-radius:3px; font-size:10px; margin-right:4px;">포스트</span>
+                                                                <span class="badge-game-type badge-post">포스트</span>
                                                             </c:when>
                                                             <c:when test="${item.gameType eq 'ALLSTAR'}">
-                                                                <span style="display:inline-block; vertical-align:middle; background:#3b5bdb; color:#fff; padding:1px 4px; border-radius:3px; font-size:10px; margin-right:4px;">올스타</span>
+                                                                <span class="badge-game-type badge-allstar">올스타</span>
                                                             </c:when>
                                                         </c:choose>
 

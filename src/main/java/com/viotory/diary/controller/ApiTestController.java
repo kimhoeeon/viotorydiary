@@ -1,6 +1,8 @@
 package com.viotory.diary.controller;
 
+import com.viotory.diary.service.GameDataService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,6 +19,7 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class ApiTestController {
 
+    @Autowired GameDataService gameDataService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
@@ -132,6 +135,13 @@ public class ApiTestController {
             }
         }
         return log.append("\n모든 조합 실패. ID가 유효한지 확인해주세요.").toString();
+    }
+
+    @GetMapping("/api/test/resync")
+    public String resyncData() {
+        gameDataService.syncMonthlyData("2024", "03"); // 3월 (시범)
+        gameDataService.syncMonthlyData("2024", "10"); // 10월 (포스트)
+        return "데이터 갱신 완료!";
     }
 
 }
