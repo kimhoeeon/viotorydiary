@@ -20,6 +20,13 @@
     <title>비밀번호 입력 | 승요일기</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        if (!sessionStorage.getItem('join_email')) {
+            alert('이전 단계가 완료되지 않았습니다.');
+            location.replace('/member/join/step2');
+        }
+    </script>
 </head>
 <body class="page-login">
     <header class="app-header">
@@ -34,6 +41,7 @@
                 <img src="/img/ico_check.svg" alt="체크이미지">
                 <div class="login-txt">
                     <h1 class="login_title">비밀번호를 입력해 주세요</h1>
+                    <p class="login_desc">영문, 숫자, 특수문자 포함 8~14자리</p>
                 </div>
             </div>
 
@@ -74,7 +82,6 @@
 
     <%@ include file="../include/popup.jsp" %>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
     <script>

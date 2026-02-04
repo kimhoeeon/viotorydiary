@@ -20,6 +20,13 @@
     <title>생년월일 입력 | 승요일기</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        if (!sessionStorage.getItem('join_pw')) {
+            alert('이전 단계가 완료되지 않았습니다.');
+            location.replace('/member/join/step3');
+        }
+    </script>
 </head>
 <body class="page-login">
     <header class="app-header">
@@ -75,7 +82,6 @@
 
     <%@ include file="../include/popup.jsp" %>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/date-picker.js"></script>
     <script src="/js/app_interface.js"></script>

@@ -20,6 +20,14 @@
     <title>이메일 입력 | 승요일기</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // [보안] 진입 차단: 1단계 완료 여부 확인
+        if (sessionStorage.getItem('join_agree') !== 'Y') {
+            alert('약관 동의가 필요합니다.');
+            location.replace('/member/join/step1');
+        }
+    </script>
 </head>
 <body class="page-login">
     <header class="app-header">
@@ -34,6 +42,7 @@
                 <img src="/img/ico_check.svg" alt="체크이미지">
                 <div class="login-txt">
                     <h1 class="login_title">이메일을 입력해 주세요</h1>
+                    <p class="login_desc">로그인 및 계정 찾기에 사용됩니다.</p>
                 </div>
             </div>
 
@@ -58,7 +67,6 @@
 
     <%@ include file="../include/popup.jsp" %>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
     <script>
@@ -83,8 +91,19 @@
         });
 
         function goNext() {
-            sessionStorage.setItem('join_email', emailInput.value);
-            location.href = '/member/join/step3';
+            const email = emailInput.value.trim();
+
+            // 이메일 중복 체크 (운영 기준 필수)
+            $.post('/member/check/email', {email: email}, function(res) {
+                if(res === 'ok') {
+                    sessionStorage.setItem('join_email', email);
+                    location.href = '/member/join/step3';
+                } else {
+                    alert('이미 가입된 이메일입니다.');
+                }
+            }).fail(function() {
+                alert('서버 통신 오류가 발생했습니다.');
+            });
         }
     </script>
 </body>

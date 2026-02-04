@@ -123,7 +123,7 @@ public class MemberController {
 
     // 단계별 페이지 매핑
     @GetMapping("/join")
-    public String joinMain() { return "member/join"; }
+    public String joinMain() { return "redirect:/member/join/step1"; }
 
     @GetMapping("/join/step1")
     public String joinStep1() { return "member/join_step1"; }
@@ -143,6 +143,39 @@ public class MemberController {
     @GetMapping("/join/step6")
     public String joinStep6() { return "member/join_step6"; }
 
+    @GetMapping("/join/complete")
+    public String joinComplete(@RequestParam(value = "name", required = false) String name, Model model) {
+        model.addAttribute("nickname", name); // 완료 페이지에 표시할 이름
+        return "member/join_complete";
+    }
+
+    /**
+     * 이메일 중복 체크
+     */
+    @PostMapping("/check/email")
+    @ResponseBody
+    public String checkEmail(@RequestParam("email") String email) {
+        MemberVO existing = memberService.getMemberByEmail(email);
+        return (existing == null) ? "ok" : "fail";
+    }
+
+    /**
+     * 닉네임 중복 체크 (실제 DB 조회)
+     */
+    @PostMapping("/check/nickname")
+    @ResponseBody
+    public String checkNickname(@RequestParam("nickname") String nickname) {
+        // MemberService에 닉네임 체크 메서드가 없다면 추가 필요
+        // 예: memberService.countByNickname(nickname)
+        try {
+            int count = memberService.countByNickname(nickname);
+            return (count == 0) ? "ok" : "fail";
+        } catch (Exception e) {
+            log.error("닉네임 체크 중 오류", e);
+            return "error";
+        }
+    }
+
     @PostMapping("/join")
     @ResponseBody
     public String joinAction(MemberVO member, BindingResult result) {
@@ -156,6 +189,12 @@ public class MemberController {
         }
 
         try {
+
+            // 필수 데이터 서버 측 2차 검증 (Validation)
+            if(member.getEmail() == null || member.getPassword() == null || member.getNickname() == null) {
+                return "fail:missing_data";
+            }
+
             memberService.registerMember(member);
             return "ok"; // 성공 시 "ok" 문자열 반환 (AJAX에서 확인)
         } catch (Exception e) {
@@ -163,9 +202,6 @@ public class MemberController {
             return "가입 처리에 실패했습니다: " + e.getMessage();
         }
     }
-
-    @GetMapping("/join/complete")
-    public String joinComplete() { return "member/join_complete"; }
 
     // ==========================================
     // 3. SMS 본인인증

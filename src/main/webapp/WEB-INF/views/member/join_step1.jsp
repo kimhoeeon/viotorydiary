@@ -38,6 +38,11 @@
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // [초기화] 회원가입 프로세스 시작 시 기존 데이터 삭제
+        sessionStorage.clear();
+    </script>
 </head>
 <body class="page-login">
 
@@ -138,7 +143,6 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
 

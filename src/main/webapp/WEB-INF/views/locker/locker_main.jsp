@@ -24,23 +24,23 @@
     <title>라커룸 | 승요일기</title>
 
     <style>
-        /* [추가] 가로 스크롤 전용 클래스 정의 */
+        /* 가로 스크롤 전용 클래스 (CSS 충돌 해결) */
         .score_wrap.scroll-x {
             display: flex;             /* Grid -> Flex 변경 */
             overflow-x: auto;          /* 가로 스크롤 활성화 */
-            gap: 12px;                 /* 간격 조정 */
-            padding-bottom: 10px;      /* 스크롤바 영역 확보 */
-            grid-template-columns: none; /* 기존 Grid 속성 무력화 */
+            gap: 12px;
+            padding-bottom: 10px;
+            grid-template-columns: none; /* 기존 Grid 속성 해제 */
 
-            /* 스크롤바 숨김 (크롬, 사파리, 엣지) */
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;     /* Firefox */
+            /* 스크롤바 숨김 */
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
         .score_wrap.scroll-x::-webkit-scrollbar {
-            display: none;             /* Chrome, Safari, Opera */
+            display: none;
         }
 
-        /* 텍스트 말줄임 처리 */
+        /* 텍스트 말줄임 */
         .text-ellipsis {
             white-space: nowrap;
             overflow: hidden;
@@ -80,7 +80,7 @@
 
                                 <c:choose>
                                     <c:when test="${not empty event}">
-                                        <div class="img" onclick="location.href='/locker/detail?postId=${event.postId}'" style="cursor:pointer;">
+                                        <div class="img" onclick="location.href='/locker/content/detail?postId=${event.postId}'" style="cursor:pointer;">
                                             <img src="${not empty event.imageUrl ? event.imageUrl : '/img/card_sample02.jpg'}"
                                                  alt="이벤트 배너" style="border-radius: 12px;">
                                         </div>
@@ -110,7 +110,7 @@
                                         <div class="score_wrap scroll-x">
                                             <c:forEach var="content" items="${contents}">
                                                 <div class="score_list"
-                                                     onclick="location.href='/locker/detail?postId=${content.postId}'"
+                                                     onclick="location.href='/locker/content/detail?postId=${content.postId}'"
                                                      style="min-width:140px; cursor:pointer;">
                                                     <div class="img">
                                                         <img src="${not empty content.imageUrl ? content.imageUrl : '/img/card_defalut.svg'}"
@@ -153,7 +153,7 @@
                                     <c:choose>
                                         <c:when test="${not empty notices}">
                                             <c:forEach var="notice" items="${notices}">
-                                                <div class="notice_list" onclick="location.href='/locker/detail?postId=${notice.postId}'" style="cursor:pointer;">
+                                                <div class="notice_list" onclick="location.href='/locker/notice/detail?postId=${notice.postId}'" style="cursor:pointer;">
                                                     <div class="notice_thum">
                                                         <img src="${not empty notice.imageUrl ? notice.imageUrl : '/img/sample03.png'}"
                                                              alt="공지 썸네일">

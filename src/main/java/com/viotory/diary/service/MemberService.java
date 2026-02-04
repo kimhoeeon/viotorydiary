@@ -78,6 +78,10 @@ public class MemberService {
         log.info("회원가입 완료: {}", member.getEmail());
     }
 
+    public int countByNickname(String nickname) {
+        return memberMapper.countByNickname(nickname); // Mapper에 해당 메서드 존재 확인 필요
+    }
+
     /**
      * 로그인 처리 (단순 예시)
      */
