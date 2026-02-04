@@ -43,6 +43,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/fonts/**",
                         "/favicon.ico",
                         "/site.webmanifest",
+                        "/api/test/**",
                         "/error",            // 에러 페이지
                         "/.well-known/**",   // SSL 인증
                         "/upload/**",        // 업로드 파일

@@ -56,4 +56,10 @@ public class GameVO {
     // 로고 이미지 경로 (Mapper에서 조회)
     private String homeTeamLogo;
     private String awayTeamLogo;
+
+    private String season;        // 시즌 (2025)
+    private String gameType;      // 경기 종류 (EXHIBITION, REGULAR, POST, ALLSTAR)
+    private String dhCode;        // 더블헤더 (0:없음, 1:1차전, 2:2차전) - 필요 시
+
+    private String dataSource;    // API
 }

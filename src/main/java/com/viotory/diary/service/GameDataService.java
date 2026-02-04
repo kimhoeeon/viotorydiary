@@ -220,91 +220,163 @@ public class GameDataService {
      */
     private boolean saveNaverGame(JsonNode g) {
         try {
+            // 1. API 고유 ID 확인 (필수)
             String apiGameId = g.path("gameId").asText(null);
+            if (apiGameId == null) {
+                log.warn(">>> Game ID 누락으로 저장 건너뜀: {}", g);
+                return false;
+            }
+
+            // 2. 날짜 파싱 (YYYY-MM-DD)
+            String rawDate = g.path("gameDate").asText(); // "2024-03-09"
+            String gameDate = rawDate.length() == 8
+                    ? rawDate.substring(0, 4) + "-" + rawDate.substring(4, 6) + "-" + rawDate.substring(6, 8)
+                    : rawDate;
+
+            // 3. 시간 파싱
+            String gameDateTime = g.path("gameDateTime").asText();
+            String gameTime = (gameDateTime.length() >= 19) ? gameDateTime.substring(11, 19) : "00:00:00";
+
+            // 4. 시즌 및 경기 종류(Game Type) 판별
+            String season = gameDate.substring(0, 4);
+            String roundCode = g.path("roundCode").asText("").toLowerCase(); // kbo_r, kbo_e, kbo_ps_wd...
+            String gameType = "REGULAR";
+
+            if (roundCode.startsWith("kbo_e")) {
+                gameType = "EXHIBITION"; // 시범경기
+            } else if (roundCode.contains("ps") || roundCode.contains("wc") || roundCode.contains("po") || roundCode.contains("ks")) {
+                gameType = "POST";       // 포스트시즌 (와일드카드, PO, 한국시리즈 등)
+            } else if (roundCode.startsWith("kbo_a")) {
+                gameType = "ALLSTAR";    // 올스타전
+            }
+
+            // 5. 더블헤더(DH) 판별
+            String dhCode = "0";
+            if (apiGameId.length() >= 13) {
+                char dhChar = apiGameId.charAt(12);
+                if (dhChar == '1') dhCode = "1";
+                else if (dhChar == '2') dhCode = "2";
+            }
+
+            // 6. 팀 정보 매핑
             String homeName = g.path("homeTeamName").asText("");
             String awayName = g.path("awayTeamName").asText("");
-
             String homeCode = mapNaverTeamName(homeName);
             String awayCode = mapNaverTeamName(awayName);
 
-            if (homeCode == null || awayCode == null) return false;
-
-            String gameDateTime = g.path("gameDateTime").asText(""); // "2025-04-01T18:30:00"
-            String gameDate = g.path("gameDate").asText(); // "2025-04-01"
-            String gameTime = (gameDateTime.length() >= 19) ? gameDateTime.substring(11, 19) : "18:30:00";
-
-            int homeScore = g.path("homeTeamScore").asInt(0);
-            int awayScore = g.path("awayTeamScore").asInt(0);
-
-            String statusCode = g.path("statusCode").asText("BEFORE"); // BEFORE, STARTED, RESULT, FINISHED
-            boolean isCancel = g.path("cancel").asBoolean(false);
-
-            // 1. JSON에서 선발 투수 이름 추출 (API 필드명: homeStarterName, awayStarterName)
-            String homeStarter = g.path("homeStarterName").asText(null);
-            String awayStarter = g.path("awayStarterName").asText(null);
-
-            String status = "SCHEDULED";
-            String mvpName = null;
-
-            // 2. 상태 코드 일관성: RESULT도 종료된 경기로 처리
-            if (isCancel) {
-                status = "CANCELLED";
-            } else if ("RESULT".equals(statusCode) || "FINISHED".equals(statusCode)) {
-                status = "FINISHED";
-                // 경기 종료 시 MVP 조회 (상세 API 호출)
-                mvpName = getMvpFromDetail(apiGameId);
-                if (mvpName == null) {
-                    mvpName = g.path("winPitcherName").asText(null); // 승리투수로 대체
-                }
-            } else if ("STARTED".equals(statusCode) || "ONGOING".equals(statusCode)) {
-                status = "LIVE";
-                mvpName = "경기 중";
-                log.info(">>> [실시간 업데이트] {} {}:{} {} (상태: {})", homeCode, homeScore, awayScore, awayCode, statusCode);
+            // 팀 코드를 알 수 없는 경우(올스타전 드림/나눔 등) 로그 남기고 스킵 가능
+            if (homeCode == null || awayCode == null) {
+                log.debug(">>> 팀 코드 매핑 불가로 스킵: {} vs {}", homeName, awayName);
+                return false;
             }
 
-            // 구장 ID 매핑 (홈팀 기준)
+            // 7. 점수 및 경기 상태 파싱
+            int homeScore = g.path("homeTeamScore").asInt(0);
+            int awayScore = g.path("awayTeamScore").asInt(0);
+            String statusCode = g.path("statusCode").asText(""); // RESULT, STARTED, BEFORE, CANCEL 등
+            boolean isCancel = g.path("cancel").asBoolean(false);
+
+            String status = "SCHEDULED"; // 기본값: 예정
+            String cancelReason = null;
+
+            if (isCancel || "CANCEL".equals(statusCode)) {
+                status = "CANCELLED";
+                // 취소 사유: statusInfo (ex: "경기취소", "우천취소")
+                cancelReason = g.path("statusInfo").asText("취소");
+            } else if ("RESULT".equals(statusCode) || "FINISHED".equals(statusCode)) {
+                status = "FINISHED";
+            } else if ("STARTED".equals(statusCode) || "ONGOING".equals(statusCode)) {
+                status = "LIVE";
+            }
+
+            // 8. 승리팀 판별 (FINISHED 상태일 때만)
+            String winningTeam = null;
+            if ("FINISHED".equals(status)) {
+                String winner = g.path("winner").asText(""); // HOME, AWAY, or empty
+                if ("HOME".equals(winner)) {
+                    winningTeam = homeCode;
+                } else if ("AWAY".equals(winner)) {
+                    winningTeam = awayCode;
+                } else {
+                    // winner 필드가 없으면 점수로 직접 비교
+                    if (homeScore > awayScore) winningTeam = homeCode;
+                    else if (awayScore > homeScore) winningTeam = awayCode;
+                    else winningTeam = "DRAW"; // 무승부
+                }
+            }
+
+            // 9. [핵심] MVP(수훈선수) 저장
+            // 별도 API 호출 없이 리스트에 있는 '승리 투수' 정보를 MVP로 활용
+            String mvpPlayer = null;
+            if ("FINISHED".equals(status) && !isCancel) {
+                mvpPlayer = g.path("winPitcherName").asText(null);
+            }
+
+            // 10. 경기장 ID 매핑 (홈팀 기준)
             int stadiumId = mapStadiumId(homeCode);
 
+            // 11. VO 빌드
             GameVO game = GameVO.builder()
                     .apiGameId(apiGameId)
+                    .season(season)
+                    .gameType(gameType)
                     .gameDate(gameDate)
                     .gameTime(gameTime)
+                    .dhCode(dhCode)
+                    .stadiumId(stadiumId)
                     .homeTeamCode(homeCode)
                     .awayTeamCode(awayCode)
+                    .homeStarter(g.path("homeStarterName").asText(null))
+                    .awayStarter(g.path("awayStarterName").asText(null))
                     .scoreHome(homeScore)
                     .scoreAway(awayScore)
+                    .winningTeam(winningTeam)
                     .status(status)
-                    .cancelReason(isCancel ? g.path("statusInfo").asText() : null)
-                    .homeStarter(homeStarter)
-                    .awayStarter(awayStarter)
-                    .mvpPlayer(mvpName)
-                    .stadiumId(stadiumId)
+                    .cancelReason(cancelReason)
+                    .mvpPlayer(mvpPlayer) // 여기에 저장!
+                    .dataSource("API")
                     .build();
 
+            // 12. DB 저장 (UPSERT)
             gameMapper.upsertGame(game);
+
             return true;
+
         } catch (Exception e) {
-            log.error(">>> 경기 저장 실패 (JSON: {}): {}", g.toString(), e.getMessage());
+            log.error(">>> 경기 데이터 저장 중 오류 발생 (JSON: {}): {}", g, e.getMessage());
             return false;
         }
     }
 
+    /**
+     * 경기 상세 API를 호출하여 MVP 선수 이름을 가져온다.
+     * URL: https://api-gw.sports.naver.com/game/kbaseball/games/{gameId}
+     */
     private String getMvpFromDetail(String gameId) {
         try {
-            String detailUrl = "https://api-gw.sports.naver.com/game/kbaseball/" + gameId;
+            URI uri = UriComponentsBuilder.fromHttpUrl("https://api-gw.sports.naver.com/game/kbaseball/games/" + gameId)
+                    .build()
+                    .toUri();
+
             HttpHeaders headers = new HttpHeaders();
             headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-            headers.set("Referer", "https://m.sports.naver.com/kbaseball/game/" + gameId);
+            headers.set("Referer", "https://m.sports.naver.com/kbaseball/index");
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<String> response = restTemplate.exchange(detailUrl, HttpMethod.GET, entity, String.class);
-            if (response.getBody() != null) {
+            ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 JsonNode root = objectMapper.readTree(response.getBody());
-                return root.path("result").path("todayMvp").path("name").asText(null);
+
+                // 상세 데이터 구조: content -> mvp -> name
+                JsonNode mvpNode = root.path("content").path("mvp");
+                if (!mvpNode.isMissingNode()) {
+                    return mvpNode.path("name").asText(null);
+                }
             }
         } catch (Exception e) {
-            // 상세 정보 호출 실패는 로그만 남기고 무시 (크리티컬하지 않음)
-            log.debug("MVP 조회 실패: {}", gameId);
+            // 상세 API 호출 실패는 전체 로직을 중단하지 않고 로그만 남김
+            log.warn("MVP 상세 조회 실패 (gameId={}): {}", gameId, e.getMessage());
         }
         return null;
     }
@@ -330,6 +402,7 @@ public class GameDataService {
     // 홈팀 코드로 구장 ID 매핑 (DB의 stadiums 테이블 ID와 일치시켜야 함)
     // 임시로 하드코딩된 ID를 리턴합니다. 추후 DB 조회로 변경 가능.
     private int mapStadiumId(String homeTeamCode) {
+        if (homeTeamCode == null) return 0; // 알 수 없음
         switch (homeTeamCode) {
             case "LG": case "DOOSAN": return 1; // 잠실
             case "KIWOOM": return 2; // 고척
@@ -340,10 +413,9 @@ public class GameDataService {
             case "KIA": return 7; // 광주
             case "LOTTE": return 8; // 사직
             case "NC": return 9; // 창원
-            default: return 1; // 기본값
+            default: return 0; // 기본값
         }
     }
-
 
     /*****************************************************************************************
      * ***************************************************************************************
