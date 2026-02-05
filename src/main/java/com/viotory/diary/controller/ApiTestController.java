@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -124,7 +125,7 @@ public class ApiTestController {
 
                                 if (response.getStatusCode().is2xxSuccessful()) {
                                     return "★ 찾았다! 성공 URL ★\n" + url + "\n\n응답 데이터(일부분):\n" +
-                                            (response.getBody().length() > 500 ? response.getBody().substring(0, 500) : response.getBody());
+                                            (Objects.requireNonNull(response.getBody()).length() > 500 ? response.getBody().substring(0, 500) : response.getBody());
                                 }
                             } catch (Exception e) {
                                 // 404 등 에러는 무시하고 계속 진행
