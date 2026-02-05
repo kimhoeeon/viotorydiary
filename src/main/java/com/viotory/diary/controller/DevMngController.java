@@ -1,6 +1,7 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.service.DevMngService;
+import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.*;
 import com.viotory.diary.vo.PageDTO;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +24,6 @@ import java.util.UUID;
 public class DevMngController {
 
     private final DevMngService devMngService;
-
-    // [설정] 파일 저장 경로 (서버 환경에 맞게 수정 필요)
-    // 리눅스 예시: "/home/tomcat/webapps/upload/"
-    // 윈도우 예시: "C:/upload/"
-    private final String UPLOAD_DIR = "/usr/local/tomcat/webapps/upload/";
 
     // 1. 목록 페이지
     @GetMapping("/list")
@@ -163,31 +159,28 @@ public class DevMngController {
         List<DevFileVO> list = new ArrayList<>();
         if (files == null || files.isEmpty()) return list;
 
-        File dir = new File(UPLOAD_DIR);
-        if (!dir.exists()) dir.mkdirs();
-
         for (MultipartFile mf : files) {
             if (!mf.isEmpty()) {
-                String orgName = mf.getOriginalFilename();
-                // 확장자 추출 (없을 경우 대비)
-                String ext = "";
-                if (orgName != null && orgName.contains(".")) {
-                    ext = orgName.substring(orgName.lastIndexOf("."));
-                }
-                String saveName = UUID.randomUUID().toString() + ext;
-
                 try {
-                    mf.transferTo(new File(UPLOAD_DIR + saveName));
+                    // 1. FileUtil을 통해 "dev" 폴더에 저장 및 경로 획득
+                    // 리턴값 예시: "/upload/dev/uuid_filename.ext"
+                    String fileUrl = FileUtil.uploadFile(mf, "dev");
 
+                    // 2. VO 정보 설정
                     DevFileVO fileVO = new DevFileVO();
                     fileVO.setTargetType(targetType);
-                    fileVO.setOrgFileName(orgName);
-                    fileVO.setSaveFileName(saveName);
-                    fileVO.setFilePath(UPLOAD_DIR);
+                    fileVO.setOrgFileName(mf.getOriginalFilename());
                     fileVO.setFileSize(mf.getSize());
+
+                    // 파일명만 추출 (DB 구조에 따라 전체 경로를 넣을지, 파일명만 넣을지 결정)
+                    // 여기서는 기존 로직에 맞춰 파일명과 경로를 분리합니다.
+                    String savedName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+                    fileVO.setSaveFileName(savedName);
+                    fileVO.setFilePath("/upload/dev/"); // 저장된 경로
+
                     list.add(fileVO);
                 } catch (Exception e) {
-                    log.error("파일 업로드 실패: " + orgName, e);
+                    log.error("파일 업로드 실패: " + mf.getOriginalFilename(), e);
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.viotory.diary.controller;
 
 import com.viotory.diary.mapper.ContentMngMapper;
 import com.viotory.diary.service.ContentMngService;
+import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.EventVO;
 import com.viotory.diary.vo.TeamContentVO;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,6 @@ import java.util.UUID;
 public class ContentMngController {
 
     private final ContentMngService contentService;
-
-    // [설정] 파일 저장 경로 (DevMngController와 동일하게 설정 권장)
-    private final String UPLOAD_DIR = "/usr/local/tomcat/webapps/upload/";
 
     // ==========================================
     // 1. 이벤트 관리
@@ -107,9 +105,11 @@ public class ContentMngController {
     public String teamContentSave(TeamContentVO content,
                                   @RequestParam(value = "file", required = false) MultipartFile file) {
         if (file != null && !file.isEmpty()) {
-            String savedName = uploadFile(file);
-            if (savedName != null) {
-                content.setImageUrl(savedName);
+            try {
+                String savedUrl = FileUtil.uploadFile(file, "content");
+                content.setImageUrl(savedUrl);
+            } catch (Exception e) {
+                log.error("파일 업로드 실패", e);
             }
         }
 
@@ -139,29 +139,6 @@ public class ContentMngController {
     @ResponseBody
     public TeamContentVO getTeamContent(@RequestParam("contentId") Long contentId) {
         return contentService.getTeamContent(contentId);
-    }
-
-    // --- 유틸리티: 단일 파일 업로드 ---
-    private String uploadFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) return null;
-
-        File dir = new File(UPLOAD_DIR);
-        if (!dir.exists()) dir.mkdirs();
-
-        String orgName = file.getOriginalFilename();
-        String ext = "";
-        if (orgName != null && orgName.contains(".")) {
-            ext = orgName.substring(orgName.lastIndexOf("."));
-        }
-        String saveName = UUID.randomUUID().toString() + ext;
-
-        try {
-            file.transferTo(new File(UPLOAD_DIR + saveName));
-            return saveName;
-        } catch (Exception e) {
-            log.error("팀 콘텐츠 이미지 업로드 실패", e);
-            return null;
-        }
     }
 
 }

@@ -5,6 +5,7 @@ import com.viotory.diary.service.CommentService;
 import com.viotory.diary.service.MemberService;
 import com.viotory.diary.service.SmsService;
 import com.viotory.diary.service.TeamInfoMngService;
+import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.MemberVO;
 import com.viotory.diary.vo.TeamVO;
@@ -468,8 +469,7 @@ public class MemberController {
             // 1. 이미지 파일 업로드 처리
             String profileImagePath = null;
             if (file != null && !file.isEmpty()) {
-                String savedName = saveFile(file);
-                profileImagePath = "/upload/" + savedName;
+                profileImagePath = FileUtil.uploadFile(file, "member");
             }
 
             // 2. 서비스 호출 (닉네임 + 이미지 업데이트)
@@ -495,17 +495,6 @@ public class MemberController {
             log.error("프로필 수정 실패", e);
             return "프로필 수정 중 오류가 발생했습니다."; // 실패 시 에러 메시지 반환
         }
-    }
-
-    // [파일 저장 메소드] (LockerController와 동일 로직)
-    private String saveFile(MultipartFile file) throws Exception {
-        String uploadDir = Paths.get(System.getProperty("user.home"), "viotory", "upload").toString();
-        File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
-
-        String savedName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        file.transferTo(new File(dir, savedName));
-        return savedName;
     }
 
     // ==========================================
