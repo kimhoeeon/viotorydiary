@@ -483,7 +483,7 @@
               return;
           }
 
-          // 2) [기획반영] 필수값 체크: 히어로
+          // 2) 필수값 체크: 히어로
           if (!$.trim($('#heroName').val())) {
               alert('오늘의 히어로(MVP)를 입력해주세요!', function() {
                   $('#heroName').focus();
@@ -491,7 +491,7 @@
               return;
           }
 
-          // 3) [기획반영] 필수값 체크: 한줄평
+          // 3) 필수값 체크: 한줄평
           if (!$.trim($('#oneLine').val())) {
               alert('오늘 경기에 대한 한줄평을 남겨주세요!', function() {
                   $('#oneLine').focus();
@@ -504,7 +504,7 @@
               return;
           }*/
 
-          // 4) [기획반영] 직관 인증 여부 확인 (미인증 시 컨펌)
+          // 4) 직관 인증 여부 확인 (미인증 시 컨펌)
           const isVerified = $('#isVerified').val();
           if (isVerified !== 'true') {
               // 커스텀 confirm 또는 기본 confirm 사용

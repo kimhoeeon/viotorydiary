@@ -116,34 +116,31 @@
                                                 <c:forEach var="item" items="${list}">
                                                     <tr>
                                                         <td>${item.diaryId}</td>
-                                                        <td><span class="text-gray-800 fw-bold">${item.nickname}</span>
-                                                        </td>
+                                                        <td><span class="text-gray-800 fw-bold">${item.nickname}</span></td>
                                                         <td>
                                                             <a href="/mng/diary/detail?diaryId=${item.diaryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
-                                                               class="text-gray-800 text-hover-primary text-truncate d-block"
-                                                               style="max-width: 300px;">
-                                                                    ${item.content}
+                                                               class="text-gray-800 text-hover-primary text-truncate d-block" style="max-width: 300px;">
+                                                                ${item.content}
                                                             </a>
                                                         </td>
                                                         <td>
                                                             <c:if test="${not empty item.gameDate}">
                                                                 <div class="fs-7 text-gray-600">${item.gameDate}</div>
-                                                                <div class="badge badge-light-info">${item.awayTeamName}
-                                                                    vs ${item.homeTeamName}</div>
+                                                                <div class="badge badge-light-info">${item.awayTeamName} vs ${item.homeTeamName}</div>
                                                             </c:if>
                                                             <c:if test="${empty item.gameDate}">-</c:if>
                                                         </td>
                                                         <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate"
-                                                                           type="both"/>
+                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
                                                             <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd"/>
                                                         </td>
                                                         <td>
-                                                            <c:if test="${item.status eq 'COMPLETED'}"><span
-                                                                    class="badge badge-light-success">게시중</span></c:if>
-                                                            <c:if test="${item.status eq 'DELETED'}"><span
-                                                                    class="badge badge-light-danger">삭제됨</span></c:if>
+                                                            <c:if test="${item.status eq 'COMPLETED'}">
+                                                                <span class="badge badge-light-success">게시중</span>
+                                                            </c:if>
+                                                            <c:if test="${item.status eq 'DELETED'}">
+                                                                <span class="badge badge-light-danger">삭제됨</span>
+                                                            </c:if>
                                                         </td>
                                                         <td class="text-end">
                                                             <a href="/mng/diary/detail?diaryId=${item.diaryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
@@ -164,19 +161,22 @@
                                             <div class="fs-6 fw-semibold text-gray-700"></div>
                                             <ul class="pagination">
                                                 <c:if test="${pageMaker.prev}">
-                                                    <li class="page-item previous"><a href="${pageMaker.startPage - 1}"
-                                                                                      class="page-link"><i
-                                                            class="previous"></i></a></li>
+                                                    <li class="page-item previous">
+                                                        <a href="${pageMaker.startPage - 1}" class="page-link">
+                                                            <i class="previous"></i>
+                                                        </a>
+                                                    </li>
                                                 </c:if>
-                                                <c:forEach var="num" begin="${pageMaker.startPage}"
-                                                           end="${pageMaker.endPage}">
+                                                <c:forEach var="num" begin="${pageMaker.startPage}" end="${pageMaker.endPage}">
                                                     <li class="page-item ${pageMaker.cri.pageNum == num ? 'active' : ''}">
                                                         <a href="${num}" class="page-link">${num}</a>
                                                     </li>
                                                 </c:forEach>
                                                 <c:if test="${pageMaker.next}">
-                                                    <li class="page-item next"><a href="${pageMaker.endPage + 1}"
-                                                                                  class="page-link"><i class="next"></i></a>
+                                                    <li class="page-item next">
+                                                        <a href="${pageMaker.endPage + 1}" class="page-link">
+                                                            <i class="next"></i>
+                                                        </a>
                                                     </li>
                                                 </c:if>
                                             </ul>
