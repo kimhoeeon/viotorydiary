@@ -89,7 +89,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         // 예(Mac/Linux): file:///home/사용자/viotory/upload/
         //String uploadPath = Paths.get(System.getProperty("user.home"), "viotory", "upload").toUri().toString();
 
-        String uploadPath = "/usr/local/tomcat/upload/";
+        String uploadPath = "file:///usr/local/tomcat/webapps/upload/";
 
         // /upload/** URL로 요청 시 실제 서버의 저장 폴더로 연결
         registry.addResourceHandler("/upload/**")

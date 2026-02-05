@@ -4,6 +4,7 @@ import com.viotory.diary.dto.CommentDTO;
 import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.service.*;
 import com.viotory.diary.util.DistanceUtil;
+import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.DiaryVO;
 import com.viotory.diary.vo.GameVO;
 import com.viotory.diary.vo.MemberVO;
@@ -67,8 +68,7 @@ public class DiaryController {
         try {
             // 파일 업로드
             if (file != null && !file.isEmpty()) {
-                String savedFileName = saveFile(file);
-                diary.setImageUrl("/upload/" + savedFileName); // DB에는 웹 접근 경로 저장
+                diary.setImageUrl(FileUtil.uploadFile(file, "diary")); // DB에는 웹 접근 경로 저장
             }
 
             diary.setMemberId(loginMember.getMemberId());
@@ -149,8 +149,7 @@ public class DiaryController {
             // [이미지 처리 로직]
             if (file != null && !file.isEmpty()) {
                 // 1. 새 파일이 업로드된 경우 -> 저장 후 경로 교체
-                String savedFileName = saveFile(file);
-                diary.setImageUrl("/upload/" + savedFileName);
+                diary.setImageUrl(FileUtil.uploadFile(file, "diary"));
             }
 
             // 작성자 ID 세팅 (보안)
@@ -168,26 +167,32 @@ public class DiaryController {
     }
 
     // --- [파일 저장 유틸 메소드] ---
-    // 사용자 홈 디렉터리(user.home) 밑에 저장하여 배포 시에도 유지됨
     private String saveFile(MultipartFile file) throws Exception {
         if (file.isEmpty()) return null;
 
-        String uploadDir = getUploadDir();
+        // 1. 기본 업로드 루트 경로
+        String rootPath = "/usr/local/tomcat/webapps/upload";
 
-        File dir = new File(uploadDir);
-        if (!dir.exists()) dir.mkdirs();
+        // 2. [수정] 기능별 하위 폴더 지정 ("diary")
+        // 결과 경로: /usr/local/tomcat/webapps/upload/diary
+        File uploadDir = new File(rootPath, "diary");
 
-        // 파일명 중복 방지 (UUID 사용)
+        // 3. 폴더가 없으면 생성 (diary 폴더가 자동 생성됨)
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+
         String uuid = UUID.randomUUID().toString();
         String originalName = file.getOriginalFilename();
         String savedName = uuid + "_" + originalName;
 
-        // 실제 파일 저장
-        File dest = new File(dir, savedName);
+        // 4. 파일 저장
+        File dest = new File(uploadDir, savedName);
         file.transferTo(dest);
 
-        log.info("파일 업로드 완료: {}", dest.getAbsolutePath());
-        return savedName;
+        // 5. DB 저장용 URL (웹 접근 경로)
+        // 중요: URL에도 /upload/diary/ 가 포함되어야 함
+        return "/upload/diary/" + savedName;
     }
 
     // 3. 작성 완료 페이지
@@ -341,11 +346,6 @@ public class DiaryController {
             log.error("일기 삭제 실패", e);
             return "fail";
         }
-    }
-
-    // [변경] 저장 경로 가져오기 (OS 독립적)
-    private String getUploadDir() {
-        return Paths.get(System.getProperty("user.home"), "viotory", "upload").toString();
     }
 
     // 친구 일기 상세 페이지
