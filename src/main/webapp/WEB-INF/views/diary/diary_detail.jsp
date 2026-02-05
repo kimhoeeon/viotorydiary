@@ -29,7 +29,7 @@
 <body>
     <div class="app">
         <header class="app-header">
-            <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
+            <button class="app-header_btn app-header_back" type="button" onclick="location.href='/diary/winyo'">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
         </header>
@@ -185,7 +185,18 @@
 
                         <c:if test="${!isEditable}">
                             <div class="horizon-mes" style="margin-top:16px;">
-                                <img src="/img/ico_not_mark_red.svg" alt="수정 불가"> 경기가 임박해 기록이 잠겼어요. (수정 불가)
+                                <img src="/img/ico_not_mark_red.svg" alt="수정 불가">
+                                <c:choose>
+                                    <c:when test="${lockReason eq 'FINISHED'}">
+                                        종료되거나 취소된 경기의 일기는 수정할 수 없어요.
+                                    </c:when>
+                                    <c:when test="${lockReason eq 'IMMINENT'}">
+                                        경기가 임박해 기록이 잠겼어요. (시작 1시간 전부터 수정 불가)
+                                    </c:when>
+                                    <c:otherwise>
+                                        이 기록은 현재 수정이 불가능합니다.
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                         </c:if>
 

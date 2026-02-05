@@ -84,15 +84,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 1. 업로드 경로 설정 (OS에 따라 유동적)
-        // 리눅스/맥: /home/사용자/viotory/upload
-        // 윈도우: C:/viotory/upload
-        String uploadPath = Paths.get(System.getProperty("user.home"), "viotory", "upload").toUri().toString();
+        // 1. 업로드 경로 설정 (OS 독립적으로 user.home 사용 통일)
+        // 예(Win): file:///C:/Users/사용자/viotory/upload/
+        // 예(Mac/Linux): file:///home/사용자/viotory/upload/
+        //String uploadPath = Paths.get(System.getProperty("user.home"), "viotory", "upload").toUri().toString();
 
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("win")) {
-            uploadPath = "file:///C:/viotory/upload/";
-        }
+        String uploadPath = "/usr/local/tomcat/upload/";
 
         // /upload/** URL로 요청 시 실제 서버의 저장 폴더로 연결
         registry.addResourceHandler("/upload/**")

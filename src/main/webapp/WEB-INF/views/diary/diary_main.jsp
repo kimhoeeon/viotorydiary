@@ -42,7 +42,7 @@
 
         <div class="app-main">
 
-            <div class="tab-pill mt-16 mb-16">
+            <div class="tab-pill mb-16">
                 <button type="button" class="tab-pill_btn on" onclick="location.href='/diary/winyo'">나의 기록</button>
                 <button type="button" class="tab-pill_btn" onclick="location.href='/diary/friend/list'">친구 일기</button>
             </div>

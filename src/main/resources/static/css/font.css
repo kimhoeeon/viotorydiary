@@ -4,7 +4,7 @@
     font-style: normal;
     src: url('/fonts/Pretendard-Thin.woff2') format('woff2'),
          url('/fonts/Pretendard-Thin.woff') format('woff');
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -13,7 +13,7 @@
     font-style: normal;
     src: url('/fonts/Pretendard-ExtraLight.woff2') format('woff2'),
          url('/fonts/Pretendard-ExtraBold.woff') format('woff');
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -22,7 +22,7 @@
     font-style: normal;
     src: url('/fonts/Pretendard-Light.woff2') format('woff2'),
          url('/fonts/Pretendard-Light.woff') format('woff');
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -31,7 +31,7 @@
     font-style: normal;
     src: url('/fonts/Pretendard-Regular.woff2') format('woff2'),
          url('/fonts/Pretendard-Regular.woff') format('woff');
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -40,7 +40,7 @@
     font-style: normal;
     src: url('/fonts/Pretendard-Medium.woff2') format('woff2'),
          url('/fonts/Pretendard-Medium.woff') format('woff');
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -49,7 +49,7 @@
     font-style: normal;
     src: url('/fonts/Pretendard-SemiBold.woff2') format('woff2'),
          url('/fonts/Pretendard-SemiBold.woff') format('woff');
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -58,7 +58,7 @@
     font-style: normal;
     src: url('/fonts/Pretendard-Bold.woff2') format('woff2'),
          url('/fonts/Pretendard-Bold.woff') format('woff');
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -67,7 +67,7 @@
     font-style: normal;
     src: url('/fonts/Pretendard-ExtraBold.woff2') format('woff2'),
          url('/fonts/Pretendard-ExtraBold.woff') format('woff');
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -76,7 +76,7 @@
     font-style: normal;
     src: url('/fonts/Pretendard-Black.woff2') format('woff2'),
          url('/fonts/Pretendard-Black.woff') format('woff');
-    font-display: swap;
+    font-display: block;
 }
 
 body, input, textarea, button, select {
@@ -85,7 +85,9 @@ body, input, textarea, button, select {
     font-weight: 500;
     letter-spacing: -0.5px;
     -webkit-font-smoothing: antialiased;
-    -webkit-text-size-adjust: 100%;
+    /* 자동 크기 조절 완전 방지 */
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
 }
 
 @media (prefers-color-scheme: dark) {

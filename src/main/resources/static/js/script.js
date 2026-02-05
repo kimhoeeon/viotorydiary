@@ -17,12 +17,16 @@ window.alert = function(message, callback) {
 };
 
 // [옵션] Confirm도 커스텀으로 쓰고 싶다면 아래 함수 사용 (기존 confirm은 동기식이라 오버라이딩 불가)
-window.customConfirm = function(message, callback) {
+window.customConfirm = function(message, callback, cancelCallback) {
     if (typeof showPopup === 'function') {
-        showPopup('confirm', message, callback);
+        // showPopup이 취소 콜백을 4번째 인자로 지원한다고 가정 (또는 수정 필요)
+        showPopup('confirm', message, callback, cancelCallback);
     } else {
         if(confirm(message)) {
             if(callback) callback();
+        } else {
+            // [추가] 기본 confirm에서 취소 시 실행
+            if(cancelCallback) cancelCallback();
         }
     }
 };

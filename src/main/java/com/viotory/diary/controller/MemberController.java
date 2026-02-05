@@ -469,7 +469,7 @@ public class MemberController {
             String profileImagePath = null;
             if (file != null && !file.isEmpty()) {
                 String savedName = saveFile(file);
-                profileImagePath = "/uploads/" + savedName;
+                profileImagePath = "/upload/" + savedName;
             }
 
             // 2. 서비스 호출 (닉네임 + 이미지 업데이트)

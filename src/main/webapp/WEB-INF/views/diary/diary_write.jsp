@@ -107,11 +107,11 @@
 
                                               <div class="game-score schedule">
                                                   <div class="left-team-score">
-                                                      <input type="number" name="predScoreHome" placeholder="0">
+                                                      <input type="number" name="predScoreHome" min="0" placeholder="0">
                                                   </div>
                                                   <div class="game-info-wrap">VS</div>
                                                   <div class="right-team-score">
-                                                      <input type="number" name="predScoreAway" placeholder="0">
+                                                      <input type="number" name="predScoreAway" min="0" placeholder="0">
                                                   </div>
                                               </div>
 
@@ -390,10 +390,12 @@
                   // 1) 권한 통합 체크 (문서 19.txt)
                   const permStatus = await appify.permission.check('location');
                   if (permStatus === 'denied') {
-                      if(confirm("위치 권한이 필요합니다. 설정으로 이동하시겠습니까?")) {
-                          await appify.linking.openSettings(); // 문서 16.txt
-                      }
-                      throw new Error("권한 거부됨");
+                      customConfirm("위치 권한이 필요합니다. 설정으로 이동하시겠습니까?", async function() {
+                          await appify.linking.openSettings();
+                      });
+                      // 팝업이 뜨는 동안 버튼 상태를 원래대로 복구하고 함수 종료 (에러 throw 대신)
+                      $btn.text(originalText).prop('disabled', false);
+                      return;
                   } else if (permStatus === 'undetermined') {
                       const reqStatus = await appify.permission.request('location');
                       if (reqStatus !== 'granted') throw new Error("권한 요청 거부됨");
@@ -506,15 +508,16 @@
           const isVerified = $('#isVerified').val();
           if (isVerified !== 'true') {
               // 커스텀 confirm 또는 기본 confirm 사용
-              if (confirm("정말로 직관 인증을 하지 않고 저장하시겠어요?\n인증 시, 승률 계산에 반영돼요!")) {
-                  // 확인 시 제출 진행
-                  // vibrateSuccess(); // 햅틱 진동
-                  $('#diaryForm').submit();
-              } else {
-                  // 취소 시 인증 유도 (인증 버튼 쪽으로 스크롤 이동 등)
-                  $('#btnVerify').focus();
-                  return;
-              }
+              customConfirm("정말로 직관 인증을 하지 않고 저장하시겠어요?\n인증 시, 승률 계산에 반영돼요!",
+                  function() {
+                      // [확인] 제출 진행
+                      $('#diaryForm').submit();
+                  },
+                  function() {
+                      // [취소] 인증 버튼으로 포커스 이동
+                      $('#btnVerify').focus();
+                  }
+              );
           } else {
               // 인증된 상태면 바로 제출
               // vibrateSuccess(); // 햅틱 진동

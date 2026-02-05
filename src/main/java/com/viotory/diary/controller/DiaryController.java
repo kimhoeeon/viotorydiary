@@ -68,7 +68,7 @@ public class DiaryController {
             // 파일 업로드
             if (file != null && !file.isEmpty()) {
                 String savedFileName = saveFile(file);
-                diary.setImageUrl("/uploads/" + savedFileName); // DB에는 웹 접근 경로 저장
+                diary.setImageUrl("/upload/" + savedFileName); // DB에는 웹 접근 경로 저장
             }
 
             diary.setMemberId(loginMember.getMemberId());
@@ -150,7 +150,7 @@ public class DiaryController {
             if (file != null && !file.isEmpty()) {
                 // 1. 새 파일이 업로드된 경우 -> 저장 후 경로 교체
                 String savedFileName = saveFile(file);
-                diary.setImageUrl("/uploads/" + savedFileName);
+                diary.setImageUrl("/upload/" + savedFileName);
             }
 
             // 작성자 ID 세팅 (보안)
@@ -232,17 +232,29 @@ public class DiaryController {
         // 수정 가능 여부 체크 (경기 시작 1시간 전까지만 수정 가능)
         // diary.gameDate(yyyy-MM-dd)와 diary.gameTime(HH:mm)을 합쳐서 비교
         boolean isEditable = true;
-        if (diary.getGameDate() != null && diary.getGameTime() != null) {
-            try {
-                String dateTimeStr = diary.getGameDate() + " " + diary.getGameTime(); // "2024-05-01 18:30"
-                LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String lockReason = ""; // JSP에서 멘트 구분을 위해 사용
 
-                // 현재 시간이 (경기시작 - 1시간) 이후라면 수정 불가
-                if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+        // 정확한 상태 판단을 위해 Game 정보 조회
+        GameVO game = gameService.getGameById(diary.getGameId());
+
+        if (game != null) {
+            try {
+                // 1. 경기 종료/취소 여부 확인
+                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
                     isEditable = false;
+                    lockReason = "FINISHED"; // 이미 종료됨
+                } else {
+                    // 2. 경기 시작 1시간 전 체크 (초 단위 포함 포맷으로 수정)
+                    String dateTimeStr = game.getGameDate() + " " + game.getGameTime(); // "2024-03-09 13:00:00"
+                    LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                    if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                        isEditable = false;
+                        lockReason = "IMMINENT"; // 임박함
+                    }
                 }
             } catch (Exception e) {
-                log.error("날짜 파싱 오류", e);
+                log.error("경기 상태 체크 중 오류: {}", e.getMessage());
             }
         }
 
@@ -250,6 +262,7 @@ public class DiaryController {
         model.addAttribute("comments", comments);
         model.addAttribute("isOwner", isOwner);
         model.addAttribute("isEditable", isEditable);
+        model.addAttribute("lockReason", lockReason);
 
         return "diary/diary_detail";
     }

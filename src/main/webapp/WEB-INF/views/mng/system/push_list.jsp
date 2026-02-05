@@ -98,8 +98,10 @@
                                             <div class="d-flex justify-content-end">
                                                 <button type="submit" class="btn btn-primary"
                                                         onclick="return confirmSend()">
-                                                    <i class="ki-duotone ki-send fs-2"><span class="path1"></span><span
-                                                            class="path2"></span></i> 발송하기
+                                                    <i class="ki-duotone ki-send fs-2">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                    </i> 발송하기
                                                 </button>
                                             </div>
                                         </form>

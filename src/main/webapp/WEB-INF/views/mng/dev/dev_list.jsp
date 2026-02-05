@@ -118,8 +118,11 @@
 
                                             <div class="ms-auto">
                                                 <c:if test="${sessionScope.admin.role eq 'CLIENT'}">
-                                                    <a href="/mng/dev/write" class="btn btn-success"><i
-                                                            class="ki-duotone ki-pencil fs-2"></i> 요청하기</a>
+                                                    <a href="/mng/dev/write" class="btn btn-success">
+                                                        <i class="ki-duotone ki-pencil fs-2">
+                                                            <span class="path1"></span>
+                                                            <span class="path2"></span>
+                                                        </i> 요청하기</a>
                                                 </c:if>
                                             </div>
                                         </form>
