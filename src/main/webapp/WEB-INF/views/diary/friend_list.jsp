@@ -7,7 +7,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="format-detection" content="telephone=no,email=no,address=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -29,7 +29,7 @@
 <body>
     <div class="app">
         <header class="app-header">
-            <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
+            <button class="app-header_btn app-header_back" type="button" onclick="location.href='/diary/winyo'">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
         </header>

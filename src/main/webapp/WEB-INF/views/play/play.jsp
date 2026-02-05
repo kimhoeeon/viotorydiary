@@ -7,7 +7,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="format-detection" content="telephone=no,email=no,address=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -84,7 +84,8 @@
         <div class="top_wrap">
             <div class="main-top">
                 <div class="main-title">
-                    <span id="userName">${sessionScope.loginMember.nickname}</span>님
+                    경기
+                    <%--<span id="userName">${sessionScope.loginMember.nickname}</span>님--%>
                 </div>
 
                 <button class="noti-btn ${hasUnreadAlarm ? 'has-badge' : ''}" onclick="location.href='/alarm/list'">

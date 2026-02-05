@@ -6,7 +6,7 @@
 <html lang="ko">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="format-detection" content="telephone=no,email=no,address=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -42,7 +42,7 @@
 
         <div class="app-main">
 
-            <div class="tab-pill mt-16" style="padding: 0 20px;">
+            <div class="tab-pill mt-16 mb-16">
                 <button type="button" class="tab-pill_btn on" onclick="location.href='/diary/winyo'">나의 기록</button>
                 <button type="button" class="tab-pill_btn" onclick="location.href='/diary/friend/list'">친구 일기</button>
             </div>
