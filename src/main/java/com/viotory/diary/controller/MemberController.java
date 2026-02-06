@@ -118,6 +118,34 @@ public class MemberController {
         return "redirect:/member/login";
     }
 
+    // [카카오 로그인 콜백]
+    @GetMapping("/kakao/callback")
+    public String kakaoCallback(@RequestParam String code, HttpSession session, Model model) {
+        try {
+            log.info("카카오 인증 코드 수신: {}", code);
+
+            // 1. 서비스 호출 (토큰발급 -> 정보조회 -> 로그인/회원가입)
+            MemberVO loginMember = memberService.processKakaoLogin(code);
+
+            // 2. 세션 등록 (로그인 처리)
+            session.setAttribute("loginMember", loginMember);
+
+            // 3. 마지막 로그인 시간 갱신
+            memberService.updateLastLogin(loginMember.getMemberId());
+
+            // 4. 팀 설정 여부에 따른 페이지 이동
+            if (loginMember.getMyTeamCode() == null || "NONE".equals(loginMember.getMyTeamCode())) {
+                return "redirect:/member/team-setting";
+            }
+            return "redirect:/main";
+
+        } catch (Exception e) {
+            log.error("카카오 로그인 실패", e);
+            model.addAttribute("message", "카카오 로그인에 실패했습니다.");
+            return "member/login";
+        }
+    }
+
     // ==========================================
     // 2. 회원가입 (단계별 Wizard)
     // ==========================================

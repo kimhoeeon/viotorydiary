@@ -96,4 +96,15 @@ public interface MemberMapper {
 
     // 기기 정보 업데이트
     void updateDeviceInfo(MemberVO member);
+
+    // 소셜 로그인 조회
+    MemberVO selectBySocialId(@Param("socialProvider") String socialProvider,
+                              @Param("socialUid") String socialUid);
+
+    // 소셜 회원 가입
+    void insertSocialMember(MemberVO member);
+
+    // 소셜 정보 업데이트 (계정 연동)
+    void updateSocialInfo(MemberVO member);
+
 }

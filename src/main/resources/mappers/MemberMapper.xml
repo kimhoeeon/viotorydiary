@@ -286,4 +286,32 @@
         SELECT COUNT(*) FROM members WHERE DATE(created_at) = CURDATE()
     </select>
 
+    <select id="selectBySocialId" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT * FROM members
+        WHERE social_provider = #{socialProvider}
+          AND social_uid = #{socialUid}
+    </select>
+
+    <insert id="insertSocialMember" parameterType="com.viotory.diary.vo.MemberVO"
+            useGeneratedKeys="true" keyProperty="memberId">
+        INSERT INTO members (
+            email, nickname, password, phone_number,
+            my_team_code, social_provider, social_uid,
+            role, status, profile_image, marketing_agree, created_at, updated_at
+        ) VALUES (
+                     #{email}, #{nickname}, NULL, NULL,
+                     'NONE', #{socialProvider}, #{socialUid},
+                     'USER', 'ACTIVE', #{profileImage}, 'N', NOW(), NOW()
+                 )
+    </insert>
+
+    <update id="updateSocialInfo">
+        UPDATE members
+        SET social_provider = #{socialProvider},
+            social_uid = #{socialUid},
+            profile_image = CASE WHEN profile_image IS NULL THEN #{profileImage} ELSE profile_image END,
+            updated_at = NOW()
+        WHERE email = #{email}
+    </update>
+
 </mapper>

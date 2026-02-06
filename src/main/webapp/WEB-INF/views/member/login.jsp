@@ -67,9 +67,10 @@
 
                     <div class="login-kakao">
                         <p>또는</p>
-                        <button class="login-btn btn-kakao" type="button" onclick="alert('준비중입니다.');">
+                        <a href="https://kauth.kakao.com/oauth/authorize?client_id=68ed5201a09f5e4d4f4bbb3a91e366a1&redirect_uri=https://myseungyo.com/member/kakao/callback&response_type=code" class="login-btn btn-kakao">
+                            <img src="/img/ico_kakao.svg" alt="카카오" style="margin-right:8px;">
                             카카오 로그인
-                        </button>
+                        </a>
                     </div>
 
                     <ul class="join mt-16">

@@ -1,5 +1,7 @@
 package com.viotory.diary.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.dto.SmsDTO;
 import com.viotory.diary.mapper.MemberMapper;
@@ -7,8 +9,15 @@ import com.viotory.diary.util.SHA512;
 import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -455,6 +464,121 @@ public class MemberService {
         memberMapper.updatePushToken(memberId, token);
     }
 
+    // ==========================================
+    // 카카오 로그인 로직 시작
+    // ==========================================
+
+    // 1. 카카오 로그인 메인 프로세스
+    public MemberVO processKakaoLogin(String code) throws Exception {
+        // 1) 토큰 발급
+        String accessToken = getKakaoAccessToken(code);
+
+        // 2) 사용자 정보 조회
+        MemberVO kakaoUser = getKakaoUserInfo(accessToken);
+
+        // 3) DB 조회: 이미 가입된 소셜 계정인지 확인
+        MemberVO member = memberMapper.selectBySocialId("KAKAO", kakaoUser.getSocialUid());
+
+        if (member == null) {
+            // 4-1) 기존 이메일 가입자라면 계정 통합 (이메일이 같을 경우)
+            MemberVO existingMember = memberMapper.selectMemberByEmail(kakaoUser.getEmail());
+
+            if (existingMember != null) {
+                existingMember.setSocialProvider("KAKAO");
+                existingMember.setSocialUid(kakaoUser.getSocialUid());
+                if (existingMember.getProfileImage() == null) {
+                    existingMember.setProfileImage(kakaoUser.getProfileImage());
+                }
+                memberMapper.updateSocialInfo(existingMember);
+                member = existingMember;
+            } else {
+                // 4-2) 신규 가입 진행
+                member = new MemberVO();
+                member.setSocialProvider("KAKAO");
+                member.setSocialUid(kakaoUser.getSocialUid());
+                member.setEmail(kakaoUser.getEmail());
+                member.setNickname(kakaoUser.getNickname());
+                member.setProfileImage(kakaoUser.getProfileImage());
+
+                memberMapper.insertSocialMember(member);
+
+                // memberId 확보를 위해 재조회
+                member = memberMapper.selectBySocialId("KAKAO", kakaoUser.getSocialUid());
+            }
+        }
+
+        return member;
+    }
+
+    // 2. 액세스 토큰 발급 요청
+    private String getKakaoAccessToken(String code) {
+        String reqUrl = "https://kauth.kakao.com/oauth/token";
+        RestTemplate rt = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", "68ed5201a09f5e4d4f4bbb3a91e366a1"); // 카카오 앱 키
+        params.add("redirect_uri", "https://myseungyo.com/member/kakao/callback");
+        params.add("code", code);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        try {
+            ResponseEntity<String> response = rt.exchange(reqUrl, HttpMethod.POST, request, String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.getBody());
+            return root.get("access_token").asText();
+        } catch (Exception e) {
+            log.error("카카오 토큰 발급 실패", e);
+            throw new RuntimeException("카카오 로그인 중 오류가 발생했습니다.");
+        }
+    }
+
+    // 3. 사용자 정보 조회 요청
+    private MemberVO getKakaoUserInfo(String token) {
+        String reqUrl = "https://kapi.kakao.com/v2/user/me";
+        RestTemplate rt = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = rt.exchange(reqUrl, HttpMethod.POST, request, String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode body = mapper.readTree(response.getBody());
+
+            String id = String.valueOf(body.get("id").asLong());
+            String nickname = body.get("properties").get("nickname").asText();
+            String image = body.get("properties").has("profile_image") ?
+                    body.get("properties").get("profile_image").asText() : null;
+
+            // 이메일은 선택 동의 항목이므로 없을 수 있음 -> 임시 이메일 생성
+            String email;
+            if (body.has("kakao_account") && body.get("kakao_account").has("email")) {
+                email = body.get("kakao_account").get("email").asText();
+            } else {
+                email = id + "@kakao.viotory.com"; // 이메일 없을 시 임시 생성
+            }
+
+            MemberVO vo = new MemberVO();
+            vo.setSocialUid(id);
+            vo.setNickname(nickname);
+            vo.setEmail(email);
+            vo.setProfileImage(image);
+
+            return vo;
+        } catch (Exception e) {
+            log.error("카카오 사용자 정보 조회 실패", e);
+            throw new RuntimeException("사용자 정보를 가져오는데 실패했습니다.");
+        }
+    }
+
     /**
      * [Appify] 기기 정보 업데이트
      */
@@ -472,6 +596,10 @@ public class MemberService {
 
         memberMapper.updateDeviceInfo(vo);
         log.info("기기 정보 업데이트 완료: memberId={}, model={}", memberId, vo.getDeviceModel());
+    }
+
+    public void updateLastLogin(Long memberId) {
+        memberMapper.updateLastLogin(memberId);
     }
 
 }
