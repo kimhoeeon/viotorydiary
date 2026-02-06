@@ -324,7 +324,7 @@ public class MemberService {
         SmsDTO smsDTO = SmsDTO.builder()
                 .receiver(phoneNumber)
                 // 발신번호는 SmsService 내부 상수를 쓰거나 설정파일에서 가져옴
-                .sender("07089498065") // 실제 운영시 등록된 발신번호 필수
+                .sender("07080953937") // 실제 운영시 등록된 발신번호 필수
                 .message(message)
                 .testmode_yn("N")
                 .build();

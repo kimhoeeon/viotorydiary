@@ -25,7 +25,7 @@ import java.util.List;
 public class DirectSendService {
 
     // [설정] DirectSend 계정 정보 (상수 또는 properties 관리 권장)
-    private final String SENDER_EMAIL = "business@meetingfan.com";
+    private final String SENDER_EMAIL = "jw.woo@creative-lab.ai";
     private final String SENDER_NAME = "승요일기"; // 발신자명
     private final String USERNAME = "meetingfan";
     private final String API_KEY = "L7QNsEQIyrAzNHO";

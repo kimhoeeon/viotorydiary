@@ -55,7 +55,7 @@ public class MemberMngService {
             String msg = "[승요일기] 임시 비밀번호는 [" + tempPw + "] 입니다. 로그인 후 변경해주세요.";
             SmsDTO smsDTO = SmsDTO.builder()
                     .receiver(member.getPhoneNumber())
-                    .sender("07089498065") // 실제 운영시 등록된 발신번호 필수
+                    .sender("07080953937") // 실제 운영시 등록된 발신번호 필수
                     .message(msg)
                     .testmode_yn("N")
                     .build();

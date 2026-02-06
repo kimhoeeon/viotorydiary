@@ -38,7 +38,7 @@ public class SmsService {
     private final String SMS_URL = "https://apis.aligo.in/send/";
     private final String API_USER_ID = "meetingfan"; // 전달받은 ID
     private final String API_KEY = "ddefu9nx1etgljr1p1z1n9h7ri5u8mf0"; // 전달받은 Key
-    private final String SENDER_PHONE = "07089498065"; // [설정필요] 알리고에 등록된 발신번호
+    private final String SENDER_PHONE = "07080953937"; // [설정필요] 알리고에 등록된 발신번호
 
     /**
      * 인증번호 발송 (API 호출 + DB 저장)

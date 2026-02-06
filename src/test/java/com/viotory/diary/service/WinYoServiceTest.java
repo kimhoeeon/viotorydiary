@@ -31,8 +31,8 @@ class WinYoServiceTest {
     @DisplayName("관리자 및 발주사 비밀번호 해시값 생성")
     void generatePasswordHash() {
         // 1. 암호화할 평문 비밀번호
-        String adminPwRaw = "fan2meeting!@";
-        String clientPwRaw = "1234";
+        String adminPwRaw = "fan2web12!@";
+        String clientPwRaw = "fan2lab12!@";
 
         // 2. BCrypt 암호화 수행
         String adminPwHash = passwordEncoder.encode(adminPwRaw);
@@ -44,7 +44,7 @@ class WinYoServiceTest {
         log.info("  - 평문 비번: {}", adminPwRaw);
         log.info("  - 해시 비번: {}", adminPwHash);
         log.info("--------------------------------------------------");
-        log.info("[발주사 계정] ID: admin");
+        log.info("[발주사 계정] ID: creative-lab");
         log.info("  - 평문 비번: {}", clientPwRaw);
         log.info("  - 해시 비번: {}", clientPwHash);
         log.info("==================================================");
