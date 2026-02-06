@@ -77,4 +77,19 @@
         DELETE FROM terms WHERE term_id = #{termId}
     </delete>
 
+    <select id="selectLatestVersion" parameterType="String" resultType="com.viotory.diary.vo.AppVersionVO">
+        SELECT
+            version_id,
+            os_type,
+            version_name,
+            version_code,
+            force_update_yn AS forceUpdateYn,
+            message,
+            created_at
+        FROM app_versions
+        WHERE os_type = #{osType}
+        ORDER BY version_code DESC
+        LIMIT 1
+    </select>
+
 </mapper>

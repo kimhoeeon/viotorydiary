@@ -25,7 +25,7 @@ window.customConfirm = function(message, callback, cancelCallback) {
         if(confirm(message)) {
             if(callback) callback();
         } else {
-            // [추가] 기본 confirm에서 취소 시 실행
+            // 기본 confirm에서 취소 시 실행
             if(cancelCallback) cancelCallback();
         }
     }

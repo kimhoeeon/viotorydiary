@@ -1,6 +1,6 @@
 package com.viotory.diary.controller;
 
-import com.viotory.diary.mapper.SystemMngMapper;
+import com.viotory.diary.service.SystemMngService;
 import com.viotory.diary.vo.TermsVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 public class PolicyController {
 
-    private final SystemMngMapper systemMapper;
+    private final SystemMngService systemMngService;
 
     // 이용약관 (SERVICE)
     @GetMapping("/terms")
     public String terms(Model model) {
-        TermsVO vo = systemMapper.selectLatestTermByType("SERVICE");
+        TermsVO vo = systemMngService.getLatestTermsByType("SERVICE");
         model.addAttribute("term", vo);
         return "policy/terms";
     }
@@ -26,7 +26,7 @@ public class PolicyController {
     // 개인정보처리방침 (PRIVACY)
     @GetMapping("/privacy")
     public String privacy(Model model) {
-        TermsVO vo = systemMapper.selectLatestTermByType("PRIVACY");
+        TermsVO vo = systemMngService.getLatestTermsByType("PRIVACY");
         model.addAttribute("term", vo);
         return "policy/privacy";
     }
@@ -34,7 +34,7 @@ public class PolicyController {
     // 위치정보 이용약관 (LOCATION)
     @GetMapping("/location")
     public String location(Model model) {
-        TermsVO vo = systemMapper.selectLatestTermByType("LOCATION");
+        TermsVO vo = systemMngService.getLatestTermsByType("LOCATION");
         model.addAttribute("term", vo);
         return "policy/location";
     }

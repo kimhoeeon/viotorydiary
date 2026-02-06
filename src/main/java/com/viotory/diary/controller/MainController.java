@@ -8,9 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -22,6 +26,7 @@ public class MainController {
     private final DiaryService diaryService;
     private final LockerService lockerService;
     private final ContentMngService contentMngService;
+    private final SystemMngService systemMngService;
 
     // 1. 처음 접속 시 스플래시 화면 노출
     @GetMapping("/")
@@ -94,6 +99,28 @@ public class MainController {
 
         // 서비스 준비중 페이지로 연결
         //return "maintenance";
+    }
+
+    // 앱 최신 버전 체크 API
+    @GetMapping("/api/app/version")
+    @ResponseBody
+    public Map<String, Object> checkAppVersion(@RequestParam("os") String os) {
+        Map<String, Object> result = new HashMap<>();
+
+        // OS 타입 대문자 변환 (android -> ANDROID)
+        String osType = os != null ? os.toUpperCase() : "ANDROID";
+
+        AppVersionVO latestVersion = systemMngService.getLatestVersion(osType);
+
+        if (latestVersion != null) {
+            result.put("code", "OK");
+            result.put("data", latestVersion);
+        } else {
+            result.put("code", "FAIL");
+            result.put("message", "버전 정보가 없습니다.");
+        }
+
+        return result;
     }
 
 }

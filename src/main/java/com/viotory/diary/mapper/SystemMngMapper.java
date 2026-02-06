@@ -4,6 +4,7 @@ import com.viotory.diary.vo.AppVersionVO;
 import com.viotory.diary.vo.NoticeVO;
 import com.viotory.diary.vo.TermsVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -29,7 +30,6 @@ public interface SystemMngMapper {
     // 공지사항 삭제
     void deleteNotice(Long noticeId);
 
-
     // ==========================================
     // 2. 앱 버전 관리 (App Versions)
     // ==========================================
@@ -43,6 +43,7 @@ public interface SystemMngMapper {
     // 앱 버전 삭제
     void deleteAppVersion(Long versionId);
 
+    AppVersionVO selectLatestVersion(@Param("osType") String osType);
 
     // ==========================================
     // 3. 약관/정책 관리 (Terms)
