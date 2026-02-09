@@ -44,7 +44,7 @@
                             <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
                                 <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
                                     <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
-                                        경기 데이터 동기화
+                                        경기 데이터 관리
                                     </h1>
 
                                     <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
@@ -58,7 +58,7 @@
                                         <li class="breadcrumb-item">
                                             <span class="bullet bg-gray-400 w-5px h-2px"></span>
                                         </li>
-                                        <li class="breadcrumb-item text-dark">경기 데이터 동기화</li>
+                                        <li class="breadcrumb-item text-dark">경기 데이터 관리</li>
                                     </ul>
                                 </div>
                             </div>
@@ -74,8 +74,21 @@
                                                    name="ym" value="${ym}" onchange="this.form.submit()">
                                         </form>
                                         <div>
-                                            <button type="button" class="btn btn-light-primary me-2" onclick="syncData()">
-                                                <i class="ki-duotone ki-arrows-circle fs-2"></i> API 동기화
+                                            <button type="button" class="btn btn-light-success me-2" onclick="syncData('MONTH')">
+                                                <i class="ki-duotone ki-calendar-8 fs-2">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                    <span class="path3"></span>
+                                                    <span class="path4"></span>
+                                                    <span class="path5"></span>
+                                                    <span class="path6"></span>
+                                                </i> 월간 동기화
+                                            </button>
+                                            <button type="button" class="btn btn-light-primary me-2" onclick="syncData('YEAR')">
+                                                <i class="ki-duotone ki-calendar fs-2">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i> 연간 동기화
                                             </button>
                                             <button type="button" class="btn btn-primary" onclick="openModal()">
                                                 <i class="ki-duotone ki-plus fs-2"></i> 수동 등록
@@ -326,7 +339,7 @@
             }
         }
 
-        function syncData() {
+        function syncData(type) {
             // 1. 현재 선택된 '년-월' 값 가져오기 (예: 2026-05)
             const ym = document.querySelector('input[name="ym"]').value;
 
@@ -335,14 +348,34 @@
                 return;
             }
 
-            // 2. 연도 추출 (예: 2026)
-            const year = ym.split('-')[0];
+            // 2. 연도와 월 추출
+            const parts = ym.split('-');
+            const year = parts[0];  // 2026
+            const month = parts[1]; // 05
+
+            let url = '';
+            let confirmMsg = '';
+            let postData = {};
+
+            // 3. 타입별 로직 분기
+            if (type === 'MONTH') {
+                // [월간] 해당 월만 동기화
+                url = '/mng/game/syncMonthly'; // (Backend Controller에 해당 매핑 필요)
+                confirmMsg = year + '년 ' + month + '월 경기 데이터를 동기화하시겠습니까?\n(해당 월의 데이터만 갱신됩니다)';
+                postData = { year: year, month: month };
+
+            } else {
+                // [연간] 해당 연도 전체 동기화
+                url = '/mng/game/syncYearly';
+                confirmMsg = year + '년도 전체 경기 데이터를 API와 동기화하시겠습니까?\n(기존 데이터가 갱신될 수 있습니다)';
+                postData = { year: year };
+            }
 
             // 3. 사용자 확인 및 AJAX 요청 전송
-            if (confirm(year + '년도 경기 데이터를 API와 동기화하시겠습니까?\n(기존 데이터가 갱신될 수 있습니다)')) {
+            if (confirm(confirmMsg)) {
                 // 로딩 표시가 필요하다면 여기에 추가 (예: 버튼 비활성화)
 
-                $.post('/mng/game/syncYearly', { year: year }, function (res) {
+                $.post(url, postData, function (res) {
                     if (res === 'ok') {
                         alert(year + '년도 데이터 동기화가 완료되었습니다.');
                         location.reload(); // 목록 갱신

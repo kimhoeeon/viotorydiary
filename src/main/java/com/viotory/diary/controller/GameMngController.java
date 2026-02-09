@@ -51,7 +51,7 @@ public class GameMngController {
     /**
      * [액션] 월간 데이터 동기화
      */
-    @GetMapping("/sync")
+    @GetMapping("/syncMonthly")
     @ResponseBody
     public String manualSync(@RequestParam String year, @RequestParam String month) {
         try {
@@ -66,7 +66,7 @@ public class GameMngController {
     /**
      * [액션] 연간 데이터 동기화
      */
-    @GetMapping("/sync-year")
+    @GetMapping("/syncYearly")
     @ResponseBody
     public String syncYearlyData(@RequestParam String year) {
         try {

@@ -20,7 +20,7 @@ public class MenuService {
 
         // 2. 운영 관리 (그룹)
         List<MenuItem> subOps = new ArrayList<>();
-        subOps.add(new MenuItem("경기 데이터 동기화", "/mng/game/syncPage", "", 0));
+        subOps.add(new MenuItem("경기 데이터 관리", "/mng/game/syncPage", "", 0));
         subOps.add(new MenuItem("승요 멘트 관리", "/mng/winyo/mentions", "", 0));
         menus.add(new MenuItem("운영 관리", "#", "ki-gear", 2, subOps));
 
