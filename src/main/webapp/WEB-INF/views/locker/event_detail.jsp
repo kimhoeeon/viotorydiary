@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
 
-    <title>콘텐츠 상세 | 승요일기</title>
+    <title>이벤트 상세 | 승요일기</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
@@ -40,15 +40,14 @@
                     <div class="notice_view_head">
                         <div class="tit">${post.title}</div>
                         <div class="date">
-                            <fmt:parseDate value="${post.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
-                            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
+                            이벤트 기간: ${post.startDate} ~ ${post.endDate}
                         </div>
                     </div>
 
                     <div class="notice_view_body">
                         <c:if test="${not empty post.imageUrl}">
                             <div class="img-box" style="margin-bottom:20px;">
-                                <img src="${post.imageUrl}" alt="콘텐츠 이미지" style="width:100%; border-radius:8px;">
+                                <img src="${post.imageUrl}" alt="이벤트 대표 이미지" style="width:100%; border-radius:8px;">
                             </div>
                         </c:if>
 

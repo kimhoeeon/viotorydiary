@@ -79,11 +79,13 @@
                                 </div>
 
                                 <c:choose>
-                                    <c:when test="${not empty event}">
-                                        <div class="img" onclick="location.href='/locker/content/detail?postId=${event.postId}'" style="cursor:pointer;">
-                                            <img src="${not empty event.imageUrl ? event.imageUrl : '/img/card_sample02.jpg'}"
-                                                 alt="이벤트 배너" style="border-radius: 12px;">
-                                        </div>
+                                    <c:when test="${not empty events}">
+                                        <c:forEach var="event" items="${events}">
+                                            <div class="img" onclick="location.href='/locker/event/detail?eventId=${event.eventId}'" style="cursor:pointer;">
+                                                <img src="${not empty event.imageUrl ? event.imageUrl : '/img/card_sample02.jpg'}"
+                                                     alt="이벤트 배너" style="border-radius: 12px;">
+                                            </div>
+                                        </c:forEach>
                                     </c:when>
                                     <c:otherwise>
                                         <div class="nodt_wrap only_txt">
@@ -110,7 +112,7 @@
                                         <div class="score_wrap scroll-x">
                                             <c:forEach var="content" items="${contents}">
                                                 <div class="score_list"
-                                                     onclick="location.href='/locker/content/detail?postId=${content.postId}'"
+                                                     onclick="location.href='/locker/content/detail?contentId=${content.contentId}'"
                                                      style="min-width:140px; cursor:pointer;">
                                                     <div class="img">
                                                         <img src="${not empty content.imageUrl ? content.imageUrl : '/img/card_defalut.svg'}"
@@ -153,9 +155,9 @@
                                     <c:choose>
                                         <c:when test="${not empty notices}">
                                             <c:forEach var="notice" items="${notices}">
-                                                <div class="notice_list" onclick="location.href='/locker/notice/detail?postId=${notice.postId}'" style="cursor:pointer;">
+                                                <div class="notice_list" onclick="location.href='/locker/notice/detail?noticeId=${notice.noticeId}'" style="cursor:pointer;">
                                                     <div class="notice_thum">
-                                                        <img src="${not empty notice.imageUrl ? notice.imageUrl : '/img/sample03.png'}"
+                                                        <img src="<%--${not empty notice.imageUrl ? notice.imageUrl : '--%>/img/sample03.png<%--'}--%>"
                                                              alt="공지 썸네일">
                                                     </div>
                                                     <div class="notice_item">

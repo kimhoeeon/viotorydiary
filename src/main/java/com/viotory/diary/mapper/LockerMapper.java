@@ -15,4 +15,6 @@ public interface LockerMapper {
     int insertPost(LockerVO lockerVO);
 
     int updateViewCount(Long postId);
+
+    List<LockerVO> selectLockerPostList(LockerVO params);
 }

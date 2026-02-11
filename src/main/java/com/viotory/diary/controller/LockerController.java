@@ -1,8 +1,9 @@
 package com.viotory.diary.controller;
 
+import com.viotory.diary.service.ContentMngService;
 import com.viotory.diary.service.LockerService;
-import com.viotory.diary.vo.LockerVO;
-import com.viotory.diary.vo.MemberVO;
+import com.viotory.diary.service.SystemMngService;
+import com.viotory.diary.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,8 @@ import java.util.List;
 public class LockerController {
 
     private final LockerService lockerService;
+    private final ContentMngService contentMngService; // 이벤트/구단콘텐츠
+    private final SystemMngService systemMngService; // 공지사항
 
     // ==========================================
     // 1. 라커룸 메인 (대시보드)
@@ -31,17 +34,22 @@ public class LockerController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
-        // 1. 야구 200% 즐기기 (이벤트) - 최신 1개
-        List<LockerVO> events = lockerService.getPostList("EVENT", 1, 1);
-        model.addAttribute("event", events.isEmpty() ? null : events.get(0));
+        // 1. 이벤트 리스트
+        List<EventVO> events = contentMngService.getEventList();
+        model.addAttribute("events", events);
 
-        // 2. 우리 팀 추천 콘텐츠 - 최신 5개
-        List<LockerVO> contents = lockerService.getPostList("CONTENT", 1, 5);
+        // 2. 공지사항 리스트
+        List<NoticeVO> notices = systemMngService.getNoticeList();
+        model.addAttribute("notices", notices);
+
+        // 3. 일반 콘텐츠 (기존 로직 유지, 예: 최신순 20개)
+        List<TeamContentVO> contents = contentMngService.getTeamContentList();
         model.addAttribute("contents", contents);
 
-        // 3. 공지 및 설문 - 최신 5개
-        List<LockerVO> notices = lockerService.getPostList("NOTICE", 1, 5);
-        model.addAttribute("notices", notices);
+        /* 만약 유저 게시글(locker_posts)을 보여주는 것이라면 아래 코드를 사용:
+           List<LockerVO> contents = lockerService.getPostList("TALK", 1, 5);
+           model.addAttribute("contents", contents);
+        */
 
         return "locker/locker_main";
     }
@@ -63,11 +71,11 @@ public class LockerController {
 
     // 공지 상세
     @GetMapping("/notice/detail")
-    public String noticeDetail(@RequestParam("postId") Long postId, HttpSession session, Model model) {
+    public String noticeDetail(@RequestParam("noticeId") Long noticeId, HttpSession session, Model model) {
         if (session.getAttribute("loginMember") == null) return "redirect:/member/login";
 
-        LockerVO post = lockerService.getPostDetail(postId);
-        model.addAttribute("post", post);
+        NoticeVO notice = systemMngService.getNoticeById(noticeId);
+        model.addAttribute("post", notice);
 
         return "locker/notice_detail"; // views/locker/notice_detail.jsp
     }
@@ -89,13 +97,28 @@ public class LockerController {
 
     // 콘텐츠 상세
     @GetMapping("/content/detail")
-    public String contentDetail(@RequestParam("postId") Long postId, HttpSession session, Model model) {
+    public String contentDetail(@RequestParam("contentId") Long contentId, HttpSession session, Model model) {
         if (session.getAttribute("loginMember") == null) return "redirect:/member/login";
 
-        LockerVO post = lockerService.getPostDetail(postId);
-        model.addAttribute("post", post);
-
-        return "locker/content_detail"; // views/locker/content_detail.jsp
+        TeamContentVO content = contentMngService.getTeamContent(contentId);
+        model.addAttribute("post", content);
+        return "locker/content_detail";
     }
+
+    // ==========================================
+    // 4. 이벤트 (event)
+    // ==========================================
+
+    // 이벤트 상세 페이지
+    @GetMapping("/event/detail")
+    public String eventDetail(@RequestParam("eventId") Long eventId, HttpSession session, Model model) {
+        if (session.getAttribute("loginMember") == null) return "redirect:/member/login";
+
+        EventVO event = contentMngService.getEvent(eventId);
+        model.addAttribute("post", event);
+
+        return "locker/event_detail";
+    }
+
 
 }

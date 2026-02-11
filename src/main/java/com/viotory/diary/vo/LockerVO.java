@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 @Data
 public class LockerVO {
     private Long postId;
+    private String type;
     private Long memberId;
     private String category;    // TALK, MEETUP, MARKET
     private String title;
@@ -13,8 +14,14 @@ public class LockerVO {
     private String imageUrl;
     private int viewCount;
     private int commentCount;
+    private String createdDate; // 작성일 (화면 표시용)
+    private int offset;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // [필수 추가] 이벤트 기간
+    private String startDate;
+    private String endDate;
 
     // [화면 표시용 JOIN 데이터]
     private String nickname;        // 작성자 닉네임

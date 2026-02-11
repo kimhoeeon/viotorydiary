@@ -76,7 +76,7 @@ public class MainController {
             }
 
             // 4. [이벤트] 최신글 1개
-            List<LockerVO> events = lockerService.getPostList("EVENT", 1, 1);
+            List<EventVO> events = contentMngService.getEventList();
             if (!events.isEmpty()) {
                 model.addAttribute("latestEvent", events.get(0));
             }

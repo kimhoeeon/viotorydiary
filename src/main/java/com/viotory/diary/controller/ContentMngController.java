@@ -1,6 +1,5 @@
 package com.viotory.diary.controller;
 
-import com.viotory.diary.mapper.ContentMngMapper;
 import com.viotory.diary.service.ContentMngService;
 import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.EventVO;
@@ -12,9 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @Controller

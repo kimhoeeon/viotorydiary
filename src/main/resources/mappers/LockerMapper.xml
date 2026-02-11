@@ -20,17 +20,23 @@
 
     <select id="selectPostById" resultType="com.viotory.diary.vo.LockerVO">
         SELECT
-            p.*,
+            p.post_id AS postId,
+            'CONTENT' AS type,
+            p.title,
+            p.content,
+            p.image_url AS imageUrl,
+            p.view_count AS viewCount,
+            p.created_at AS createdDate,
             m.nickname,
-            m.my_team_code AS teamCode
+            m.my_team_code AS category
         FROM locker_posts p
-                 JOIN members m ON p.member_id = m.member_id
+        JOIN members m ON p.member_id = m.member_id
         WHERE p.post_id = #{postId}
     </select>
 
     <insert id="insertPost" useGeneratedKeys="true" keyProperty="postId">
-        INSERT INTO locker_posts (member_id, category, title, content, image_url, created_at, updated_at)
-        VALUES (#{memberId}, #{category}, #{title}, #{content}, #{imageUrl}, NOW(), NOW())
+        INSERT INTO locker_posts (member_id, category, title, content, image_url, created_at, updated_at, status, view_count)
+        VALUES (#{memberId}, #{category}, #{title}, #{content}, #{imageUrl}, NOW(), NOW(), 'ACTIVE', 0)
     </insert>
 
     <update id="updateViewCount">

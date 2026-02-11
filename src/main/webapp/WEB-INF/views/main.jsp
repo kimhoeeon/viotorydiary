@@ -209,7 +209,7 @@
                             </div>
                         </c:if>
                         <c:if test="${not empty latestEvent}">
-                            <div class="card_wrap event" onclick="location.href='/locker/detail?postId=${latestEvent.postId}'">
+                            <div class="card_wrap event" onclick="location.href='/locker/event/detail?eventId=${latestEvent.eventId}'">
                                 <img src="${not empty latestEvent.imageUrl ? latestEvent.imageUrl : '/img/card_event.png'}"
                                      alt="이벤트 이미지" style="width:100%; object-fit:cover; border-radius:12px;">
                             </div>
