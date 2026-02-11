@@ -26,10 +26,12 @@ public class CommConstants {
     public static final String APPROVAL_STATUS_NO = "미승인";
     public static final String APPROVAL_STATUS_ING = "작성중";
 
-    /* 보증금 입금 상태 */
-    public static final String DEPOSIT_STATUS_WAIT = "입금 전";
-    public static final String DEPOSIT_STATUS_COMP = "입금 완료";
-    public static final String DEPOSIT_STATUS_CANC_ING = "반환 처리 중";
-    public static final String DEPOSIT_STATUS_CANC_COMP = "반환 완료";
-
+    // -----------------------------------------------------------
+    // 경기 타입 (Game Type)
+    // GameVO 주석 참고: (EXHIBITION, REGULAR, POST, ALLSTAR)
+    // -----------------------------------------------------------
+    public static final String GAME_TYPE_EXHIBITION = "EXHIBITION"; // 시범경기
+    public static final String GAME_TYPE_REGULAR    = "REGULAR";    // 정규시즌
+    public static final String GAME_TYPE_POST       = "POST";       // 포스트시즌
+    public static final String GAME_TYPE_ALLSTAR    = "ALLSTAR";    // 올스타전
 }

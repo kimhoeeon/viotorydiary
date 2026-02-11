@@ -135,7 +135,7 @@
                                                             <span class="path1"></span>
                                                             <span class="path2"></span>
                                                         </i>
-                                                        <a href="/upload/${file.saveFileName}"
+                                                        <a href="${file.saveFileName}"
                                                            download="${file.orgFileName}"
                                                            class="text-hover-primary">${file.orgFileName}</a>
                                                     </div>
@@ -214,7 +214,7 @@
                                                                         <span class="path1"></span>
                                                                         <span class="path2"></span>
                                                                     </i>
-                                                                    <a href="/upload/${cf.saveFileName}"
+                                                                    <a href="${cf.saveFileName}"
                                                                        download="${cf.orgFileName}"
                                                                        class="text-gray-700 text-hover-primary fs-8 fw-bold">${cf.orgFileName}</a>
 

@@ -40,8 +40,7 @@
                     <div class="notice_view_head">
                         <div class="tit">${post.title}</div>
                         <div class="date">
-                            <fmt:parseDate value="${post.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate"
-                                           type="both"/>
+                            <fmt:parseDate value="${post.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
                             <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
                         </div>
                     </div>

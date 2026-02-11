@@ -77,7 +77,7 @@
                                             <label class="col-lg-2 fw-semibold text-muted">이미지</label>
                                             <div class="col-lg-10">
                                                 <c:if test="${not empty content.imageUrl}">
-                                                    <img src="/upload/${content.imageUrl}" class="rounded w-150px h-150px" style="object-fit:cover; border:1px solid #eee;" />
+                                                    <img src="${content.imageUrl}" class="rounded w-150px h-150px" style="object-fit:cover; border:1px solid #eee;" />
                                                 </c:if>
                                                 <c:if test="${empty content.imageUrl}">
                                                     <span class="text-gray-400">등록된 이미지가 없습니다.</span>

@@ -522,6 +522,7 @@ public class MemberService {
         params.add("grant_type", "authorization_code");
         params.add("client_id", "68ed5201a09f5e4d4f4bbb3a91e366a1"); // 카카오 앱 키
         params.add("redirect_uri", "https://myseungyo.com/member/kakao/callback");
+        params.add("client_secret", "2GO2yJLa4Kznj89R5RkbWqG6yOMqKBgT");
         params.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);

@@ -3,12 +3,15 @@ package com.viotory.diary.controller;
 import com.viotory.diary.dto.MenuItem;
 import com.viotory.diary.service.AlarmService;
 import com.viotory.diary.service.MenuService;
+import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -110,6 +113,30 @@ public class GlobalController {
     public String handleMethodNotSupported(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
         log.warn("잘못된 요청 감지 (405): {} {}", request.getMethod(), request.getRequestURI());
         return "redirect:/"; // 메인 페이지로 이동
+    }
+
+    /**
+     * [공통] Summernote 에디터 이미지 업로드 API
+     * 저장 위치: /upload/editor/
+     */
+    @PostMapping("/api/common/upload/editor")
+    @ResponseBody
+    public ResponseEntity<String> uploadEditorImage(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body("파일이 없습니다.");
+            }
+
+            // FileUtil을 사용해 'editor' 폴더에 저장
+            // 리턴값 예시: /upload/editor/uuid_filename.jpg
+            String savedUrl = FileUtil.uploadFile(file, "editor");
+
+            return ResponseEntity.ok(savedUrl); // 이미지 경로 반환
+
+        } catch (Exception e) {
+            log.error("에디터 이미지 업로드 실패", e);
+            return ResponseEntity.internalServerError().body("업로드 중 오류가 발생했습니다.");
+        }
     }
 
 }

@@ -48,13 +48,30 @@ public class ContentMngController {
 
     // 등록 및 수정 처리
     @PostMapping("/events/save")
-    public String eventSave(EventVO event) {
-        // (이벤트 파일 업로드는 기존 코드 참고해서 추가 필요)
+    public String eventSave(EventVO event,
+                            @RequestParam(value = "thumbnailFile", required = false) MultipartFile thumbnailFile) {
+
+        // 1. 썸네일 이미지 파일 업로드 처리
+        if (thumbnailFile != null && !thumbnailFile.isEmpty()) {
+            try {
+                // 'event' 폴더에 저장 -> /upload/event/UUID_파일명.jpg 반환
+                String savedUrl = FileUtil.uploadFile(thumbnailFile, "event");
+                event.setImageUrl(savedUrl);
+            } catch (Exception e) {
+                log.error("이벤트 썸네일 업로드 실패", e);
+            }
+        }
+
+        // 2. 링크 URL은 사용하지 않으므로 null 처리 (필요시 로직 제거)
+        event.setLinkUrl(null);
+
+        // 3. DB 저장
         if (event.getEventId() == null) {
             contentService.insertEvent(event);
         } else {
             contentService.updateEvent(event);
         }
+
         return "redirect:/mng/content/events";
     }
 

@@ -1,6 +1,5 @@
 package com.viotory.diary.mapper;
 
-import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.EventVO;
 import com.viotory.diary.vo.TeamContentVO;
 import org.apache.ibatis.annotations.Mapper;

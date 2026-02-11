@@ -103,7 +103,7 @@
                                                         </td>
                                                         <td>
                                                             <div class="symbol symbol-50px">
-                                                                <img src="/upload/${item.imageUrl}" onerror="this.src='/assets/media/svg/files/blank-image.svg'" style="object-fit: cover;" alt="thumbnail"/>
+                                                                <img src="${item.imageUrl}" onerror="this.src='/assets/media/svg/files/blank-image.svg'" style="object-fit: cover;" alt="thumbnail"/>
                                                             </div>
                                                         </td>
                                                         <td>

@@ -19,6 +19,8 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -156,56 +158,55 @@
     </div>
 
     <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-dialog modal-dialog-centered mw-800px">
             <div class="modal-content">
-                <form id="eventForm" action="/mng/content/events/save" method="post">
-                    <input type="hidden" name="eventId" id="eventId">
-                    <div class="modal-header">
-                        <h2 class="fw-bold" id="modalTitle">이벤트 등록</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal"><i
-                                class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                        </div>
+                <div class="modal-header">
+                    <h2 class="fw-bold" id="modalTitle">이벤트 등록</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <span class="svg-icon svg-icon-1"><i class="bi bi-x-lg"></i></span>
                     </div>
+                </div>
+
+                <form id="eventForm" action="/mng/content/events/save" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="eventId" id="eventId">
+
                     <div class="modal-body py-10 px-lg-17">
                         <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">제목</label>
-                            <input type="text" class="form-control form-control-solid" name="title" id="title" required/>
+                            <input type="text" class="form-control form-control-solid" name="title" id="title" required />
                         </div>
+
                         <div class="row mb-7">
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">시작일</label>
-                                <input type="date" class="form-control form-control-solid" name="startDate" id="startDate"
-                                       required/>
+                                <input type="date" class="form-control form-control-solid" name="startDate" id="startDate" required />
                             </div>
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">종료일</label>
-                                <input type="date" class="form-control form-control-solid" name="endDate" id="endDate"
-                                       required/>
+                                <input type="date" class="form-control form-control-solid" name="endDate" id="endDate" required />
                             </div>
                         </div>
+
                         <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">이미지 URL</label>
-                            <input type="text" class="form-control form-control-solid" name="imageUrl" id="imageUrl"
-                                   placeholder="/img/event/..."/>
+                            <label class="fs-6 fw-semibold mb-2">대표 썸네일 이미지</label>
+                            <input type="file" name="thumbnailFile" class="form-control form-control-solid" accept="image/*"/>
+                            <div class="form-text text-muted">목록에 노출될 대표 이미지를 등록해주세요. (미등록 시 기존 이미지 유지)</div>
                         </div>
-                        <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">링크 URL</label>
-                            <input type="text" class="form-control form-control-solid" name="linkUrl" id="linkUrl"
-                                   placeholder="https://..."/>
-                        </div>
-                        <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">상태</label>
-                            <select class="form-select form-select-solid" name="status" id="status">
-                                <option value="ACTIVE">진행중</option>
-                                <option value="INACTIVE">종료</option>
-                            </select>
-                        </div>
+
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">내용</label>
-                            <textarea class="form-control form-control-solid" name="content" id="content"
-                                      rows="3"></textarea>
+                            <textarea name="content" id="content"></textarea>
+                        </div>
+
+                        <div class="fv-row mb-7">
+                            <label class="required fs-6 fw-semibold mb-2">상태</label>
+                            <select name="status" id="status" class="form-select form-select-solid">
+                                <option value="ACTIVE">진행중 (ACTIVE)</option>
+                                <option value="INACTIVE">종료 (INACTIVE)</option>
+                            </select>
                         </div>
                     </div>
+
                     <div class="modal-footer flex-center">
                         <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">취소</button>
                         <button type="submit" class="btn btn-primary">저장</button>
@@ -217,14 +218,45 @@
 
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+    <script src="/js/summernote.js"></script>
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+        // 1. Summernote 초기화
+        $(document).ready(function() {
+            initSummernote('#content', 500);
+        });
 
+        const modalEl = document.getElementById('eventModal');
+        const modal = new bootstrap.Modal(modalEl);
+
+        // 2. 등록 모달 열기
         function openModal() {
             document.getElementById('eventForm').reset();
             document.getElementById('eventId').value = '';
             document.getElementById('modalTitle').innerText = '이벤트 등록';
+
+            // 에디터 초기화
+            $('#content').summernote('reset');
+
             modal.show();
+        }
+
+        // 3. 수정 모달 열기 (데이터 바인딩)
+        function openModifyModal(id) {
+            $.get('/mng/content/events/get?eventId=' + id, function(data) {
+                document.getElementById('eventId').value = data.eventId;
+                document.getElementById('title').value = data.title;
+                document.getElementById('startDate').value = data.startDate;
+                document.getElementById('endDate').value = data.endDate;
+                document.getElementById('status').value = data.status;
+
+                // [중요] Summernote 내용 삽입
+                $('#content').summernote('code', data.content);
+
+                document.getElementById('modalTitle').innerText = '이벤트 수정';
+                modal.show();
+            });
         }
 
         function deleteEvent(id) {

@@ -19,13 +19,14 @@
     <update id="updateEvent" parameterType="com.viotory.diary.vo.EventVO">
         UPDATE events
         SET title = #{title},
-            content = #{content},
+        content = #{content},
+        <if test="imageUrl != null and imageUrl != ''">
             image_url = #{imageUrl},
-            link_url = #{linkUrl},
-            start_date = #{startDate},
-            end_date = #{endDate},
-            status = #{status},
-            updated_at = NOW()
+        </if>
+        start_date = #{startDate},
+        end_date = #{endDate},
+        status = #{status},
+        updated_at = NOW()
         WHERE event_id = #{eventId}
     </update>
 
