@@ -551,7 +551,7 @@ public class MemberService {
         try {
             ResponseEntity<String> response = rt.exchange(reqUrl, HttpMethod.POST, request, String.class);
 
-            // [추가] 응답 데이터 로그 출력
+            // 응답 데이터 로그 출력
             //log.info("카카오 사용자 정보 응답(Body): {}", response.getBody());
 
             ObjectMapper mapper = new ObjectMapper();

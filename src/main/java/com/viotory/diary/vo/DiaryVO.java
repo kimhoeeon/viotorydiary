@@ -10,6 +10,7 @@ public class DiaryVO {
     private Long gameId;
     private String nickname;
     private String memberName;
+    private String memberEmail;
     private String profileImage;    // 작성자 프로필 이미지
     private String snapshotTeamCode; // 작성 당시 응원팀
 

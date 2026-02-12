@@ -17,7 +17,7 @@ public interface SystemMngMapper {
 
     // 공지사항 목록 조회
     List<NoticeVO> selectNoticeList();       // 관리자용
-    List<NoticeVO> selectActiveNoticeList(); // [추가] 사용자용
+    List<NoticeVO> selectActiveNoticeList(); // 사용자용
 
     // 공지사항 상세 조회
     NoticeVO selectNoticeById(Long noticeId);

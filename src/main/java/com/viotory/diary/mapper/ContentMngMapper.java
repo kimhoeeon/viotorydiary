@@ -12,7 +12,7 @@ import java.util.Map;
 public interface ContentMngMapper {
     // 1. 이벤트 관리
     List<EventVO> selectEventList();
-    List<EventVO> selectActiveEventList();   // [추가] 사용자용
+    List<EventVO> selectActiveEventList();   // 사용자용
     EventVO selectEventById(Long eventId);
     void insertEvent(EventVO event);
     void updateEvent(EventVO event);
@@ -20,7 +20,7 @@ public interface ContentMngMapper {
 
     // 2. 팀 콘텐츠 관리
     List<TeamContentVO> selectTeamContentList(@Param("teamCode") String teamCode);
-    List<TeamContentVO> selectActiveTeamContentList(@Param("teamCode") String teamCode); // [추가] 사용자용
+    List<TeamContentVO> selectActiveTeamContentList(@Param("teamCode") String teamCode); // 사용자용
     TeamContentVO selectTeamContentById(Long contentId);
     void insertTeamContent(TeamContentVO vo);
     void updateTeamContent(TeamContentVO vo);

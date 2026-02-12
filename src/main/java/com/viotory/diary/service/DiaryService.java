@@ -35,6 +35,12 @@ public class DiaryService {
             throw new Exception("한줄평을 입력해주세요.");
         }
 
+        // 1-1. 중복 작성 체크
+        DiaryVO existingDiary = diaryMapper.selectDiaryByMemberAndGame(diary.getMemberId(), diary.getGameId());
+        if (existingDiary != null) {
+            throw new Exception("이미 이 경기에 대한 일기를 작성하셨습니다.");
+        }
+        
         // 2. 작성 당시 응원팀 스냅샷 저장
         // (Controller에서 세션의 팀코드를 넣어주겠지만, 한번 더 체크)
         if (diary.getSnapshotTeamCode() == null) {

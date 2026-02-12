@@ -95,7 +95,7 @@
                 $('#certFailIcon').hide();
             });
 
-            // [추가] 카카오 닉네임 자동 입력
+            // 카카오 닉네임 자동 입력
             const savedNick = sessionStorage.getItem('join_nickname');
             if(savedNick && savedNick !== 'null') {
                 $('#nickname').val(savedNick);

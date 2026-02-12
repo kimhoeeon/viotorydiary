@@ -146,6 +146,7 @@
         SELECT
             d.*,
             m.nickname,
+            m.email as memberEmail,
             m.profile_image,
 
             /* 경기 정보 및 팀명 */
