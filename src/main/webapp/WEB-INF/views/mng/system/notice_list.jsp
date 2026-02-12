@@ -19,6 +19,8 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -84,11 +86,13 @@
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                                                     <th class="min-w-50px">No</th>
+                                                    <th class="min-w-50px">구분</th>
                                                     <th class="min-w-50px">고정</th>
-                                                    <th class="min-w-300px">제목</th>
+                                                    <th class="min-w-200px">제목</th>
                                                     <th class="min-w-100px">상태</th>
+                                                    <th class="min-w-100px">조회수</th>
                                                     <th class="min-w-100px">등록일</th>
-                                                    <th class="text-end min-w-100px">관리</th>
+                                                    <th class="min-w-70px">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
@@ -96,41 +100,29 @@
                                                     <tr>
                                                         <td>${item.noticeId}</td>
                                                         <td>
-                                                            <c:if test="${item.isTop eq 'Y'}"><i
-                                                                    class="ki-duotone ki-pin fs-2 text-primary"><span
-                                                                    class="path1"></span><span
-                                                                    class="path2"></span></i></c:if>
+                                                            <c:choose>
+                                                                <c:when test="${item.category eq 'SURVEY'}"><span class="badge badge-light-info">설문</span></c:when>
+                                                                <c:otherwise><span class="badge badge-light-primary">공지</span></c:otherwise>
+                                                            </c:choose>
                                                         </td>
                                                         <td>
-                                                            <a href="/mng/system/notices/detail?noticeId=${item.noticeId}"
-                                                               class="text-gray-800 text-hover-primary fw-bold">${item.title}</a>
+                                                            <c:if test="${item.isTop eq 'Y'}"><span class="badge badge-light-danger">TOP</span></c:if>
+                                                            <c:if test="${item.isTop ne 'Y'}">-</c:if>
                                                         </td>
                                                         <td>
-                                                            <c:if test="${item.status eq 'ACTIVE'}"><span
-                                                                    class="badge badge-light-success">게시중</span></c:if>
-                                                            <c:if test="${item.status eq 'HIDDEN'}"><span
-                                                                    class="badge badge-light-secondary">숨김</span></c:if>
+                                                            <a href="#" onclick="openModifyModal(${item.noticeId}); return false;" class="text-gray-800 text-hover-primary fs-5 fw-bold">${item.title}</a>
                                                         </td>
                                                         <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate"
-                                                                           type="both"/>
-                                                            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
+                                                            <c:if test="${item.status eq 'ACTIVE'}"><div class="badge badge-light-success">게시중</div></c:if>
+                                                            <c:if test="${item.status eq 'HIDDEN'}"><div class="badge badge-light-secondary">숨김</div></c:if>
                                                         </td>
-                                                        <td class="text-end">
-                                                            <a href="/mng/system/notices/detail?noticeId=${item.noticeId}"
-                                                               class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
-                                                                <i class="ki-duotone ki-pencil fs-2"><span
-                                                                        class="path1"></span><span class="path2"></span></i>
-                                                            </a>
-                                                            <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
-                                                                    onclick="deleteNotice('${item.noticeId}')">
-                                                                <i class="ki-duotone ki-trash fs-2"><span
-                                                                        class="path1"></span><span
-                                                                        class="path2"></span><span
-                                                                        class="path3"></span><span
-                                                                        class="path4"></span><span class="path5"></span></i>
-                                                            </button>
+                                                        <td>${item.viewCount}</td>
+                                                        <td>
+                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
+                                                            <fmt:formatDate value="${parsedDate}" pattern="yyyy.MM.dd"/>
+                                                        </td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-light-danger" onclick="deleteNotice(${item.noticeId})">삭제</button>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>
@@ -149,41 +141,60 @@
     </div>
 
     <div class="modal fade" id="noticeModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-dialog modal-dialog-centered mw-900px">
             <div class="modal-content">
-                <form action="/mng/system/notices/save" method="post">
-                    <div class="modal-header">
-                        <h2 class="fw-bold">공지사항 등록</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal"><i
-                                class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                        </div>
+                <div class="modal-header">
+                    <h2 class="fw-bold" id="modalTitle">공지사항 등록</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <span class="svg-icon svg-icon-1"><i class="bi bi-x-lg"></i></span>
                     </div>
+                </div>
+
+                <form id="noticeForm" action="/mng/system/notices/save" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="noticeId" id="noticeId">
+
                     <div class="modal-body py-10 px-lg-17">
                         <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">제목</label>
-                            <input type="text" class="form-control form-control-solid" name="title" required/>
+                            <input type="text" class="form-control form-control-solid" name="title" id="title" required />
                         </div>
+
                         <div class="row mb-7">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <label class="required fs-6 fw-semibold mb-2">구분</label>
+                                <select class="form-select form-select-solid" name="category" id="category">
+                                    <option value="NOTICE">공지</option>
+                                    <option value="SURVEY">설문</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
                                 <label class="fs-6 fw-semibold mb-2">상단 고정</label>
-                                <select class="form-select form-select-solid" name="isTop">
+                                <select class="form-select form-select-solid" name="isTop" id="isTop">
                                     <option value="N">미설정</option>
                                     <option value="Y">고정 (Top)</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="fs-6 fw-semibold mb-2">상태</label>
-                                <select class="form-select form-select-solid" name="status">
+                                <select class="form-select form-select-solid" name="status" id="status">
                                     <option value="ACTIVE">게시</option>
                                     <option value="HIDDEN">숨김</option>
                                 </select>
                             </div>
                         </div>
+
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">내용</label>
-                            <textarea class="form-control form-control-solid" name="content" rows="10" required></textarea>
+                            <label class="fs-6 fw-semibold mb-2">썸네일 이미지</label>
+                            <input type="file" name="file" class="form-control form-control-solid" accept="image/*"/>
+                            <div class="form-text text-muted">리스트에 노출될 이미지를 등록해주세요. (권장: 300x200)</div>
+                        </div>
+
+                        <div class="fv-row mb-7">
+                            <label class="fs-6 fw-semibold mb-2">내용</label>
+                            <textarea name="content" id="content"></textarea>
                         </div>
                     </div>
+
                     <div class="modal-footer flex-center">
                         <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">취소</button>
                         <button type="submit" class="btn btn-primary">저장</button>
@@ -193,12 +204,35 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+    <script src="/js/summernote.js"></script>
     <script>
+        $(document).ready(function() {
+            // [6] Summernote 초기화 (summernote.js의 함수 사용)
+            // 만약 initSummernote가 로드되지 않았을 경우를 대비한 안전 장치
+            if (typeof initSummernote === 'function') {
+                initSummernote('#content', 400); // ID, Height
+            } else {
+                $('#content').summernote({ height: 400, lang: 'ko-KR' });
+            }
+        });
+
         const modal = new bootstrap.Modal(document.getElementById('noticeModal'));
 
+        // 2. 등록 모달 열기
         function openModal() {
+            // 폼 리셋
+            document.getElementById('noticeForm').reset();
+            document.getElementById('noticeId').value = '';
+            document.getElementById('modalTitle').innerText = '공지사항 등록';
+
+            // 에디터 초기화
+            $('#content').summernote('reset');
+
             modal.show();
         }
 

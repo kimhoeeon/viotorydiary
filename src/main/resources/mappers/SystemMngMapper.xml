@@ -12,14 +12,37 @@
     </select>
 
     <insert id="insertNotice" parameterType="com.viotory.diary.vo.NoticeVO">
-        INSERT INTO notices (title, content, is_top, status, created_at, updated_at)
-        VALUES (#{title}, #{content}, IFNULL(#{isTop}, 'N'), #{status}, NOW(), NOW())
+        INSERT INTO notices (
+            category,
+            title,
+            content,
+            image_url,
+            is_top,
+            status,
+            view_count,
+            created_at,
+            updated_at
+        ) VALUES (
+                     #{category},
+                     #{title},
+                     #{content},
+                     #{imageUrl},
+                     IFNULL(#{isTop}, 'N'),
+                     #{status},
+                     0,
+                     NOW(),
+                     NOW()
+                 )
     </insert>
 
     <update id="updateNotice" parameterType="com.viotory.diary.vo.NoticeVO">
         UPDATE notices
-        SET title = #{title},
+        SET category = #{category},
+            title = #{title},
             content = #{content},
+            <if test="imageUrl != null and imageUrl != ''">
+                image_url = #{imageUrl},
+            </if>
             is_top = IFNULL(#{isTop}, 'N'),
             status = #{status},
             updated_at = NOW()

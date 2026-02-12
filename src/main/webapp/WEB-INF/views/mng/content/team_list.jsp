@@ -19,6 +19,8 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -79,62 +81,78 @@
                                     </div>
                                 </div>
 
-                                <div class="card">
+                                <div class="card card-flush">
+
+                                    <div class="card-header align-items-center py-5 gap-2 gap-md-5">
+                                        <div class="card-title">
+                                            <div class="d-flex align-items-center position-relative my-1">
+                                                <form id="searchForm" action="/mng/content/teams" method="get">
+                                                    <select name="teamCode" class="form-select form-select-solid w-200px" onchange="this.form.submit()">
+                                                        <option value="ALL">전체 구단</option>
+                                                        <option value="KIA" ${paramTeamCode eq 'KIA' ? 'selected' : ''}>KIA</option>
+                                                        <option value="SAMSUNG" ${paramTeamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성</option>
+                                                        <option value="LG" ${paramTeamCode eq 'LG' ? 'selected' : ''}>LG</option>
+                                                        <option value="DOOSAN" ${paramTeamCode eq 'DOOSAN' ? 'selected' : ''}>두산</option>
+                                                        <option value="KT" ${paramTeamCode eq 'KT' ? 'selected' : ''}>KT</option>
+                                                        <option value="SSG" ${paramTeamCode eq 'SSG' ? 'selected' : ''}>SSG</option>
+                                                        <option value="LOTTE" ${paramTeamCode eq 'LOTTE' ? 'selected' : ''}>롯데</option>
+                                                        <option value="HANWHA" ${paramTeamCode eq 'HANWHA' ? 'selected' : ''}>한화</option>
+                                                        <option value="NC" ${paramTeamCode eq 'NC' ? 'selected' : ''}>NC</option>
+                                                        <option value="KIWOOM" ${paramTeamCode eq 'KIWOOM' ? 'selected' : ''}>키움</option>
+                                                    </select>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="card-body py-4">
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
-                                                <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">순서</th>
-                                                    <th class="min-w-100px">구단코드</th>
-                                                    <th class="min-w-100px">이미지</th>
-                                                    <th class="min-w-200px">제목 / 링크</th>
-                                                    <th class="min-w-100px">상태</th>
-                                                    <th class="min-w-100px">조회수</th>
-                                                    <th class="text-end min-w-100px">관리</th>
-                                                </tr>
+                                                    <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                                        <th class="min-w-50px">순서</th>
+                                                        <th class="min-w-70px">상태</th>
+                                                        <th class="min-w-70px">구단</th>
+                                                        <th class="min-w-200px">제목</th>
+                                                        <th class="min-w-70px">클릭수</th>
+                                                        <th class="min-w-100px">등록일</th>
+                                                        <th class="min-w-70px">관리</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${contents}">
-                                                    <tr>
-                                                        <td>${item.sortOrder}</td>
-                                                        <td>
-                                                            <span class="badge badge-light-primary">${item.teamCode}</span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="symbol symbol-50px">
-                                                                <img src="${item.imageUrl}" onerror="this.src='/assets/media/svg/files/blank-image.svg'" style="object-fit: cover;" alt="thumbnail"/>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <span class="text-gray-800 fw-bold d-block mb-1 fs-6">${item.title}</span>
-                                                            <a href="${item.contentUrl}" target="_blank" class="text-gray-400 fs-7 d-block text-truncate" style="max-width: 250px;">${item.contentUrl}</a>
-                                                        </td>
-                                                        <td>
-                                                            <c:if test="${item.status eq 'ACTIVE'}"><span class="badge badge-light-success">노출중</span></c:if>
-                                                            <c:if test="${item.status eq 'INACTIVE'}"><span class="badge badge-light-secondary">숨김</span></c:if>
-                                                        </td>
-                                                        <td>${item.clickCount}</td>
-                                                        <td class="text-end">
-                                                            <a href="#" class="btn btn-light btn-active-light-primary btn-sm" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
-                                                                관리 <i class="ki-duotone ki-down fs-5 m-0"></i>
-                                                            </a>
-                                                            <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
-                                                                <div class="menu-item px-3">
-                                                                    <a href="/mng/content/teams/detail?contentId=${item.contentId}" class="menu-link px-3">상세정보</a>
+                                                    <c:forEach var="item" items="${list}" varStatus="status">
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex flex-column align-items-center">
+                                                                    <button type="button" class="btn btn-icon btn-sm btn-light-primary mb-1 h-20px w-20px" onclick="changeOrder(${item.contentId}, 'UP')">
+                                                                        <i class="bi bi-caret-up-fill"></i>
+                                                                    </button>
+                                                                    <span class="fs-8 fw-bold">${item.sortOrder}</span>
+                                                                    <button type="button" class="btn btn-icon btn-sm btn-light-primary mt-1 h-20px w-20px" onclick="changeOrder(${item.contentId}, 'DOWN')">
+                                                                        <i class="bi bi-caret-down-fill"></i>
+                                                                    </button>
                                                                 </div>
-                                                                <div class="menu-item px-3">
-                                                                    <a href="#" class="menu-link px-3 text-danger" onclick="deleteContent('${item.contentId}'); return false;">삭제</a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </c:forEach>
-                                                <c:if test="${empty contents}">
-                                                    <tr>
-                                                        <td colspan="7" class="text-center py-10">등록된 콘텐츠가 없습니다.</td>
-                                                    </tr>
-                                                </c:if>
+                                                            </td>
+                                                            <td>
+                                                                <c:if test="${item.status eq 'ACTIVE'}"><span class="badge badge-light-success">활성</span></c:if>
+                                                                <c:if test="${item.status eq 'INACTIVE'}"><span class="badge badge-light-secondary">비활성</span></c:if>
+                                                            </td>
+                                                            <td><span class="badge badge-light fw-bold">${item.teamCode}</span></td>
+                                                            <td>
+                                                                <a href="/mng/content/teams/detail?contentId=${item.contentId}" class="text-gray-800 text-hover-primary fs-5 fw-bold">${item.title}</a>
+                                                            </td>
+                                                            <td>${item.clickCount}</td>
+                                                            <td>${item.createdAt.toString().substring(0,10)}</td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-light-danger" onclick="deleteContent(${item.contentId})">삭제</button>
+                                                            </td>
+                                                        </tr>
+                                                    </c:forEach>
+                                                    <c:if test="${empty contents}">
+                                                        <tr>
+                                                            <td colspan="7" class="text-center py-10">등록된 콘텐츠가 없습니다.</td>
+                                                        </tr>
+                                                    </c:if>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -150,61 +168,62 @@
     </div>
 
     <div class="modal fade" id="teamModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-dialog modal-dialog-centered mw-900px">
             <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="fw-bold" id="modalTitle">콘텐츠 등록</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg fs-1"></i>
+                    </div>
+                </div>
                 <form id="teamForm" action="/mng/content/teams/save" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="contentId" id="contentId">
-                    <div class="modal-header">
-                        <h2 class="fw-bold" id="modalTitle">콘텐츠 등록</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                            <i class="ki-duotone ki-cross fs-1">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                            </i>
-                        </div>
-                    </div>
                     <div class="modal-body py-10 px-lg-17">
-                        <div class="row mb-7">
-                            <div class="col-md-8">
-                                <label class="required fs-6 fw-semibold mb-2">구단 코드</label>
-                                <select class="form-select form-select-solid" name="teamCode" id="teamCode" required>
-                                    <option value="LG">LG 트윈스</option>
-                                    <option value="KT">KT 위즈</option>
-                                    <option value="SSG">SSG 랜더스</option>
-                                    <option value="NC">NC 다이노스</option>
-                                    <option value="DOOSAN">두산 베어스</option>
-                                    <option value="KIA">KIA 타이거즈</option>
-                                    <option value="LOTTE">롯데 자이언츠</option>
-                                    <option value="SAMSUNG">삼성 라이온즈</option>
-                                    <option value="HANWHA">한화 이글스</option>
-                                    <option value="KIWOOM">키움 히어로즈</option>
-                                </select>
+                        <div class="fv-row mb-7">
+                            <label class="required fs-6 fw-semibold mb-2">상태</label>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="form-check form-check-custom form-check-solid me-5">
+                                    <input class="form-check-input" type="radio" value="ACTIVE" name="status" id="st_active" checked/>
+                                    <label class="form-check-label" for="st_active">활성</label>
+                                </div>
+                                <div class="form-check form-check-custom form-check-solid">
+                                    <input class="form-check-input" type="radio" value="INACTIVE" name="status" id="st_inactive"/>
+                                    <label class="form-check-label" for="st_inactive">비활성</label>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="fs-6 fw-semibold mb-2">정렬 순서</label>
-                                <input type="number" class="form-control form-control-solid" name="sortOrder" id="sortOrder"
-                                       value="0"/>
-                            </div>
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fs-6 fw-semibold mb-2">구단 선택</label>
+                            <select class="form-select form-select-solid" name="teamCode" id="teamCode">
+                                <option value="KIA">KIA</option>
+                                <option value="SAMSUNG">삼성</option>
+                                <option value="LG">LG</option>
+                                <option value="DOOSAN">두산</option>
+                                <option value="KT">KT</option>
+                                <option value="SSG">SSG</option>
+                                <option value="LOTTE">롯데</option>
+                                <option value="HANWHA">한화</option>
+                                <option value="NC">NC</option>
+                                <option value="KIWOOM">키움</option>
+                            </select>
                         </div>
                         <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">제목</label>
-                            <input type="text" class="form-control form-control-solid" name="title" id="title" required/>
+                            <input type="text" class="form-control form-control-solid" name="title" id="title" required />
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">이미지 (썸네일)</label>
-                            <input type="file" class="form-control form-control-solid" name="file" accept="image/*" required/>
-                            <div class="form-text">10MB 이하의 이미지 파일만 등록 가능합니다.</div>
+                            <label class="fs-6 fw-semibold mb-2">썸네일 이미지</label>
+                            <input type="file" name="file" class="form-control form-control-solid" accept="image/jpeg, image/png, image/jpg"/>
+                            <div class="form-text text-muted">jpg, png, jpeg 파일만 등록 가능합니다.</div>
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">콘텐츠 URL (영상/기사)</label>
-                            <input type="text" class="form-control form-control-solid" name="contentUrl" id="contentUrl" required placeholder="https://..."/>
+                            <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
+                            <input type="text" class="form-control form-control-solid" name="contentUrl" id="contentUrl" placeholder="https://..." />
+                            <div class="form-text text-muted">"https://"로 시작하는 URL을 입력해주세요. 썸네일 미등록 시 URL에서 자동 추출을 시도합니다.</div>
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">상태</label>
-                            <select class="form-select form-select-solid" name="status" id="status">
-                                <option value="ACTIVE">노출 (ACTIVE)</option>
-                                <option value="INACTIVE">숨김 (INACTIVE)</option>
-                            </select>
+                            <label class="fs-6 fw-semibold mb-2">내용</label>
+                            <textarea name="content" id="content"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer flex-center">
@@ -216,16 +235,35 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+    <script src="/js/summernote.js"></script>
     <script>
         const modal = new bootstrap.Modal(document.getElementById('teamModal'));
+
+        $(document).ready(function() {
+            if(typeof initSummernote === 'function') {
+                initSummernote('#content', 400);
+            } else {
+                $('#content').summernote({ height: 400, lang: 'ko-KR' });
+            }
+        });
 
         function openModal() {
             document.getElementById('teamForm').reset();
             document.getElementById('contentId').value = '';
-            document.getElementById('modalTitle').innerText = '콘텐츠 등록';
+            $('#content').summernote('reset');
             modal.show();
+        }
+
+        function changeOrder(id, direction) {
+            $.post('/mng/content/teams/reorder', {contentId: id, direction: direction}, function(res) {
+                if(res === 'ok') location.reload();
+                else alert('순서 변경 실패');
+            });
         }
 
         function deleteContent(id) {

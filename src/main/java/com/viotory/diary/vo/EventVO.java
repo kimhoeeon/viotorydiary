@@ -8,11 +8,12 @@ public class EventVO {
     private Long eventId;
     private String title;
     private String content;
-    private String imageUrl;
-    private String linkUrl;
-    private String startDate; // yyyy-MM-dd
-    private String endDate;   // yyyy-MM-dd
-    private String status;    // ACTIVE, INACTIVE
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String imageUrl;   // 대표 썸네일
+    private String linkUrl;    // 외부 링크 주소
+    private String linkType;   // [추가] 경로 타입 (BOARD, EXTERNAL)
+    private String startDate;  // yyyy-MM-dd
+    private String endDate;    // yyyy-MM-dd
+    private String status;     // ACTIVE, INACTIVE
+    private String createdAt;
+    private String updatedAt;
 }

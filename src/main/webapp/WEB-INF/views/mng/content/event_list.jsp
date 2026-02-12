@@ -86,55 +86,32 @@
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
-                                                <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">No</th>
-                                                    <th class="min-w-200px">제목</th>
-                                                    <th class="min-w-150px">기간</th>
-                                                    <th class="min-w-100px">상태</th>
-                                                    <th class="min-w-100px">등록일</th>
-                                                    <th class="text-end min-w-100px">관리</th>
-                                                </tr>
+                                                    <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                                        <th class="min-w-50px">No</th>
+                                                        <th class="min-w-200px">제목</th>
+                                                        <th class="min-w-100px">기간</th>
+                                                        <th class="min-w-100px">상태</th>
+                                                        <th class="min-w-100px">등록일</th>
+                                                        <th class="min-w-70px">관리</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
                                                 <c:forEach var="item" items="${events}">
                                                     <tr>
                                                         <td>${item.eventId}</td>
                                                         <td>
-                                                            <span class="text-gray-800 fw-bold d-block mb-1 fs-6">${item.title}</span>
-                                                            <span class="text-gray-400 fs-7 d-block text-truncate"
-                                                                  style="max-width: 200px;">${item.linkUrl}</span>
+                                                            <a href="/mng/content/events/detail?eventId=${item.eventId}" class="text-gray-800 text-hover-primary fs-5 fw-bold">
+                                                                ${item.title}
+                                                            </a>
                                                         </td>
                                                         <td>${item.startDate} ~ ${item.endDate}</td>
                                                         <td>
-                                                            <c:if test="${item.status eq 'ACTIVE'}"><span
-                                                                    class="badge badge-light-success">진행중</span></c:if>
-                                                            <c:if test="${item.status eq 'INACTIVE'}"><span
-                                                                    class="badge badge-light-secondary">종료</span></c:if>
+                                                            <c:if test="${item.status eq 'ACTIVE'}"><span class="badge badge-light-success">활성</span></c:if>
+                                                            <c:if test="${item.status eq 'INACTIVE'}"><span class="badge badge-light-secondary">비활성</span></c:if>
                                                         </td>
+                                                        <td>${item.createdAt.toString().substring(0,10)}</td>
                                                         <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate"
-                                                                           type="both"/>
-                                                            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <a href="#"
-                                                               class="btn btn-light btn-active-light-primary btn-sm"
-                                                               data-kt-menu-trigger="click"
-                                                               data-kt-menu-placement="bottom-end">
-                                                                관리 <i class="ki-duotone ki-down fs-5 m-0"></i>
-                                                            </a>
-                                                            <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4"
-                                                                 data-kt-menu="true">
-                                                                <div class="menu-item px-3">
-                                                                    <a href="/mng/content/events/detail?eventId=${item.eventId}"
-                                                                       class="menu-link px-3">상세정보</a>
-                                                                </div>
-                                                                <div class="menu-item px-3">
-                                                                    <a href="#" class="menu-link px-3 text-danger"
-                                                                       onclick="deleteEvent('${item.eventId}'); return false;">삭제</a>
-                                                                </div>
-                                                            </div>
+                                                            <button class="btn btn-sm btn-light-danger" onclick="deleteEvent(${item.eventId})">삭제</button>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>
@@ -158,12 +135,12 @@
     </div>
 
     <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-800px">
+        <div class="modal-dialog modal-dialog-centered mw-900px">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 class="fw-bold" id="modalTitle">이벤트 등록</h2>
+                    <h2 class="fw-bold">이벤트 등록</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <span class="svg-icon svg-icon-1"><i class="bi bi-x-lg"></i></span>
+                        <i class="bi bi-x-lg fs-1"></i>
                     </div>
                 </div>
 
@@ -171,39 +148,66 @@
                     <input type="hidden" name="eventId" id="eventId">
 
                     <div class="modal-body py-10 px-lg-17">
+
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">제목</label>
-                            <input type="text" class="form-control form-control-solid" name="title" id="title" required />
+                            <label class="required fs-6 fw-semibold mb-2">상태</label>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="form-check form-check-custom form-check-solid me-5">
+                                    <input class="form-check-input" type="radio" value="ACTIVE" name="status" id="st_active" checked/>
+                                    <label class="form-check-label" for="st_active">활성</label>
+                                </div>
+                                <div class="form-check form-check-custom form-check-solid">
+                                    <input class="form-check-input" type="radio" value="INACTIVE" name="status" id="st_inactive"/>
+                                    <label class="form-check-label" for="st_inactive">비활성</label>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row mb-7">
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">시작일</label>
-                                <input type="date" class="form-control form-control-solid" name="startDate" id="startDate" required />
+                                <input type="date" class="form-control form-control-solid" name="startDate" required />
                             </div>
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">종료일</label>
-                                <input type="date" class="form-control form-control-solid" name="endDate" id="endDate" required />
+                                <input type="date" class="form-control form-control-solid" name="endDate" required />
                             </div>
                         </div>
 
                         <div class="fv-row mb-7">
+                            <label class="required fs-6 fw-semibold mb-2">제목</label>
+                            <input type="text" class="form-control form-control-solid" name="title" required />
+                        </div>
+
+                        <div class="fv-row mb-7">
+                            <label class="required fs-6 fw-semibold mb-2">이동 경로</label>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="form-check form-check-custom form-check-solid me-5">
+                                    <input class="form-check-input" type="radio" value="BOARD" name="linkType" id="lt_board" checked/>
+                                    <label class="form-check-label" for="lt_board">게시판 (상세화면)</label>
+                                </div>
+                                <div class="form-check form-check-custom form-check-solid">
+                                    <input class="form-check-input" type="radio" value="EXTERNAL" name="linkType" id="lt_external"/>
+                                    <label class="form-check-label" for="lt_external">외부 링크</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="fv-row mb-7">
+                            <label class="fs-6 fw-semibold mb-2">외부 링크 URL</label>
+                            <input type="text" class="form-control form-control-solid" name="linkUrl" placeholder="https://example.com" />
+                            <div class="form-text text-muted">"https://" 가 포함된 전체 링크로 복사/붙여넣기 해주세요.</div>
+                        </div>
+
+                        <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">대표 썸네일 이미지</label>
-                            <input type="file" name="thumbnailFile" class="form-control form-control-solid" accept="image/*"/>
-                            <div class="form-text text-muted">목록에 노출될 대표 이미지를 등록해주세요. (미등록 시 기존 이미지 유지)</div>
+                            <input type="file" name="file" class="form-control form-control-solid" accept="image/jpeg, image/png, image/jpg"/>
+                            <div class="form-text text-muted">10MB 이하, jpg, png, jpeg 파일만 가능합니다.</div>
                         </div>
 
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">내용</label>
                             <textarea name="content" id="content"></textarea>
-                        </div>
-
-                        <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">상태</label>
-                            <select name="status" id="status" class="form-select form-select-solid">
-                                <option value="ACTIVE">진행중 (ACTIVE)</option>
-                                <option value="INACTIVE">종료 (INACTIVE)</option>
-                            </select>
                         </div>
                     </div>
 
@@ -216,51 +220,32 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
     <script src="/js/summernote.js"></script>
     <script>
-        // 1. Summernote 초기화
+        const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+
         $(document).ready(function() {
-            initSummernote('#content', 500);
+            if(typeof initSummernote === 'function') {
+                initSummernote('#content', 400);
+            } else {
+                $('#content').summernote({ height: 400, lang: 'ko-KR' });
+            }
         });
 
-        const modalEl = document.getElementById('eventModal');
-        const modal = new bootstrap.Modal(modalEl);
-
-        // 2. 등록 모달 열기
         function openModal() {
             document.getElementById('eventForm').reset();
             document.getElementById('eventId').value = '';
-            document.getElementById('modalTitle').innerText = '이벤트 등록';
-
-            // 에디터 초기화
             $('#content').summernote('reset');
-
             modal.show();
         }
 
-        // 3. 수정 모달 열기 (데이터 바인딩)
-        function openModifyModal(id) {
-            $.get('/mng/content/events/get?eventId=' + id, function(data) {
-                document.getElementById('eventId').value = data.eventId;
-                document.getElementById('title').value = data.title;
-                document.getElementById('startDate').value = data.startDate;
-                document.getElementById('endDate').value = data.endDate;
-                document.getElementById('status').value = data.status;
-
-                // [중요] Summernote 내용 삽입
-                $('#content').summernote('code', data.content);
-
-                document.getElementById('modalTitle').innerText = '이벤트 수정';
-                modal.show();
-            });
-        }
-
         function deleteEvent(id) {
-            if (confirm('정말 삭제하시겠습니까?')) {
+            if (confirm('삭제하시겠습니까?')) {
                 $.post('/mng/content/events/delete', {eventId: id}, function (res) {
                     if (res === 'ok') location.reload();
                     else alert('삭제 실패');

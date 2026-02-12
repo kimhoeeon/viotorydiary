@@ -81,7 +81,14 @@
                                 <c:choose>
                                     <c:when test="${not empty events}">
                                         <c:forEach var="event" items="${events}">
-                                            <div class="img" onclick="location.href='/locker/event/detail?eventId=${event.eventId}'" style="cursor:pointer;">
+                                            <c:choose>
+                                                <c:when test="${event.linkType eq 'EXTERNAL'}">
+                                                    <div class="img" onclick="window.open('${event.linkUrl}')" style="cursor:pointer;">
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="img" onclick="location.href='/locker/event/detail?eventId=${event.eventId}'" style="cursor:pointer;">
+                                                </c:otherwise>
+                                            </c:choose>
                                                 <img src="${not empty event.imageUrl ? event.imageUrl : '/img/card_sample02.jpg'}"
                                                      alt="이벤트 배너" style="border-radius: 12px;">
                                             </div>
@@ -89,9 +96,7 @@
                                     </c:when>
                                     <c:otherwise>
                                         <div class="nodt_wrap only_txt">
-                                            <div class="cont">
-                                                <div class="nodt_txt">진행 중인 이벤트가 없습니다.</div>
-                                            </div>
+                                            <div class="cont"><div class="nodt_txt">진행 중인 이벤트가 없습니다.</div></div>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
@@ -102,9 +107,7 @@
                             <div class="card_item">
                                 <div class="row history-head">
                                     <div class="tit content_tit">우리 팀 추천 콘텐츠</div>
-                                    <a href="/locker/content/list">
-                                        <img src="/img/ico_next_arrow.svg" alt="모두 보기">
-                                    </a>
+                                    <a href="/locker/content/list"><img src="/img/ico_next_arrow.svg" alt="모두 보기"></a>
                                 </div>
 
                                 <c:choose>
@@ -133,9 +136,7 @@
                                     </c:when>
                                     <c:otherwise>
                                         <div class="nodt_wrap only_txt">
-                                            <div class="cont">
-                                                <div class="nodt_txt">등록된 콘텐츠가 없습니다.</div>
-                                            </div>
+                                            <div class="cont"><div class="nodt_txt">등록된 콘텐츠가 없습니다.</div></div>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
@@ -157,12 +158,11 @@
                                             <c:forEach var="notice" items="${notices}">
                                                 <div class="notice_list" onclick="location.href='/locker/notice/detail?noticeId=${notice.noticeId}'" style="cursor:pointer;">
                                                     <div class="notice_thum">
-                                                        <img src="<%--${not empty notice.imageUrl ? notice.imageUrl : '--%>/img/sample03.png<%--'}--%>"
-                                                             alt="공지 썸네일">
+                                                        <img src="${not empty notice.imageUrl ? notice.imageUrl : '/img/sample03.png'}" alt="공지 썸네일">
                                                     </div>
                                                     <div class="notice_item">
                                                         <div class="notice_txt">
-                                                            <div class="notice_badge">공지</div>
+                                                            <div class="notice_badge">${notice.category eq 'SURVEY' ? '설문' : '공지'}</div>
                                                             <div class="tit text-ellipsis">${notice.title}</div>
                                                         </div>
                                                         <div class="date">
@@ -175,9 +175,7 @@
                                         </c:when>
                                         <c:otherwise>
                                             <div class="nodt_wrap only_txt">
-                                                <div class="cont">
-                                                    <div class="nodt_txt">등록된 공지가 없습니다.</div>
-                                                </div>
+                                                <div class="cont"><div class="nodt_txt">등록된 공지가 없습니다.</div></div>
                                             </div>
                                         </c:otherwise>
                                     </c:choose>

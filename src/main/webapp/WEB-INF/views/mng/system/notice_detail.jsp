@@ -19,6 +19,8 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -75,37 +77,52 @@
                                     <div class="card-body p-9">
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">제목</label>
-                                            <div class="col-lg-10"><span
-                                                    class="fw-bold fs-6 text-gray-800">${notice.title}</span></div>
+                                            <div class="col-lg-10">
+                                                <span class="fw-bold fs-6 text-gray-800">${notice.title}</span>
+                                            </div>
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">설정</label>
-                                            <div class="col-lg-4">
+                                            <div class="col-lg-10">
+                                                <span class="badge badge-light-info me-2">${notice.category eq 'SURVEY' ? '설문' : '공지'}</span>
                                                 <span class="badge badge-light-primary me-2">고정: ${notice.isTop}</span>
                                                 <span class="badge badge-light-${notice.status eq 'ACTIVE' ? 'success' : 'secondary'}">상태: ${notice.status}</span>
                                             </div>
+                                        </div>
+                                        <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">등록일</label>
-                                            <div class="col-lg-4">
+                                            <div class="col-lg-10">
                                                 <span class="fw-bold fs-6 text-gray-800">
-                                                    <fmt:parseDate value="${notice.createdAt}"
-                                                                   pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate"
-                                                                   type="both"/>
+                                                    <fmt:parseDate value="${notice.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" type="both"/>
                                                     <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm"/>
                                                 </span>
                                             </div>
                                         </div>
+
+                                        <div class="row mb-7">
+                                            <label class="col-lg-2 fw-semibold text-muted">썸네일</label>
+                                            <div class="col-lg-10">
+                                                <c:if test="${not empty notice.imageUrl}">
+                                                    <img src="${notice.imageUrl}" alt="썸네일" style="max-width: 200px; border-radius: 8px; border: 1px solid #eee;">
+                                                </c:if>
+                                                <c:if test="${empty notice.imageUrl}">
+                                                    <span class="text-gray-400">등록된 이미지가 없습니다.</span>
+                                                </c:if>
+                                            </div>
+                                        </div>
+
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">내용</label>
                                             <div class="col-lg-10">
-                                                <div class="p-5 border rounded bg-light text-gray-800 fs-6"
-                                                     style="white-space: pre-wrap; min-height: 200px;">${notice.content}</div>
+                                                <div class="p-5 border rounded bg-light text-gray-800 fs-6" style="min-height: 200px;">
+                                                    <c:out value="${notice.content}" escapeXml="false"/>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card-footer d-flex justify-content-end py-6 px-9">
                                         <a href="/mng/system/notices" class="btn btn-light btn-active-light-primary me-2">목록으로</a>
-                                        <button type="button" class="btn btn-primary" onclick="openEditModal()">수정하기
-                                        </button>
+                                        <button type="button" class="btn btn-primary" onclick="openEditModal()">수정하기</button>
                                     </div>
                                 </div>
 
@@ -117,32 +134,41 @@
         </div>
     </div>
 
-    <div class="modal fade" id="noticeModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
+    <div class="modal fade" id="modifyModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-900px">
             <div class="modal-content">
-                <form action="/mng/system/notices/save" method="post">
-                    <input type="hidden" name="noticeId" value="${notice.noticeId}">
-                    <div class="modal-header">
-                        <h2 class="fw-bold">공지사항 수정</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal"><i
-                                class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                        </div>
+                <div class="modal-header">
+                    <h2 class="fw-bold">공지사항 수정</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <span class="svg-icon svg-icon-1"><i class="bi bi-x-lg"></i></span>
                     </div>
+                </div>
+
+                <form action="/mng/system/notices/save" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="noticeId" value="${notice.noticeId}">
+
                     <div class="modal-body py-10 px-lg-17">
                         <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">제목</label>
-                            <input type="text" class="form-control form-control-solid" name="title" value="${notice.title}"
-                                   required/>
+                            <input type="text" class="form-control form-control-solid" name="title" value="${notice.title}" required/>
                         </div>
+
                         <div class="row mb-7">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <label class="required fs-6 fw-semibold mb-2">구분</label>
+                                <select class="form-select form-select-solid" name="category">
+                                    <option value="NOTICE" ${notice.category eq 'NOTICE' ? 'selected' : ''}>공지</option>
+                                    <option value="SURVEY" ${notice.category eq 'SURVEY' ? 'selected' : ''}>설문</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
                                 <label class="fs-6 fw-semibold mb-2">상단 고정</label>
                                 <select class="form-select form-select-solid" name="isTop">
                                     <option value="N" ${notice.isTop eq 'N' ? 'selected' : ''}>미설정</option>
                                     <option value="Y" ${notice.isTop eq 'Y' ? 'selected' : ''}>고정 (Top)</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="fs-6 fw-semibold mb-2">상태</label>
                                 <select class="form-select form-select-solid" name="status">
                                     <option value="ACTIVE" ${notice.status eq 'ACTIVE' ? 'selected' : ''}>게시</option>
@@ -150,10 +176,22 @@
                                 </select>
                             </div>
                         </div>
+
+                        <div class="fv-row mb-7">
+                            <label class="fs-6 fw-semibold mb-2">썸네일 변경</label>
+                            <input type="file" name="file" class="form-control form-control-solid" accept="image/*"/>
+                            <div class="form-text text-muted">새 파일을 선택하면 기존 이미지가 변경됩니다.</div>
+                            <c:if test="${not empty notice.imageUrl}">
+                                <div class="mt-2">
+                                    <span class="badge badge-light mb-1">현재 이미지:</span><br>
+                                    <img src="${notice.imageUrl}" style="max-height: 100px; border-radius: 4px;">
+                                </div>
+                            </c:if>
+                        </div>
+
                         <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">내용</label>
-                            <textarea class="form-control form-control-solid" name="content" rows="10"
-                                      required>${notice.content}</textarea>
+                            <textarea class="form-control form-control-solid" name="content" id="summernote_edit" required>${notice.content}</textarea>
                         </div>
                     </div>
                     <div class="modal-footer flex-center">
@@ -165,10 +203,23 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+    <script src="/js/summernote.js"></script>
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('noticeModal'));
+        const modal = new bootstrap.Modal(document.getElementById('modifyModal'));
+
+        $(document).ready(function() {
+            // 수정 모달용 에디터 초기화
+            if (typeof initSummernote === 'function') {
+                initSummernote('#summernote_edit', 400);
+            } else {
+                $('#summernote_edit').summernote({ height: 400, lang: 'ko-KR' });
+            }
+        });
 
         function openEditModal() {
             modal.show();

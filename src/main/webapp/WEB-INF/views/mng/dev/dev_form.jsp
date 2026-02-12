@@ -149,6 +149,7 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
@@ -156,7 +157,12 @@
     <script src="/js/summernote.js"></script>
     <script>
         $(document).ready(function () {
-            initSummernote('#summernote', 400);
+            // summernote.js의 initSummernote 함수 호출
+            if(typeof initSummernote === 'function') {
+                initSummernote('#summernote', 400);
+            } else {
+                $('#summernote').summernote({ height: 400, lang: 'ko-KR' });
+            }
         });
     </script>
 </body>

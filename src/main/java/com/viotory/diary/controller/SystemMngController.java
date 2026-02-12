@@ -2,6 +2,7 @@ package com.viotory.diary.controller;
 
 import com.viotory.diary.mapper.SystemMngMapper;
 import com.viotory.diary.service.SystemMngService;
+import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.AppVersionVO;
 import com.viotory.diary.vo.NoticeVO;
 import com.viotory.diary.vo.TermsVO;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -40,7 +42,22 @@ public class SystemMngController {
     }
 
     @PostMapping("/notices/save")
-    public String noticeSave(NoticeVO notice) {
+    public String noticeSave(NoticeVO notice,
+                             @RequestParam(value = "file", required = false) MultipartFile file) {
+
+        // 1. 썸네일 파일 업로드 처리
+        if (file != null && !file.isEmpty()) {
+            try {
+                // 'notice' 폴더에 이미지 저장 -> /upload/notice/UUID_파일명.jpg 반환
+                String savedUrl = FileUtil.uploadFile(file, "notice");
+                notice.setImageUrl(savedUrl);
+            } catch (Exception e) {
+                log.error("공지사항 썸네일 업로드 실패", e);
+                // 필요 시 에러 처리 (예: RedirectAttributes로 에러 메시지 전달)
+            }
+        }
+
+        // 2. DB 저장/수정
         if (notice.getNoticeId() == null) {
             systemMngService.registerNotice(notice);
         } else {

@@ -202,14 +202,22 @@
                         <c:if test="${not empty teamBannerItem}">
                             <div class="banner-card">
                                 <a href="/content/click?cid=${teamBannerItem.contentId}&url=${teamBannerItem.contentUrl}" target="_blank">
-                                    <img src="/upload/${teamBannerItem.imageUrl}"
+                                    <img src="${teamBannerItem.imageUrl}"
                                          alt="${teamBannerItem.title}"
                                          onerror="this.style.display='none';"/>
                                 </a>
                             </div>
                         </c:if>
+
                         <c:if test="${not empty latestEvent}">
-                            <div class="card_wrap event" onclick="location.href='/locker/event/detail?eventId=${latestEvent.eventId}'">
+                            <c:choose>
+                                <c:when test="${latestEvent.linkType eq 'EXTERNAL'}">
+                                    <div class="card_wrap event" onclick="window.open('${latestEvent.linkUrl}')" style="cursor:pointer;">
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="card_wrap event" onclick="location.href='/locker/event/detail?eventId=${latestEvent.eventId}'" style="cursor:pointer;">
+                                </c:otherwise>
+                            </c:choose>
                                 <img src="${not empty latestEvent.imageUrl ? latestEvent.imageUrl : '/img/card_event.png'}"
                                      alt="이벤트 이미지" style="width:100%; object-fit:cover; border-radius:12px;">
                             </div>
@@ -277,9 +285,9 @@
                                     <c:choose>
                                         <c:when test="${not empty latestContent}">
                                             <c:forEach var="content" items="${latestContent}">
-                                                <div class="clip_list" onclick="location.href='/locker/detail?postId=${content.postId}'">
+                                                <div class="clip_list" onclick="location.href='/locker/content/detail?contentId=${content.contentId}'">
                                                     <div class="img">
-                                                        <img src="${not empty content.thumbnailUrl ? content.thumbnailUrl : '/img/card_defalut.svg'}" alt="썸네일">
+                                                        <img src="${not empty content.imageUrl ? content.imageUrl : '/img/card_defalut.svg'}" alt="썸네일">
                                                     </div>
                                                     <div class="clip_txt">
                                                         <div class="txt_box">
@@ -312,6 +320,8 @@
 
         <%@ include file="include/tabbar.jsp" %>
     </div>
+
+    <%@ include file="include/popup.jsp" %>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>

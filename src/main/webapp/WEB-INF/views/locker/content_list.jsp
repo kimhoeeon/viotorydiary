@@ -50,7 +50,7 @@
                         <c:otherwise>
                             <c:forEach var="item" items="${list}">
                                 <div class="score_list"
-                                     onclick="location.href='/locker/content/detail?postId=${item.postId}'"
+                                     onclick="location.href='/locker/content/detail?contentId=${item.contentId}'"
                                      style="cursor:pointer;">
                                     <div class="img">
                                         <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}"

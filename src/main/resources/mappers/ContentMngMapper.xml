@@ -12,8 +12,13 @@
     </select>
 
     <insert id="insertEvent" parameterType="com.viotory.diary.vo.EventVO">
-        INSERT INTO events (title, content, image_url, link_url, start_date, end_date, status, created_at, updated_at)
-        VALUES (#{title}, #{content}, #{imageUrl}, #{linkUrl}, #{startDate}, #{endDate}, #{status}, NOW(), NOW())
+        INSERT INTO events (
+            title, content, image_url, link_url, link_type,
+            start_date, end_date, status, created_at, updated_at
+        ) VALUES (
+                     #{title}, #{content}, #{imageUrl}, #{linkUrl}, #{linkType},
+                     #{startDate}, #{endDate}, #{status}, NOW(), NOW()
+                 )
     </insert>
 
     <update id="updateEvent" parameterType="com.viotory.diary.vo.EventVO">
@@ -23,6 +28,8 @@
         <if test="imageUrl != null and imageUrl != ''">
             image_url = #{imageUrl},
         </if>
+        link_url = #{linkUrl},
+        link_type = #{linkType},
         start_date = #{startDate},
         end_date = #{endDate},
         status = #{status},
@@ -35,10 +42,11 @@
     </delete>
 
     <select id="selectTeamContentList" resultType="com.viotory.diary.vo.TeamContentVO">
-        SELECT
-            content_id, team_code, title, content_url, sort_order,
-            click_count, status, image_url, created_at
-        FROM team_contents
+        SELECT * FROM team_contents
+        WHERE 1=1
+        <if test="teamCode != null and teamCode != '' and teamCode != 'ALL'">
+            AND team_code = #{teamCode}
+        </if>
         ORDER BY sort_order ASC, created_at DESC
     </select>
 
@@ -47,20 +55,20 @@
     </select>
 
     <insert id="insertTeamContent" parameterType="com.viotory.diary.vo.TeamContentVO">
+        <selectKey keyProperty="sortOrder" resultType="int" order="BEFORE">
+            SELECT IFNULL(MAX(sort_order), 0) + 1 FROM team_contents
+        </selectKey>
         INSERT INTO team_contents (
-            team_code, title, content_url, sort_order, click_count, status, image_url, created_at
+        team_code, title, content, content_url, sort_order, click_count, status, image_url, created_at
         ) VALUES (
-                     #{teamCode}, #{title}, #{contentUrl}, #{sortOrder}, 0, #{status}, #{imageUrl}, NOW()
-                 )
+        #{teamCode}, #{title}, #{content}, #{contentUrl}, #{sortOrder}, 0, #{status}, #{imageUrl}, NOW()
+        )
     </insert>
 
     <update id="updateTeamContent" parameterType="com.viotory.diary.vo.TeamContentVO">
         UPDATE team_contents
-        SET team_code = #{teamCode},
-        title = #{title},
-        content_url = #{contentUrl},
-        sort_order = #{sortOrder},
-        status = #{status}
+        SET team_code = #{teamCode}, title = #{title}, content = #{content},
+        content_url = #{contentUrl}, status = #{status}
         <if test="imageUrl != null">, image_url = #{imageUrl}</if>
         WHERE content_id = #{contentId}
     </update>
@@ -69,18 +77,61 @@
         DELETE FROM team_contents WHERE content_id = #{contentId}
     </delete>
 
+    <select id="selectTargetContentForSwap" resultType="com.viotory.diary.vo.TeamContentVO">
+        SELECT * FROM team_contents
+        WHERE team_code = #{teamCode}
+        <choose>
+            <when test='direction == "UP"'>
+                AND sort_order &lt; #{currentSortOrder}
+                ORDER BY sort_order DESC
+            </when>
+            <when test='direction == "DOWN"'>
+                AND sort_order &gt; #{currentSortOrder}
+                ORDER BY sort_order ASC
+            </when>
+        </choose>
+        LIMIT 1
+    </select>
+
+    <update id="updateSortOrder">
+        UPDATE team_contents SET sort_order = #{sortOrder} WHERE content_id = #{contentId}
+    </update>
+
     <update id="increaseClickCount">
-        UPDATE team_contents
-        SET click_count = click_count + 1
-        WHERE content_id = #{contentId}
+        UPDATE team_contents SET click_count = click_count + 1 WHERE content_id = #{contentId}
     </update>
 
     <select id="selectRandomActiveContent" resultType="com.viotory.diary.vo.TeamContentVO">
         SELECT * FROM team_contents
         WHERE status = 'ACTIVE'
-          AND (team_code = #{teamCode} OR team_code = 'ALL')
-        ORDER BY RAND()
-        LIMIT 1
+        <if test="teamCode != null and teamCode != '' and teamCode != 'NONE'">
+            AND team_code = #{teamCode}
+        </if>
+        ORDER BY RAND() LIMIT 1
+    </select>
+
+    <select id="selectGenderStats" resultType="map">
+        SELECT IFNULL(gender, 'U') as gender, COUNT(*) as cnt
+        FROM content_click_logs
+        WHERE content_id = #{contentId}
+        GROUP BY gender
+    </select>
+
+    <select id="selectAgeStats" resultType="map">
+        SELECT age_group, COUNT(*) as cnt
+        FROM content_click_logs
+        WHERE content_id = #{contentId}
+        GROUP BY age_group
+        ORDER BY age_group
+    </select>
+
+    <select id="selectDailyStats" resultType="map">
+        SELECT DATE_FORMAT(clicked_at, '%Y-%m-%d') as clickDate, COUNT(*) as cnt
+        FROM content_click_logs
+        WHERE content_id = #{contentId}
+          AND clicked_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        GROUP BY clickDate
+        ORDER BY clickDate
     </select>
 
 </mapper>

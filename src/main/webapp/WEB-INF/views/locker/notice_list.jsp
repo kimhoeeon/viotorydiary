@@ -50,7 +50,7 @@
                         <c:otherwise>
                             <c:forEach var="item" items="${list}">
                                 <div class="notice_list"
-                                     onclick="location.href='/locker/notice/detail?postId=${item.postId}'"
+                                     onclick="location.href='/locker/notice/detail?noticeId=${item.noticeId}'"
                                      style="cursor:pointer;">
                                     <div class="notice_thum">
                                         <img src="${not empty item.imageUrl ? item.imageUrl : '/img/sample03.png'}"
@@ -58,7 +58,7 @@
                                     </div>
                                     <div class="notice_item">
                                         <div class="notice_txt">
-                                            <div class="notice_badge">공지</div>
+                                            <div class="notice_badge">${item.category eq 'SURVEY' ? '설문' : '공지'}</div>
                                             <div class="tit">${item.title}</div>
                                         </div>
                                         <div class="date">

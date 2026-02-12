@@ -19,6 +19,8 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -121,8 +123,8 @@
                                                                           type="both"/><fmt:formatDate value="${regDate}"
                                                                                                        pattern="yyyy-MM-dd HH:mm"/></span>
                                             </div>
-                                            <div class="fs-6 text-gray-800 min-h-100px">
-                                                ${vo.content}
+                                            <div class="fs-6 text-gray-800 min-h-100px p-3 border rounded bg-light">
+                                                <c:out value="${vo.content}" escapeXml="false"/>
                                             </div>
                                         </div>
 
@@ -135,9 +137,9 @@
                                                             <span class="path1"></span>
                                                             <span class="path2"></span>
                                                         </i>
-                                                        <a href="${file.saveFileName}"
-                                                           download="${file.orgFileName}"
-                                                           class="text-hover-primary">${file.orgFileName}</a>
+                                                        <a href="${file.saveFileName}" download="${file.orgFileName}" class="text-hover-primary">
+                                                            ${file.orgFileName}
+                                                        </a>
                                                     </div>
                                                 </c:forEach>
                                             </div>
@@ -165,11 +167,8 @@
                                                             <span class="badge ${badgeClass} me-2">${roleName}</span>
                                                             <span class="fw-bold text-gray-800 me-2">${co.writerName}</span>
                                                             <span class="text-muted fs-8">
-                                                                <fmt:parseDate value="${co.createdAt}"
-                                                                               pattern="yyyy-MM-dd'T'HH:mm:ss" var="coDate"
-                                                                               type="both"/>
-                                                                <fmt:formatDate value="${coDate}"
-                                                                                pattern="yyyy-MM-dd HH:mm"/>
+                                                                <fmt:parseDate value="${co.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="coDate" type="both"/>
+                                                                <fmt:formatDate value="${coDate}" pattern="yyyy-MM-dd HH:mm"/>
                                                             </span>
                                                         </div>
 
@@ -197,8 +196,8 @@
                                                             </c:if>
 
                                                             <c:if test="${empty co.parentId}">
-                                                                <button class="btn btn-sm btn-light btn-active-light-dark py-1 px-2 fs-8"
-                                                                        onclick="toggleReply('${co.commentId}')">답글
+                                                                <button class="btn btn-sm btn-light btn-active-light-dark py-1 px-2 fs-8" onclick="toggleReply('${co.commentId}')">
+                                                                    답글
                                                                 </button>
                                                             </c:if>
                                                         </div>
@@ -214,8 +213,7 @@
                                                                         <span class="path1"></span>
                                                                         <span class="path2"></span>
                                                                     </i>
-                                                                    <a href="${cf.saveFileName}"
-                                                                       download="${cf.orgFileName}"
+                                                                    <a href="${cf.saveFileName}" download="${cf.orgFileName}"
                                                                        class="text-gray-700 text-hover-primary fs-8 fw-bold">${cf.orgFileName}</a>
 
                                                                     <input type="hidden" class="comment-file-data"
@@ -313,8 +311,12 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+    <script src="/js/summernote.js"></script>
     <script>
         const editModal = new bootstrap.Modal(document.getElementById('commentEditModal'));
 

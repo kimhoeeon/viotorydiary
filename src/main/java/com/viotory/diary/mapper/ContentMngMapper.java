@@ -6,29 +6,38 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ContentMngMapper {
-    // 이벤트 관리
+    // 1. 이벤트 관리
     List<EventVO> selectEventList();
     EventVO selectEventById(Long eventId);
     void insertEvent(EventVO event);
     void updateEvent(EventVO event);
     void deleteEvent(Long eventId);
 
-    // 팀 콘텐츠 관리
-    // 목록 조회
-    List<TeamContentVO> selectTeamContentList();
-
-    // 상세 조회
+    // 2. 팀 콘텐츠 관리
+    List<TeamContentVO> selectTeamContentList(@Param("teamCode") String teamCode);
     TeamContentVO selectTeamContentById(Long contentId);
-
-    // 등록, 수정, 삭제
     void insertTeamContent(TeamContentVO vo);
     void updateTeamContent(TeamContentVO vo);
     void deleteTeamContent(Long contentId);
 
-    // [기능] 클릭 수 증가 & 랜덤 노출
+    // 순서 변경 관련
+    // [수정] 순서 변경 대상 찾기 (같은 구단 내에서)
+    // direction이 UP이면 내 위(작은것 중 최대값), DOWN이면 내 아래(큰것 중 최소값) 조회
+    TeamContentVO selectTargetContentForSwap(@Param("teamCode") String teamCode,
+                                             @Param("currentSortOrder") int currentSortOrder,
+                                             @Param("direction") String direction);
+    void updateSortOrder(@Param("contentId") Long contentId, @Param("sortOrder") int sortOrder);
+
+    // 통계 관련 (Map으로 반환)
+    List<Map<String, Object>> selectGenderStats(Long contentId);
+    List<Map<String, Object>> selectAgeStats(Long contentId);
+    List<Map<String, Object>> selectDailyStats(Long contentId);
+
+    // 사용자 기능
     void increaseClickCount(@Param("contentId") Long contentId);
     TeamContentVO selectRandomActiveContent(@Param("teamCode") String teamCode);
 }

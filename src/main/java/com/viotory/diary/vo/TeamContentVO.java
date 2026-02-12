@@ -8,6 +8,7 @@ public class TeamContentVO {
     private Long contentId;
     private String teamCode;
     private String title;
+    private String content;
     private String contentUrl;
     private Integer sortOrder;
     private int clickCount;

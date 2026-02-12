@@ -19,6 +19,8 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -75,44 +77,51 @@
                                     <div class="card-body p-9">
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">제목</label>
-                                            <div class="col-lg-10"><span
-                                                    class="fw-bold fs-6 text-gray-800">${event.title}</span></div>
+                                            <div class="col-lg-10"><span class="fw-bold fs-6 text-gray-800">${event.title}</span></div>
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">기간</label>
-                                            <div class="col-lg-4"><span
-                                                    class="fw-bold fs-6 text-gray-800">${event.startDate} ~ ${event.endDate}</span>
-                                            </div>
+                                            <div class="col-lg-10"><span class="fw-bold fs-6 text-gray-800">${event.startDate} ~ ${event.endDate}</span></div>
+                                        </div>
+                                        <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">상태</label>
-                                            <div class="col-lg-4">
-                                                <c:if test="${event.status eq 'ACTIVE'}"><span
-                                                        class="badge badge-light-success">진행중</span></c:if>
-                                                <c:if test="${event.status eq 'INACTIVE'}"><span
-                                                        class="badge badge-light-secondary">종료</span></c:if>
+                                            <div class="col-lg-10">
+                                                <c:if test="${event.status eq 'ACTIVE'}"><span class="badge badge-light-success">활성</span></c:if>
+                                                <c:if test="${event.status eq 'INACTIVE'}"><span class="badge badge-light-secondary">비활성</span></c:if>
                                             </div>
                                         </div>
                                         <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">이미지/링크</label>
+                                            <label class="col-lg-2 fw-semibold text-muted">경로</label>
                                             <div class="col-lg-10">
-                                                <div class="d-flex flex-column">
-                                                    <span class="text-gray-600 fs-7 mb-1">IMG: ${event.imageUrl}</span>
-                                                    <span class="text-gray-600 fs-7">LINK: <a href="${event.linkUrl}"
-                                                                                              target="_blank">${event.linkUrl}</a></span>
-                                                </div>
+                                                <span class="badge badge-light-primary me-2">${event.linkType eq 'EXTERNAL' ? '외부링크' : '게시판'}</span>
+                                                <c:if test="${event.linkType eq 'EXTERNAL'}"><a href="${event.linkUrl}" target="_blank">${event.linkUrl}</a></c:if>
                                             </div>
                                         </div>
+
+                                        <div class="row mb-7">
+                                            <label class="col-lg-2 fw-semibold text-muted">썸네일 이미지</label>
+                                            <div class="col-lg-10">
+                                                <c:if test="${not empty event.imageUrl}">
+                                                    <img src="${event.imageUrl}" alt="썸네일" style="max-width: 300px; border-radius: 8px; border: 1px solid #eee;">
+                                                </c:if>
+                                                <c:if test="${empty event.imageUrl}">
+                                                    <span class="text-muted">등록된 이미지가 없습니다.</span>
+                                                </c:if>
+                                            </div>
+                                        </div>
+
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">내용</label>
                                             <div class="col-lg-10">
-                                                <div class="p-4 bg-light rounded text-gray-800 fs-6"
-                                                     style="white-space: pre-wrap;">${event.content}</div>
+                                                <div class="p-5 border rounded bg-light text-gray-800 fs-6 min-h-200px">
+                                                    <c:out value="${event.content}" escapeXml="false"/>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card-footer d-flex justify-content-end py-6 px-9">
                                         <a href="/mng/content/events" class="btn btn-light btn-active-light-primary me-2">목록으로</a>
-                                        <button type="button" class="btn btn-primary" onclick="openEditModal()">수정하기
-                                        </button>
+                                        <button type="button" class="btn btn-primary" onclick="openEditModal()">수정하기</button>
                                     </div>
                                 </div>
 
@@ -124,58 +133,88 @@
         </div>
     </div>
 
-    <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
+    <div class="modal fade" id="modifyModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-900px">
             <div class="modal-content">
-                <form id="eventForm" action="/mng/content/events/save" method="post">
-                    <input type="hidden" name="eventId" value="${event.eventId}">
-                    <div class="modal-header">
-                        <h2 class="fw-bold">이벤트 수정</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal"><i
-                                class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                        </div>
+                <div class="modal-header">
+                    <h2 class="fw-bold">이벤트 수정</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg fs-1"></i>
                     </div>
+                </div>
+
+                <form action="/mng/content/events/save" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="eventId" value="${event.eventId}">
+
                     <div class="modal-body py-10 px-lg-17">
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">제목</label>
-                            <input type="text" class="form-control form-control-solid" name="title" value="${event.title}"
-                                   required/>
+                            <label class="required fs-6 fw-semibold mb-2">상태</label>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="form-check form-check-custom form-check-solid me-5">
+                                    <input class="form-check-input" type="radio" value="ACTIVE" name="status" ${event.status eq 'ACTIVE' ? 'checked' : ''}/>
+                                    <label class="form-check-label">활성</label>
+                                </div>
+                                <div class="form-check form-check-custom form-check-solid">
+                                    <input class="form-check-input" type="radio" value="INACTIVE" name="status" ${event.status eq 'INACTIVE' ? 'checked' : ''}/>
+                                    <label class="form-check-label">비활성</label>
+                                </div>
+                            </div>
                         </div>
+
                         <div class="row mb-7">
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">시작일</label>
-                                <input type="date" class="form-control form-control-solid" name="startDate"
-                                       value="${event.startDate}" required/>
+                                <input type="date" class="form-control form-control-solid" name="startDate" value="${event.startDate}" required />
                             </div>
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">종료일</label>
-                                <input type="date" class="form-control form-control-solid" name="endDate"
-                                       value="${event.endDate}" required/>
+                                <input type="date" class="form-control form-control-solid" name="endDate" value="${event.endDate}" required />
                             </div>
                         </div>
+
                         <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">이미지 URL</label>
-                            <input type="text" class="form-control form-control-solid" name="imageUrl"
-                                   value="${event.imageUrl}"/>
+                            <label class="required fs-6 fw-semibold mb-2">제목</label>
+                            <input type="text" class="form-control form-control-solid" name="title" value="${event.title}" required />
                         </div>
+
                         <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">링크 URL</label>
-                            <input type="text" class="form-control form-control-solid" name="linkUrl"
-                                   value="${event.linkUrl}"/>
+                            <label class="required fs-6 fw-semibold mb-2">이동 경로</label>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="form-check form-check-custom form-check-solid me-5">
+                                    <input class="form-check-input" type="radio" value="BOARD" name="linkType" ${event.linkType eq 'BOARD' ? 'checked' : ''}/>
+                                    <label class="form-check-label">게시판</label>
+                                </div>
+                                <div class="form-check form-check-custom form-check-solid">
+                                    <input class="form-check-input" type="radio" value="EXTERNAL" name="linkType" ${event.linkType eq 'EXTERNAL' ? 'checked' : ''}/>
+                                    <label class="form-check-label">외부 링크</label>
+                                </div>
+                            </div>
                         </div>
+
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">상태</label>
-                            <select class="form-select form-select-solid" name="status">
-                                <option value="ACTIVE" ${event.status eq 'ACTIVE' ? 'selected' : ''}>진행중</option>
-                                <option value="INACTIVE" ${event.status eq 'INACTIVE' ? 'selected' : ''}>종료</option>
-                            </select>
+                            <label class="fs-6 fw-semibold mb-2">외부 링크 URL</label>
+                            <input type="text" class="form-control form-control-solid" name="linkUrl" value="${event.linkUrl}" placeholder="https://example.com" />
+                            <div class="form-text text-muted">"https://" 가 포함된 전체 링크로 복사/붙여넣기 해주세요.</div>
                         </div>
+
+                        <div class="fv-row mb-7">
+                            <label class="fs-6 fw-semibold mb-2">썸네일 변경</label>
+                            <input type="file" name="file" class="form-control form-control-solid" accept="image/jpeg, image/png, image/jpg"/>
+                            <div class="form-text text-muted">새 파일을 선택하면 기존 이미지가 변경됩니다. (10MB 이하)</div>
+                            <c:if test="${not empty event.imageUrl}">
+                                <div class="mt-2">
+                                    <span class="badge badge-light mb-1">현재 이미지:</span><br>
+                                    <img src="${event.imageUrl}" style="max-height: 100px; border-radius: 4px;">
+                                </div>
+                            </c:if>
+                        </div>
+
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">내용</label>
-                            <textarea class="form-control form-control-solid" name="content"
-                                      rows="3">${event.content}</textarea>
+                            <textarea name="content" id="summernote_edit">${event.content}</textarea>
                         </div>
                     </div>
+
                     <div class="modal-footer flex-center">
                         <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">취소</button>
                         <button type="submit" class="btn btn-primary">저장</button>
@@ -185,13 +224,25 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+    <script src="/js/summernote.js"></script>
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('eventModal'));
+        const modifyModal = new bootstrap.Modal(document.getElementById('modifyModal'));
+
+        $(document).ready(function() {
+            if(typeof initSummernote === 'function') {
+                initSummernote('#summernote_edit', 400);
+            } else {
+                $('#summernote_edit').summernote({ height: 400, lang: 'ko-KR' });
+            }
+        });
 
         function openEditModal() {
-            modal.show();
+            modifyModal.show();
         }
     </script>
 </body>

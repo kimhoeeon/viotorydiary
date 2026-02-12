@@ -19,6 +19,8 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -74,58 +76,58 @@
                                     </div>
                                     <div class="card-body p-9">
                                         <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">이미지</label>
-                                            <div class="col-lg-10">
-                                                <c:if test="${not empty content.imageUrl}">
-                                                    <img src="${content.imageUrl}" class="rounded w-150px h-150px" style="object-fit:cover; border:1px solid #eee;" />
-                                                </c:if>
-                                                <c:if test="${empty content.imageUrl}">
-                                                    <span class="text-gray-400">등록된 이미지가 없습니다.</span>
-                                                </c:if>
-                                            </div>
+                                            <label class="col-lg-2 fw-semibold text-muted">제목</label>
+                                            <div class="col-lg-10"><span class="fw-bold fs-6 text-gray-800">${content.title}</span></div>
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">구단</label>
-                                            <div class="col-lg-4">
-                                                <span class="badge badge-light-primary fw-bold fs-6">${content.teamCode}</span>
-                                            </div>
-                                            <label class="col-lg-2 fw-semibold text-muted">정렬 순서</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">${content.sortOrder}</span>
-                                            </div>
-                                        </div>
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">제목</label>
-                                            <div class="col-lg-10">
-                                                <span class="fw-bold fs-6 text-gray-800">${content.title}</span>
-                                            </div>
-                                        </div>
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">URL</label>
-                                            <div class="col-lg-10">
-                                                <a href="${content.contentUrl}" target="_blank" class="text-primary fw-semibold fs-6">${content.contentUrl}</a>
-                                            </div>
+                                            <div class="col-lg-10"><span class="badge badge-light fw-bold">${content.teamCode}</span></div>
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">상태</label>
-                                            <div class="col-lg-4">
-                                                <c:if test="${content.status eq 'ACTIVE'}">
-                                                    <span class="badge badge-light-success">노출</span>
-                                                </c:if>
-                                                <c:if test="${content.status eq 'INACTIVE'}">
-                                                    <span class="badge badge-light-secondary">숨김</span>
-                                                </c:if>
+                                            <div class="col-lg-10">
+                                                <span class="badge badge-light-${content.status eq 'ACTIVE' ? 'success' : 'secondary'}">${content.status}</span>
                                             </div>
-                                            <label class="col-lg-2 fw-semibold text-muted">조회수</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">${content.clickCount}</span>
+                                        </div>
+                                        <div class="row mb-7">
+                                            <label class="col-lg-2 fw-semibold text-muted">콘텐츠 URL</label>
+                                            <div class="col-lg-10">
+                                                <a href="${content.contentUrl}" target="_blank" class="text-primary">${content.contentUrl}</a>
+                                            </div>
+                                        </div>
+
+                                        <div class="separator my-10"></div>
+                                        <h3 class="fw-bold mb-5">📊 콘텐츠 통계</h3>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="card card-bordered h-100">
+                                                    <div class="card-header"><div class="card-title">성별 클릭수</div></div>
+                                                    <div class="card-body d-flex justify-content-center">
+                                                        <canvas id="genderChart" style="max-height: 200px;"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card card-bordered h-100">
+                                                    <div class="card-header"><div class="card-title">연령대별 클릭수</div></div>
+                                                    <div class="card-body d-flex justify-content-center">
+                                                        <canvas id="ageChart" style="max-height: 200px;"></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="card card-bordered h-100">
+                                                    <div class="card-header"><div class="card-title">기간별 클릭 추이</div></div>
+                                                    <div class="card-body d-flex justify-content-center">
+                                                        <canvas id="dailyChart" style="max-height: 200px;"></canvas>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card-footer d-flex justify-content-end py-6 px-9">
-                                        <a href="/mng/content/teams" class="btn btn-light btn-active-light-primary me-2">목록으로</a>
-                                        <button type="button" class="btn btn-primary" onclick="openEditModal()">수정하기
-                                        </button>
+                                        <a href="/mng/content/teams" class="btn btn-light me-2">목록으로</a>
+                                        <button type="button" class="btn btn-primary" onclick="openEditModal()">수정하기</button>
                                     </div>
                                 </div>
 
@@ -137,66 +139,65 @@
         </div>
     </div>
 
-    <div class="modal fade" id="teamModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
+    <div class="modal fade" id="modifyModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-900px">
             <div class="modal-content">
-                <form id="teamForm" action="/mng/content/teams/save" method="post">
-                    <input type="hidden" name="contentId" value="${content.contentId}">
-                    <div class="modal-header">
-                        <h2 class="fw-bold">콘텐츠 수정</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                            <i class="ki-duotone ki-cross fs-1">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                            </i>
-                        </div>
+                <div class="modal-header">
+                    <h2 class="fw-bold">콘텐츠 수정</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg fs-1"></i>
                     </div>
+                </div>
+                <form action="/mng/content/teams/save" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="contentId" value="${content.contentId}">
+
                     <div class="modal-body py-10 px-lg-17">
-                        <div class="row mb-7">
-                            <div class="col-md-8">
-                                <label class="required fs-6 fw-semibold mb-2">구단 코드</label>
-                                <select class="form-select form-select-solid" name="teamCode">
-                                    <option value="LG" ${content.teamCode eq 'LG' ? 'selected' : ''}>LG 트윈스</option>
-                                    <option value="KT" ${content.teamCode eq 'KT' ? 'selected' : ''}>KT 위즈</option>
-                                    <option value="SSG" ${content.teamCode eq 'SSG' ? 'selected' : ''}>SSG 랜더스</option>
-                                    <option value="NC" ${content.teamCode eq 'NC' ? 'selected' : ''}>NC 다이노스</option>
-                                    <option value="DOOSAN" ${content.teamCode eq 'DOOSAN' ? 'selected' : ''}>두산 베어스</option>
-                                    <option value="KIA" ${content.teamCode eq 'KIA' ? 'selected' : ''}>KIA 타이거즈</option>
-                                    <option value="LOTTE" ${content.teamCode eq 'LOTTE' ? 'selected' : ''}>롯데 자이언츠</option>
-                                    <option value="SAMSUNG" ${content.teamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성 라이온즈</option>
-                                    <option value="HANWHA" ${content.teamCode eq 'HANWHA' ? 'selected' : ''}>한화 이글스</option>
-                                    <option value="KIWOOM" ${content.teamCode eq 'KIWOOM' ? 'selected' : ''}>키움 히어로즈</option>
-                                </select>
+                        <div class="fv-row mb-7">
+                            <label class="required fs-6 fw-semibold mb-2">상태</label>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="form-check form-check-custom form-check-solid me-5">
+                                    <input class="form-check-input" type="radio" value="ACTIVE" name="status" ${content.status eq 'ACTIVE' ? 'checked' : ''}/>
+                                    <label class="form-check-label">활성</label>
+                                </div>
+                                <div class="form-check form-check-custom form-check-solid">
+                                    <input class="form-check-input" type="radio" value="INACTIVE" name="status" ${content.status eq 'INACTIVE' ? 'checked' : ''}/>
+                                    <label class="form-check-label">비활성</label>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <label class="fs-6 fw-semibold mb-2">정렬 순서</label>
-                                <input type="number" class="form-control form-control-solid" name="sortOrder" value="${content.sortOrder}"/>
-                            </div>
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="required fs-6 fw-semibold mb-2">구단 선택</label>
+                            <select class="form-select form-select-solid" name="teamCode">
+                                <option value="KIA" ${content.teamCode eq 'KIA' ? 'selected' : ''}>KIA</option>
+                                <option value="SAMSUNG" ${content.teamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성</option>
+                                <option value="LG" ${content.teamCode eq 'LG' ? 'selected' : ''}>LG</option>
+                                <option value="DOOSAN" ${content.teamCode eq 'DOOSAN' ? 'selected' : ''}>두산</option>
+                                <option value="KT" ${content.teamCode eq 'KT' ? 'selected' : ''}>KT</option>
+                                <option value="SSG" ${content.teamCode eq 'SSG' ? 'selected' : ''}>SSG</option>
+                                <option value="LOTTE" ${content.teamCode eq 'LOTTE' ? 'selected' : ''}>롯데</option>
+                                <option value="HANWHA" ${content.teamCode eq 'HANWHA' ? 'selected' : ''}>한화</option>
+                                <option value="NC" ${content.teamCode eq 'NC' ? 'selected' : ''}>NC</option>
+                                <option value="KIWOOM" ${content.teamCode eq 'KIWOOM' ? 'selected' : ''}>키움</option>
+                            </select>
                         </div>
                         <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">제목</label>
-                            <input type="text" class="form-control form-control-solid" name="title" value="${content.title}" required/>
+                            <input type="text" class="form-control form-control-solid" name="title" value="${content.title}" required />
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">이미지 변경</label>
-                            <input type="file" class="form-control form-control-solid" name="file" accept="image/*"/>
-                            <div class="form-text">변경 시에만 선택하세요. (10MB 이하)</div>
+                            <label class="fs-6 fw-semibold mb-2">썸네일 이미지</label>
+                            <input type="file" name="file" class="form-control form-control-solid" accept="image/jpeg, image/png, image/jpg"/>
                             <c:if test="${not empty content.imageUrl}">
-                                <div class="mt-2">
-                                    <span class="badge badge-light-info">현재 파일: ${content.imageUrl}</span>
-                                </div>
+                                <div class="mt-2">현재 이미지: <a href="${content.imageUrl}" target="_blank">보기</a></div>
                             </c:if>
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">콘텐츠 URL</label>
-                            <input type="text" class="form-control form-control-solid" name="contentUrl" value="${content.contentUrl}" required/>
+                            <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
+                            <input type="text" class="form-control form-control-solid" name="contentUrl" value="${content.contentUrl}" />
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">상태</label>
-                            <select class="form-select form-select-solid" name="status">
-                                <option value="ACTIVE" ${content.status eq 'ACTIVE' ? 'selected' : ''}>노출</option>
-                                <option value="INACTIVE" ${content.status eq 'INACTIVE' ? 'selected' : ''}>숨김</option>
-                            </select>
+                            <label class="fs-6 fw-semibold mb-2">내용</label>
+                            <textarea name="content" id="summernote_edit">${content.content}</textarea>
                         </div>
                     </div>
                     <div class="modal-footer flex-center">
@@ -208,12 +209,85 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
+    <script src="/js/summernote.js"></script>
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('teamModal'));
+        const modifyModal = new bootstrap.Modal(document.getElementById('modifyModal'));
+
+        $(document).ready(function() {
+            if(typeof initSummernote === 'function') {
+                initSummernote('#summernote_edit', 400);
+            } else {
+                $('#summernote_edit').summernote({ height: 400, lang: 'ko-KR' });
+            }
+
+            // 차트 초기화
+            initCharts();
+        });
+
         function openEditModal() {
-            modal.show();
+            modifyModal.show();
+        }
+
+        // --- 통계 차트 스크립트 ---
+        function initCharts() {
+            // 서버에서 전달받은 JSON 데이터 (Controller에서 statsJson으로 전달)
+            const stats = ${statsJson}; // gender:[], age:[], daily:[]
+
+            // 1. 성별 차트 (Doughnut)
+            const genderCtx = document.getElementById('genderChart').getContext('2d');
+            const genderLabels = stats.gender.map(d => d.gender === 'M' ? '남성' : (d.gender === 'F' ? '여성' : '미상'));
+            const genderData = stats.gender.map(d => d.cnt);
+
+            new Chart(genderCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: genderLabels,
+                    datasets: [{
+                        data: genderData,
+                        backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56']
+                    }]
+                }
+            });
+
+            // 2. 연령대별 차트 (Bar)
+            const ageCtx = document.getElementById('ageChart').getContext('2d');
+            const ageLabels = stats.age.map(d => d.age_group + '대');
+            const ageData = stats.age.map(d => d.cnt);
+
+            new Chart(ageCtx, {
+                type: 'bar',
+                data: {
+                    labels: ageLabels,
+                    datasets: [{
+                        label: '클릭 수',
+                        data: ageData,
+                        backgroundColor: '#4BC0C0'
+                    }]
+                }
+            });
+
+            // 3. 일별 차트 (Line)
+            const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+            const dailyLabels = stats.daily.map(d => d.clickDate);
+            const dailyData = stats.daily.map(d => d.cnt);
+
+            new Chart(dailyCtx, {
+                type: 'line',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [{
+                        label: '일별 클릭',
+                        data: dailyData,
+                        borderColor: '#9966FF',
+                        fill: false
+                    }]
+                }
+            });
         }
     </script>
 </body>
