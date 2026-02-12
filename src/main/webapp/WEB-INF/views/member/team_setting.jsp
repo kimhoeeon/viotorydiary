@@ -91,7 +91,14 @@
 
     <div class="bottom-action bottom-main">
         <button type="button" class="btn btn-primary" id="btnNext" onclick="trySubmitTeam()" disabled>
-            변경하기
+            <c:choose>
+                <c:when test="${empty loginMember.myTeamCode or loginMember.myTeamCode eq 'NONE'}">
+                    설정하기
+                </c:when>
+                <c:otherwise>
+                    변경하기
+                </c:otherwise>
+            </c:choose>
         </button>
     </div>
 

@@ -158,7 +158,7 @@
                                             <th class="min-w-50px">노출순위</th>
                                             <th class="min-w-300px">멘트 내용</th>
                                             <th class="min-w-150px">관리자 설명</th>
-                                            <th class="text-end min-w-100px">관리</th>
+                                            <th class="min-w-100px">관리</th>
                                         </tr>
                                         </thead>
                                         <tbody class="text-gray-600 fw-semibold">

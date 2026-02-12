@@ -74,6 +74,14 @@
         const nextBtn = document.getElementById('termsNext');
         const msg = document.getElementById('loginMessage');
 
+        // [추가] 카카오 이메일 자동 입력
+        const savedEmail = sessionStorage.getItem('join_email');
+        if(savedEmail && savedEmail !== 'null') {
+            emailInput.value = savedEmail;
+            // 유효성 검사 트리거
+            emailInput.dispatchEvent(new Event('input'));
+        }
+
         emailInput.addEventListener('input', () => {
             const val = emailInput.value;
             // 간단한 이메일 정규식

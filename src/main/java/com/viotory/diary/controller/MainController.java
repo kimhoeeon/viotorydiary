@@ -76,7 +76,7 @@ public class MainController {
             }
 
             // 4. [이벤트] 최신글 1개
-            List<EventVO> events = contentMngService.getEventList();
+            List<EventVO> events = contentMngService.getActiveEventList();
             if (!events.isEmpty()) {
                 model.addAttribute("latestEvent", events.get(0));
             }
@@ -85,10 +85,11 @@ public class MainController {
             List<DiaryVO> recentDiaries = diaryService.getRecentDiaries(loginMember.getMemberId()); // Service에 메서드 추가 필요
             model.addAttribute("diaries", recentDiaries);
 
-            // 6. [새 소식] 최신글 리스트
-            List<LockerVO> contents = lockerService.getPostList("CONTENT", 1, 3);
-            if (!contents.isEmpty()) {
-                model.addAttribute("latestContent", contents.get(0));
+            // 6. [구단 소식] 최신글 (Active & 내 팀)
+            List<TeamContentVO> teamContents = contentMngService.getActiveTeamContentList(loginMember.getMyTeamCode());
+            if (!teamContents.isEmpty()) {
+                // 화면 디자인에 따라 리스트 전체를 넘기거나 최신 n개만 넘김
+                model.addAttribute("latestContent", teamContents);
             }
 
         } catch (Exception e) {

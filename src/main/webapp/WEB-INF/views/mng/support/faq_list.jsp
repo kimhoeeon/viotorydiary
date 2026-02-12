@@ -87,7 +87,7 @@
                                                     <th class="min-w-100px">카테고리</th>
                                                     <th class="min-w-300px">질문</th>
                                                     <th class="min-w-100px">상태</th>
-                                                    <th class="text-end min-w-100px">관리</th>
+                                                    <th class="min-w-100px">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">

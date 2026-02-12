@@ -60,6 +60,11 @@ public class SystemMngService {
         return systemMngMapper.selectNoticeList();
     }
 
+    // 사용자용 공지 목록
+    public List<NoticeVO> getActiveNoticeList() {
+        return systemMngMapper.selectActiveNoticeList();
+    }
+
     public NoticeVO getNoticeById(Long noticeId) {
         return systemMngMapper.selectNoticeById(noticeId);
     }

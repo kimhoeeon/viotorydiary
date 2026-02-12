@@ -140,7 +140,7 @@
                 <div class="modal-header">
                     <h2 class="fw-bold">공지사항 수정</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <span class="svg-icon svg-icon-1"><i class="bi bi-x-lg"></i></span>
+                        <span class="svg-icon svg-icon-1"><i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i></span>
                     </div>
                 </div>
 

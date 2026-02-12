@@ -88,7 +88,7 @@
                                                     <th class="min-w-50px">버전</th>
                                                     <th class="min-w-50px">필수</th>
                                                     <th class="min-w-100px">등록일</th>
-                                                    <th class="text-end min-w-100px">관리</th>
+                                                    <th class="min-w-100px">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">

@@ -106,7 +106,7 @@
                                                     <th class="min-w-100px">작성자</th>
                                                     <th class="min-w-100px">작성일</th>
                                                     <th class="min-w-50px">상태</th>
-                                                    <th class="text-end min-w-100px">관리</th>
+                                                    <th class="min-w-100px">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">

@@ -85,7 +85,7 @@
                                                     <th class="min-w-100px">코드</th>
                                                     <th class="min-w-150px">구단명 (한글/영문)</th>
                                                     <th class="min-w-100px">메인 컬러</th>
-                                                    <th class="text-end min-w-100px">관리</th>
+                                                    <th class="min-w-100px">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">

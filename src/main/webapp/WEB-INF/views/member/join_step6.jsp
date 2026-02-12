@@ -94,6 +94,14 @@
                 $('#loginMessage').removeClass('is-show is-error').text('');
                 $('#certFailIcon').hide();
             });
+
+            // [추가] 카카오 닉네임 자동 입력
+            const savedNick = sessionStorage.getItem('join_nickname');
+            if(savedNick && savedNick !== 'null') {
+                $('#nickname').val(savedNick);
+                // 입력 이벤트 트리거
+                $('#nickname').trigger('input');
+            }
         });
 
         /* * [가입 완료 처리]
@@ -131,7 +139,10 @@
                 birthdate: rawBirth.replace(/\./g, '-'),
                 nickname: nickname,
                 gender: 'U',
-                marketingAgree: sessionStorage.getItem('join_marketing') || 'N'
+                marketingAgree: sessionStorage.getItem('join_marketing') || 'N',
+                // [핵심 추가] 소셜 로그인 정보 전송
+                socialProvider: sessionStorage.getItem('join_provider') || 'NONE',
+                socialUid: sessionStorage.getItem('join_social_uid') || ''
             };
 
             // 데이터 누락 확인

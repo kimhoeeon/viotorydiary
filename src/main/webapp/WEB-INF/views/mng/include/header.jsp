@@ -32,7 +32,7 @@
                      data-kt-menu-attach="parent"
                      data-kt-menu-placement="bottom-end">
                     <div class="symbol-label fs-2 fw-semibold bg-primary text-white">
-                        <c:out value="${sessionScope.admin.name.substring(0,1)}" default="A"/>
+                        <c:out value="${sessionScope.admin.role.substring(0,1)}" default="A"/>
                     </div>
                 </div>
 
@@ -42,12 +42,15 @@
                         <div class="menu-content d-flex align-items-center px-3">
                             <div class="symbol symbol-50px me-5">
                                 <div class="symbol-label fs-2 fw-semibold bg-primary text-white">
-                                    <c:out value="${sessionScope.admin.name.substring(0,1)}" default="A"/>
+                                    <c:out value="${sessionScope.admin.role.substring(0,1)}" default="A"/>
                                 </div>
                             </div>
                             <div class="d-flex flex-column">
                                 <div class="fw-bold d-flex align-items-center fs-5">
-                                    ${sessionScope.admin.name}
+                                    <c:choose>
+                                        <c:when test="${sessionScope.admin.role eq 'CLIENT'}">관리자</c:when>
+                                        <c:otherwise>${sessionScope.admin.name}</c:otherwise>
+                                    </c:choose>
                                     <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">${sessionScope.admin.role}</span>
                                 </div>
                                 <span class="fw-semibold text-muted text-hover-primary fs-7">

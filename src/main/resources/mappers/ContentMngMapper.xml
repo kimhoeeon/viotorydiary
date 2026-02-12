@@ -7,6 +7,13 @@
         SELECT * FROM events ORDER BY created_at DESC
     </select>
 
+    <select id="selectActiveEventList" resultType="com.viotory.diary.vo.EventVO">
+        SELECT * FROM events
+        WHERE status = 'ACTIVE'
+          AND CURDATE() BETWEEN start_date AND end_date
+        ORDER BY created_at DESC
+    </select>
+
     <select id="selectEventById" resultType="com.viotory.diary.vo.EventVO">
         SELECT * FROM events WHERE event_id = #{eventId}
     </select>
@@ -44,6 +51,15 @@
     <select id="selectTeamContentList" resultType="com.viotory.diary.vo.TeamContentVO">
         SELECT * FROM team_contents
         WHERE 1=1
+        <if test="teamCode != null and teamCode != '' and teamCode != 'ALL'">
+            AND team_code = #{teamCode}
+        </if>
+        ORDER BY sort_order ASC, created_at DESC
+    </select>
+
+    <select id="selectActiveTeamContentList" resultType="com.viotory.diary.vo.TeamContentVO">
+        SELECT * FROM team_contents
+        WHERE status = 'ACTIVE'
         <if test="teamCode != null and teamCode != '' and teamCode != 'ALL'">
             AND team_code = #{teamCode}
         </if>

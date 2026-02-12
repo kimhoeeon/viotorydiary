@@ -78,10 +78,10 @@
                                                 <button type="button" class="btn btn-sm btn-light-warning me-2"
                                                         onclick="changeStatus('SUSPENDED')">활동 정지
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-light-danger"
+                                                <button type="button" class="btn btn-sm btn-light-danger me-2"
                                                         onclick="changeStatus('WITHDRAWN')">강제 탈퇴
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-light-primary me-2" onclick="resetPassword()">
+                                                <button type="button" class="btn btn-sm btn-light-primary" onclick="resetPassword()">
                                                     비밀번호 초기화
                                                 </button>
                                             </c:if>
@@ -89,10 +89,10 @@
                                                 <button type="button" class="btn btn-sm btn-light-success me-2"
                                                         onclick="changeStatus('ACTIVE')">정지 해제
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-light-danger"
+                                                <button type="button" class="btn btn-sm btn-light-danger me-2"
                                                         onclick="changeStatus('WITHDRAWN')">강제 탈퇴
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-light-primary me-2" onclick="resetPassword()">
+                                                <button type="button" class="btn btn-sm btn-light-primary" onclick="resetPassword()">
                                                     비밀번호 초기화
                                                 </button>
                                             </c:if>

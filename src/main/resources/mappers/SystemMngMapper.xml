@@ -7,6 +7,12 @@
         SELECT * FROM notices ORDER BY is_top DESC, created_at DESC
     </select>
 
+    <select id="selectActiveNoticeList" resultType="com.viotory.diary.vo.NoticeVO">
+        SELECT * FROM notices
+        WHERE status = 'ACTIVE'
+        ORDER BY is_top DESC, created_at DESC
+    </select>
+
     <select id="selectNoticeById" resultType="com.viotory.diary.vo.NoticeVO">
         SELECT * FROM notices WHERE notice_id = #{noticeId}
     </select>

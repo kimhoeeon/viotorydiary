@@ -110,7 +110,7 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                     <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                                                        <th class="min-w-50px">순서</th>
+                                                        <th class="min-w-50px text-center">순서</th>
                                                         <th class="min-w-70px">상태</th>
                                                         <th class="min-w-70px">구단</th>
                                                         <th class="min-w-200px">제목</th>
@@ -122,14 +122,18 @@
                                                 <tbody class="text-gray-600 fw-semibold">
                                                     <c:forEach var="item" items="${list}" varStatus="status">
                                                         <tr>
-                                                            <td>
-                                                                <div class="d-flex flex-column align-items-center">
+                                                            <td class="text-center">
+                                                                <div class="d-flex flex-column align-items-center justify-content-center">
                                                                     <button type="button" class="btn btn-icon btn-sm btn-light-primary mb-1 h-20px w-20px" onclick="changeOrder(${item.contentId}, 'UP')">
-                                                                        <i class="bi bi-caret-up-fill"></i>
+                                                                        <i class="ki-duotone ki-arrow-up fs-3">
+                                                                            <span class="path1"></span><span class="path2"></span>
+                                                                        </i>
                                                                     </button>
                                                                     <span class="fs-8 fw-bold">${item.sortOrder}</span>
                                                                     <button type="button" class="btn btn-icon btn-sm btn-light-primary mt-1 h-20px w-20px" onclick="changeOrder(${item.contentId}, 'DOWN')">
-                                                                        <i class="bi bi-caret-down-fill"></i>
+                                                                        <i class="ki-duotone ki-arrow-down fs-3">
+                                                                            <span class="path1"></span><span class="path2"></span>
+                                                                        </i>
                                                                     </button>
                                                                 </div>
                                                             </td>
@@ -148,7 +152,7 @@
                                                             </td>
                                                         </tr>
                                                     </c:forEach>
-                                                    <c:if test="${empty contents}">
+                                                    <c:if test="${empty list}">
                                                         <tr>
                                                             <td colspan="7" class="text-center py-10">등록된 콘텐츠가 없습니다.</td>
                                                         </tr>
@@ -173,7 +177,7 @@
                 <div class="modal-header">
                     <h2 class="fw-bold" id="modalTitle">콘텐츠 등록</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-lg fs-1"></i>
+                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                     </div>
                 </div>
                 <form id="teamForm" action="/mng/content/teams/save" method="post" enctype="multipart/form-data">

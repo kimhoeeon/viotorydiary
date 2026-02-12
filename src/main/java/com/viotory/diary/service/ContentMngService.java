@@ -32,6 +32,11 @@ public class ContentMngService {
         return contentMngMapper.selectEventList();
     }
 
+    // 사용자용 이벤트 목록
+    public List<EventVO> getActiveEventList() {
+        return contentMngMapper.selectActiveEventList();
+    }
+
     public EventVO getEvent(Long eventId) {
         return contentMngMapper.selectEventById(eventId);
     }
@@ -58,6 +63,11 @@ public class ContentMngService {
     // 목록 조회 (필터 추가)
     public List<TeamContentVO> getTeamContentList(String teamCode) {
         return contentMngMapper.selectTeamContentList(teamCode);
+    }
+
+    // 사용자용 구단 콘텐츠 목록
+    public List<TeamContentVO> getActiveTeamContentList(String teamCode) {
+        return contentMngMapper.selectActiveTeamContentList(teamCode);
     }
 
     // 상세 조회

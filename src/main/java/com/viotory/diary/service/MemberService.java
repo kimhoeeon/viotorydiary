@@ -499,11 +499,6 @@ public class MemberService {
                 member.setEmail(kakaoUser.getEmail());
                 member.setNickname(kakaoUser.getNickname());
                 member.setProfileImage(kakaoUser.getProfileImage());
-
-                memberMapper.insertSocialMember(member);
-
-                // memberId 확보를 위해 재조회
-                member = memberMapper.selectBySocialId("KAKAO", kakaoUser.getSocialUid());
             }
         }
 

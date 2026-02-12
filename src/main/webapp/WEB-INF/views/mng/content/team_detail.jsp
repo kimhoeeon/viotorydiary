@@ -145,7 +145,7 @@
                 <div class="modal-header">
                     <h2 class="fw-bold">콘텐츠 수정</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <i class="bi bi-x-lg fs-1"></i>
+                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                     </div>
                 </div>
                 <form action="/mng/content/teams/save" method="post" enctype="multipart/form-data">

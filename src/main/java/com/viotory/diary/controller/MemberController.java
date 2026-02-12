@@ -124,17 +124,21 @@ public class MemberController {
         try {
             log.info("카카오 인증 코드 수신: {}", code);
 
-            // 1. 서비스 호출 (토큰발급 -> 정보조회 -> 로그인/회원가입)
-            MemberVO loginMember = memberService.processKakaoLogin(code);
+            // 1. 서비스 호출
+            MemberVO member = memberService.processKakaoLogin(code);
 
-            // 2. 세션 등록 (로그인 처리)
-            session.setAttribute("loginMember", loginMember);
+            // [핵심 변경] 2. 신규 회원(memberId 없음) -> 회원가입 단계로 이동
+            if (member.getMemberId() == null) {
+                model.addAttribute("kakaoInfo", member);
+                return "member/join_social_bridge"; // 정보를 세션스토리지에 담는 중간 페이지
+            }
 
-            // 3. 마지막 로그인 시간 갱신
-            memberService.updateLastLogin(loginMember.getMemberId());
+            // 3. 기존 회원 -> 로그인 처리
+            session.setAttribute("loginMember", member);
+            memberService.updateLastLogin(member.getMemberId());
 
-            // 4. 팀 설정 여부에 따른 페이지 이동
-            if (loginMember.getMyTeamCode() == null || "NONE".equals(loginMember.getMyTeamCode())) {
+            // 4. 팀 설정 여부에 따른 이동
+            if (member.getMyTeamCode() == null || "NONE".equals(member.getMyTeamCode())) {
                 return "redirect:/member/team-setting";
             }
             return "redirect:/main";

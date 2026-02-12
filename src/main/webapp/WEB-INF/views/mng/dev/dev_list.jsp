@@ -149,8 +149,9 @@
                                                     <tr>
                                                         <td>${item.reqId}</td>
                                                         <td>
-                                                            <c:if test="${item.urgency eq 'Y'}"><span
-                                                                    class="badge badge-danger me-1">긴급</span></c:if>
+                                                            <c:if test="${item.urgency eq 'Y'}">
+                                                                <span class="badge badge-danger me-1">긴급</span>
+                                                            </c:if>
                                                             <span class="badge badge-light fw-bold">${item.categoryName}</span>
                                                         </td>
                                                         <td>
@@ -164,9 +165,7 @@
                                                         </td>
                                                         <td>${item.writerName}</td>
                                                         <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate"
-                                                                           type="both"/>
+                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
                                                             <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd"/>
                                                         </td>
                                                         <td>
@@ -191,13 +190,13 @@
                                             <ul class="pagination">
                                                 <c:if test="${pageMaker.prev}">
                                                     <li class="page-item previous">
-                                                        <a href="${pageMaker.startPage - 1}" class="page-link"><i
-                                                                class="previous"></i></a>
+                                                        <a href="${pageMaker.startPage - 1}" class="page-link">
+                                                            <i class="previous"></i>
+                                                        </a>
                                                     </li>
                                                 </c:if>
 
-                                                <c:forEach var="num" begin="${pageMaker.startPage}"
-                                                           end="${pageMaker.endPage}">
+                                                <c:forEach var="num" begin="${pageMaker.startPage}" end="${pageMaker.endPage}">
                                                     <li class="page-item ${pageMaker.cri.pageNum == num ? 'active' : ''}">
                                                         <a href="${num}" class="page-link">${num}</a>
                                                     </li>
@@ -205,8 +204,9 @@
 
                                                 <c:if test="${pageMaker.next}">
                                                     <li class="page-item next">
-                                                        <a href="${pageMaker.endPage + 1}" class="page-link"><i
-                                                                class="next"></i></a>
+                                                        <a href="${pageMaker.endPage + 1}" class="page-link">
+                                                            <i class="next"></i>
+                                                        </a>
                                                     </li>
                                                 </c:if>
                                             </ul>

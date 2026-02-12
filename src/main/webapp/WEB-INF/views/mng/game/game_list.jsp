@@ -108,7 +108,7 @@
                                                         <th class="min-w-100px text-center">점수</th>
                                                         <th class="min-w-100px">구장</th>
                                                         <th class="min-w-100px">상태</th>
-                                                        <th class="text-end min-w-100px">관리</th>
+                                                        <th class="min-w-100px">관리</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
