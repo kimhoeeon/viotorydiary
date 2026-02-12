@@ -122,7 +122,7 @@ public class MemberController {
     @GetMapping("/kakao/callback")
     public String kakaoCallback(@RequestParam String code, HttpSession session, Model model) {
         try {
-            log.info("카카오 인증 코드 수신: {}", code);
+            //log.info("카카오 인증 코드 수신: {}", code);
 
             // 1. 서비스 호출
             MemberVO member = memberService.processKakaoLogin(code);

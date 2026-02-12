@@ -73,7 +73,11 @@ public class MemberService {
         if (member.getMyTeamCode() == null || member.getMyTeamCode().isEmpty()) {
             member.setMyTeamCode("NONE"); // 팀 선택 전
         }
-        member.setSocialProvider("NONE");
+
+        // [수정] 소셜 제공자가 없는 경우에만 NONE으로 설정 (기존 데이터 보존)
+        if (member.getSocialProvider() == null || member.getSocialProvider().isEmpty()) {
+            member.setSocialProvider("NONE");
+        }
         member.setRole("USER");
         member.setStatus("ACTIVE");
 
@@ -546,6 +550,10 @@ public class MemberService {
 
         try {
             ResponseEntity<String> response = rt.exchange(reqUrl, HttpMethod.POST, request, String.class);
+
+            // [추가] 응답 데이터 로그 출력
+            //log.info("카카오 사용자 정보 응답(Body): {}", response.getBody());
+
             ObjectMapper mapper = new ObjectMapper();
             JsonNode body = mapper.readTree(response.getBody());
 

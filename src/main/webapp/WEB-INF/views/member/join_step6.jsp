@@ -145,6 +145,8 @@
                 socialUid: sessionStorage.getItem('join_social_uid') || ''
             };
 
+            console.log("전송 데이터 확인:", data);
+
             // 데이터 누락 확인
             if (!data.email || !data.password || !data.phoneNumber) {
                 alert('필수 정보가 누락되었습니다.\n처음부터 다시 시도해주세요.', function() {
