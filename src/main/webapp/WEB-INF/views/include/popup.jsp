@@ -7,7 +7,7 @@
         </div>
 
         <div class="center-popup_footer" id="popupFooterConfirm">
-            <button type="button" class="btn btn-gray color-b" onclick="closePopup()">
+            <button type="button" class="btn btn-gray color-b" id="popupCancelBtn" onclick="closePopup()">
                 닫기
             </button>
             <button type="button" class="btn btn-primary" id="popupConfirmBtn">
@@ -28,7 +28,8 @@
     // type: 'confirm' (취소/확인) or 'alert' (확인만)
     // text: 팝업 내용 (HTML 태그 포함 가능)
     // confirmCallback: 확인 버튼 클릭 시 실행할 함수
-    function showPopup(type, text, confirmCallback) {
+    // cancelCallback: 취소 버튼 클릭 시 실행할 함수
+    function showPopup(type, text, confirmCallback, cancelCallback) {
         const popup = document.getElementById('commonPopup');
         const title = document.getElementById('commonPopupTitle');
         const footerConfirm = document.getElementById('popupFooterConfirm');
@@ -36,6 +37,7 @@
 
         // 각 버튼 요소 가져오기
         const confirmBtn = document.getElementById('popupConfirmBtn'); // Confirm용 확인 버튼
+        const cancelBtn = document.getElementById('popupCancelBtn'); // 취소 버튼 가져오기
         const alertBtn = footerAlert.querySelector('button');          // Alert용 확인 버튼
 
         // 텍스트 설정
@@ -50,6 +52,13 @@
             confirmBtn.onclick = function () {
                 closePopup(); // 팝업 닫기
                 if (confirmCallback) confirmCallback(); // 콜백 실행
+            };
+
+            // [취소] 버튼 이벤트 (수정됨)
+            // 기존 onclick="closePopup()"을 덮어쓰고 콜백 실행 추가
+            cancelBtn.onclick = function () {
+                closePopup();
+                if (cancelCallback) cancelCallback();
             };
         } else {
             // Alert 타입

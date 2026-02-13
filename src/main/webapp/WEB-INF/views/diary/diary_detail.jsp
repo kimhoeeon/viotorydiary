@@ -226,11 +226,11 @@
             </div>
         </c:if>
 
-        <c:if test="${!isOwner}">
+        <%--<c:if test="${!isOwner}">--%>
             <div class="bottom-action bottom-main">
                 <button type="button" class="btn btn-primary" onclick="shareDiary()">공유하기</button>
             </div>
-        </c:if>
+        <%--</c:if>--%>
 
     </div>
 

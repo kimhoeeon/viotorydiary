@@ -372,8 +372,28 @@
                 loadGames(popupSelectedDateStr);
                 monthSheetBackdrop.classList.remove('is-open');
             });
-            prevWeekBtn.addEventListener('click', () => { currentWeekDate.setDate(currentWeekDate.getDate() - 7); renderWeekView(); });
-            nextWeekBtn.addEventListener('click', () => { currentWeekDate.setDate(currentWeekDate.getDate() + 7); renderWeekView(); });
+
+            // [수정 적용] 주차 이동 시 '월요일' 자동 선택 함수
+            function moveWeekAndSelectMonday(direction) {
+                // 1. 주차 이동 (+7일 or -7일)
+                currentWeekDate.setDate(currentWeekDate.getDate() + (direction * 7));
+
+                // 2. 해당 주의 월요일 계산 (일요일 + 1일)
+                const sunday = getSundayOfWeek(currentWeekDate);
+                const monday = new Date(sunday);
+                monday.setDate(sunday.getDate() + 1);
+
+                // 3. 값 업데이트 및 데이터 로드
+                const monStr = formatYMD(monday);
+                selectedInput.value = monStr; // 선택된 날짜(hidden input)를 월요일로 변경
+
+                renderWeekView(); // 달력 다시 그리기 (월요일에 is-selected 적용됨)
+                loadGames(monStr); // 월요일 경기 목록 조회
+            }
+
+            // 이벤트 연결
+            prevWeekBtn.addEventListener('click', () => moveWeekAndSelectMonday(-1));
+            nextWeekBtn.addEventListener('click', () => moveWeekAndSelectMonday(1));
 
             const initD = parseYMD(selectedInput.value);
             if(initD) currentWeekDate = initD;
@@ -393,6 +413,8 @@
         function renderGameList() {
             const list = $('#gameListArea');
             list.empty();
+
+            // "우리팀만 보기" 필터링 로직 유지
             const isMyTeamOnly = $('#myTeam').is(':checked');
             let games = cachedGames;
             if (isMyTeamOnly) {
@@ -405,32 +427,37 @@
             }
 
             const now = new Date();
-
             games.forEach(game => {
                 const homeCodeLower = (game.homeTeamCode || '').toLowerCase();
                 const awayCodeLower = (game.awayTeamCode || '').toLowerCase();
+                // 이미지 에러 처리를 위한 변수 처리
                 const homeSrc = game.homeTeamLogo ? game.homeTeamLogo : `/img/logo/logo_\${homeCodeLower}.svg`;
                 const awaySrc = game.awayTeamLogo ? game.awayTeamLogo : `/img/logo/logo_\${awayCodeLower}.svg`;
 
-                // 취소 상태값 CANCELLED 반영
+                // [추가] 취소 사유 표시
                 let cancelReasonHtml = '';
                 if(game.status === 'CANCELLED' && game.cancelReason) {
                     cancelReasonHtml = `<div class="cancel-reason">(\${game.cancelReason})</div>`;
                 }
 
+                // 선발 투수 정보
                 let homeStarterHtml = '';
                 let awayStarterHtml = '';
-                if(game.status === 'SCHEDULED' || game.status === 'LIVE') {
+                // 예정이거나 경기중일 때만 투수 표시 (취소 시 표시 안 함)
+                if(game.status !== 'CANCELLED') {
                     if(game.homeStarter) homeStarterHtml = `<div class="pitcher-name">\${game.homeStarter}</div>`;
                     if(game.awayStarter) awayStarterHtml = `<div class="pitcher-name">\${game.awayStarter}</div>`;
                 }
 
+                // 승리 팀 스타일 클래스
                 let winClassHome = (game.status === 'FINISHED' && game.scoreHome > game.scoreAway) ? 'win' : '';
                 let winClassAway = (game.status === 'FINISHED' && game.scoreAway > game.scoreHome) ? 'win' : '';
+
+                // MY팀 뱃지
                 let myTeamBadgeHome = (game.homeTeamCode === MY_TEAM_CODE) ? '<div class="my-team">MY</div>' : '';
                 let myTeamBadgeAway = (game.awayTeamCode === MY_TEAM_CODE) ? '<div class="my-team">MY</div>' : '';
 
-                // 상태값 변수명 CANCELLED로 변경
+                // 경기 상태 텍스트 및 클래스
                 let statusClass = 'schedule';
                 let statusText = '예정';
                 if(game.status === 'LIVE') { statusClass = 'during'; statusText = '경기중'; }
@@ -440,51 +467,65 @@
                 let scoreHome = (game.status === 'SCHEDULED') ? '0' : game.scoreHome;
                 let scoreAway = (game.status === 'SCHEDULED') ? '0' : game.scoreAway;
 
+                // 버튼 로직 분기 처리
                 let btnHtml = '';
 
-                if (game.status === 'SCHEDULED') {
+                // 1. 경기 취소됨 -> 버튼 없음
+                if (game.status === 'CANCELLED') {
+                    btnHtml = '';
+                }
+                // 2. 예정된 경기 -> 승부예측 버튼 로직
+                else if (game.status === 'SCHEDULED') {
                     if (game.myPredictedTeam) {
                         btnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>예측 완료 (\${game.myPredictedTeam})</button>`;
                     } else {
+                        // 시간 계산 (D-Day 등)
                         const gameDateTime = new Date(`\${game.gameDate}T\${game.gameTime}`);
                         const diffMs = gameDateTime - now;
                         const diffHours = diffMs / (1000 * 60 * 60);
 
                         if (diffHours > 24) {
-                            btnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>
-                                               예측 오픈 예정 (D-\${Math.floor(diffHours/24)})
-                                           </button>`;
+                            btnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>오픈 예정 (D-\${Math.floor(diffHours/24)})</button>`;
                         } else if (diffHours > 0) {
                             btnHtml = `<button type="button" class="btn btn-primary mt-8 btn-predict"
-                                                   data-game-id="\${game.gameId}"
-                                                   data-home-name="\${game.homeTeamName}"
-                                                   data-away-name="\${game.awayTeamName}"
-                                                   data-home-code="\${game.homeTeamCode}"
-                                                   data-away-code="\${game.awayTeamCode}">
-                                           승부예측 하기</button>`;
+                                           data-game-id="\${game.gameId}"
+                                           data-home-name="\${game.homeTeamName}"
+                                           data-away-name="\${game.awayTeamName}"
+                                           data-home-code="\${game.homeTeamCode}"
+                                           data-away-code="\${game.awayTeamCode}">
+                                       승부예측 하기</button>`;
                         } else {
                             btnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>경기 준비중</button>`;
                         }
                     }
                 }
+                // 3. 경기 중 (LIVE) -> 직관 일기 쓰기
                 else if (game.status === 'LIVE') {
-                    btnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn mt-8">오늘 경기 기록하기
+                    // 일기를 이미 썼다면 바로가기, 아니면 쓰기
+                    if (game.diaryId && game.diaryId > 0) {
+                        btnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn btn-light-primary mt-8">직관일기 바로가기
                                    <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
+                    } else {
+                        btnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn mt-8">오늘 경기 기록하기
+                                   <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
+                    }
                 }
+                // 4. 경기 종료 (FINISHED) -> 직관 일기 로직
                 else if (game.status === 'FINISHED') {
-                    if (game.diaryId) {
-                        // My Hero 정보가 있으면 함께 표시
+                    // ★ 이미 작성된 일기가 있으면 -> 바로가기 버튼
+                    if (game.diaryId && game.diaryId > 0) {
                         let heroHtml = '';
                         if (game.myHero) {
                             heroHtml = `<div class="my-hero-badge">My Hero \${game.myHero}</div>`;
                         }
 
-                        // heroHtml을 버튼 태그 위에 포함시킴
                         btnHtml = `
                             \${heroHtml}
-                            <a href="/diary/detail?diaryId=\${game.diaryId}" class="btn sub-btn mt-8">직관일기 바로가기
-                            <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
-                    } else {
+                            <a href="/diary/detail?diaryId=\${game.diaryId}" class="btn sub-btn mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">직관일기 바로가기
+                            <svg viewBox="0 0 5.5 9.5" style="stroke:#1A7CFF;"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
+                    }
+                    // ★ 작성된 일기가 없으면 -> 기록하기 버튼
+                    else {
                         btnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn mt-8">오늘 경기 기록하기
                                    <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
                     }

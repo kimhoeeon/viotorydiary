@@ -49,7 +49,7 @@ public class MenuService {
 
         // 6. 고객센터 관리 (그룹)
         List<MenuItem> subSupport = new ArrayList<>();
-        subSupport.add(new MenuItem("FAQ 관리", "/mng/support/faq/list", "", 0));
+        //subSupport.add(new MenuItem("FAQ 관리", "/mng/support/faq/list", "", 0));
         subSupport.add(new MenuItem("1:1 문의 관리", "/mng/support/inquiry/list", "", 0));
         menus.add(new MenuItem("고객센터", "#", "ki-question", 2, subSupport));
 

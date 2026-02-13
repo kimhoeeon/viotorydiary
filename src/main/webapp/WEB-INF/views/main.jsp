@@ -132,9 +132,11 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="btn-wrap mt-16">
-                                            <a href="/play" class="btn btn-primary">오늘의 경기 기록하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>
-                                        </div>
+                                        <c:if test="${todayGame.status ne 'CANCELLED'}">
+                                            <div class="btn-wrap mt-16">
+                                                <a href="/play" class="btn btn-primary">오늘의 경기 기록하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>
+                                            </div>
+                                        </c:if>
                                     </c:when>
                                     <c:otherwise>
                                         <div class="nodt_wrap">
@@ -250,11 +252,26 @@
                                                             </div>
                                                             <div class="date">${diary.gameDate}</div>
                                                         </div>
-                                                        <c:if test="${diary.gameResult == 'WIN'}">
-                                                            <div class="score_win">
-                                                                <img src="/img/ico_check.svg" alt="승리">
-                                                            </div>
-                                                        </c:if>
+                                                        <c:choose>
+                                                            <%-- 1. 경기중 --%>
+                                                            <c:when test="${diary.gameStatus eq 'LIVE'}">
+                                                                <div class="during"><div class="badge">경기중</div></div>
+                                                            </c:when>
+
+                                                            <%-- 2. 취소된 경기 --%>
+                                                            <c:when test="${diary.gameStatus eq 'CANCELLED'}">
+                                                                <div class="cancel">
+                                                                    <div class="badge">취소(${not empty diary.cancelReason ? diary.cancelReason : '우천'})</div>
+                                                                </div>
+                                                            </c:when>
+
+                                                            <%-- 3. 승리한 경기 --%>
+                                                            <c:when test="${diary.gameResult eq 'WIN'}">
+                                                                <div class="score_win">
+                                                                    <img src="/img/ico_check.svg" alt="승리">
+                                                                </div>
+                                                            </c:when>
+                                                        </c:choose>
                                                     </div>
                                                 </div>
                                             </c:forEach>

@@ -76,7 +76,13 @@
 
         // 카카오 이메일 자동 입력
         const savedEmail = sessionStorage.getItem('join_email');
-        if(savedEmail && savedEmail !== 'null') {
+
+        // 1. 카카오 임시 이메일(@kakao.viotory.com)이 감지되면 -> 바로 Step 3(비밀번호)로 이동
+        if (savedEmail && savedEmail.indexOf('@kakao.viotory.com') > -1) {
+            location.replace('/member/join/step3');
+        }
+        // 2. 일반 이메일이 저장되어 있는 경우 -> 입력창에 채워주기
+        else if(savedEmail && savedEmail !== 'null') {
             emailInput.value = savedEmail;
             // 유효성 검사 트리거
             emailInput.dispatchEvent(new Event('input'));

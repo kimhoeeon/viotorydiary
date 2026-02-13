@@ -62,4 +62,5 @@ public class GameVO {
     private String dhCode;        // 더블헤더 (0:없음, 1:1차전, 2:2차전) - 필요 시
 
     private String dataSource;    // API
+
 }

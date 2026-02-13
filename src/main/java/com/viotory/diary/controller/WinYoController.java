@@ -2,8 +2,10 @@ package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.service.DiaryService;
+import com.viotory.diary.service.GameService;
 import com.viotory.diary.service.WinYoService;
 import com.viotory.diary.vo.DiaryVO;
+import com.viotory.diary.vo.GameVO;
 import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ public class WinYoController {
 
     private final WinYoService winYoService;
     private final DiaryService diaryService;
+    private final GameService gameService;
 
     /**
      * 일기 탭 메인 (대시보드)
@@ -55,6 +58,19 @@ public class WinYoController {
 
         model.addAttribute("stadiumStatus", stadiumStatus);
         model.addAttribute("visitedCount", visitedCount);
+
+        // 오늘 경기 존재 여부 확인 (취소된 경기 제외)
+        boolean hasTodayGame = false;
+        List<GameVO> todayGames = gameService.getAllGamesToday();
+        if (todayGames != null && !todayGames.isEmpty()) {
+            for (GameVO game : todayGames) {
+                if (!"CANCELLED".equals(game.getStatus())) {
+                    hasTodayGame = true;
+                    break;
+                }
+            }
+        }
+        model.addAttribute("hasTodayGame", hasTodayGame);
 
         return "diary/diary_main";
     }

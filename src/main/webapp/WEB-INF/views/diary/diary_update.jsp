@@ -193,7 +193,19 @@
 
         // 제출
         function submitDiary() {
-            // 히어로(MVP) 필수 입력 체크
+            // 1) 필수값 체크: 스코어 (req 클래스 항목)
+            var scoreHome = $('input[name="predScoreHome"]');
+            var scoreAway = $('input[name="predScoreAway"]');
+
+            if (scoreHome.val() === '' || scoreAway.val() === '') {
+                alert('스코어를 입력해주세요!', function() {
+                    if(scoreHome.val() === '') scoreHome.focus();
+                    else scoreAway.focus();
+                });
+                return;
+            }
+
+            // 2) 히어로(MVP) 필수 입력 체크
             var heroInput = document.getElementById('heroName');
             if (!heroInput || !heroInput.value.trim()) {
                 alert('오늘의 히어로(MVP)를 입력해주세요!', function() {
@@ -202,7 +214,7 @@
                 return;
             }
 
-            // 한줄평 체크
+            // 3) 한줄평 체크
             var oneLineInput = document.getElementById('oneLine');
             if (!oneLineInput || !oneLineInput.value.trim()) {
                 alert('한줄평을 입력해주세요.', function() {

@@ -58,9 +58,11 @@
                                     <c:out value="${winYo.mainMessage}" default="승요력 상승 중! 이번주도 직관 파이팅!" />
                                 </div>
                                 <div class="live-certify">
-                                    <a href="/diary/write" class="btn btn-primary">
-                                        오늘의 직관 일기 쓰기<span><img src="/img/ico_right_arrow.svg" alt=""></span>
-                                    </a>
+                                    <c:if test="${hasTodayGame}">
+                                        <a href="/diary/write" class="btn btn-primary">
+                                            오늘의 직관 일기 쓰기<span><img src="/img/ico_right_arrow.svg" alt=""></span>
+                                        </a>
+                                    </c:if>
                                 </div>
 
                                 <ul class="live-score">
@@ -163,11 +165,26 @@
                                                         <fmt:formatDate value="${pDate}" pattern="yyyy-MM-dd"/>
                                                     </div>
                                                 </div>
-                                                <c:if test="${item.gameResult eq 'WIN'}">
-                                                    <div class="score_win">
-                                                        <img src="/img/ico_win.svg" alt="승리">
-                                                    </div>
-                                                </c:if>
+                                                <c:choose>
+                                                    <%-- 1. 경기중 --%>
+                                                    <c:when test="${item.gameStatus eq 'LIVE'}">
+                                                        <div class="during"><div class="badge">경기중</div></div>
+                                                    </c:when>
+
+                                                    <%-- 2. 취소된 경기 --%>
+                                                    <c:when test="${item.gameStatus eq 'CANCELLED'}">
+                                                        <div class="cancel">
+                                                            <div class="badge">취소(${not empty item.cancelReason ? item.cancelReason : '우천'})</div>
+                                                        </div>
+                                                    </c:when>
+
+                                                    <%-- 3. 승리한 경기 --%>
+                                                    <c:when test="${item.gameResult eq 'WIN'}">
+                                                        <div class="score_win">
+                                                            <img src="/img/ico_win.svg" alt="승리">
+                                                        </div>
+                                                    </c:when>
+                                                </c:choose>
                                             </div>
                                         </div>
                                     </c:forEach>

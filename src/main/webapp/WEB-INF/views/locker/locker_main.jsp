@@ -162,7 +162,9 @@
                                                     </div>
                                                     <div class="notice_item">
                                                         <div class="notice_txt">
-                                                            <div class="notice_badge">${notice.category eq 'SURVEY' ? '설문' : '공지'}</div>
+                                                            <div class="notice_badge ${notice.category eq 'SURVEY' ? 'quest_badge' : ''}">
+                                                                ${notice.category eq 'SURVEY' ? '설문' : '공지'}
+                                                            </div>
                                                             <div class="tit text-ellipsis">${notice.title}</div>
                                                         </div>
                                                         <div class="date">

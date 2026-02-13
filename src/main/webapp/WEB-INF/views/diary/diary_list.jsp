@@ -94,22 +94,22 @@
                                             </div>
 
                                             <c:choose>
-                                                <%-- 1. 승리 --%>
+                                                <%-- 1. 경기중 --%>
+                                                <c:when test="${item.gameStatus eq 'LIVE'}">
+                                                    <div class="during"><div class="badge">경기중</div></div>
+                                                </c:when>
+
+                                                <%-- 2. 취소된 경기 --%>
+                                                <c:when test="${item.gameStatus eq 'CANCELLED'}">
+                                                    <div class="cancel">
+                                                        <div class="badge">취소(${not empty item.cancelReason ? item.cancelReason : '우천'})</div>
+                                                    </div>
+                                                </c:when>
+
+                                                <%-- 3. 승리한 경기 --%>
                                                 <c:when test="${item.gameResult eq 'WIN'}">
                                                     <div class="score_win">
                                                         <img src="/img/ico_win.svg" alt="승리">
-                                                    </div>
-                                                </c:when>
-                                                <%-- 2. 취소 --%>
-                                                <c:when test="${item.gameResult eq 'CANCELLED'}">
-                                                    <div class="cancel">
-                                                        <div class="badge">취소(우천)</div>
-                                                    </div>
-                                                </c:when>
-                                                <%-- 3. 경기중 (Live) --%>
-                                                <c:when test="${item.gameResult eq 'LIVE'}">
-                                                    <div class="during">
-                                                        <div class="badge">경기중</div>
                                                     </div>
                                                 </c:when>
                                             </c:choose>

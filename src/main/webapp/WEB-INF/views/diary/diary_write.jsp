@@ -475,7 +475,7 @@
 
       // 4. 제출
       function submitDiary() {
-          // 1) 경기 선택 여부 확인
+          // 1) 필수값 체크: 경기 선택 (req 클래스 항목)
           if (!$('#gameId').val()) {
               alert('경기를 선택해주세요.', function() {
                   openGameSheet();
@@ -483,7 +483,20 @@
               return;
           }
 
-          // 2) 필수값 체크: 히어로
+          // 2) 필수값 체크: 스코어 (req 클래스 항목)
+          // name 속성이 동적으로 변경되므로 name으로 조회
+          var scoreHome = $('input[name="predScoreHome"]');
+          var scoreAway = $('input[name="predScoreAway"]');
+
+          if (scoreHome.val() === '' || scoreAway.val() === '') {
+              alert('예상 스코어를 입력해주세요!', function() {
+                  if(scoreHome.val() === '') scoreHome.focus();
+                  else scoreAway.focus();
+              });
+              return;
+          }
+
+          // 3) 필수값 체크: 히어로
           if (!$.trim($('#heroName').val())) {
               alert('오늘의 히어로(MVP)를 입력해주세요!', function() {
                   $('#heroName').focus();
@@ -491,7 +504,7 @@
               return;
           }
 
-          // 3) 필수값 체크: 한줄평
+          // 4) 필수값 체크: 한줄평
           if (!$.trim($('#oneLine').val())) {
               alert('오늘 경기에 대한 한줄평을 남겨주세요!', function() {
                   $('#oneLine').focus();

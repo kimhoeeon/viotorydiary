@@ -105,6 +105,10 @@
             g.away_team_code,
             g.score_home,
             g.score_away,
+
+            g.status AS gameStatus,
+            g.cancel_reason AS cancelReason,
+
             t1.name_kr AS homeTeamName, /* 팀 이름 추가 */
             t2.name_kr AS awayTeamName, /* 팀 이름 추가 */
             s.name AS stadiumName,      /* 구장 이름 추가 */
@@ -191,6 +195,10 @@
                g.away_team_code,
                g.score_home,
                g.score_away,
+
+               g.status AS gameStatus,
+               g.cancel_reason AS cancelReason,
+
                t1.name_kr AS homeTeamName,
                t2.name_kr AS awayTeamName,
                s.name     AS stadiumName,
