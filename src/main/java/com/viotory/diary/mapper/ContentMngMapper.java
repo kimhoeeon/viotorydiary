@@ -42,4 +42,6 @@ public interface ContentMngMapper {
     // 사용자 기능
     void increaseClickCount(@Param("contentId") Long contentId);
     TeamContentVO selectRandomActiveContent(@Param("teamCode") String teamCode);
+
+    Integer selectMaxSortOrder();
 }

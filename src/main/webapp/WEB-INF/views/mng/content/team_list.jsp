@@ -180,7 +180,7 @@
                         <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                     </div>
                 </div>
-                <form id="teamForm" action="/mng/content/teams/save" method="post" enctype="multipart/form-data">
+                <form id="teamForm" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="contentId" id="contentId">
                     <div class="modal-body py-10 px-lg-17">
                         <div class="fv-row mb-7">
@@ -216,9 +216,32 @@
                             <input type="text" class="form-control form-control-solid" name="title" id="title" required />
                         </div>
                         <div class="fv-row mb-7">
+                            <label class="fs-6 fw-bold mb-2">썸네일 미리보기</label>
+                            <div class="d-flex justify-content-center align-items-center bg-light rounded position-relative"
+                                 style="min-height: 200px; border: 1px dashed #ccc; overflow: hidden;">
+
+                                <img id="previewImg" src="/assets/media/svg/files/blank-image.svg"
+                                     style="max-width: 100%; max-height: 250px; object-fit: contain;" alt="미리보기" />
+
+                                <div id="previewLoader" class="position-absolute w-100 h-100 justify-content-center align-items-center bg-white bg-opacity-75" style="display: none;">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-text text-muted">
+                                jpg, png, jpeg 파일만 등록 가능합니다.<br>
+                                파일 등록시, 콘텐츠 URL의 썸네일보다 우선 적용됩니다.
+                            </div>
+                            <input type="hidden" id="hiddenImageUrl" name="imageUrl" />
+                        </div>
+                        <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">썸네일 이미지</label>
-                            <input type="file" name="file" class="form-control form-control-solid" accept="image/jpeg, image/png, image/jpg"/>
-                            <div class="form-text text-muted">jpg, png, jpeg 파일만 등록 가능합니다.</div>
+                            <input type="file" class="form-control form-control-solid" name="file" id="fileInput" accept="image/jpeg, image/png, image/jpg"/>
+                            <div class="form-text text-muted">
+                                jpg, png, jpeg 파일만 등록 가능합니다.<br>
+                                파일 등록시, 콘텐츠 URL의 썸네일보다 우선 적용됩니다.
+                            </div>
                         </div>
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
@@ -232,7 +255,7 @@
                     </div>
                     <div class="modal-footer flex-center">
                         <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary">저장</button>
+                        <button type="button" class="btn btn-primary" onclick="saveContent()">저장</button>
                     </div>
                 </form>
             </div>
@@ -246,9 +269,41 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
     <script src="/js/summernote.js"></script>
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('teamModal'));
+
+        // 전역 변수로 마지막 URL 저장 (중복 호출 방지)
+        let lastExtractedUrl = '';
 
         $(document).ready(function() {
+            // 1. 파일 선택 시 미리보기 (로컬 파일)
+            $('#fileInput').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#previewImg').attr('src', e.target.result);
+                        $('#hiddenImageUrl').val(''); // 파일이 우선이므로 추출 URL 제거
+
+                        // [추가] 파일 로드 완료 시 로딩바 숨김 및 이미지 투명도 원복
+                        $('#previewLoader').removeClass('d-flex').hide();
+                        $('#previewImg').css('opacity', 1);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // 2. 링크 URL 입력 시 썸네일 추출 (포커스 아웃 or 붙여넣기 시)
+            $('#contentUrl').on('blur paste', function() {
+                setTimeout(() => {
+                    const url = $('#contentUrl').val();
+                    const fileVal = $('#fileInput').val();
+
+                    // 파일이 없고, URL이 있고, URL이 변경되었을 때만 수행
+                    if (!fileVal && url && url.length > 10 && url !== lastExtractedUrl) {
+                        extractMeta(url);
+                    }
+                }, 100);
+            });
+
             if(typeof initSummernote === 'function') {
                 initSummernote('#content', 400);
             } else {
@@ -256,17 +311,122 @@
             }
         });
 
-        function openModal() {
+        function extractMeta(url) {
+            // 로딩 시작
+            $('#previewLoader').addClass('d-flex').show(); // 스피너 노출
+            $('#previewImg').css('opacity', 0.3); // 이미지 흐리게
+
+            $.get('/mng/content/teams/meta', { url: url }, function(res) {
+                if (res) {
+                    $('#previewImg').attr('src', res);
+                    $('#hiddenImageUrl').val(res);
+                    lastExtractedUrl = url; // 마지막 URL 갱신
+                }
+            }).always(function() {
+                // 로딩 종료 (성공/실패 무관)
+                $('#previewLoader').removeClass('d-flex').hide();
+                $('#previewImg').css('opacity', 1);
+            });
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('teamModal'));
+
+        // 모달 열기 함수 (초기화 로직 포함)
+        function openModal(contentId) {
+            // 초기화
             document.getElementById('teamForm').reset();
-            document.getElementById('contentId').value = '';
+            $('#previewImg').attr('src', '/assets/media/svg/files/blank-image.svg');
+            $('#hiddenImageUrl').val('');
+            $('#contentId').val('');
             $('#content').summernote('reset');
-            modal.show();
+
+            lastExtractedUrl = '';
+            $('#previewLoader').removeClass('d-flex').hide();
+            $('#previewImg').css('opacity', 1);
+
+            if (contentId) {
+                // 수정 모드: 상세 정보 조회
+                $.get('/mng/content/teams/detail', { contentId: contentId }, function(data) {
+                    $('#contentId').val(data.contentId);
+                    $('#linkUrl').val(data.linkUrl);
+                    $('#teamCode').val(data.teamCode);
+                    $('#title').val(data.title);
+                    $('#content').summernote('code', data.content);
+
+                    // 기존 썸네일 세팅
+                    if(data.imageUrl) {
+                        $('#previewImg').attr('src', data.imageUrl);
+                        $('#hiddenImageUrl').val(data.imageUrl);
+                    }
+
+                    // 팝업 열자마자 불필요한 재추출 방지를 위해 현재 URL 저장
+                    if(data.linkUrl) {
+                        lastExtractedUrl = data.linkUrl;
+                    }
+
+                    $('#modalTitle').text('콘텐츠 수정');
+                    if(modal) modal.show();
+                });
+            } else {
+                // 등록 모드
+                $('#modalTitle').text('콘텐츠 등록');
+                if(modal) modal.show();
+            }
         }
 
         function changeOrder(id, direction) {
             $.post('/mng/content/teams/reorder', {contentId: id, direction: direction}, function(res) {
                 if(res === 'ok') location.reload();
                 else alert('순서 변경 실패');
+            });
+        }
+
+        /**
+         * [추가] 콘텐츠 등록 (AJAX)
+         */
+        function saveContent() {
+            // 1. 유효성 검사
+            /* 필요한 경우 추가 (예: 제목 입력 여부 확인) */
+            /*
+            if (!$('input[name="title"]').val()) {
+                alert('제목을 입력해주세요.');
+                return;
+            }
+            */
+
+            // 2. 썸머노트 내용 동기화 (필요 시)
+            $('#content').val($('#content').summernote('code'));
+
+            // 3. 폼 데이터 생성
+            const form = document.getElementById('teamForm');
+            const formData = new FormData(form);
+
+            // 4. AJAX 전송
+            $.ajax({
+                url: '/mng/content/teams/save',
+                type: 'POST',
+                data: formData,
+                contentType: false, // 파일 업로드 시 필수
+                processData: false, // 파일 업로드 시 필수
+                success: function(res) {
+                    if (res === 'ok') {
+
+                        // [수정 1] 팝업(모달) 먼저 닫기
+                        if (modal) {
+                            modal.hide();
+                        }
+
+                        // 커스텀 alert 호출 (script.js에 오버라이딩 된 alert 사용)
+                        alert('콘텐츠가 등록되었습니다.', function() {
+                            location.reload(); // 확인 클릭 시 새로고침
+                        });
+                    } else {
+                        alert('등록에 실패했습니다.');
+                    }
+                },
+                error: function() {
+                    alert('서버 통신 중 오류가 발생했습니다.');
+                }
             });
         }
 

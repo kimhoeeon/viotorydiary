@@ -70,10 +70,10 @@ public class MainController {
             model.addAttribute("winYo", winYoStats);
 
             // 3. [구단 콘텐츠] 랜덤 배너
-            TeamContentVO randomBanner = contentMngService.getRandomTeamContent(myTeamCode);
+            /*TeamContentVO randomBanner = contentMngService.getRandomTeamContent(myTeamCode);
             if (randomBanner != null) {
                 model.addAttribute("teamBannerItem", randomBanner);
-            }
+            }*/
 
             // 4. [이벤트] 최신글 1개
             List<EventVO> events = contentMngService.getActiveEventList();

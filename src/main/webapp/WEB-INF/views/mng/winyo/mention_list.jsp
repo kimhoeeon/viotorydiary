@@ -197,7 +197,7 @@
                                                         <c:otherwise>-</c:otherwise>
                                                     </c:choose>
                                                 </td>
-                                                <td class="text-end">
+                                                <td>
                                                     <a href="#" class="btn btn-light btn-active-light-primary btn-sm"
                                                        data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
                                                         관리 <i class="ki-duotone ki-down fs-5 m-0">

@@ -118,8 +118,21 @@
                                                      onclick="location.href='/locker/content/detail?contentId=${content.contentId}'"
                                                      style="min-width:140px; cursor:pointer;">
                                                     <div class="img">
-                                                        <img src="${not empty content.imageUrl ? content.imageUrl : '/img/card_defalut.svg'}"
-                                                             alt="콘텐츠 이미지" style="width:100%; height:100px; object-fit:cover;">
+                                                        <c:choose>
+                                                            <%-- 1. 유효한 이미지 URL 체크 --%>
+                                                            <c:when test="${not empty content.imageUrl and (fn:startsWith(content.imageUrl, 'http') or fn:startsWith(content.imageUrl, '/'))}">
+                                                                <img src="${content.imageUrl}"
+                                                                     alt="콘텐츠 이미지"
+                                                                     style="width:100%; height:100px; object-fit:cover;"
+                                                                     onerror="this.src='/img/card_defalut.svg'">
+                                                            </c:when>
+                                                            <%-- 2. 기본 이미지 --%>
+                                                            <c:otherwise>
+                                                                <img src="/img/card_defalut.svg"
+                                                                     alt="기본 콘텐츠 이미지"
+                                                                     style="width:100%; height:100px; object-fit:cover;">
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </div>
                                                     <div class="score_txt">
                                                         <div class="txt_box">

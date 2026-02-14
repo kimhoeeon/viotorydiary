@@ -149,7 +149,7 @@
                                                                         class="badge badge-light-danger">탈퇴</span></c:when>
                                                             </c:choose>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <a href="/mng/members/detail?memberId=${item.memberId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
                                                                class="btn btn-light btn-active-light-primary btn-sm">상세</a>
                                                         </td>

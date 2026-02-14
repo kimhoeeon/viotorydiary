@@ -142,7 +142,7 @@
                                                                 <span class="badge badge-light-danger">삭제됨</span>
                                                             </c:if>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <a href="/mng/diary/detail?diaryId=${item.diaryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
                                                                class="btn btn-light btn-active-light-primary btn-sm">상세</a>
                                                         </td>

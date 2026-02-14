@@ -17,6 +17,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -97,6 +99,7 @@ public class ContentMngService {
         }
 
         if (vo.getContentId() == null) {
+            vo.setSortOrder(contentMngMapper.selectMaxSortOrder() + 1); // 순서 채번
             contentMngMapper.insertTeamContent(vo);
         } else {
             contentMngMapper.updateTeamContent(vo);
@@ -141,30 +144,51 @@ public class ContentMngService {
         return stats;
     }
 
-    // [Private] OG 태그 이미지 추출
-    private String extractOgImage(String urlString) {
+    // OG 태그 이미지 추출
+    public String extractOgImage(String urlString) {
+        if (urlString == null || urlString.isEmpty()) return null;
+
         try {
+            // 1-1. 유튜브 썸네일 우선 처리 (고화질)
+            String youtubePattern = "(?<=watch\\?v=|/videos/|embed\\/|youtu.be\\/|\\/v\\/|\\/e\\/|watch\\?v%3D|watch\\?feature=player_embedded&v=|%2Fvideos%2F|embed%2F|youtu.be%2F|%2Fv%2F)[^#\\&\\?\\n]*";
+            Pattern compiledPattern = Pattern.compile(youtubePattern);
+            Matcher matcher = compiledPattern.matcher(urlString);
+            if (matcher.find()) {
+                return "https://img.youtube.com/vi/" + matcher.group() + "/mqdefault.jpg";
+            }
+
+            // 1-2. 일반 사이트 (Instagram 등) OG 태그 파싱
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(3000);
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+            conn.setConnectTimeout(5000); // 5초 타임아웃
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0"); // 봇 차단 방지
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
             String inputLine;
+            String ogImage = null;
+
             while ((inputLine = in.readLine()) != null) {
+                // <meta property="og:image" content="..."> 찾기
                 if (inputLine.contains("og:image")) {
-                    int start = inputLine.indexOf("content=\"") + 9;
-                    int end = inputLine.indexOf("\"", start);
-                    if (start > 9 && end > start) {
-                        return inputLine.substring(start, end);
+                    int contentIndex = inputLine.indexOf("content=");
+                    if (contentIndex > -1) {
+                        // 따옴표 처리 (" 또는 ')
+                        char quote = inputLine.charAt(contentIndex + 8);
+                        int endQuoteIndex = inputLine.indexOf(quote, contentIndex + 9);
+                        if (endQuoteIndex > -1) {
+                            ogImage = inputLine.substring(contentIndex + 9, endQuoteIndex);
+                            break; // 찾았으면 종료
+                        }
                     }
                 }
             }
             in.close();
+            return ogImage;
+
         } catch (Exception e) {
-            log.warn("OG 태그 추출 실패: {}", e.getMessage());
+            log.warn("썸네일 추출 실패: {}", e.getMessage());
+            return null; // 실패 시 null 반환 (기본 이미지 사용 등 처리)
         }
-        return null; // 추출 실패 시 null
     }
 
     // --- [사용자용] 메인 화면 노출 및 집계 ---

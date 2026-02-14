@@ -90,6 +90,17 @@
                                             </div>
                                         </div>
                                         <div class="row mb-7">
+                                            <div class="col-lg-2 fw-semibold text-muted">썸네일 미리보기</div>
+                                            <div class="col-lg-10">
+                                                <div class="d-flex flex-center bg-light rounded overflow-hidden"
+                                                     style="height: 250px; border: 1px dashed #ccc;">
+                                                    <img src="${not empty content.imageUrl ? content.imageUrl : '/assets/media/svg/files/blank-image.svg'}"
+                                                         alt="썸네일" class="mw-100 mh-100 object-fit-contain"
+                                                         onclick="window.open(this.src)" style="cursor: pointer;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">콘텐츠 URL</label>
                                             <div class="col-lg-10">
                                                 <a href="${content.contentUrl}" target="_blank" class="text-primary">${content.contentUrl}</a>
@@ -148,7 +159,7 @@
                         <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                     </div>
                 </div>
-                <form action="/mng/content/teams/save" method="post" enctype="multipart/form-data">
+                <form id="modifyForm" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="contentId" value="${content.contentId}">
 
                     <div class="modal-body py-10 px-lg-17">
@@ -185,15 +196,29 @@
                             <input type="text" class="form-control form-control-solid" name="title" value="${content.title}" required />
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">썸네일 이미지</label>
-                            <input type="file" name="file" class="form-control form-control-solid" accept="image/jpeg, image/png, image/jpg"/>
-                            <c:if test="${not empty content.imageUrl}">
-                                <div class="mt-2">현재 이미지: <a href="${content.imageUrl}" target="_blank">보기</a></div>
-                            </c:if>
+                            <label class="fs-6 fw-bold mb-2">썸네일 미리보기</label>
+                            <div class="d-flex justify-content-center align-items-center bg-light rounded position-relative"
+                                 style="min-height: 200px; border: 1px dashed #ccc; overflow: hidden;">
+
+                                <img id="detailPreviewImg"
+                                     src="${not empty content.imageUrl ? content.imageUrl : '/assets/media/svg/files/blank-image.svg'}"
+                                     style="max-width: 100%; max-height: 400px; object-fit: contain;" />
+
+                                <div id="detailLoader" class="position-absolute w-100 h-100 justify-content-center align-items-center bg-white bg-opacity-75" style="display: none;">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="detailHiddenImageUrl" name="imageUrl" value="${content.imageUrl}" />
+                        </div>
+                        <div class="fv-row mb-7">
+                            <label class="fs-6 fw-bold mb-2">이미지 변경</label>
+                            <input type="file" class="form-control form-control-solid" name="file" id="detailFileInput" accept="image/jpeg, image/png, image/jpg"/>
                         </div>
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
-                            <input type="text" class="form-control form-control-solid" name="contentUrl" value="${content.contentUrl}" />
+                            <input type="text" class="form-control form-control-solid" name="contentUrl" id="detailContentUrl" value="${content.contentUrl}" />
                         </div>
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">내용</label>
@@ -202,7 +227,7 @@
                     </div>
                     <div class="modal-footer flex-center">
                         <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary">저장</button>
+                        <button type="button" class="btn btn-primary" onclick="updateContent()">저장</button>
                     </div>
                 </form>
             </div>
@@ -219,6 +244,53 @@
         const modifyModal = new bootstrap.Modal(document.getElementById('modifyModal'));
 
         $(document).ready(function() {
+
+            let lastDetailUrl = "${content.contentUrl}"; // 초기값 설정
+
+            // 1. 파일 변경 시 미리보기
+            $('input[name="file"]').on('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#detailPreviewImg').attr('src', e.target.result);
+                        $('#detailHiddenImageUrl').val(''); // 파일이 우선이므로 추출 URL 제거
+
+                        // [추가] 파일 로드 완료 시 로딩바 숨김 및 이미지 투명도 원복
+                        $('#detailLoader').removeClass('d-flex').hide();
+                        $('#detailPreviewImg').css('opacity', 1);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // [상세페이지] 링크 변경 시 (파일 없을 때만 추출)
+            $('#detailContentUrl').on('blur paste', function() {
+                setTimeout(() => {
+                    const url = $(this).val();
+                    const fileInput = $('input[name="file"]').val();
+
+                    // 파일이 없고, URL이 유효하며, 변경되었을 때만 실행
+                    if (!fileInput && url && url.length > 10 && url !== lastDetailUrl) {
+
+                        // 로딩 표시
+                        $('#detailLoader').addClass('d-flex').show();
+                        $('#detailPreviewImg').css('opacity', 0.5);
+
+                        $.get('/mng/content/teams/meta', { url: url }, function(res) {
+                            if (res) {
+                                $('#detailPreviewImg').attr('src', res);
+                                $('#detailHiddenImageUrl').val(res);
+                                lastDetailUrl = url;
+                            }
+                        }).always(function() {
+                            $('#detailLoader').removeClass('d-flex').hide();
+                            $('#detailPreviewImg').css('opacity', 1);
+                        });
+                    }
+                }, 100);
+            });
+
             if(typeof initSummernote === 'function') {
                 initSummernote('#summernote_edit', 400);
             } else {
@@ -231,6 +303,52 @@
 
         function openEditModal() {
             modifyModal.show();
+        }
+
+        /**
+         * [추가] 콘텐츠 수정 (AJAX)
+         */
+        function updateContent() {
+            // 폼 데이터 생성
+            const form = document.getElementById('modifyForm');
+            const formData = new FormData(form);
+
+            // AJAX 전송
+            $.ajax({
+                url: '/mng/content/teams/save',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(res) {
+                    if (res === 'ok') {
+                        // [수정 1] 팝업 닫기 (안전한 탐색 로직)
+                        // 1순위: 전역변수 modal 확인
+                        if (typeof modal !== 'undefined') {
+                            modal.hide();
+                        }
+                        // 2순위: 폼을 감싸는 모달 요소 찾기 (Bootstrap 5)
+                        else {
+                            const modalEl = form.closest('.modal');
+                            if (modalEl) {
+                                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                                if (modalInstance) modalInstance.hide();
+                            }
+                        }
+
+                        // [수정 2] 알림창 확인 후 새로고침
+                        // 커스텀 alert 호출
+                        alert('콘텐츠가 수정되었습니다.', function() {
+                            location.reload(); // 확인 클릭 시 새로고침
+                        });
+                    } else {
+                        alert('수정에 실패했습니다.');
+                    }
+                },
+                error: function() {
+                    alert('서버 통신 중 오류가 발생했습니다.');
+                }
+            });
         }
 
         // --- 통계 차트 스크립트 ---

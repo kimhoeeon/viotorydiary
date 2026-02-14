@@ -201,7 +201,7 @@
                             </div>
                         </div>
 
-                        <c:if test="${not empty teamBannerItem}">
+                        <%--<c:if test="${not empty teamBannerItem}">
                             <div class="banner-card">
                                 <a href="/content/click?cid=${teamBannerItem.contentId}&url=${teamBannerItem.contentUrl}" target="_blank">
                                     <img src="${teamBannerItem.imageUrl}"
@@ -209,7 +209,7 @@
                                          onerror="this.style.display='none';"/>
                                 </a>
                             </div>
-                        </c:if>
+                        </c:if>--%>
 
                         <c:if test="${not empty latestEvent}">
                             <c:choose>
@@ -304,7 +304,16 @@
                                             <c:forEach var="content" items="${latestContent}">
                                                 <div class="clip_list" onclick="location.href='/locker/content/detail?contentId=${content.contentId}'">
                                                     <div class="img">
-                                                        <img src="${not empty content.imageUrl ? content.imageUrl : '/img/card_defalut.svg'}" alt="썸네일">
+                                                        <c:choose>
+                                                            <%-- 1. 유효한 이미지 URL (http로 시작하거나 /로 시작)인 경우 --%>
+                                                            <c:when test="${not empty content.imageUrl and (fn:startsWith(content.imageUrl, 'http') or fn:startsWith(content.imageUrl, '/'))}">
+                                                                <img src="${content.imageUrl}" alt="썸네일" onerror="this.src='/img/card_defalut.svg'">
+                                                            </c:when>
+                                                            <%-- 2. 그 외 (URL이 없거나 잘못된 데이터) --%>
+                                                            <c:otherwise>
+                                                                <img src="/img/card_defalut.svg" alt="기본 썸네일">
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </div>
                                                     <div class="clip_txt">
                                                         <div class="txt_box">

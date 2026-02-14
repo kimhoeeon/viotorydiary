@@ -192,7 +192,7 @@
                             // 전체 HTML에서 .policy-content 클래스만 추출
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(data, 'text/html');
-                            const content = doc.querySelector('.policy-content');
+                            const content = doc.querySelector('.terms_wrap');
 
                             if (content) {
                                 // 추출한 내용에 클래스 추가하여 스타일 적용

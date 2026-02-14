@@ -122,11 +122,24 @@ public class ContentMngController {
         return "mng/content/team_detail";
     }
 
+    // URL 메타데이터(썸네일) 추출 API
+    @GetMapping("/teams/meta")
+    @ResponseBody
+    public String extractUrlMeta(@RequestParam("url") String url) {
+        return contentService.extractOgImage(url);
+    }
+
     // 저장
     @PostMapping("/teams/save")
+    @ResponseBody
     public String teamContentSave(TeamContentVO content, @RequestParam(value = "file", required = false) MultipartFile file) {
-        contentService.saveTeamContent(content, file);
-        return "redirect:/mng/content/teams";
+        try {
+            contentService.saveTeamContent(content, file);
+            return "ok"; // 성공 시 ok 반환
+        } catch (Exception e) {
+            log.error("팀 콘텐츠 저장 실패", e);
+            return "fail"; // 실패 시 fail 반환
+        }
     }
 
     // 삭제 처리 (AJAX)

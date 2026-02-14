@@ -121,7 +121,7 @@
                                                         <td class="text-center">
                                                             <span class="badge badge-light-primary fw-bold fs-7">${item.winRate}%</span>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <a href="/mng/members/detail?memberId=${item.memberId}"
                                                                class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm">
                                                                 <i class="ki-duotone ki-magnifier fs-2"><span

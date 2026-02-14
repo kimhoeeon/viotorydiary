@@ -135,7 +135,7 @@
                                                             <c:if test="${item.status eq 'COMPLETED'}"><span
                                                                     class="badge badge-light-success">답변완료</span></c:if>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <a href="/mng/support/inquiry/detail?inquiryId=${item.inquiryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
                                                                class="btn btn-light btn-active-light-primary btn-sm">상세</a>
                                                         </td>

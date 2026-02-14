@@ -103,10 +103,15 @@ public class GameMngController {
 
     // 저장
     @PostMapping("/save")
+    @ResponseBody
     public String saveGame(GameVO game) {
-        gameMngService.saveGame(game);
-        String ym = game.getGameDate().substring(0, 7); // yyyy-MM
-        return "redirect:/mng/game/list?ym=" + ym;
+        try {
+            gameMngService.saveGame(game);
+            return "ok"; // 성공 시 ok 반환
+        } catch (Exception e) {
+            log.error("경기 저장 실패", e);
+            return "fail: " + e.getMessage(); // 실패 시 메시지 반환
+        }
     }
 
     // 삭제

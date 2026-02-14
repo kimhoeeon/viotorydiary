@@ -140,7 +140,7 @@
                                                             <c:if test="${item.delYn eq 'Y'}"><span
                                                                     class="badge badge-light-danger">삭제</span></c:if>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <c:if test="${item.delYn eq 'N'}">
                                                                 <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
                                                                         onclick="deleteComment('${item.commentId}')">

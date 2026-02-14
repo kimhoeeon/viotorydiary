@@ -112,7 +112,7 @@
                                                                     ${item.colorMainHex}
                                                             </div>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <button class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm"
                                                                     onclick="editTeam('${item.teamCode}')">
                                                                 <i class="ki-duotone ki-pencil fs-2"><span

@@ -143,7 +143,7 @@
                                                                     </c:otherwise>
                                                                 </c:choose>
                                                             </td>
-                                                            <td class="text-end">
+                                                            <td>
                                                                 <button class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
                                                                         onclick="editGame('${item.gameId}')">
                                                                     <i class="ki-duotone ki-pencil fs-2">
@@ -186,7 +186,7 @@
     <div class="modal fade" id="gameModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
-                <form id="gameForm" action="/mng/game/save" method="post">
+                <form id="gameForm" method="post">
                     <input type="hidden" name="gameId" id="gameId">
                     <div class="modal-header">
                         <h2 class="fw-bold" id="modalTitle">경기 등록</h2>
@@ -288,7 +288,7 @@
                     </div>
                     <div class="modal-footer flex-center">
                         <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary">저장</button>
+                        <button type="button" class="btn btn-primary" onclick="saveGameAction()">저장</button>
                     </div>
                 </form>
             </div>
@@ -386,6 +386,56 @@
                     alert('서버 통신 중 오류가 발생했습니다.');
                 });
             }
+        }
+
+        // [추가] 경기 저장 (AJAX)
+        function saveGameAction() {
+            // 1. 유효성 검사
+            const gameDate = $('#gameDate').val();
+            const gameTime = $('#gameTime').val();
+
+            if (!gameDate || !gameTime) {
+                alert('경기 날짜와 시간을 입력해주세요.');
+                return;
+            }
+
+            // 2. 폼 데이터 생성
+            const form = document.getElementById('gameForm');
+            const formData = new FormData(form);
+
+            // 3. AJAX 전송
+            $.ajax({
+                url: '/mng/game/save',
+                type: 'POST',
+                data: formData,
+                contentType: false, // FormData 사용 시 필수
+                processData: false, // FormData 사용 시 필수
+                success: function(res) {
+                    if (res === 'ok') {
+                        // [중요] 1. 팝업(모달) 먼저 닫기
+                        // (modal 변수가 상단에 선언되어 있다고 가정. 만약 안된다면 $('#gameModal').modal('hide'); 사용)
+                        if (typeof modal !== 'undefined') {
+                            modal.hide();
+                        } else {
+                            // Bootstrap 5 인스턴스 가져오기 안전장치
+                            const myModalEl = document.getElementById('gameModal');
+                            const myModal = bootstrap.Modal.getInstance(myModalEl);
+                            if (myModal) myModal.hide();
+                        }
+
+                        // [중요] 2. 커스텀 알림창 띄우고 확인 클릭 시 새로고침
+                        alert('저장되었습니다.', function() {
+                            location.reload();
+                        });
+                    } else {
+                        alert('저장에 실패했습니다.\n' + res);
+                    }
+                },
+                error: function(err) {
+                    console.error(err);
+                    alert('서버 통신 중 오류가 발생했습니다.');
+                }
+            });
         }
     </script>
 </body>

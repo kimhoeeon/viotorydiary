@@ -128,7 +128,7 @@
                                                                            type="both"/>
                                                             <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd"/>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <a href="/mng/system/admin/form?id=${item.adminId}"
                                                                class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
                                                                 <i class="ki-duotone ki-pencil fs-2"><span

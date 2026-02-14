@@ -117,7 +117,7 @@
                                                                            type="both"/>
                                                             <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
                                                                     onclick="deleteVersion('${item.versionId}')">
                                                                 <i class="ki-duotone ki-trash fs-2"><span

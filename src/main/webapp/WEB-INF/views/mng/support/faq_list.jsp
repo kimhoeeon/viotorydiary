@@ -105,7 +105,7 @@
                                                             <c:if test="${item.isVisible eq 'N'}"><span
                                                                     class="badge badge-light-secondary">숨김</span></c:if>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <button class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
                                                                     onclick="editFaq('${item.faqId}')">
                                                                 <i class="ki-duotone ki-pencil fs-2"><span

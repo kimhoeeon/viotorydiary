@@ -109,6 +109,10 @@
         LIMIT 1
     </select>
 
+    <select id="selectMaxSortOrder" resultType="int">
+        SELECT IFNULL(MAX(sort_order), 0) FROM team_contents
+    </select>
+
     <update id="updateSortOrder">
         UPDATE team_contents SET sort_order = #{sortOrder} WHERE content_id = #{contentId}
     </update>

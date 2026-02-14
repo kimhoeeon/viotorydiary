@@ -112,7 +112,7 @@
                                                                            type="both"/>
                                                             <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
                                                         </td>
-                                                        <td class="text-end">
+                                                        <td>
                                                             <a href="/mng/system/terms/detail?termId=${item.termId}"
                                                                class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
                                                                 <i class="ki-duotone ki-pencil fs-2"><span
