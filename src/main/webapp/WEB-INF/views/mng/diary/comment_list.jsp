@@ -90,7 +90,7 @@
                                                 <option value="Y" ${pageMaker.cri.status eq 'Y' ? 'selected' : ''}>삭제됨
                                                 </option>
                                             </select>
-                                            <button type="submit" class="btn btn-primary">검색</button>
+                                            <button type="button" class="btn btn-primary" onclick="searchInit()">검색</button>
                                         </form>
                                     </div>
                                 </div>
@@ -114,10 +114,8 @@
                                                     <tr>
                                                         <td>${item.commentId}</td>
                                                         <td>
-                                                            <span class="text-gray-800 d-block text-truncate"
-                                                                  style="max-width: 400px;">${item.content}</span>
-                                                            <a href="/mng/diary/detail?diaryId=${item.diaryId}"
-                                                               target="_blank"
+                                                            <span class="text-gray-800 d-block text-truncate" style="max-width: 400px;">${item.content}</span>
+                                                            <a href="/mng/diary/detail?diaryId=${item.diaryId}" target="_blank"
                                                                class="text-gray-400 fs-8 text-hover-primary">
                                                                 <i class="ki-duotone ki-entrance-right fs-8"></i> 원본 일기 보기
                                                             </a>
@@ -128,12 +126,7 @@
                                                                 <span class="text-gray-400 fs-8">${item.email}</span>
                                                             </div>
                                                         </td>
-                                                        <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate"
-                                                                           type="both"/>
-                                                            <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd"/>
-                                                        </td>
+                                                        <td>${item.regDateStr}</td>
                                                         <td>
                                                             <c:if test="${item.delYn eq 'N'}"><span
                                                                     class="badge badge-light-success">게시</span></c:if>
@@ -167,19 +160,22 @@
                                             <div class="fs-6 fw-semibold text-gray-700"></div>
                                             <ul class="pagination">
                                                 <c:if test="${pageMaker.prev}">
-                                                    <li class="page-item previous"><a href="${pageMaker.startPage - 1}"
-                                                                                      class="page-link"><i
-                                                            class="previous"></i></a></li>
+                                                    <li class="page-item previous">
+                                                        <a href="${pageMaker.startPage - 1}" class="page-link">
+                                                            <i class="previous"></i>
+                                                        </a>
+                                                    </li>
                                                 </c:if>
-                                                <c:forEach var="num" begin="${pageMaker.startPage}"
-                                                           end="${pageMaker.endPage}">
+                                                <c:forEach var="num" begin="${pageMaker.startPage}" end="${pageMaker.endPage}">
                                                     <li class="page-item ${pageMaker.cri.pageNum == num ? 'active' : ''}">
                                                         <a href="${num}" class="page-link">${num}</a>
                                                     </li>
                                                 </c:forEach>
                                                 <c:if test="${pageMaker.next}">
-                                                    <li class="page-item next"><a href="${pageMaker.endPage + 1}"
-                                                                                  class="page-link"><i class="next"></i></a>
+                                                    <li class="page-item next">
+                                                        <a href="${pageMaker.endPage + 1}" class="page-link">
+                                                            <i class="next"></i>
+                                                        </a>
                                                     </li>
                                                 </c:if>
                                             </ul>
@@ -214,6 +210,13 @@
                 actionForm.submit();
             });
         });
+
+        // [추가] 검색 시 1페이지로 초기화
+        function searchInit() {
+            const form = document.getElementById('searchForm');
+            form.pageNum.value = 1; // 1페이지로 리셋
+            form.submit();
+        }
 
         function deleteComment(id) {
             if (confirm('이 댓글을 삭제하시겠습니까?')) {

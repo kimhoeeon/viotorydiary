@@ -27,7 +27,7 @@ public class CommentMngController {
         model.addAttribute("list", list);
         model.addAttribute("pageMaker", new PageDTO(cri, total));
 
-        return "mng/diary/comment_list"; // 뷰 파일 위치
+        return "mng/diary/comment_list";
     }
 
     // 삭제 처리 (AJAX)
