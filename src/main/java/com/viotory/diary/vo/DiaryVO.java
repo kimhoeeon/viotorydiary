@@ -41,6 +41,8 @@ public class DiaryVO {
     private String awayTeamCode;
     private String homeTeamName;
     private String awayTeamName;
+    private String homeStarter;
+    private String awayStarter;
     private int scoreHome;
     private int scoreAway;
     private String gameDate;         // yyyy-MM-dd

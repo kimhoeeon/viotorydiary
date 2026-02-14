@@ -85,23 +85,37 @@
                                     <div class="game-board">
                                         <div class="row row-center gap-24">
                                             <div class="team">
+                                                <div class="team-logo mb-8">
+                                                    <img src="/img/logo/logo_${fn:toLowerCase(diary.homeTeamCode)}.svg"
+                                                                                      alt="${diary.homeTeamName}"
+                                                                                      style="height: 48px; width: auto; object-fit: contain;"
+                                                                                      onerror="this.src='/img/logo/logo_default.svg'">
+                                                </div>
+
                                                 <div class="team-name">${diary.homeTeamName}</div>
+                                                <div class="text-12 color-gray mt-4">${diary.homeStarter}</div>
                                             </div>
 
                                             <div class="game-score schedule">
                                                 <div class="left-team-score">
-                                                    <input type="text" value="${diary.scoreHome}" readonly
-                                                           style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
+                                                    <input type="text" value="${diary.scoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
                                                 </div>
                                                 <div class="game-info-wrap">VS</div>
                                                 <div class="right-team-score">
-                                                    <input type="text" value="${diary.scoreAway}" readonly
-                                                           style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
+                                                    <input type="text" value="${diary.scoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
                                                 </div>
                                             </div>
 
                                             <div class="team">
+                                                <div class="team-logo mb-8">
+                                                    <img src="/img/logo/logo_${fn:toLowerCase(diary.awayTeamCode)}.svg"
+                                                         alt="${diary.awayTeamName}"
+                                                         style="height: 48px; width: auto; object-fit: contain;"
+                                                         onerror="this.src='/img/logo/logo_default.svg'">
+                                                </div>
+
                                                 <div class="team-name">${diary.awayTeamName}</div>
+                                                <div class="text-12 color-gray mt-4">${diary.awayStarter}</div>
                                             </div>
                                         </div>
                                     </div>

@@ -472,7 +472,7 @@
 .notice_view{background: #fff; padding: 16px; border-radius: 20px; box-shadow: 0 0 8px rgba(0, 0, 0, 0.15); padding-top: 24px; padding-bottom: 24px;}
 .notice_view .tit{font-size: var(--fs-18); font-weight: 700; }
 .notice_view_head{display: flex; gap: 5px; align-items: center;border-bottom: 1px solid #e1e1e1;margin-bottom: 20px; padding-bottom: 10px;}
-.notice_view_head .data{ margin-left: auto; font-size: var(--fs-12);color: #A6A9B0;}
+.notice_view_head .date{ margin-left: auto; font-size: var(--fs-12);color: #A6A9B0;}
 .dob-picker{margin: 0;padding: 30px 0;}
 .dob-picker .dob-picker_value{font-size: 20px;font-weight: 600;}
 .score_list .img img, .clip_list .img img, .nodt_wrap img{max-height: 100px;}

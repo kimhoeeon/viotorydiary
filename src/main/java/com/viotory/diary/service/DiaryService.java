@@ -1,11 +1,13 @@
 package com.viotory.diary.service;
 
+import com.viotory.diary.dto.StadiumVisitDTO;
 import com.viotory.diary.mapper.DiaryMapper;
 import com.viotory.diary.mapper.GameMapper;
 import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.vo.DiaryVO;
 import com.viotory.diary.vo.GameVO;
 import com.viotory.diary.vo.MemberVO;
+import com.viotory.diary.vo.StadiumVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ import java.util.UUID;
 public class DiaryService {
 
     private final DiaryMapper diaryMapper;
-    // GameMapper는 필요하다면 사용 (예: 경기 존재 여부 확인)
+    private final GameMapper gameMapper;
 
     /**
      * 일기 작성
@@ -85,16 +87,27 @@ public class DiaryService {
     }
 
     // 방문 구장 현황 (총 9개 구장 기준 방문 여부 boolean 리스트 반환)
-    public List<Boolean> getStadiumVisitStatus(Long memberId) {
+    public List<StadiumVisitDTO> getStadiumVisitStatus(Long memberId) {
+        // 1. 내가 방문한(인증된) 구장 ID 목록 조회
         List<Long> visitedIds = diaryMapper.selectVisitedStadiumIds(memberId);
 
-        // KBO 구장 ID 순서대로 체크 (1~9번 구장이라 가정)
-        // 실제 운영 시에는 Stadium 테이블을 조회해서 매핑해야 함.
-        // 여기서는 편의상 1~9번 인덱스에 매핑하여 True/False 반환
-        List<Boolean> statusList = new ArrayList<>();
-        for (long i = 1; i <= 9; i++) {
-            statusList.add(visitedIds.contains(i));
+        // 2. 전체 구장 목록 조회 (DB에서 가져옴)
+        List<StadiumVO> allStadiums = gameMapper.selectAllStadiums();
+
+        List<StadiumVisitDTO> statusList = new ArrayList<>();
+
+        // 3. 전체 구장을 순회하며 방문 여부 체크 및 DTO 생성
+        for (StadiumVO stadium : allStadiums) {
+            // visitedIds에 현재 구장 ID가 포함되어 있는지 확인
+            boolean isVisited = visitedIds.contains(Long.valueOf(stadium.getStadiumId()));
+
+            statusList.add(new StadiumVisitDTO(
+                    stadium.getStadiumId(),
+                    stadium.getName(),
+                    isVisited
+            ));
         }
+
         return statusList;
     }
 

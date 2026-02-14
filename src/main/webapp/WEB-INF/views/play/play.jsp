@@ -238,6 +238,7 @@
             const monthNextBtn = document.getElementById('monthNext');
             const monthLabelEl = document.getElementById('monthLabel');
             const monthGridEl = document.getElementById('monthGrid');
+
             const monthApplyBtn = document.getElementById('monthApplyBtn');
             const monthMatchBox = document.querySelector('.month-match');
             const monthMatchText = document.getElementById('monthMatchText');
@@ -245,6 +246,9 @@
             let currentWeekDate = new Date();
             let monthCursor = new Date();
             let popupSelectedDateStr = '';
+
+            // 월별 경기 일정 캐시 (Key: "yyyy-MM", Value: ["2024-03-01", ...])
+            const monthlyScheduleCache = {};
 
             function formatYMD(date) {
                 const y = date.getFullYear();
@@ -304,32 +308,78 @@
             function renderMonthView() {
                 const year = monthCursor.getFullYear();
                 const month = monthCursor.getMonth();
+
                 monthLabelEl.textContent = `\${year}년 \${month + 1}월`;
                 monthGridEl.innerHTML = '';
+
                 const firstDay = new Date(year, month, 1);
                 const firstDow = firstDay.getDay();
                 const lastDay = new Date(year, month + 1, 0).getDate();
                 const todayStr = formatYMD(new Date());
 
+                // 빈 칸 채우기
                 for (let i = 0; i < firstDow; i++) monthGridEl.appendChild(document.createElement('div'));
+
+                // 날짜 생성
                 for (let d = 1; d <= lastDay; d++) {
                     const btn = document.createElement('button');
                     btn.type = 'button';
                     btn.className = 'month-day';
                     btn.textContent = d;
+
                     const ymd = formatYMD(new Date(year, month, d));
+
+                    // [중요] 나중에 점을 찍기 위해 data-date 속성 추가
+                    btn.dataset.date = ymd;
+
                     if (ymd === todayStr) btn.classList.add('is-today');
                     if (ymd === popupSelectedDateStr) btn.classList.add('is-selected');
+
                     btn.addEventListener('click', () => {
                         const prev = monthGridEl.querySelector('.month-day.is-selected');
                         if(prev) prev.classList.remove('is-selected');
                         btn.classList.add('is-selected');
+
                         popupSelectedDateStr = ymd;
                         monthApplyBtn.disabled = false;
                         updateMonthMatchInfo(ymd);
                     });
                     monthGridEl.appendChild(btn);
                 }
+
+                // 달력 렌더링 후, 경기가 있는 날짜 불러와서 표시하기
+                loadMonthlyDots(year, month + 1);
+            }
+
+            // 월별 경기 일정 조회 및 점(Dot) 표시 함수
+            function loadMonthlyDots(year, month) {
+                const cacheKey = `\${year}-\${month}`; // ex: 2024-3
+
+                // 1. 캐시 확인
+                if (monthlyScheduleCache[cacheKey]) {
+                    applyDotsToCalendar(monthlyScheduleCache[cacheKey]);
+                    return;
+                }
+
+                // 2. 서버 요청 (없으면)
+                $.get('/play/monthly-schedule', { year: year, month: month }, function(dates) {
+                    if (dates) {
+                        monthlyScheduleCache[cacheKey] = dates; // 캐시에 저장
+                        applyDotsToCalendar(dates);
+                    }
+                });
+            }
+
+            // DOM에 점 표시 적용
+            function applyDotsToCalendar(dateList) {
+                dateList.forEach(dateStr => {
+                    // 해당 날짜의 버튼을 찾아 클래스 추가
+                    // 외부 CSS(.month-day.is-mark)가 적용됨
+                    const btn = monthGridEl.querySelector(`.month-day[data-date="\${dateStr}"]`);
+                    if (btn) {
+                        btn.classList.add('is-mark');
+                    }
+                });
             }
 
             function updateMonthMatchInfo(dateStr) {
@@ -434,7 +484,7 @@
                 const homeSrc = game.homeTeamLogo ? game.homeTeamLogo : `/img/logo/logo_\${homeCodeLower}.svg`;
                 const awaySrc = game.awayTeamLogo ? game.awayTeamLogo : `/img/logo/logo_\${awayCodeLower}.svg`;
 
-                // [추가] 취소 사유 표시
+                // 취소 사유 표시
                 let cancelReasonHtml = '';
                 if(game.status === 'CANCELLED' && game.cancelReason) {
                     cancelReasonHtml = `<div class="cancel-reason">(\${game.cancelReason})</div>`;

@@ -55,4 +55,6 @@ public interface GameMapper {
 
     int countTodayGames();
 
+    List<StadiumVO> selectAllStadiums();
+
 }

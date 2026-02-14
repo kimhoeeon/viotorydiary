@@ -46,6 +46,15 @@ public class PlayController {
         return "play/play"; // views/play/play.jsp
     }
 
+    // 월별 경기 일정(날짜만) 조회 API - 캘린더 마킹용
+    @GetMapping("/monthly-schedule")
+    @ResponseBody
+    public List<String> getMonthlySchedule(@RequestParam("year") int year, @RequestParam("month") int month) {
+        // "yyyy-MM" 형식으로 변환 (월은 2자리로 패딩)
+        String yearMonth = String.format("%04d-%02d", year, month);
+        return playService.getGameDatesInMonth(yearMonth);
+    }
+
     // [AJAX] 날짜별 경기 목록 조회
     @GetMapping("/games")
     @ResponseBody

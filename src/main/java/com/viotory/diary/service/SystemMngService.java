@@ -76,6 +76,10 @@ public class SystemMngService {
 
     @Transactional
     public void updateNotice(NoticeVO notice) {
+        // [중요] 체크박스 해제 시 null로 들어오므로 'N'으로 변경
+        if (notice.getIsTop() == null || notice.getIsTop().isEmpty()) {
+            notice.setIsTop("N");
+        }
         systemMngMapper.updateNotice(notice);
     }
 

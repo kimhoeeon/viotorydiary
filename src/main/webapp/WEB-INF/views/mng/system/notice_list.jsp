@@ -211,7 +211,17 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
     <script src="/js/summernote.js"></script>
     <script>
+
+        // 1. 초기화 및 전역 변수 설정
+        let noticeModal;
+
         $(document).ready(function() {
+
+            const modalEl = document.getElementById('noticeModal');
+            if (modalEl) {
+                noticeModal = new bootstrap.Modal(modalEl);
+            }
+
             // [6] Summernote 초기화 (summernote.js의 함수 사용)
             // 만약 initSummernote가 로드되지 않았을 경우를 대비한 안전 장치
             if (typeof initSummernote === 'function') {
@@ -221,19 +231,26 @@
             }
         });
 
-        const modal = new bootstrap.Modal(document.getElementById('noticeModal'));
-
         // 2. 등록 모달 열기
         function openModal() {
-            // 폼 리셋
-            document.getElementById('noticeForm').reset();
-            document.getElementById('noticeId').value = '';
-            document.getElementById('modalTitle').innerText = '공지사항 등록';
+            // 1. 폼 리셋
+            const form = document.getElementById('noticeForm');
+            if (form) form.reset();
 
-            // 에디터 초기화
+            // 2. 히든값(ID) 초기화
+            $('#noticeId').val('');
+
+            // 3. 에디터 내용 초기화
             $('#content').summernote('reset');
 
-            modal.show();
+            // 4. 모달 타이틀 변경
+            $('#modalTitle').text('공지사항 등록');
+
+            // 5. 체크박스 초기화 (선택사항)
+            $('#isTop').prop('checked', false);
+
+            // 6. 모달 표시
+            if (noticeModal) noticeModal.show();
         }
 
         function deleteNotice(id) {

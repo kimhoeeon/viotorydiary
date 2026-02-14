@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -201,19 +202,22 @@ public class MemberService {
             throw new Exception("팀을 선택해주세요.");
         }
 
-        // 팀 변경 제한 체크 (월 1회)
-        // 기존 팀이 있고(NONE이 아님), 변경 이력이 있는 경우 날짜 비교
-        if (!"NONE".equals(member.getMyTeamCode()) && member.getTeamChangeDate() != null) {
-            // 마지막 변경일로부터 30일이 지났는지 확인 (또는 월 단위 로직)
-            // 여기서는 간단히 '30일 이내 변경 불가'로 구현하거나, '이번 달 변경 여부'로 구현 가능
-            // 기획 의도(월 1회)에 따라: "마지막 변경일로부터 1달 경과 후 가능"
+        // 3. 팀 변경 제한 체크 (고도화: 최초 1회 즉시 가능, 이후 월 1회 제한)
+        // teamChangeDate가 NULL이면(가입 후 한 번도 변경 안 함) 조건문 패스 -> 즉시 변경
+        if (member.getTeamChangeDate() != null) {
+            // 마지막 변경일로부터 1달이 지났는지 확인
             LocalDateTime limitDate = member.getTeamChangeDate().plusMonths(1);
+
             if (LocalDateTime.now().isBefore(limitDate)) {
-                throw new Exception("응원 팀은 한 달에 한 번만 변경할 수 있어요.");
+                // 날짜 포맷팅을 통해 언제부터 가능한지 안내 (선택사항)
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+                String dateStr = limitDate.format(formatter);
+
+                throw new Exception("응원 팀은 한 달에 한 번만 변경할 수 있어요.\n(" + dateStr + "부터 변경 가능)");
             }
         }
 
-        // 3. 업데이트 수행
+        // 4. 업데이트 수행 (Mapper에서 team_change_date를 NOW()로 업데이트함)
         member.setMyTeamCode(teamCode);
         memberMapper.updateMemberTeam(member);
 

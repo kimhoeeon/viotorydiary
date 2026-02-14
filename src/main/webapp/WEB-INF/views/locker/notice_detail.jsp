@@ -34,15 +34,19 @@
         </header>
 
         <div class="app-main">
+            <div class="app-tit">
+                <div class="page-tit">공지 및 설문</div>
+            </div>
+
             <div class="page-main_wrap">
+
                 <div class="notice_view">
 
                     <div class="notice_view_head">
                         <div class="notice_badge">공지</div>
                         <div class="tit">${post.title}</div>
                         <div class="date">
-                            <fmt:parseDate value="${post.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate"
-                                           type="both"/>
+                            <fmt:parseDate value="${post.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
                             <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
                         </div>
                     </div>

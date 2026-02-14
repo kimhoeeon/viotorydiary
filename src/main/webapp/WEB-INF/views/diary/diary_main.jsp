@@ -135,8 +135,8 @@
                                 </c:if>
 
                                 <div class="score_wrap">
-                                    <c:forEach var="item" items="${myDiaries}">
-                                        <div class="score_list" onclick="location.href='/diary/detail?diaryId=${item.diaryId}'">
+                                    <c:forEach var="diary" items="${myDiaries}">
+                                        <div class="score_list" onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'">
                                             <div class="img">
                                                 <img src="/img/card_defalut.svg" alt="스코어카드 이미지">
                                             </div>
@@ -144,42 +144,42 @@
                                                 <div class="txt_box">
                                                     <div class="tit">
                                                         <c:choose>
-                                                            <c:when test="${item.gameType eq 'EXHIBITION'}">
+                                                            <c:when test="${diary.gameType eq 'EXHIBITION'}">
                                                                 <span class="badge-game-type badge-exhibition">시범</span>
                                                             </c:when>
-                                                            <c:when test="${item.gameType eq 'REGULAR'}">
+                                                            <c:when test="${diary.gameType eq 'REGULAR'}">
                                                                 <span class="badge-game-type badge-regular">정규</span>
                                                             </c:when>
-                                                            <c:when test="${item.gameType eq 'POST'}">
+                                                            <c:when test="${diary.gameType eq 'POST'}">
                                                                 <span class="badge-game-type badge-post">포스트</span>
                                                             </c:when>
-                                                            <c:when test="${item.gameType eq 'ALLSTAR'}">
+                                                            <c:when test="${diary.gameType eq 'ALLSTAR'}">
                                                                 <span class="badge-game-type badge-allstar">올스타</span>
                                                             </c:when>
                                                         </c:choose>
 
-                                                        ${item.homeTeamName} ${item.scoreHome} vs ${item.scoreAway} ${item.awayTeamName}
+                                                        ${diary.homeTeamName} ${diary.scoreHome} vs ${diary.scoreAway} ${diary.awayTeamName}
                                                     </div>
                                                     <div class="date">
-                                                        <fmt:parseDate value="${item.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
+                                                        <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
                                                         <fmt:formatDate value="${pDate}" pattern="yyyy-MM-dd"/>
                                                     </div>
                                                 </div>
                                                 <c:choose>
                                                     <%-- 1. 경기중 --%>
-                                                    <c:when test="${item.gameStatus eq 'LIVE'}">
+                                                    <c:when test="${diary.gameStatus eq 'LIVE'}">
                                                         <div class="during"><div class="badge">경기중</div></div>
                                                     </c:when>
 
                                                     <%-- 2. 취소된 경기 --%>
-                                                    <c:when test="${item.gameStatus eq 'CANCELLED'}">
+                                                    <c:when test="${diary.gameStatus eq 'CANCELLED'}">
                                                         <div class="cancel">
-                                                            <div class="badge">취소(${not empty item.cancelReason ? item.cancelReason : '우천'})</div>
+                                                            <div class="badge">취소(${not empty diary.cancelReason ? diary.cancelReason : '우천'})</div>
                                                         </div>
                                                     </c:when>
 
                                                     <%-- 3. 승리한 경기 --%>
-                                                    <c:when test="${item.gameResult eq 'WIN'}">
+                                                    <c:when test="${diary.gameResult eq 'WIN'}">
                                                         <div class="score_win">
                                                             <img src="/img/ico_win.svg" alt="승리">
                                                         </div>
@@ -239,16 +239,20 @@
                                 <div class="score_card_wrap">
                                     <div class="tit">9개 구장 중, ${visitedCount}개 구장에 방문했어요!</div>
                                     <ul class="score_card_item">
-                                        <c:forEach var="visited" items="${stadiumStatus}">
+                                        <c:forEach var="stadium" items="${stadiumStatus}">
                                             <li>
+                                                <%-- [수정] item 객체의 visited 속성 확인 --%>
                                                 <c:choose>
-                                                    <c:when test="${visited}">
-                                                        <img src="/img/score_on.svg" alt="방문 완료">
+                                                    <c:when test="${stadium.visited}">
+                                                        <img src="/img/score_on.svg" alt="${stadium.name} 방문 완료" title="${stadium.name}">
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <img src="/img/score_off.svg" alt="미방문">
+                                                        <img src="/img/score_off.svg" alt="${stadium.name} 미방문" title="${stadium.name}">
                                                     </c:otherwise>
                                                 </c:choose>
+
+                                                <%-- (선택사항) 구장 이름 표시가 필요하다면 아래 주석 해제 --%>
+                                                <%-- <div class="stadium-name" style="text-align:center; font-size:10px;">${stadium.name}</div> --%>
                                             </li>
                                         </c:forEach>
                                     </ul>

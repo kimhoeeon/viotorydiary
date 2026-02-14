@@ -102,6 +102,11 @@
                                           <div class="row row-center gap-24">
                                               <div class="team" id="homeTeamBox">
                                                   <div class="my-team" id="homeMyTeam" style="display:none;">MY</div>
+                                                  <div class="team-logo mb-4">
+                                                      <img id="homeTeamLogo" src="/img/logo/logo_default.svg" alt="홈팀"
+                                                           style="width: 48px; height: 48px; object-fit: contain;"
+                                                           onerror="this.src='/img/logo/logo_default.svg'">
+                                                  </div>
                                                   <div class="team-name" id="homeTeamName">HOME</div>
                                               </div>
 
@@ -117,6 +122,11 @@
 
                                               <div class="team" id="awayTeamBox">
                                                   <div class="my-team" id="awayMyTeam" style="display:none;">MY</div>
+                                                  <div class="team-logo mb-4">
+                                                      <img id="awayTeamLogo" src="/img/logo/logo_default.svg" alt="원정팀"
+                                                           style="width: 48px; height: 48px; object-fit: contain;"
+                                                           onerror="this.src='/img/logo/logo_default.svg'">
+                                                  </div>
                                                   <div class="team-name" id="awayTeamName">AWAY</div>
                                               </div>
                                           </div>
@@ -227,6 +237,15 @@
               $('#homeTeamName').text('${selectedGame.homeTeamName}');
               $('#awayTeamName').text('${selectedGame.awayTeamName}');
 
+              // 로고 세팅 (JSTL lowerCase 함수 필요 또는 JS 처리)
+              // 여기서는 간단히 JS로 처리
+              const hCode = '${selectedGame.homeTeamCode}';
+              const aCode = '${selectedGame.awayTeamCode}';
+
+              $('#homeTeamLogo').attr('src', '/img/logo/logo_' + hCode.toLowerCase() + '.svg');
+              $('#awayTeamLogo').attr('src', '/img/logo/logo_' + aCode.toLowerCase() + '.svg');
+
+              // MY 팀 배지 처리
               const myTeam = '${sessionScope.loginMember.myTeamCode}';
               if ('${selectedGame.homeTeamCode}' === myTeam) $('#homeMyTeam').show();
               if ('${selectedGame.awayTeamCode}' === myTeam) $('#awayMyTeam').show();
@@ -319,8 +338,13 @@
           const $rightInput = $('input[name^="predScore"]').eq(1); // 오른쪽 입력칸
 
           let leftName, rightName;
+          let leftLogo, rightLogo;
           let showLeftBadge = false;
           let showRightBadge = false;
+
+          // [로고 경로 생성 도우미]
+          // 파일명이 소문자라고 가정 (예: logo_kia.svg)
+          const getLogoPath = (code) => '/img/logo/logo_' + (code ? code.toLowerCase() : 'default') + '.svg';
 
           // 4. 로직 분기: 내 팀 위치에 따라 UI와 데이터 속성(name) 스왑
           if (g.awayCode === myTeamCode) {
@@ -329,6 +353,10 @@
               // 4-1. UI 배치: 왼쪽(내팀=Away), 오른쪽(상대=Home)
               leftName = g.awayName;
               rightName = g.homeName;
+
+              leftLogo = getLogoPath(g.awayCode);
+              rightLogo = getLogoPath(g.homeCode);
+
               showLeftBadge = true; // 왼쪽에 'MY' 뱃지
 
               // 4-2. 데이터 매핑: 왼쪽 입력값 -> predScoreAway, 오른쪽 입력값 -> predScoreHome
@@ -341,6 +369,9 @@
               // 4-1. UI 배치: 왼쪽(Home), 오른쪽(Away)
               leftName = g.homeName;
               rightName = g.awayName;
+
+              leftLogo = getLogoPath(g.homeCode);
+              rightLogo = getLogoPath(g.awayCode);
 
               if (g.homeCode === myTeamCode) {
                   showLeftBadge = true; // 왼쪽에 'MY' 뱃지
@@ -355,9 +386,13 @@
           $('#homeTeamName').text(leftName); // 왼쪽 팀 이름 영역
           $('#awayTeamName').text(rightName); // 오른쪽 팀 이름 영역
 
+          // 로고 이미지 변경
+          $('#homeTeamLogo').attr('src', leftLogo);
+          $('#awayTeamLogo').attr('src', rightLogo);
+
           // 뱃지 표시 제어
           if (showLeftBadge) $('#homeMyTeam').show(); else $('#homeMyTeam').hide();
-          if (showRightBadge) $('#awayMyTeam').show(); else $('#awayMyTeam').hide(); // (오른쪽 뱃지는 현재 로직상 사용 안함)
+          if (showRightBadge) $('#awayMyTeam').show(); else $('#awayMyTeam').hide();
 
           // 6. 버튼 활성화 및 팝업 닫기
           $('#btnNext').prop('disabled', false);
@@ -497,20 +532,20 @@
           }
 
           // 3) 필수값 체크: 히어로
-          if (!$.trim($('#heroName').val())) {
+          /*if (!$.trim($('#heroName').val())) {
               alert('오늘의 히어로(MVP)를 입력해주세요!', function() {
                   $('#heroName').focus();
               });
               return;
-          }
+          }*/
 
           // 4) 필수값 체크: 한줄평
-          if (!$.trim($('#oneLine').val())) {
+          /*if (!$.trim($('#oneLine').val())) {
               alert('오늘 경기에 대한 한줄평을 남겨주세요!', function() {
                   $('#oneLine').focus();
               });
               return;
-          }
+          }*/
 
           /*if (!$('#fileUpload').val() && $('#imagePreview').attr('src') === "") {
               alert('직관 인증샷을 등록해주세요! 📸');

@@ -74,7 +74,14 @@
                                         <div class="game-board">
                                             <div class="row row-center gap-24">
                                                 <div class="team">
+                                                    <div class="team-logo mb-8"> <img src="/img/logo/logo_${fn:toLowerCase(diary.homeTeamCode)}.svg"
+                                                                                      alt="${diary.homeTeamName}"
+                                                                                      style="height: 48px; width: auto; object-fit: contain;"
+                                                                                      onerror="this.src='/img/logo/logo_default.svg'">
+                                                    </div>
+
                                                     <div class="team-name">${diary.homeTeamName}</div>
+                                                    <div class="text-12 color-gray mt-4">${diary.homeStarter}</div>
                                                 </div>
 
                                                 <div class="game-score schedule">
@@ -88,7 +95,15 @@
                                                 </div>
 
                                                 <div class="team">
+                                                    <div class="team-logo mb-8">
+                                                        <img src="/img/logo/logo_${fn:toLowerCase(diary.awayTeamCode)}.svg"
+                                                             alt="${diary.awayTeamName}"
+                                                             style="height: 48px; width: auto; object-fit: contain;"
+                                                             onerror="this.src='/img/logo/logo_default.svg'">
+                                                    </div>
+
                                                     <div class="team-name">${diary.awayTeamName}</div>
+                                                    <div class="text-12 color-gray mt-4">${diary.awayStarter}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -206,22 +221,22 @@
             }
 
             // 2) 히어로(MVP) 필수 입력 체크
-            var heroInput = document.getElementById('heroName');
+            /*var heroInput = document.getElementById('heroName');
             if (!heroInput || !heroInput.value.trim()) {
                 alert('오늘의 히어로(MVP)를 입력해주세요!', function() {
                     if(heroInput) heroInput.focus();
                 });
                 return;
-            }
+            }*/
 
             // 3) 한줄평 체크
-            var oneLineInput = document.getElementById('oneLine');
+            /*var oneLineInput = document.getElementById('oneLine');
             if (!oneLineInput || !oneLineInput.value.trim()) {
                 alert('한줄평을 입력해주세요.', function() {
                     if(oneLineInput) oneLineInput.focus();
                 });
                 return;
-            }
+            }*/
 
             /*
             if (!$('#fileUpload').val() && $('#imagePreview').attr('src') === "") {

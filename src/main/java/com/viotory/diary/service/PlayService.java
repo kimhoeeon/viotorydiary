@@ -10,8 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -100,4 +99,18 @@ public class PlayService {
         log.info("경기 예측 결과 처리 완료: gameId={}, 총 예측={}, 신규 정답 알림={}", gameId, predictions.size(), correctCount);
     }
 
+    // 특정 월의 경기가 있는 날짜 목록 조회
+    public List<String> getGameDatesInMonth(String yearMonth) {
+        List<GameVO> games = gameMapper.selectGameListByMonth(yearMonth);
+
+        // 날짜 중복 제거 (Set 사용)
+        Set<String> dateSet = new HashSet<>();
+        if (games != null) {
+            for (GameVO game : games) {
+                dateSet.add(game.getGameDate()); // yyyy-MM-dd
+            }
+        }
+        // 리스트로 변환하여 반환
+        return new ArrayList<>(dateSet);
+    }
 }

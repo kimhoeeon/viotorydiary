@@ -1,5 +1,6 @@
 package com.viotory.diary.controller;
 
+import com.viotory.diary.dto.StadiumVisitDTO;
 import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.service.DiaryService;
 import com.viotory.diary.service.GameService;
@@ -53,7 +54,7 @@ public class WinYoController {
         model.addAttribute("friendDiaries", friendDiaries);
 
         // 4. 스코어카드 (구장 방문 현황)
-        List<Boolean> stadiumStatus = diaryService.getStadiumVisitStatus(memberId);
+        List<StadiumVisitDTO> stadiumStatus = diaryService.getStadiumVisitStatus(memberId);
         int visitedCount = diaryService.getVisitedStadiumCount(memberId);
 
         model.addAttribute("stadiumStatus", stadiumStatus);

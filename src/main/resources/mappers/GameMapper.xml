@@ -202,4 +202,8 @@
         SELECT COUNT(*) FROM games WHERE game_date = CURDATE()
     </select>
 
+    <select id="selectAllStadiums" resultType="com.viotory.diary.vo.StadiumVO">
+        SELECT * FROM stadiums ORDER BY stadium_id ASC
+    </select>
+
 </mapper>

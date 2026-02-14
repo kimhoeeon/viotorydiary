@@ -41,6 +41,13 @@ public class SystemMngController {
         return "mng/system/notice_detail";
     }
 
+    // [추가] ★ 수정 팝업용 데이터 조회 API (JSON 반환)
+    @GetMapping("/notices/api/detail")
+    @ResponseBody
+    public NoticeVO getNoticeDetailApi(@RequestParam("noticeId") Long noticeId) {
+        return systemMngService.getNoticeById(noticeId);
+    }
+
     @PostMapping("/notices/save")
     public String noticeSave(NoticeVO notice,
                              @RequestParam(value = "file", required = false) MultipartFile file) {

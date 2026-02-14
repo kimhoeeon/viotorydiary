@@ -109,6 +109,13 @@
     <script src="/js/app_interface.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            // 서버에서 전달된 에러 메시지가 있다면 알림창 출력
+            const errorMsg = "<c:out value='${error}' />";
+            if (errorMsg && errorMsg.trim() !== '') {
+                alert(errorMsg);
+            }
+
             const teamButtons = document.querySelectorAll('.team_info-btn');
             const teamInput = document.getElementById('teamCode');
             const submitBtn = document.getElementById('btnNext');

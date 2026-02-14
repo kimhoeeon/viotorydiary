@@ -138,12 +138,12 @@
                              pred_score_home, pred_score_away, pred_hero, hero_name,
                              content, one_line_comment, rating,
                              image_url,
-                             status, is_public, created_at, updated_at)
+                             is_verified,  status, is_public, created_at, updated_at)
         VALUES (#{memberId}, #{gameId}, #{snapshotTeamCode},
                 #{predScoreHome}, #{predScoreAway}, #{predHero}, #{heroName},
                 #{content}, #{oneLineComment}, #{rating},
                 #{imageUrl},
-                'COMPLETED', IFNULL(#{isPublic}, 'PUBLIC'), NOW(), NOW())
+                #{isVerified},  'COMPLETED', IFNULL(#{isPublic}, 'PUBLIC'), NOW(), NOW())
     </insert>
 
     <select id="selectDiaryById" resultType="com.viotory.diary.vo.DiaryVO">
@@ -163,6 +163,8 @@
             /* 팀 로고 조회 */
             t1.logo_image_url AS homeTeamLogo,
             t2.logo_image_url AS awayTeamLogo,
+            g.home_starter,
+            g.away_starter,
 
             g.score_home,
             g.score_away,
@@ -260,9 +262,10 @@
     <select id="selectVisitedStadiumIds" resultType="long">
         SELECT DISTINCT g.stadium_id
         FROM diaries d
-                 JOIN games g ON d.game_id = g.game_id
+         JOIN games g ON d.game_id = g.game_id
         WHERE d.member_id = #{memberId}
           AND d.status = 'COMPLETED'
+          AND d.is_verified = 1
     </select>
 
     <update id="updateDiaryStatus">
