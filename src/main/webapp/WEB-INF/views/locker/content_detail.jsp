@@ -34,7 +34,12 @@
         </header>
 
         <div class="app-main">
-            <div class="page-main_wrap">
+
+            <div class="app-tit">
+                <div class="page-tit">우리 팀 추천 콘텐츠</div>
+            </div>
+
+            <div class="page-main_wrap mt-24">
                 <div class="notice_view">
 
                     <div class="notice_view_head">

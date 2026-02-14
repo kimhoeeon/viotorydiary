@@ -23,7 +23,7 @@ public class PlayService {
 
     // 특정 날짜의 경기 목록 (나의 예측 정보 포함)
     public List<GameVO> getGameListWithPrediction(Long memberId, String date) {
-        List<GameVO> games = gameMapper.selectGamesByDate(date);
+        List<GameVO> games = gameMapper.selectGamesByDate(date, memberId);
 
         // 각 경기별로 내가 예측한 팀이 있는지 확인해서 세팅 (간단한 로직)
         for (GameVO game : games) {

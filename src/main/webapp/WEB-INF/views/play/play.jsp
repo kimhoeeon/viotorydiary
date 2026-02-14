@@ -565,9 +565,9 @@
                     // ★ 이미 작성된 일기가 있으면 -> 바로가기 버튼
                     if (game.diaryId && game.diaryId > 0) {
                         let heroHtml = '';
-                        if (game.myHero) {
+                        /*if (game.myHero) {
                             heroHtml = `<div class="my-hero-badge">My Hero \${game.myHero}</div>`;
-                        }
+                        }*/
 
                         btnHtml = `
                             \${heroHtml}

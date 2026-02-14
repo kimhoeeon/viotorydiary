@@ -107,7 +107,7 @@
             -- 4. 내 일기 조인 (로그인한 멤버의 해당 경기 일기 확인)
                  LEFT JOIN diaries d ON g.game_id = d.game_id AND d.member_id = #{memberId}
 
-        WHERE g.game_date = #{date}
+        WHERE g.game_date = #{gameDate}
         ORDER BY g.game_time ASC
     </select>
 

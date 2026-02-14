@@ -158,7 +158,7 @@
                                             <c:forEach var="notice" items="${notices}">
                                                 <div class="notice_list" onclick="location.href='/locker/notice/detail?noticeId=${notice.noticeId}'" style="cursor:pointer;">
                                                     <div class="notice_thum">
-                                                        <img src="${not empty notice.imageUrl ? notice.imageUrl : '/img/sample03.png'}" alt="공지 썸네일">
+                                                        <img src="${not empty notice.imageUrl ? notice.imageUrl : '/img/card_defalut.svg'}" alt="공지 썸네일">
                                                     </div>
                                                     <div class="notice_item">
                                                         <div class="notice_txt">

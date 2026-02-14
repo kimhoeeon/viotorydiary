@@ -38,12 +38,14 @@
                 <div class="page-tit">공지 및 설문</div>
             </div>
 
-            <div class="page-main_wrap">
+            <div class="page-main_wrap mt-24">
 
                 <div class="notice_view">
 
                     <div class="notice_view_head">
-                        <div class="notice_badge">공지</div>
+                        <div class="notice_badge ${post.category eq 'SURVEY' ? 'quest_badge' : ''}">
+                            ${post.category eq 'SURVEY' ? '설문' : '공지'}
+                        </div>
                         <div class="tit">${post.title}</div>
                         <div class="date">
                             <fmt:parseDate value="${post.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>

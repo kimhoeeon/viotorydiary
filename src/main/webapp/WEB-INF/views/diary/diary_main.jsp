@@ -179,9 +179,9 @@
                                                     </c:when>
 
                                                     <%-- 3. 승리한 경기 --%>
-                                                    <c:when test="${diary.gameResult eq 'WIN'}">
+                                                    <c:when test="${diary.gameStatus eq 'FINISHED' and diary.gameResult eq 'WIN'}">
                                                         <div class="score_win">
-                                                            <img src="/img/ico_win.svg" alt="승리">
+                                                            <img src="/img/ico_check.svg" alt="승리">
                                                         </div>
                                                     </c:when>
                                                 </c:choose>

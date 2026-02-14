@@ -41,36 +41,31 @@ public class SystemMngController {
         return "mng/system/notice_detail";
     }
 
-    // [추가] ★ 수정 팝업용 데이터 조회 API (JSON 반환)
-    @GetMapping("/notices/api/detail")
-    @ResponseBody
-    public NoticeVO getNoticeDetailApi(@RequestParam("noticeId") Long noticeId) {
-        return systemMngService.getNoticeById(noticeId);
-    }
-
     @PostMapping("/notices/save")
+    @ResponseBody
     public String noticeSave(NoticeVO notice,
                              @RequestParam(value = "file", required = false) MultipartFile file) {
-
-        // 1. 썸네일 파일 업로드 처리
-        if (file != null && !file.isEmpty()) {
-            try {
+        try {
+            // 1. 썸네일 파일 업로드 처리
+            if (file != null && !file.isEmpty()) {
                 // 'notice' 폴더에 이미지 저장 -> /upload/notice/UUID_파일명.jpg 반환
                 String savedUrl = FileUtil.uploadFile(file, "notice");
                 notice.setImageUrl(savedUrl);
-            } catch (Exception e) {
-                log.error("공지사항 썸네일 업로드 실패", e);
-                // 필요 시 에러 처리 (예: RedirectAttributes로 에러 메시지 전달)
             }
-        }
 
-        // 2. DB 저장/수정
-        if (notice.getNoticeId() == null) {
-            systemMngService.registerNotice(notice);
-        } else {
-            systemMngService.updateNotice(notice);
+            // 2. DB 저장/수정
+            if (notice.getNoticeId() == null) {
+                systemMngService.registerNotice(notice);
+            } else {
+                systemMngService.updateNotice(notice);
+            }
+
+            return "ok"; // 성공 시 응답
+
+        } catch (Exception e) {
+            log.error("공지사항 저장 실패", e);
+            return "fail"; // 실패 시 응답
         }
-        return "redirect:/mng/system/notices";
     }
 
     @PostMapping("/notices/delete")

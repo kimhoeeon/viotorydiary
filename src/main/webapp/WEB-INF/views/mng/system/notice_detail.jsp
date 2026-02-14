@@ -144,7 +144,7 @@
                     </div>
                 </div>
 
-                <form action="/mng/system/notices/save" method="post" enctype="multipart/form-data">
+                <form id="modifyForm" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="noticeId" value="${notice.noticeId}">
 
                     <div class="modal-body py-10 px-lg-17">
@@ -196,7 +196,7 @@
                     </div>
                     <div class="modal-footer flex-center">
                         <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary">저장</button>
+                        <button type="button" class="btn btn-primary" onclick="updateNotice()">저장</button>
                     </div>
                 </form>
             </div>
@@ -220,6 +220,48 @@
                 $('#summernote_edit').summernote({ height: 400, lang: 'ko-KR' });
             }
         });
+
+        // [추가] 수정 폼 AJAX 제출 처리
+        function updateNotice() {
+            // 1. 유효성 검사
+            const title = $('input[name="title"]').val();
+            if (!title) {
+                alert('제목을 입력해주세요.');
+                return;
+            }
+
+            // Summernote 내용이 비었는지 체크
+            if ($('#summernote_edit').summernote('isEmpty')) {
+                alert('내용을 입력해주세요.');
+                return;
+            }
+
+            // 2. 폼 데이터 생성
+            // 폼 태그에 id="modifyForm"이 지정되어 있어야 합니다.
+            const form = document.getElementById('modifyForm');
+            const formData = new FormData(form);
+
+            // 3. AJAX 전송
+            $.ajax({
+                url: '/mng/system/notices/save',
+                type: 'POST',
+                data: formData,
+                contentType: false, // 파일 업로드 필수 설정
+                processData: false, // 파일 업로드 필수 설정
+                success: function(response) {
+                    if (response === 'ok') {
+                        alert('수정되었습니다.');
+                        location.reload(); // 성공 시 새로고침
+                    } else {
+                        alert('수정에 실패했습니다.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('서버 통신 중 오류가 발생했습니다.');
+                }
+            });
+        }
 
         function openEditModal() {
             modal.show();

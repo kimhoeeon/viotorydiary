@@ -169,22 +169,46 @@
 
                         </div>
 
-                        <div class="card_wrap play_wrap gap-16" style="margin-top: 24px;">
-                            <div class="card_item">
+                        <div class="card_wrap play_wrap gap-16">
+                            <div class="card_item pt-24 pb-24">
                                 <div class="review_wrap">
-                                    <div class="tit">댓글 <span>(0)</span></div>
+                                    <ul class="review_list" id="reviewList">
+                                        <c:forEach var="cmt" items="${comments}" varStatus="status">
+                                            <li class="${status.index >= 5 ? 'hidden-cmt' : ''}">
+                                                <div class="name">
+                                                    <c:if test="${not empty cmt.memberTeamCode}">
+                                                        <span>${cmt.memberTeamCode}</span>
+                                                    </c:if>
+                                                    ${cmt.nickname}
+                                                </div>
+                                                <div class="nae">${cmt.content}</div>
 
-                                    <div class="review_list">
-                                        <div class="nodata" style="padding: 20px 0; text-align: center; color: #999; font-size: 13px;">
-                                            아직 작성된 댓글이 없어요.
+                                                <c:if test="${cmt.memberId eq sessionScope.loginMember.memberId}">
+                                                    <button class="del-btn" style="float:right;" onclick="deleteComment(${cmt.commentId}, this)">
+                                                        <img src="/img/ico_del.svg" alt="삭제" style="width:16px; opacity:0.5;">
+                                                    </button>
+                                                </c:if>
+                                            </li>
+                                        </c:forEach>
+
+                                        <c:if test="${empty comments}">
+                                            <li style="text-align:center; padding:20px; color:#999; border:none;">
+                                                아직 작성된 댓글이 없습니다.
+                                            </li>
+                                        </c:if>
+                                    </ul>
+
+                                    <c:if test="${fn:length(comments) > 5}">
+                                        <div class="more-btn" id="moreBtn" onclick="showAllComments()">
+                                            <div class="btn">더 보기</div>
                                         </div>
-                                    </div>
+                                    </c:if>
 
                                     <div class="review_write">
                                         <div class="tit">댓글 작성하기</div>
                                         <div class="write_input">
-                                            <input type="text" placeholder="댓글을 입력하세요. (30자 내 이내)">
-                                            <button class="send wpx-80" disabled>
+                                            <input type="text" id="cmtContent" placeholder="댓글을 입력하세요. (30자 이내)" maxlength="30" onkeyup="checkCmtInput()">
+                                            <button class="send wpx-80" id="btnCmtSend" disabled onclick="submitComment()">
                                                 작성
                                             </button>
                                         </div>
@@ -255,8 +279,51 @@
     <script src="/js/app_interface.js"></script>
 
     <script>
-        // --- 기능 로직 유지 ---
+        // [댓글 입력 감지]
+        function checkCmtInput() {
+            const val = $('#cmtContent').val().trim();
+            $('#btnCmtSend').prop('disabled', val.length === 0);
+        }
 
+        // [댓글 등록]
+        function submitComment() {
+            const content = $('#cmtContent').val().trim();
+            const diaryId = '${diary.diaryId}';
+
+            if (!content) return;
+
+            $('#btnCmtSend').prop('disabled', true).text('등록중..');
+
+            $.post('/diary/comment/write', { diaryId: diaryId, content: content }, function (res) {
+                if (res === 'ok') {
+                    location.reload(); // 등록 후 새로고침 (간편 구현)
+                } else if (res.startsWith('fail:login')) {
+                    alert('로그인이 필요합니다.');
+                    location.href = '/member/login';
+                } else {
+                    alert('댓글 등록에 실패했습니다.');
+                    $('#btnCmtSend').prop('disabled', false).text('작성');
+                }
+            }).fail(function() {
+                alert('서버 오류');
+                $('#btnCmtSend').prop('disabled', false).text('작성');
+            });
+        }
+
+        // [댓글 삭제]
+        function deleteComment(commentId, btn) {
+            if (!confirm('댓글을 삭제하시겠습니까?')) return;
+
+            $.post('/diary/comment/delete', { commentId: commentId }, function (res) {
+                if (res === 'ok') {
+                    $(btn).closest('li').fadeOut(300, function() { $(this).remove(); });
+                } else {
+                    alert('삭제 권한이 없거나 실패했습니다.');
+                }
+            });
+        }
+
+        // --- 기능 로직 유지 ---
         function viewImage(src) {
             // 앱 환경 또는 브라우저 새창 열기
             if (typeof appify !== 'undefined' && appify.isWebview) {

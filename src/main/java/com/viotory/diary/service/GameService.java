@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -30,8 +31,12 @@ public class GameService {
      * 오늘 전체 경기 목록 조회 (타구장 소식용)
      */
     public List<GameVO> getAllGamesToday() {
-        String today = LocalDate.now().toString();
-        return gameMapper.selectGamesByDate(today);
+        return getAllGamesToday(null);
+    }
+
+    public List<GameVO> getAllGamesToday(Long memberId) {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return gameMapper.selectGamesByDate(today, memberId);
     }
 
     public GameVO getTodayGame(String myTeamCode) {

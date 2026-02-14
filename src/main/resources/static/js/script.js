@@ -8,7 +8,14 @@ const nativeAlert = window.alert; // 기본 alert 백업
 window.alert = function(message, callback) {
     // showPopup 함수가 정의되어 있으면(popup.jsp가 include된 페이지면) 커스텀 팝업 사용
     if (typeof showPopup === 'function') {
-        showPopup('alert', message, callback);
+
+        // [수정] 줄바꿈 문자(\n)를 HTML 태그(<br>)로 자동 변환
+        let msgHtml = message;
+        if (typeof message === 'string') {
+            msgHtml = message.replace(/\n/g, '<br>');
+        }
+
+        showPopup('alert', msgHtml, callback);
     } else {
         // popup.jsp가 없는 페이지라면 기본 alert 사용
         nativeAlert(message);
@@ -19,8 +26,15 @@ window.alert = function(message, callback) {
 // [옵션] Confirm도 커스텀으로 쓰고 싶다면 아래 함수 사용 (기존 confirm은 동기식이라 오버라이딩 불가)
 window.customConfirm = function(message, callback, cancelCallback) {
     if (typeof showPopup === 'function') {
+
+        // [수정] Confirm 메시지도 줄바꿈 처리
+        let msgHtml = message;
+        if (typeof message === 'string') {
+            msgHtml = message.replace(/\n/g, '<br>');
+        }
+
         // showPopup이 취소 콜백을 4번째 인자로 지원한다고 가정 (또는 수정 필요)
-        showPopup('confirm', message, callback, cancelCallback);
+        showPopup('confirm', msgHtml, callback, cancelCallback);
     } else {
         if(confirm(message)) {
             if(callback) callback();

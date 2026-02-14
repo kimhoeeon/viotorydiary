@@ -44,12 +44,12 @@ public class WinYoController {
         WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(memberId);
         model.addAttribute("winYo", winYo);
 
-        // 2. 나의 최신 일기 (최대 3개)
+        // 2. 나의 최신 일기 (최대 4개)
         List<DiaryVO> myAllDiaries = diaryService.getMyDiaryList(memberId);
-        List<DiaryVO> myDiaries = myAllDiaries.size() > 3 ? myAllDiaries.subList(0, 3) : myAllDiaries;
+        List<DiaryVO> myDiaries = myAllDiaries.size() > 4 ? myAllDiaries.subList(0, 4) : myAllDiaries;
         model.addAttribute("myDiaries", myDiaries);
 
-        // 3. 친구들의 일기 (최대 3개)
+        // 3. 친구들의 일기 (최대 4개)
         List<DiaryVO> friendDiaries = diaryService.getFriendDiaryList(memberId);
         model.addAttribute("friendDiaries", friendDiaries);
 
@@ -62,7 +62,7 @@ public class WinYoController {
 
         // 오늘 경기 존재 여부 확인 (취소된 경기 제외)
         boolean hasTodayGame = false;
-        List<GameVO> todayGames = gameService.getAllGamesToday();
+        List<GameVO> todayGames = gameService.getAllGamesToday(memberId);
         if (todayGames != null && !todayGames.isEmpty()) {
             for (GameVO game : todayGames) {
                 if (!"CANCELLED".equals(game.getStatus())) {

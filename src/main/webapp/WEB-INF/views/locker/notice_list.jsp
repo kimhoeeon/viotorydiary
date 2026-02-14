@@ -38,8 +38,8 @@
                 <div class="page-tit">공지 및 설문</div>
             </div>
 
-            <div class="page-main_wrap">
-                <div class="notice_wrap mt-24">
+            <div class="page-main_wrap mt-24">
+                <div class="notice_wrap">
 
                     <c:choose>
                         <c:when test="${empty list}">
@@ -51,7 +51,7 @@
                             <c:forEach var="item" items="${list}">
                                 <div class="notice_list" onclick="location.href='/locker/notice/detail?noticeId=${item.noticeId}'" style="cursor:pointer;">
                                     <div class="notice_thum">
-                                        <img src="${not empty item.imageUrl ? item.imageUrl : '/img/sample03.png'}" alt="공지 썸네일">
+                                        <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}" alt="공지 썸네일">
                                     </div>
                                     <div class="notice_item">
                                         <div class="notice_txt">

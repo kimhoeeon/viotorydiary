@@ -41,10 +41,13 @@
 </head>
 
 <body>
+
+    <input type="hidden" id="serverErrorMsg" value="<c:out value='${error}' />">
+
     <div class="app">
 
         <header class="app-header">
-            <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
+            <button class="app-header_btn app-header_back" type="button" onclick="location.href='/member/mypage'">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
         </header>
@@ -110,8 +113,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            // 서버에서 전달된 에러 메시지가 있다면 알림창 출력
-            const errorMsg = "<c:out value='${error}' />";
+            // [수정] hidden input에서 값 가져오기
+            const errorMsg = document.getElementById('serverErrorMsg').value;
+
             if (errorMsg && errorMsg.trim() !== '') {
                 alert(errorMsg);
             }

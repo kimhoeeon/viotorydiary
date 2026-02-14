@@ -110,7 +110,9 @@
                                                             <c:if test="${item.isTop ne 'Y'}">-</c:if>
                                                         </td>
                                                         <td>
-                                                            <a href="#" onclick="openModifyModal(${item.noticeId}); return false;" class="text-gray-800 text-hover-primary fs-5 fw-bold">${item.title}</a>
+                                                            <a href="/mng/system/notices/detail?noticeId=${item.noticeId}" class="text-gray-800 text-hover-primary fs-5 fw-bold">
+                                                                ${item.title}
+                                                            </a>
                                                         </td>
                                                         <td>
                                                             <c:if test="${item.status eq 'ACTIVE'}"><div class="badge badge-light-success">게시중</div></c:if>
@@ -150,7 +152,7 @@
                     </div>
                 </div>
 
-                <form id="noticeForm" action="/mng/system/notices/save" method="post" enctype="multipart/form-data">
+                <form id="noticeForm" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="noticeId" id="noticeId">
 
                     <div class="modal-body py-10 px-lg-17">
@@ -197,7 +199,7 @@
 
                     <div class="modal-footer flex-center">
                         <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary">저장</button>
+                        <button type="button" class="btn btn-primary" onclick="saveNotice()">저장</button>
                     </div>
                 </form>
             </div>
@@ -251,6 +253,54 @@
 
             // 6. 모달 표시
             if (noticeModal) noticeModal.show();
+        }
+
+        /**
+         * [수정] 공지사항 저장 (AJAX)
+         */
+        function saveNotice() {
+            const title = $('#title').val();
+
+            // 유효성 검사
+            if (!title.trim()) {
+                alert('제목을 입력해주세요.');
+                $('#title').focus();
+                return;
+            }
+            if ($('#content').summernote('isEmpty')) {
+                alert('내용을 입력해주세요.');
+                $('#content').summernote('focus');
+                return;
+            }
+
+            // Summernote 내용 동기화 (Form Data 생성 전 필수)
+            /* textarea에 값이 잘 들어가있는지 확인 필요, 보통 summernote('code')로 가져옴 */
+            /* FormData 생성 시 자동으로 textarea 값을 가져오려면 값을 넣어줘야 함 */
+            /* $('#content').val($('#content').summernote('code')); // 필요 시 주석 해제 */
+
+            // 폼 데이터 생성 (파일 포함)
+            const form = document.getElementById('noticeForm');
+            const formData = new FormData(form);
+
+            // AJAX 전송
+            $.ajax({
+                url: '/mng/system/notices/save',
+                type: 'POST',
+                data: formData,
+                contentType: false, // 파일 업로드 시 필수
+                processData: false, // 파일 업로드 시 필수
+                success: function(response) {
+                    if (response === 'ok') {
+                        alert('저장되었습니다.');
+                        location.reload(); // 목록 새로고침
+                    } else {
+                        alert('저장에 실패했습니다. 관리자에게 문의하세요.');
+                    }
+                },
+                error: function() {
+                    alert('서버 통신 중 오류가 발생했습니다.');
+                }
+            });
         }
 
         function deleteNotice(id) {

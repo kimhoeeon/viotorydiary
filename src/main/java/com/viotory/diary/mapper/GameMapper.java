@@ -35,7 +35,7 @@ public interface GameMapper {
      * [메인화면용] 특정 날짜의 전체 경기 조회
      * 용도: 타구장 소식 및 비로그인 유저용
      */
-    List<GameVO> selectGamesByDate(String gameDate);
+    List<GameVO> selectGamesByDate(@Param("gameDate") String gameDate, @Param("memberId") Long memberId);
 
 
     GameVO selectTodayGameByTeam(String teamCode);
