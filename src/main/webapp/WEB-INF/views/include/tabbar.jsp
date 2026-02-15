@@ -25,7 +25,7 @@
 <c:set var="isPlay" value="${fn:startsWith(path, '/play') || fn:contains(path, '/views/play/')}" />
 
 <%-- 일기: /diary로 시작 하거나, /views/diary/ 폴더 안에 있을 때 --%>
-<c:set var="isDiary" value="${fn:startsWith(path, '/diary') || fn:contains(path, '/views/diary/') || fn:contains(path, '/member/search')}" />
+<c:set var="isDiary" value="${fn:startsWith(path, '/diary') || fn:contains(path, '/views/diary/') || fn:startsWith(path, '/member/search')}" />
 
 <%-- 라커룸: /locker로 시작 하거나, /views/locker/ 폴더 안에 있을 때 --%>
 <c:set var="isLocker" value="${fn:startsWith(path, '/locker') || fn:contains(path, '/views/locker/')}" />
