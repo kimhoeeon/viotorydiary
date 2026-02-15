@@ -2,6 +2,7 @@ package com.viotory.diary.service;
 
 import com.viotory.diary.mapper.GameMngMapper;
 import com.viotory.diary.vo.GameVO;
+import com.viotory.diary.vo.StadiumVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,4 +35,9 @@ public class GameMngService {
     public void deleteGame(Long gameId) {
         gameMngMapper.deleteGame(gameId);
     }
+
+    public List<StadiumVO> getStadiumList() {
+        return gameMngMapper.selectStadiumList();
+    }
+
 }

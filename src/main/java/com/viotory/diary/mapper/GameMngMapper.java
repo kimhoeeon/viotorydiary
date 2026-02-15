@@ -1,6 +1,7 @@
 package com.viotory.diary.mapper;
 
 import com.viotory.diary.vo.GameVO;
+import com.viotory.diary.vo.StadiumVO;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface GameMngMapper {
 
     // 삭제
     void deleteGame(Long gameId);
+
+    List<StadiumVO> selectStadiumList();
 }

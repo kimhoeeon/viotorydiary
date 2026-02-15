@@ -4,6 +4,7 @@ import com.viotory.diary.mapper.GameMapper;
 import com.viotory.diary.service.GameDataService;
 import com.viotory.diary.service.GameMngService;
 import com.viotory.diary.vo.GameVO;
+import com.viotory.diary.vo.StadiumVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -88,6 +89,11 @@ public class GameMngController {
         }
 
         List<GameVO> list = gameMngService.getGameList(ym);
+
+        // [추가] 구장 목록 조회 및 모델 추가
+        List<StadiumVO> stadiums = gameMngService.getStadiumList();
+        model.addAttribute("stadiums", stadiums);
+
         model.addAttribute("list", list);
         model.addAttribute("ym", ym);
 

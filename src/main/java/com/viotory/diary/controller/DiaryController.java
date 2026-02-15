@@ -166,35 +166,6 @@ public class DiaryController {
         }
     }
 
-    // --- [파일 저장 유틸 메소드] ---
-    private String saveFile(MultipartFile file) throws Exception {
-        if (file.isEmpty()) return null;
-
-        // 1. 기본 업로드 루트 경로
-        String rootPath = "/usr/local/tomcat/webapps/upload";
-
-        // 2. [수정] 기능별 하위 폴더 지정 ("diary")
-        // 결과 경로: /usr/local/tomcat/webapps/upload/diary
-        File uploadDir = new File(rootPath, "diary");
-
-        // 3. 폴더가 없으면 생성 (diary 폴더가 자동 생성됨)
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
-        String uuid = UUID.randomUUID().toString();
-        String originalName = file.getOriginalFilename();
-        String savedName = uuid + "_" + originalName;
-
-        // 4. 파일 저장
-        File dest = new File(uploadDir, savedName);
-        file.transferTo(dest);
-
-        // 5. DB 저장용 URL (웹 접근 경로)
-        // 중요: URL에도 /upload/diary/ 가 포함되어야 함
-        return "/upload/diary/" + savedName;
-    }
-
     // 3. 작성 완료 페이지
     @GetMapping("/complete")
     public String completePage(@RequestParam("diaryId") Long diaryId, Model model) {

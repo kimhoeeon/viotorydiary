@@ -263,7 +263,12 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="fs-6 fw-semibold mb-2">구장</label>
-                                <input type="text" class="form-control form-control-solid" name="stadiumId" id="stadiumId" placeholder="잠실, 사직..."/>
+                                <select class="form-select form-select-solid" name="stadiumId" id="stadiumId">
+                                    <option value="">구장 선택</option>
+                                    <c:forEach var="stadium" items="${stadiums}">
+                                        <option value="${stadium.stadiumId}">${stadium.name}</option>
+                                    </c:forEach>
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3">

@@ -33,14 +33,19 @@ public class DiaryService {
     public Long writeDiary(DiaryVO diary) throws Exception {
         // 1. 필수값 체크
         if (diary.getGameId() == null) throw new Exception("경기를 선택해주세요.");
-        if (diary.getOneLineComment() == null || diary.getOneLineComment().isEmpty()) {
+        /*if (diary.getOneLineComment() == null || diary.getOneLineComment().isEmpty()) {
             throw new Exception("한줄평을 입력해주세요.");
-        }
+        }*/
 
         // 1-1. 중복 작성 체크
         DiaryVO existingDiary = diaryMapper.selectDiaryByMemberAndGame(diary.getMemberId(), diary.getGameId());
         if (existingDiary != null) {
             throw new Exception("이미 이 경기에 대한 일기를 작성하셨습니다.");
+        }
+
+        // [추가] 직관 인증 시, 인증 시간 저장
+        if (diary.isVerified()) {
+            diary.setVerifiedAt(LocalDateTime.now());
         }
         
         // 2. 작성 당시 응원팀 스냅샷 저장
