@@ -354,14 +354,29 @@ public class DiaryController {
 
     // 친구 일기 목록 (피드)
     @GetMapping("/friend/list")
-    public String friendDiaryList(HttpSession session, Model model) {
+    public String friendDiaryList(@RequestParam(value = "tab", defaultValue = "following") String tab,
+                                  @RequestParam(value = "targetMemberId", required = false) Long targetMemberId,
+                                  HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
-        List<DiaryVO> list = diaryService.getAllFriendDiaries(loginMember.getMemberId());
-        model.addAttribute("list", list);
+        List<DiaryVO> list;
 
-        return "diary/friend_list"; // views/diary/friend_list.jsp
+        if (targetMemberId != null) {
+            // [CASE 1] 특정 친구의 일기만 모아보기
+            list = diaryService.getMemberPublicDiaries(targetMemberId);
+            model.addAttribute("pageTitle", "친구의 직관일기");
+        } else {
+            // [CASE 2] 탭별 피드 조회
+            list = diaryService.getFeedDiaries(loginMember.getMemberId(), tab);
+            model.addAttribute("pageTitle", "친구들의 직관");
+        }
+
+        model.addAttribute("list", list);
+        model.addAttribute("tab", tab);
+        model.addAttribute("targetMemberId", targetMemberId);
+
+        return "diary/friend_list";
     }
 
     // 공유 링크 발급 (AJAX)

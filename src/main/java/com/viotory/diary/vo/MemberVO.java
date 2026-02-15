@@ -45,4 +45,6 @@ public class MemberVO {
     private int followerCount;     // 팔로워 수
     private String winRateStr;     // 승률 (예: "84% (7승 5패)")
 
+    private boolean isFollowing;
+
 }

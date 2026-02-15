@@ -316,6 +316,63 @@
         ORDER BY g.game_date DESC, d.created_at DESC
     </select>
 
+    <select id="selectFollowerDiaries" resultType="com.viotory.diary.vo.DiaryVO">
+        SELECT d.diary_id, d.member_id, d.one_line_comment, d.rating, d.content, d.image_url,
+               g.game_date, g.status AS gameStatus, g.cancel_reason,
+               t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
+               m.nickname, m.profile_image,
+               g.score_home, g.score_away,
+            /* 승패 판별 (간소화) */
+               CASE WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                    WHEN g.winning_team IS NOT NULL THEN 'LOSE' ELSE 'NONE' END AS gameResult
+        FROM diaries d
+                 JOIN follows f ON d.member_id = f.follower_id  /* 여기가 핵심 변경점 */
+                 JOIN members m ON d.member_id = m.member_id
+                 JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        WHERE f.following_id = #{memberId}  /* 내 ID가 팔로잉 대상인 경우 */
+          AND d.status = 'COMPLETED' AND d.is_public IN ('PUBLIC', 'FRIENDS')
+        ORDER BY g.game_date DESC, d.created_at DESC
+    </select>
+
+    <select id="selectMemberPublicDiaries" resultType="com.viotory.diary.vo.DiaryVO">
+        SELECT d.diary_id, d.member_id, d.one_line_comment, d.rating, d.content, d.image_url,
+               g.game_date, g.status AS gameStatus, g.cancel_reason,
+               t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
+               m.nickname, m.profile_image,
+               g.score_home, g.score_away,
+               CASE WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                    WHEN g.winning_team IS NOT NULL THEN 'LOSE' ELSE 'NONE' END AS gameResult
+        FROM diaries d
+                 JOIN members m ON d.member_id = m.member_id
+                 JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        WHERE d.member_id = #{targetMemberId}
+          AND d.status = 'COMPLETED'
+          AND d.is_public IN ('PUBLIC', 'FRIENDS') /* 비공개 글 제외 */
+        ORDER BY g.game_date DESC, d.created_at DESC
+    </select>
+
+    <select id="selectAllPublicDiaries" resultType="com.viotory.diary.vo.DiaryVO">
+        SELECT d.diary_id, d.member_id, d.one_line_comment, d.rating, d.content, d.image_url,
+               g.game_date, g.status AS gameStatus,
+               t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
+               m.nickname, m.profile_image,
+               g.score_home, g.score_away,
+               CASE WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                    WHEN g.winning_team IS NOT NULL THEN 'LOSE' ELSE 'NONE' END AS gameResult
+        FROM diaries d
+                 JOIN members m ON d.member_id = m.member_id
+                 JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+                 LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        WHERE d.status = 'COMPLETED' AND d.is_public = 'PUBLIC'
+        ORDER BY d.created_at DESC
+        LIMIT 50
+    </select>
+
     <update id="updateShareUuid">
         UPDATE diaries
         SET share_uuid = #{uuid}

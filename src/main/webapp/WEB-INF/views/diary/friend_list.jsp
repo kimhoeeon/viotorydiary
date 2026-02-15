@@ -28,24 +28,45 @@
 
 <body>
     <div class="app">
-        <header class="app-header">
-            <button class="app-header_btn app-header_back" type="button" onclick="location.href='/diary/winyo'">
-                <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
-            </button>
-        </header>
+
+        <div class="top_wrap">
+            <div class="main-top">
+                <div class="main-title">
+                    친구일기
+                </div>
+
+                <button class="noti-btn ${hasUnreadAlarm ? 'has-badge' : ''}" onclick="location.href='/alarm/list'">
+                    <span class="noti-btn_icon" aria-hidden="true"><img src="/img/ico_noti.svg" alt="알림 아이콘"></span>
+                    <span class="noti-dot" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
 
         <div class="app-main">
-            <div class="app-tit">
-                <div class="page-tit">친구들의 직관</div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+
+                <div class="tab-pill" style="margin-bottom: 0; margin-top: 0;">
+                    <button type="button" class="tab-pill_btn" onclick="location.href='/diary/winyo'">나의 기록</button>
+                    <button type="button" class="tab-pill_btn on" onclick="location.href='/diary/friend/list'">친구 일기</button>
+                </div>
+
+                <a href="/member/search" class="btn-friend-search" style="display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: #555;">
+                    <img src="/img/ico_friend.svg" alt="검색" style="width: 18px; height: 18px;">
+                    친구찾기
+                </a>
             </div>
 
-            <div class="tab-pill">
-                <button type="button" class="tab-pill_btn ${param.tab == null || param.tab == 'all' ? 'on' : ''}" onclick="location.href='?tab=all'">전체</button>
-                <button type="button" class="tab-pill_btn ${param.tab == 'follower' ? 'on' : ''}" onclick="location.href='?tab=follower'">팔로우</button>
-                <button type="button" class="tab-pill_btn ${param.tab == 'following' ? 'on' : ''}" onclick="location.href='?tab=following'">팔로잉</button>
-            </div>
+            <c:if test="${empty targetMemberId}">
+                <div class="tab-pill">
+                    <button type="button" class="tab-pill_btn ${param.tab == 'all' ? 'on' : ''}" onclick="location.href='?tab=all'">전체</button>
+                    <button type="button" class="tab-pill_btn ${param.tab == 'follower' ? 'on' : ''}" onclick="location.href='?tab=follower'">나를 팔로우</button>
+                    <button type="button" class="tab-pill_btn ${empty param.tab || param.tab == 'following' ? 'on' : ''}" onclick="location.href='?tab=following'">내가 팔로잉</button>
+                </div>
+            </c:if>
 
             <div class="page-main_wrap">
+
                 <div class="history">
                     <div class="history-list mt-24">
                         <div class="score_wrap row_wrap">

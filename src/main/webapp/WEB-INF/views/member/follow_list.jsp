@@ -70,7 +70,7 @@
                                     <c:forEach var="item" items="${list}">
                                         <li>
                                             <div class="diary_write_list nodt_line friend_info_wrap bg-gray">
-                                                <div class="friend_info" onclick="location.href='/diary/friend/view?memberId=${item.memberId}'" style="cursor:pointer;">
+                                                <div class="friend_info" onclick="location.href='/diary/friend/list?targetMemberId=${item.memberId}'" style="cursor:pointer;">
                                                     <div class="friend_item ${item.mutual ? 'follow-back' : ''}">
                                                         <div class="name">${item.nickname}</div>
                                                         <c:if test="${not empty item.myTeamCode}">
@@ -80,8 +80,9 @@
                                                     <div class="win_rate">승요력 ${item.winRate}%</div>
                                                 </div>
                                                 <div class="follow-btn">
-                                                    <button class="btn not-follow w-auto" type="button"
-                                                            onclick="toggleFollow(${item.memberId}, 'unfollow', this)">취소</button>
+                                                    <button class="btn not-follow w-auto" type="button" onclick="toggleFollow(${item.memberId}, 'unfollow', this)">
+                                                        취소
+                                                    </button>
                                                 </div>
                                             </div>
                                         </li>

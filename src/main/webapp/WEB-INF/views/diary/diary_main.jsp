@@ -42,9 +42,17 @@
 
         <div class="app-main">
 
-            <div class="tab-pill mb-16">
-                <button type="button" class="tab-pill_btn on" onclick="location.href='/diary/winyo'">나의 기록</button>
-                <button type="button" class="tab-pill_btn" onclick="location.href='/diary/friend/list'">친구 일기</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+
+                <div class="tab-pill" style="margin-bottom: 0; margin-top: 0;">
+                    <button type="button" class="tab-pill_btn on" onclick="location.href='/diary/winyo'">나의 기록</button>
+                    <button type="button" class="tab-pill_btn" onclick="location.href='/diary/friend/list'">친구 일기</button>
+                </div>
+
+                <a href="/member/search" class="btn-friend-search" style="display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: #555;">
+                    <img src="/img/ico_friend.svg" alt="검색" style="width: 18px; height: 18px;">
+                    친구찾기
+                </a>
             </div>
 
             <div class="page-main_wrap">

@@ -171,4 +171,22 @@ public class DiaryService {
         return diaryMapper.countTodayDiaries();
     }
 
+    // 피드 목록 조회 (탭 분기)
+    public List<DiaryVO> getFeedDiaries(Long memberId, String tab) {
+        if ("follower".equals(tab)) {
+            // 나를 팔로우하는 사람들의 일기
+            return diaryMapper.selectFollowerDiaries(memberId);
+        } else if ("all".equals(tab)) {
+            // (옵션) 전체 공개 일기 or 맞팔 친구 일기 (여기선 전체 공개로 예시)
+            return diaryMapper.selectAllPublicDiaries();
+        } else {
+            // 기본: 내가 팔로잉하는 사람들의 일기 (기존 메서드 활용)
+            return diaryMapper.selectAllFriendDiaries(memberId);
+        }
+    }
+
+    // 특정 멤버의 공개 일기 조회
+    public List<DiaryVO> getMemberPublicDiaries(Long targetMemberId) {
+        return diaryMapper.selectMemberPublicDiaries(targetMemberId);
+    }
 }

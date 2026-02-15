@@ -25,13 +25,13 @@
 <c:set var="isPlay" value="${fn:startsWith(path, '/play') || fn:contains(path, '/views/play/')}" />
 
 <%-- 일기: /diary로 시작 하거나, /views/diary/ 폴더 안에 있을 때 --%>
-<c:set var="isDiary" value="${fn:startsWith(path, '/diary') || fn:contains(path, '/views/diary/')}" />
+<c:set var="isDiary" value="${fn:startsWith(path, '/diary') || fn:contains(path, '/views/diary/') || fn:contains(path, '/member/search')}" />
 
 <%-- 라커룸: /locker로 시작 하거나, /views/locker/ 폴더 안에 있을 때 --%>
 <c:set var="isLocker" value="${fn:startsWith(path, '/locker') || fn:contains(path, '/views/locker/')}" />
 
-<%-- My: /member로 시작 하거나 /views/member/ 폴더 (단, 로그인/가입 제외) --%>
-<c:set var="isMy" value="${(fn:startsWith(path, '/member') || fn:contains(path, '/views/member/')) && !fn:contains(path, 'login') && !fn:contains(path, 'join')}" />
+<%-- My: /member로 시작 하거나 /views/member/ 폴더 (단, 로그인/가입/친구찾기 제외) --%>
+<c:set var="isMy" value="${(fn:startsWith(path, '/member') || fn:contains(path, '/views/member/')) && !fn:contains(path, 'login') && !fn:contains(path, 'join') && !fn:contains(path, 'search')}" />
 
 <%-- [DEBUG] 적용 후 로그 확인 (확인 후 주석 처리하세요) --%>
 <nav class="app-tabbar" aria-label="하단 메뉴">

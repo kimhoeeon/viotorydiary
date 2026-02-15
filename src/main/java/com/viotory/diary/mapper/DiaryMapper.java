@@ -52,4 +52,10 @@ public interface DiaryMapper {
     int countTotalDiaries();
 
     int countTodayDiaries();
+
+    List<DiaryVO> selectFollowerDiaries(Long memberId);
+
+    List<DiaryVO> selectAllPublicDiaries();
+
+    List<DiaryVO> selectMemberPublicDiaries(Long targetMemberId);
 }

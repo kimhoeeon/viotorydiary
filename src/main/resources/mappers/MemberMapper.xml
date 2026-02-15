@@ -274,12 +274,20 @@
 
     <select id="searchMembers" resultType="com.viotory.diary.vo.MemberVO">
         SELECT
-            member_id, nickname, profile_image, my_team_code,
-            (SELECT name_kr FROM teams WHERE team_code = members.my_team_code) AS myTeamName
+            member_id,
+            nickname,
+            profile_image,
+            my_team_code,
+            (SELECT name_kr FROM teams WHERE team_code = members.my_team_code) AS myTeamName,
+
+            -- [추가] 내가 팔로우 중인지 확인 (1: true, 0: false)
+            (SELECT COUNT(*) > 0
+             FROM follows f
+             WHERE f.follower_id = #{myMemberId} AND f.following_id = members.member_id) AS isFollowing
+
         FROM members
         WHERE nickname LIKE CONCAT('%', #{keyword}, '%')
-          AND member_id != #{myMemberId}
-        ORDER BY nickname ASC
+          AND member_id != #{myMemberId} ORDER BY nickname ASC
     </select>
 
     <select id="countTodayMembers" resultType="int">
