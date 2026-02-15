@@ -420,7 +420,7 @@
 
 /* 리뷰 */
 .review {display: grid; gap: 16px;}
-.review .review_list li{background: #fff; padding: 16px;    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15); border-radius: 20px; margin-bottom: 0;border-bottom: 0;}
+.review .review_list li{background: #fff; padding: 16px; box-shadow: 0 0 8px rgba(0, 0, 0, 0.15); border-radius: 20px; margin-bottom: 5px; border-bottom: 0;}
 
 .one-time{margin-top: auto; padding-top: 30px; display: flex; align-items: center; justify-content: center; gap: 3px; font-size: var(--fs-12); color: var(--color-primary);}
 

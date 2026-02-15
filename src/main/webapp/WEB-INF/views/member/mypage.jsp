@@ -166,11 +166,18 @@
                             <li>
                                 <a href="javascript:void(0);" onclick="openLogoutPopup()">로그아웃</a>
                             </li>
-                            <li>
+                            <%--<li>
                                 <a href="javascript:void(0);" onclick="openWithdrawPopup()">탈퇴하기</a>
-                            </li>
+                            </li>--%>
                         </ul>
                     </div>
+                </div>
+
+                <div class="withdraw-area" style="margin-top: 40px; padding-bottom: 20px; text-align: center;">
+                    <a href="javascript:void(0);" onclick="openWithdrawPopup()"
+                       style="font-size: 13px; color: #a6a9b0; text-decoration: underline;">
+                        탈퇴하기
+                    </a>
                 </div>
 
             </div>
