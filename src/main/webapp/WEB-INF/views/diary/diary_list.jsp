@@ -76,7 +76,7 @@
                                                     <fmt:parseDate value="${item.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
                                                     <fmt:formatDate value="${pDate}" pattern="yyyy-MM-dd"/>
 
-                                                    <c:choose>
+                                                    <%--<c:choose>
                                                         <c:when test="${item.gameType eq 'EXHIBITION'}">
                                                             <span class="badge-game-type badge-exhibition">시범</span>
                                                         </c:when>
@@ -89,7 +89,7 @@
                                                         <c:when test="${item.gameType eq 'ALLSTAR'}">
                                                             <span class="badge-game-type badge-allstar">올스타</span>
                                                         </c:when>
-                                                    </c:choose>
+                                                    </c:choose>--%>
                                                 </div>
                                             </div>
 

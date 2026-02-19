@@ -177,10 +177,10 @@ public class DiaryService {
             // 나를 팔로우하는 사람들의 일기
             return diaryMapper.selectFollowerDiaries(memberId);
         } else if ("all".equals(tab)) {
-            // (옵션) 전체 공개 일기 or 맞팔 친구 일기 (여기선 전체 공개로 예시)
-            return diaryMapper.selectAllPublicDiaries();
+            // [수정됨] 전체 탭: 기존 '전체 공개 일기' -> '나와 관계된(팔로워+팔로잉) 사람의 일기'로 변경
+            return diaryMapper.selectRelatedDiaries(memberId);
         } else {
-            // 기본: 내가 팔로잉하는 사람들의 일기 (기존 메서드 활용)
+            // 기본(following): 내가 팔로잉하는 사람들의 일기
             return diaryMapper.selectAllFriendDiaries(memberId);
         }
     }

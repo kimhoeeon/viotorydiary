@@ -294,7 +294,7 @@
                         alert('저장되었습니다.');
                         location.reload(); // 목록 새로고침
                     } else {
-                        alert('저장에 실패했습니다. 관리자에게 문의하세요.');
+                        alert('저장에 실패했습니다. 고객센터로 문의해 주세요.');
                     }
                 },
                 error: function() {

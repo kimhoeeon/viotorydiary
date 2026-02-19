@@ -390,6 +390,16 @@ public class MemberController {
                                 @RequestParam("authCode") String authCode,
                                 Model model) {
 
+        // [추가] 0. 카카오 소셜 로그인 회원 여부 확인
+        // memberId는 이메일 형식이므로 이메일로 조회
+        MemberVO member = memberService.getMemberByEmail(memberId);
+
+        if (member != null && "KAKAO".equals(member.getSocialProvider())) {
+            // 카카오 계정이면 플래그를 담아 View로 리턴 (JSP에서 스크립트 처리)
+            model.addAttribute("isKakao", true);
+            return "member/find_password";
+        }
+
         // 1. SMS 인증번호 검증
         String cleanNumber = phoneNumber.replaceAll("-", "");
         boolean isVerified = smsService.verifyCode(cleanNumber, authCode);

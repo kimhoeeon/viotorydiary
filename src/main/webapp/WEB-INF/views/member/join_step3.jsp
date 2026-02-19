@@ -29,11 +29,12 @@
     </script>
 </head>
 <body class="page-login">
-    <header class="app-header">
+
+    <%--<header class="app-header">
         <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
             <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
         </button>
-    </header>
+    </header>--%>
 
     <div class="page-login_wrap">
         <div class="login-card">

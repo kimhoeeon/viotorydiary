@@ -90,7 +90,7 @@
                 <div class="login-bottom">
                     <div class="login-options mt-24 center">
                         <p>휴대폰 번호가 변경되었나요?</p>
-                        <a class="login-link" href="#" onclick="alert('관리자에게 문의해주세요.'); return false;">관리자 문의</a>
+                        <a class="login-link" href="#" onclick="alert('고객센터로 문의해 주세요.'); return false;">고객센터 문의</a>
                     </div>
                 </div>
             </form>
@@ -102,6 +102,18 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
+
+    <c:if test="${isKakao}">
+        <script>
+            $(document).ready(function() {
+                // 커스텀 알럿 호출 (확인 클릭 시 콜백 함수 실행)
+                alert('카카오 계정으로 로그인해 주세요.', function() {
+                    location.replace('/member/login');
+                });
+            });
+        </script>
+    </c:if>
+
     <script>
         // 1. SMS 인증번호 발송
         function sendSms() {

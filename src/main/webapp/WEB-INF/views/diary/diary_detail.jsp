@@ -56,7 +56,7 @@
                                 <div class="tit">직관한 경기</div>
                                 <button type="button" class="select-field" style="opacity: 1; cursor: default;">
                                     <span class="select-field_value" style="color: #000; font-weight: bold;">
-                                        <c:choose>
+                                        <%--<c:choose>
                                             <c:when test="${diary.gameType eq 'EXHIBITION'}">
                                                 <span class="badge-game-type badge-exhibition">시범</span>
                                             </c:when>
@@ -69,7 +69,7 @@
                                             <c:when test="${diary.gameType eq 'ALLSTAR'}">
                                                 <span class="badge-game-type badge-allstar">올스타</span>
                                             </c:when>
-                                        </c:choose>
+                                        </c:choose>--%>
 
                                         [${diary.stadiumName}] ${diary.homeTeamName} vs ${diary.awayTeamName}
                                         <span style="font-weight:400; font-size:13px; margin-left:4px;">

@@ -151,7 +151,7 @@
                                             <div class="score_txt">
                                                 <div class="txt_box">
                                                     <div class="tit">
-                                                        <c:choose>
+                                                        <%--<c:choose>
                                                             <c:when test="${diary.gameType eq 'EXHIBITION'}">
                                                                 <span class="badge-game-type badge-exhibition">시범</span>
                                                             </c:when>
@@ -164,7 +164,7 @@
                                                             <c:when test="${diary.gameType eq 'ALLSTAR'}">
                                                                 <span class="badge-game-type badge-allstar">올스타</span>
                                                             </c:when>
-                                                        </c:choose>
+                                                        </c:choose>--%>
 
                                                         ${diary.homeTeamName} ${diary.scoreHome} vs ${diary.scoreAway} ${diary.awayTeamName}
                                                     </div>

@@ -58,4 +58,7 @@ public interface DiaryMapper {
     List<DiaryVO> selectAllPublicDiaries();
 
     List<DiaryVO> selectMemberPublicDiaries(Long targetMemberId);
+
+    // [추가] 팔로워 + 팔로잉 합산 일기 조회
+    List<DiaryVO> selectRelatedDiaries(Long memberId);
 }

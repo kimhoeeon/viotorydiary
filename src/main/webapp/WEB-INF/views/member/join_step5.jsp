@@ -42,11 +42,12 @@
     </script>
 </head>
 <body class="page-login">
-    <header class="app-header">
+
+    <%--<header class="app-header">
         <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
             <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
         </button>
-    </header>
+    </header>--%>
 
     <div class="page-login_wrap">
         <div class="login-card">
@@ -62,8 +63,8 @@
                     <div class="login-field">
                         <div class="login-inputwrap">
                             <div class="phone">
-                                <input class="login-input pr-8" id="number" type="tel" placeholder="휴대폰 번호를 입력해주세요 (- 제외)" required>
-                                <button class="phone-cert wpx-80" id="sendBtn" onclick="sendSms()">
+                                <input type="tel" class="login-input pr-8" id="number" placeholder="휴대폰 번호 입력 ('-' 없이 입력)" maxlength="13" required>
+                                <button type="button" class="phone-cert wpx-80 btn_disabled" id="sendBtn" onclick="sendSms()" disabled>
                                     인증하기
                                 </button>
                             </div>
@@ -96,15 +97,54 @@
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
     <script>
+
+        $(document).ready(function() {
+            // [기능 1] 휴대폰 번호 입력 시 자동 하이픈 (-) 추가
+            $('#number').on('input', function() {
+                let number = $(this).val().replace(/[^0-9]/g, ''); // 숫자만 남김
+                let phone = '';
+
+                if (number.length < 4) {
+                    phone = number;
+                } else if (number.length < 7) {
+                    phone = number.substr(0, 3) + '-' + number.substr(3);
+                } else if (number.length < 11) {
+                    phone = number.substr(0, 3) + '-' + number.substr(3, 3) + '-' + number.substr(6);
+                } else {
+                    phone = number.substr(0, 3) + '-' + number.substr(3, 4) + '-' + number.substr(7);
+                }
+
+                $(this).val(phone);
+
+                // [추가된 부분] 숫자 길이가 10자리 이상이면 '인증하기' 버튼 활성화
+                if (number.length >= 10) {
+                    $('#sendBtn').removeClass('btn_disabled').removeAttr('disabled');
+                } else {
+                    $('#sendBtn').addClass('btn_disabled').attr('disabled', true);
+                }
+            });
+        });
+
         function sendSms() {
-            const phone = $('#number').val();
-            if(phone.length < 10) { alert('올바른 번호를 입력해주세요.'); return; }
+            // [기능 2] 하이픈 제거 및 유효성 검증
+            const rawPhone = $('#number').val();
+            const phone = rawPhone.replace(/-/g, ''); // 하이픈 제거
+
+            // 정규식: 01로 시작하는 10~11자리 숫자
+            const regPhone = /^01([0|1|6|7|8|9])([0-9]{3,4})([0-9]{4})$/;
+
+            if (phone.length < 10 || !regPhone.test(phone)) {
+                alert('올바른 휴대폰 번호를 입력해주세요.');
+                $('#number').focus();
+                return;
+            }
 
             $.post('/member/send-sms', { phoneNumber: phone }, function(res) {
                 if(res === 'ok') {
                     alert('인증번호가 발송되었습니다.');
                     $('#authBox').show();
                     $('#sendBtn').text('재전송');
+                    $('#number_cert').focus();
                 } else {
                     // 실패 시 페이지 이동
                     // 에러 메시지를 URL 파라미터로 전달 (한글은 인코딩)
@@ -117,10 +157,14 @@
         }
 
         function verifySms() {
-            const phone = $('#number').val();
+            // 전송 시 하이픈이 제거된 값을 사용해야 하므로 다시 추출
+            const phone = $('#number').val().replace(/-/g, '');
             const code = $('#number_cert').val();
 
-            if(code.length < 1) return;
+            if(code.length < 1) {
+                alert('인증번호를 입력해주세요.');
+                return;
+            }
 
             $.post('/member/verify-sms', { phoneNumber: phone, authCode: code }, function(res) {
                 if(res === 'ok') {
@@ -128,15 +172,25 @@
                     location.href = '/member/join/step6';
                 } else {
                     alert('인증번호가 일치하지 않습니다.');
+                    // 실패 시 실패 아이콘 노출
                     $('#certFailIcon').addClass('is-show');
+                    // 혹시 체크 아이콘이 떠있다면 숨김 처리
+                    $('#certCheckIcon').removeClass('is-show');
                 }
             });
         }
 
-        // 인증번호 입력 시 다음 버튼 활성화 (script.js와 별개로 동작)
+        // [기능 3] 인증번호 입력 시 다음 버튼 활성화 (ID 수정: nextBtn -> termsNext)
         $('#number_cert').on('input', function() {
-            if(this.value.length >= 4) $('#termsNext').prop('disabled', false);
-            else $('#termsNext').prop('disabled', true);
+            // ⭐️ 입력 시작 시 실패 아이콘 숨김 (겹침 방지)
+            $('#certFailIcon').removeClass('is-show');
+
+            // 입력값이 있으면 버튼 활성화, 없으면 비활성화
+            if(this.value.length >= 4) { // 보통 인증번호는 4자리 이상이므로 조건 유지
+                $('#termsNext').prop('disabled', false);
+            } else {
+                $('#termsNext').prop('disabled', true);
+            }
         });
     </script>
 </body>
