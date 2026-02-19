@@ -257,12 +257,12 @@
 
     <insert id="insertFollow">
         INSERT IGNORE INTO follows (follower_id, following_id, created_at)
-        VALUES (#{myMemberId}, #{targetMemberId}, NOW())
+        VALUES (#{followerId}, #{followingId}, NOW())
     </insert>
 
     <delete id="deleteFollow">
         DELETE FROM follows
-        WHERE follower_id = #{myMemberId} AND following_id = #{targetMemberId}
+        WHERE follower_id = #{followerId} AND following_id = #{followingId}
     </delete>
 
     <select id="checkFollow" resultType="int">

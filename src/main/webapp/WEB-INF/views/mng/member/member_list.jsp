@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -124,20 +125,42 @@
                                                             <span class="text-gray-400 fw-semibold fs-7">${item.email}</span>
                                                         </td>
                                                         <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="joinDate"
-                                                                           type="both"/>
-                                                            <fmt:formatDate value="${joinDate}" pattern="yyyy-MM-dd"/>
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.createdAt}">
+                                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+
+                                                                    <c:choose>
+                                                                        <c:when test="${fn:length(cDate) == 16}">
+                                                                            ${cDate}:00
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            ${fn:substring(cDate, 0, 19)}
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    -
+                                                                </c:otherwise>
+                                                            </c:choose>
                                                         </td>
                                                         <td>
-                                                            <c:if test="${not empty item.lastLoginAt}">
-                                                                <fmt:parseDate value="${item.lastLoginAt}"
-                                                                               pattern="yyyy-MM-dd'T'HH:mm:ss"
-                                                                               var="loginDate" type="both"/>
-                                                                <fmt:formatDate value="${loginDate}"
-                                                                                pattern="yyyy-MM-dd HH:mm"/>
-                                                            </c:if>
-                                                            <c:if test="${empty item.lastLoginAt}">-</c:if>
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.lastLoginAt}">
+                                                                    <c:set var="lDate" value="${fn:replace(item.lastLoginAt, 'T', ' ')}" />
+
+                                                                    <c:choose>
+                                                                        <c:when test="${fn:length(lDate) == 16}">
+                                                                            ${lDate}:00
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            ${fn:substring(lDate, 0, 19)}
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    -
+                                                                </c:otherwise>
+                                                            </c:choose>
                                                         </td>
                                                         <td>
                                                             <c:choose>
