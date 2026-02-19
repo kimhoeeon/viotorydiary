@@ -298,6 +298,7 @@
 .password_info .gu{color: var(--color-primary);font-weight: 700;margin-bottom: 10px;}
 .password_info .nae input {width: 100%;padding: 13px 0;border-bottom: 1px solid #D1D6DB; font-size: var(--fs-14);}
 .password_info .pre{margin-top: 24px; color: #8B95A1; font-size: var(--fs-12);display: grid; gap: 3px;}
+.password_info .input{position: relative;}
 
 /* 프로필 변경 */
 .profile_info .gu{color: var(--color-text);font-weight: 700;margin-bottom: 10px;}

@@ -68,6 +68,15 @@ const pwConfirmField = pwConfirmInput ? pwConfirmInput.closest('.login-field') :
 const togglePw = document.getElementById('togglePw');
 const togglePwCheck = document.getElementById('togglePwCheck');
 
+const currentPasswordInput = document.getElementById('currentPassword');
+const togglePwBasic = document.getElementById('togglePwBasic');
+
+const newPasswordInput = document.getElementById('newPassword');
+const toggleNewPwBasic = document.getElementById('toggleNewPwBasic');
+
+const confirmPasswordInput = document.getElementById('confirmPassword');
+const toggleConfPwBasic = document.getElementById('toggleConfPwBasic');
+
 const joinBtn = document.getElementById('joinBtn');
 const loginMessage = document.getElementById('loginMessage');
 
@@ -137,6 +146,10 @@ function setupPasswordToggle(inputEl, btnEl) {
         btnEl.setAttribute('aria-label', isHidden ? '비밀번호 숨김' : '비밀번호 표시');
     });
 }
+
+setupPasswordToggle(currentPasswordInput, togglePwBasic);
+setupPasswordToggle(newPasswordInput, toggleNewPwBasic);
+setupPasswordToggle(confirmPasswordInput, toggleConfPwBasic);
 
 setupPasswordToggle(pwInput, togglePw);
 setupPasswordToggle(pwConfirmInput, togglePwCheck);

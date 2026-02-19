@@ -33,7 +33,6 @@
             line-height: 1.6;
             color: #333;
             text-align: left;
-            white-space: pre-wrap;
         }
     </style>
 

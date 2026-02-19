@@ -48,6 +48,9 @@
                             <div class="nae">
                                 <div class="input">
                                     <input type="password" name="currentPassword" id="currentPassword" placeholder="기존 비밀번호를 입력해 주세요." required>
+                                    <button class="login-eye" type="button" id="togglePwBasic" aria-label="비밀번호 표시">
+                                        <img src="/img/pass_off.svg" alt="비밀번호 보기">
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -57,11 +60,17 @@
                             <div class="nae">
                                 <div class="input">
                                     <input type="password" name="newPassword" id="newPassword" placeholder="변경할 비밀번호를 입력해 주세요." required>
+                                    <button class="login-eye" type="button" id="toggleNewPwBasic" aria-label="비밀번호 표시">
+                                        <img src="/img/pass_off.svg" alt="비밀번호 보기">
+                                    </button>
                                 </div>
                             </div>
                             <div class="nae">
                                 <div class="input">
                                     <input type="password" id="confirmPassword" placeholder="변경할 비밀번호를 한번 더 입력해 주세요." required>
+                                    <button class="login-eye" type="button" id="toggleConfPwBasic" aria-label="비밀번호 표시">
+                                        <img src="/img/pass_off.svg" alt="비밀번호 보기">
+                                    </button>
                                 </div>
                                 <div class="input-msg is-error" id="pwMatchMsg" style="display:none; margin-top:5px; font-size:12px; color: #FF0000;">
                                     비밀번호가 일치하지 않습니다.

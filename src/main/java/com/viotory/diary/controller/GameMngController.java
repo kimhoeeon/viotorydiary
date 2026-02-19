@@ -42,6 +42,9 @@ public class GameMngController {
         String yearMonth = year + "-" + month;
         List<GameVO> games = gameMapper.selectGameListByMonth(yearMonth);
 
+        List<StadiumVO> stadiums = gameMngService.getStadiumList();
+        model.addAttribute("stadiums", stadiums);
+
         model.addAttribute("games", games);
         model.addAttribute("curYear", year);
         model.addAttribute("curMonth", month);

@@ -398,9 +398,16 @@
             // 1. 유효성 검사
             const gameDate = $('#gameDate').val();
             const gameTime = $('#gameTime').val();
+            const stadiumId = $('#stadiumId').val();
 
             if (!gameDate || !gameTime) {
                 alert('경기 날짜와 시간을 입력해주세요.');
+                return;
+            }
+
+            // [추가] 구장 선택 여부 확인
+            if (!stadiumId) {
+                alert('구장을 선택해주세요.');
                 return;
             }
 
