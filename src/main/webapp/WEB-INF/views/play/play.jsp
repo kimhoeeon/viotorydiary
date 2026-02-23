@@ -584,7 +584,7 @@
                 let html = `
                         <div class="card_item game-item" data-home="\${game.homeTeamCode}" data-away="\${game.awayTeamCode}">
                             <div class="game-board">
-                                <div class="row row-center gap-24">
+                                <div class="row row-center gap-6">
                                     <div class="team \${winClassHome}">
                                         \${myTeamBadgeHome}
                                         <img src="\${homeSrc}" alt="\${game.homeTeamName}" onerror="handleLogoError(this, '\${homeCodeLower}')">

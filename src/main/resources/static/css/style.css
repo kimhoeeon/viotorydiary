@@ -125,8 +125,8 @@
 .notice-item_desc{margin-top: 5px;}
 .message{ font-size: var(--fs-14);color: #A6A9B0;text-align: center;}
 
-.game-score{display: flex; gap: 15px; align-items: center;}
-.game-score .game-info-wrap{text-align: center; min-width: 70px; max-width: 70px;}
+.game-score{display: flex; gap: 10px; align-items: center;}
+.game-score .game-info-wrap{text-align: center; min-width: 50px;max-width: 50px;}
 .game-score .game-info-wrap .place{ word-break: keep-all;}
 .game-score .game-info{font-size: var(--fs-12); margin-top: 8px; line-height: 1.4;}
 .game-score .left-team-score{font-size: var(--fs-24); font-weight: 700; min-width: 30px; text-align: center; color: #AAAAAA;}
@@ -163,7 +163,7 @@
 .clip_list.empty .clip_txt{margin-top: 0;}
 .clip_list.empty .clip_txt .tit{font-size: var(--fs-16);color: #A6A9B0;margin-top: 0; padding: 0 0 64px; font-weight: 500;}
 
-.game-board{background: #E9ECF1;padding: 16px; border-radius: 10px;}
+.game-board{ background: #E9ECF1; padding: 16px 8px; border-radius: 10px;}
 
 /* 직관일기 */
 .score_card_wrap .tit{font-size: var(--fs-14); justify-content: center;}
@@ -485,6 +485,8 @@
 .score_list.empty .score_txt .tit{font-size: var(--fs-16);color: #A6A9B0;margin-top: 0; padding: 0 0 64px; font-weight: 500;}
 
 .team-logo{margin: 0 auto;}
+
+.diary_character .game-score .game-info-wrap{min-width:30px !important}
 
 /* 경기 종류 배지 스타일 */
 .badge-game-type {

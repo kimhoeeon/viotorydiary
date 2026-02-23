@@ -190,7 +190,7 @@
                                         </c:when>
                                         <c:otherwise>
                                             <div class="nodt_wrap only_txt">
-                                                <div class="cont"><div class="nodt_txt">등록된 공지가 없습니다.</div></div>
+                                                <div class="cont"><div class="nodt_txt">등록된 공지가 없어요!</div></div>
                                             </div>
                                         </c:otherwise>
                                     </c:choose>

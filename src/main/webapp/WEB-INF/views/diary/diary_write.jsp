@@ -71,7 +71,7 @@
 
           <form id="diaryForm" action="/diary/write" method="post" enctype="multipart/form-data">
               <input type="hidden" name="gameId" id="gameId" value="${targetGameId}">
-              <input type="hidden" name="isVerified" id="isVerified" value="false">
+              <input type="hidden" name="verified" id="isVerified" value="false">
               <input type="hidden" name="rating" value="5">
 
               <div class="page-main_wrap">
@@ -84,9 +84,9 @@
                                   <button type="button" class="select-field" onclick="openGameSheet()">
                                       <c:choose>
                                           <c:when test="${not empty selectedGame}">
-                                                  <span class="select-field_value" style="color:#000; font-weight:bold;">
-                                                      ${selectedGame.homeTeamName} vs ${selectedGame.awayTeamName}
-                                                  </span>
+                                              <span class="select-field_value" style="color:#000; font-weight:bold;">
+                                                  ${selectedGame.homeTeamName} vs ${selectedGame.awayTeamName}
+                                              </span>
                                           </c:when>
                                           <c:otherwise>
                                               <span class="select-field_value" id="gameSelectText">경기를 선택해주세요</span>
@@ -103,8 +103,7 @@
                                               <div class="team" id="homeTeamBox">
                                                   <div class="my-team" id="homeMyTeam" style="display:none;">MY</div>
                                                   <div class="team-logo mb-4">
-                                                      <img id="homeTeamLogo" src="/img/logo/logo_default.svg" alt="홈팀"
-                                                           style="width: 48px; height: 48px; object-fit: contain;"
+                                                      <img id="homeTeamLogo" src="/img/logo/logo_default.svg" alt="홈팀" style="width: 48px; height: 48px; object-fit: contain;"
                                                            onerror="this.src='/img/logo/logo_default.svg'">
                                                   </div>
                                                   <div class="team-name" id="homeTeamName">HOME</div>
@@ -123,8 +122,7 @@
                                               <div class="team" id="awayTeamBox">
                                                   <div class="my-team" id="awayMyTeam" style="display:none;">MY</div>
                                                   <div class="team-logo mb-4">
-                                                      <img id="awayTeamLogo" src="/img/logo/logo_default.svg" alt="원정팀"
-                                                           style="width: 48px; height: 48px; object-fit: contain;"
+                                                      <img id="awayTeamLogo" src="/img/logo/logo_default.svg" alt="원정팀" style="width: 48px; height: 48px; object-fit: contain;"
                                                            onerror="this.src='/img/logo/logo_default.svg'">
                                                   </div>
                                                   <div class="team-name" id="awayTeamName">AWAY</div>
@@ -327,7 +325,7 @@
           const myTeamCode = '${sessionScope.loginMember.myTeamCode}'; // 세션에서 내 팀 코드 가져오기
 
           // 1. 게임 ID 설정
-          $('#gameId').val(g.gameId);
+          $('#gameId').val(g.id);
 
           // 2. 상단 텍스트는 혼동 방지를 위해 원래 대진표(Home vs Away)대로 표기 (선택 사항)
           $('#gameSelectText').text(g.homeName + ' vs ' + g.awayName)

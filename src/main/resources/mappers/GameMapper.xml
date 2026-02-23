@@ -98,17 +98,40 @@
             d.hero_name AS myHero
 
         FROM games g
-                 -- 1. 홈팀 조인
-                 LEFT JOIN teams ht ON g.home_team_code = ht.team_code
+             -- 1. 홈팀 조인
+             LEFT JOIN teams ht ON g.home_team_code = ht.team_code
             -- 2. 원정팀 조인
-                 LEFT JOIN teams at ON g.away_team_code = at.team_code
+             LEFT JOIN teams at ON g.away_team_code = at.team_code
             -- 3. 구장 정보 조인
-                 LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+             LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
             -- 4. 내 일기 조인 (로그인한 멤버의 해당 경기 일기 확인)
-                 LEFT JOIN diaries d ON g.game_id = d.game_id AND d.member_id = #{memberId}
+             LEFT JOIN diaries d ON g.game_id = d.game_id AND d.member_id = #{memberId}
 
         WHERE g.game_date = #{gameDate}
-        ORDER BY g.game_time ASC
+        <![CDATA[
+        ORDER BY
+            -- [1단계] 상태별 노출 그룹(우선순위) 지정
+            CASE
+                -- 1그룹: 방금 종료 (당일이거나 종료된 지 6시간 이내)
+                WHEN g.status = 'FINISHED' AND (g.game_date = CURDATE() OR TIMESTAMPDIFF(HOUR, g.updated_at, NOW()) <= 6) THEN 1
+                -- 2그룹: 경기 예정
+                WHEN g.status = 'SCHEDULED' THEN 2
+                -- 3그룹: 경기 진행 중
+                WHEN g.status = 'LIVE' THEN 3
+                -- 4그룹: 과거 종료 경기 (6시간 이후)
+                WHEN g.status = 'FINISHED' THEN 4
+                -- 5그룹: 취소된 경기
+                WHEN g.status = 'CANCELLED' THEN 5
+                ELSE 6
+                END ASC,
+
+            -- [2단계] 그룹 내 시간 정렬 (종료된 경기는 내림차순, 나머지는 오름차순)
+            CASE
+                WHEN g.status = 'FINISHED' THEN g.game_time
+                ELSE NULL
+                END DESC,
+            g.game_time ASC
+        ]]>
     </select>
 
     <select id="selectGameByDateAndTeams" resultType="com.viotory.diary.vo.GameVO">

@@ -58,9 +58,9 @@
                 <div class="location-certify">
                     <c:choose>
                         <c:when test="${diary.verified}">
-                            <div class="certify_mes">
-                                <img src="/img/ico_certify-comp_p.svg" alt="인증완료">직관 인증완료!
-                            </div>
+                            <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete">
+                                직관 인증완료!
+                            </button>
                         </c:when>
                         <c:otherwise>
                             <div class="certify_mes" style="opacity: 0.5; filter: grayscale(1);">
@@ -94,7 +94,7 @@
                                         <c:otherwise>
                                             <c:choose>
                                                 <c:when test="${isFollowing}">
-                                                    <button class="btn following w-auto" type="button" onclick="toggleFollow(${writer.memberId})">팔로잉</button>
+                                                    <button class="btn not-follow w-auto" type="button" onclick="toggleFollow(${writer.memberId})">취소</button>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <button class="btn follow w-auto" type="button" onclick="toggleFollow(${writer.memberId})">팔로우</button>
@@ -254,24 +254,28 @@
     <script>
         function toggleFollow(targetId) {
             const $btn = $('.follow-btn button');
+            if ($btn.prop('disabled')) return;
             $btn.prop('disabled', true);
 
             $.post('/member/follow/toggle', { targetId: targetId }, function(res) {
+                // [수정] 서버 응답값 매칭 및 클래스 토글링
                 if (res === 'followed') {
-                    $btn.removeClass('follow').addClass('following').text('팔로잉');
+                    $btn.removeClass('follow').addClass('not-follow').text('취소');
                 } else if (res === 'unfollowed') {
-                    $btn.removeClass('following').addClass('follow').text('팔로우');
+                    $btn.removeClass('not-follow').addClass('follow').text('팔로우');
+                } else if (res === 'fail:self') {
+                    alert('자기 자신은 팔로우할 수 없습니다.');
                 } else if (res.startsWith('fail:login')) {
                     alert('로그인이 필요합니다.');
                     location.href = '/member/login';
-                } else if (res === 'fail:self') {
-                    alert('자기 자신은 팔로우할 수 없습니다.');
                 } else {
-                    alert('오류가 발생했습니다.');
+                    alert('요청을 처리하지 못했습니다.');
                 }
-            })
-            .fail(function() { alert('서버 오류'); })
-            .always(function() { $btn.prop('disabled', false); });
+            }).fail(function() {
+                alert('서버 통신 오류가 발생했습니다.');
+            }).always(function() {
+                $btn.prop('disabled', false);
+            });
         }
 
         function checkCmtInput() {

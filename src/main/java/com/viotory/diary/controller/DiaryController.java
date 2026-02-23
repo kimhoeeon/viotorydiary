@@ -74,6 +74,11 @@ public class DiaryController {
             diary.setMemberId(loginMember.getMemberId());
             diary.setSnapshotTeamCode(loginMember.getMyTeamCode());
 
+            // 직관 인증을 했다면 현재 시간을 인증 시간으로 기록
+            if (diary.isVerified()) {
+                diary.setVerifiedAt(LocalDateTime.now());
+            }
+
             Long diaryId = diaryService.writeDiary(diary);
             return "redirect:/diary/complete?diaryId=" + diaryId;
         } catch (Exception e) {

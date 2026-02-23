@@ -190,6 +190,10 @@
             // toggle_input이면서 sub-alarm인 요소들 제어
             $('.toggle_input.sub-alarm').each(function() {
                 const $el = $(this);
+
+                // 전체 알림 상태에 맞춰 하위 스위치 체크(checked) 상태도 동기화
+                $el.prop('checked', isEnabled);
+
                 // disabled 속성 토글 (base.css의 :disabled 스타일 자동 적용됨)
                 $el.prop('disabled', !isEnabled);
 

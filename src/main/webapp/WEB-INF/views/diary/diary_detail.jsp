@@ -39,9 +39,9 @@
                 <div class="page-tit">나의 직관일기</div>
                 <c:if test="${diary.verified}">
                     <div class="location-certify">
-                        <div class="certify_mes">
-                            <img src="/img/ico_certify-comp_p.svg" alt="인증완료">직관 인증완료!
-                        </div>
+                        <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete">
+                            직관 인증완료!
+                        </button>
                     </div>
                 </c:if>
             </div>

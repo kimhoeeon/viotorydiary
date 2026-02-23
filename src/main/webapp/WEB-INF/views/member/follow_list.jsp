@@ -157,23 +157,29 @@
             const $btn = $(btn);
             $btn.prop('disabled', true);
 
-            $.post('/member/follow/toggle', { targetId: targetId, action: action }, function(res) {
-                if (res === 'ok') {
-                    if (action === 'follow') {
-                        // 팔로우 성공 (파란색 -> 회색)
+            $.post('/member/follow/toggle', { targetId: targetId }, function(res) {
+                // [수정] 서버의 실제 응답값(followed, unfollowed)에 맞춰 분기 처리
+                if (res === 'followed' || res === 'unfollowed') {
+                    if (res === 'followed') {
+                        // 팔로우 성공 (회색 배경, 텍스트 '취소')
                         $btn.removeClass('follow').addClass('not-follow').text('취소');
                         $btn.attr('onclick', "toggleFollow(" + targetId + ", 'unfollow', this)");
-                    } else {
+                    } else if (res === 'unfollowed') {
                         // 언팔로우 성공
                         if ('${param.tab}' === 'following') {
-                            // 팔로잉 목록에서는 즉시 삭제
+                            // 내가 팔로잉하는 목록(Following)에서는 취소 시 리스트에서 즉시 삭제
                             $btn.closest('li').fadeOut(300, function() { $(this).remove(); });
                         } else {
-                            // 팔로워 목록에서는 버튼 변경 (회색 -> 파란색)
+                            // 나를 팔로우하는 목록(Follower)에서는 버튼 변경 (파란색, 텍스트 '팔로우')
                             $btn.removeClass('not-follow').addClass('follow').text('팔로우');
                             $btn.attr('onclick', "toggleFollow(" + targetId + ", 'follow', this)");
                         }
                     }
+                } else if (res === 'fail:self') {
+                    alert('자기 자신은 팔로우할 수 없습니다.');
+                } else if (res.startsWith('fail:login')) {
+                    alert('로그인이 필요합니다.');
+                    location.href = '/member/login';
                 } else {
                     alert('요청을 처리하지 못했습니다.');
                 }

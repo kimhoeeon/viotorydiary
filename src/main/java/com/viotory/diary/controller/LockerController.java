@@ -40,6 +40,9 @@ public class LockerController {
 
         // 2. 공지사항 리스트
         List<NoticeVO> notices = systemMngService.getActiveNoticeList();
+        if (notices.size() > 4) {
+            notices = notices.subList(0, 4); // 0번째부터 4개만 잘라내기
+        }
         model.addAttribute("notices", notices);
 
         // 3. 일반 콘텐츠 (기존 로직 유지, 예: 최신순 20개)

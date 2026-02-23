@@ -579,7 +579,12 @@ public class MemberController {
 
             // 세션 정보도 갱신 (선택사항)
             switch (upperType) {
-                case "PUSH": loginMember.setPushYn(value); break;
+                case "PUSH":
+                    loginMember.setPushYn(value);
+                    loginMember.setGameAlarm(value);
+                    loginMember.setFriendAlarm(value);
+                    loginMember.setMarketingAgree(value);
+                    break;
                 case "GAME": loginMember.setGameAlarm(value); break;
                 case "FRIEND": loginMember.setFriendAlarm(value); break;
                 case "MARKETING": loginMember.setMarketingAgree(value); break;

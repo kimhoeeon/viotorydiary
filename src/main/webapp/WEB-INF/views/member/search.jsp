@@ -39,76 +39,80 @@
                 <div class="page-tit">친구찾기</div>
             </div>
 
-            <form action="/member/search/result" method="get">
-                <div class="search-box" style="padding: 16px;">
-                    <div class="input-row" style="display:flex; gap:8px;">
-                        <input type="text" name="keyword" value="${keyword}" placeholder="닉네임을 검색해보세요" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">
-                        <button type="submit" class="btn btn-primary" style="width:60px;">검색</button>
-                    </div>
-                </div>
-            </form>
+            <div class="stack mt-24">
 
-            <div class="list-wrap" style="padding: 0 16px;">
+                <form action="/member/search/result" method="get">
+                    <div class="search-box" style="padding: 16px;">
+                        <div class="input-row" style="display:flex; gap:8px;">
+                            <input type="text" name="keyword" value="${keyword}" placeholder="닉네임을 검색해보세요" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">
+                            <button type="submit" class="btn btn-primary" style="width:60px;">검색</button>
+                        </div>
+                    </div>
+                </form>
+
                 <c:choose>
                     <c:when test="${empty list and not empty keyword}">
-                        <div class="no-data" style="text-align:center; margin-top:50px; color:#999;">검색 결과가 없습니다.</div>
+                        <div class="tab_cont on">
+                            <!-- 콘텐츠 없을 때 -->
+                            <div class="score_list nodt_list pd-24">
+                                <div class="nodt_wrap">
+                                    <div class="cont">
+                                        <img src="/img/ico_not_mark.svg" alt="데이터 비었을 때">
+                                        <div class="nodt_tit">검색 결과가 없습니다.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </c:when>
                     <c:otherwise>
-                        <c:forEach var="mem" items="${list}">
-                            <div class="user-item" onclick="location.href='/diary/friend/list?targetMemberId=${mem.memberId}'"
-                                 style="display:flex; align-items:center; padding:12px 0; border-bottom:1px solid #eee; cursor:pointer;">
+                        <div class="tab_cont on">
+                            <div class="people">${fn:length(list)}명</div>
+                            <ul class="make gap-16">
+                                <c:forEach var="mem" items="${list}">
+                                    <li onclick="location.href='/diary/friend/list?targetMemberId=${mem.memberId}'" style="cursor:pointer;">
+                                        <div class="diary_write_list nodt_line friend_info_wrap bg-gray">
+                                            <div class="friend_info">
 
-                                <%-- [수정] 로고를 감싸는 원형 박스 디자인 적용 --%>
-                                <div style="width: 48px; height: 48px; min-width: 48px; margin-right: 12px; border-radius: 50%; background-color: #f8f9fa; border: 1px solid #eee; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                    <c:choose>
-                                        <%-- 1. 응원팀이 없는 경우 --%>
-                                        <c:when test="${empty mem.myTeamCode or mem.myTeamCode eq 'NONE'}">
-                                            <img src="/img/logo/logo_default.svg" alt="기본 로고" style="width: 60%; height: 60%; object-fit: contain;">
-                                        </c:when>
+                                                <div class="friend_item <c:if test="${mem.following}">follow-back</c:if>">
+                                                    <div class="name">${mem.nickname}</div>
+                                                    <div class="friend_team">${not empty mem.myTeamName ? mem.myTeamName : '응원팀 없음'}</div>
+                                                </div>
 
-                                        <%-- 2. 응원팀이 있는 경우 --%>
-                                        <c:otherwise>
-                                            <c:set var="lowerTeamCode" value="${fn:toLowerCase(mem.myTeamCode)}" />
-                                            <img src="/img/logo/logo_${lowerTeamCode}.svg"
-                                                 alt="${mem.myTeamName}"
-                                                 title="${mem.myTeamName}"
-                                                 onerror="this.src='/img/logo/logo_default.svg'"
-                                                 style="width: 65%; height: 65%; object-fit: contain;">
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
+                                                <div class="win_rate">승요력 ${mem.winRateStr != null ? mem.winRateStr : '0%'}</div>
+                                            </div>
 
-                                <div class="info" style="flex:1;">
-                                    <div class="nick" style="font-weight:bold; font-size: 15px; color: #333; margin-bottom: 2px;"
-                                        ${mem.nickname}
-                                    </div>
-                                    <div style="display: grid; gap: 8px; position: relative; font-size:12px; color:#888;">
-                                        ${not empty mem.myTeamName ? mem.myTeamName : '응원팀 없음'}
-                                    </div>
-                                </div>
+                                            <div class="follow-btn">
+                                                <c:choose>
+                                                    <%-- 팔로잉 상태 (버튼 텍스트 '취소', 클래스 'not-follow') --%>
+                                                    <c:when test="${mem.following}">
+                                                        <button type="button" id="btn_${mem.memberId}"
+                                                                class="btn not-follow w-auto"
+                                                                onclick="event.stopPropagation(); toggleFollow(${mem.memberId})">
+                                                            취소
+                                                        </button>
+                                                    </c:when>
 
-                                <c:choose>
-                                    <c:when test="${mem.following}">
-                                        <button type="button" id="btn_${mem.memberId}" class="btn btn-xs btn-gray"
-                                                onclick="event.stopPropagation(); toggleFollow(${mem.memberId})"
-                                                style="width: 60px; padding: 6px 0; font-size: 12px; border-radius: 6px; background-color: #eee; color: #777; border: none;">
-                                            팔로잉
-                                        </button>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <button type="button" id="btn_${mem.memberId}" class="btn btn-xs btn-primary"
-                                                onclick="event.stopPropagation(); toggleFollow(${mem.memberId})"
-                                                style="width: 60px; padding: 6px 0; font-size: 12px; border-radius: 6px; background-color: #007bff; color: #fff; border: none;">
-                                            팔로우
-                                        </button>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                        </c:forEach>
+                                                    <%-- 팔로우 안 한 상태 (버튼 텍스트 '팔로우', 클래스 'follow') --%>
+                                                    <c:otherwise>
+                                                        <button type="button" id="btn_${mem.memberId}"
+                                                                class="btn follow w-auto"
+                                                                onclick="event.stopPropagation(); toggleFollow(${mem.memberId})">
+                                                            팔로우
+                                                        </button>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+
+                                        </div>
+                                    </li>
+                                </c:forEach>
+                            </ul>
+                        </div>
                     </c:otherwise>
                 </c:choose>
             </div>
         </div>
+
         <%@ include file="../include/tabbar.jsp" %>
     </div>
 
@@ -130,16 +134,17 @@
                     btn.disabled = false;
 
                     if (res === 'followed') {
-                        // 팔로우 성공 처리
-                        btn.innerText = '팔로잉';
-                        btn.classList.remove('btn-primary'); // 파란색 제거
-                        btn.classList.add('btn-gray');       // 회색 추가
-                        // alert('팔로우했습니다.'); // (선택사항) 너무 잦은 알림 방지 위해 제거 추천
+                        btn.innerText = '취소';
+                        btn.classList.remove('follow');
+                        btn.classList.add('not-follow');
+                        // 맞팔 아이콘 추가 로직 (선택사항)
+                        btn.closest('.friend_info_wrap').querySelector('.friend_item').classList.add('follow-back');
                     } else if (res === 'unfollowed') {
-                        // 언팔로우 성공 처리
                         btn.innerText = '팔로우';
-                        btn.classList.remove('btn-gray');
-                        btn.classList.add('btn-primary');
+                        btn.classList.remove('not-follow');
+                        btn.classList.add('follow');
+                        // 맞팔 아이콘 제거 로직
+                        btn.closest('.friend_info_wrap').querySelector('.friend_item').classList.remove('follow-back');
                     } else {
                         alert('오류가 발생했습니다.');
                     }

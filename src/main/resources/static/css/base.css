@@ -328,3 +328,5 @@ input::-webkit-inner-spin-button {
 input[type='number'] {
     -moz-appearance: textfield;
 }
+
+.gap-6{gap: 6px !important;}
