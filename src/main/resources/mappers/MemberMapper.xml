@@ -280,7 +280,7 @@
             my_team_code,
             (SELECT name_kr FROM teams WHERE team_code = members.my_team_code) AS myTeamName,
 
-            -- [추가] 내가 팔로우 중인지 확인 (1: true, 0: false)
+            -- 내가 팔로우 중인지 확인 (1: true, 0: false)
             (SELECT COUNT(*) > 0
              FROM follows f
              WHERE f.follower_id = #{myMemberId} AND f.following_id = members.member_id) AS isFollowing
@@ -321,5 +321,12 @@
             updated_at = NOW()
         WHERE email = #{email}
     </update>
+
+    <select id="selectMembersForGameAlarm" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT * FROM members
+        WHERE (my_team_code = #{homeTeamCode} OR my_team_code = #{awayTeamCode})
+          AND game_alarm = 'Y'
+          AND status = 'ACTIVE'
+    </select>
 
 </mapper>

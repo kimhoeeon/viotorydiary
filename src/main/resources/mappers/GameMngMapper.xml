@@ -26,7 +26,7 @@
             etc_info, data_source, created_at
         )
         VALUES (
-                   YEAR(#{gameDate}),      -- [추가] 날짜에서 연도 추출
+                   YEAR(#{gameDate}),      -- 날짜에서 연도 추출
                    'REGULAR',              -- 기본 정규시즌
                    #{gameDate},
                    #{gameTime},
@@ -36,7 +36,7 @@
                    #{awayTeamCode},
                    IFNULL(#{scoreHome}, 0),
                    IFNULL(#{scoreAway}, 0),
-                   -- [추가] 승리팀 자동 계산 로직
+                   -- 승리팀 자동 계산 로직
                    CASE
                        WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) > IFNULL(#{scoreAway},0) THEN #{homeTeamCode}
                        WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreAway},0) > IFNULL(#{scoreHome},0) THEN #{awayTeamCode}
@@ -48,7 +48,7 @@
                    #{homeStarter},
                    #{awayStarter},
                    #{etcInfo},
-                   'MANUAL',               -- [추가] 수동 등록 명시
+                   'MANUAL',               -- 수동 등록 명시
                    NOW()
                )
     </insert>
@@ -64,7 +64,7 @@
             stadium_id     = #{stadiumId},
             score_home     = #{scoreHome},
             score_away     = #{scoreAway},
-            -- [추가] 승리팀 재계산
+            -- 승리팀 재계산
             winning_team   = CASE
                                  WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) > IFNULL(#{scoreAway},0) THEN #{homeTeamCode}
                                  WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreAway},0) > IFNULL(#{scoreHome},0) THEN #{awayTeamCode}

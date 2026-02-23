@@ -1,10 +1,13 @@
 package com.viotory.diary.scheduler;
 
+import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.service.AlarmService;
 import com.viotory.diary.service.GameDataService;
 import com.viotory.diary.service.GameService;
 import com.viotory.diary.service.PlayService;
+import com.viotory.diary.vo.AlarmVO;
 import com.viotory.diary.vo.GameVO;
+import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +24,7 @@ public class GameScheduleTask {
     private final GameService gameService; // DB 조회용
     private final PlayService playService; // 승부예측 처리용
     private final AlarmService alarmService; // 알림 서비스 주입
+    private final MemberMapper memberMapper;
 
     /**
      * [ 네이버/API ]
@@ -77,6 +81,67 @@ public class GameScheduleTask {
                 // 특정 경기 업데이트 실패 시 로그만 남기고 다음 경기로 진행
                 log.error(">>> [라이브 스케줄러] 경기({}) 업데이트 실패: {}", game.getGameId(), e.getMessage());
             }
+        }
+    }
+
+    @Scheduled(cron = "0 0/5 * * * *") // 5분 주기
+    public void runLiveGameStatusUpdate() {
+        log.info("### [스케줄러] 라이브 경기 상태 변경 감지 시작");
+
+        String today = java.time.LocalDate.now().toString();
+        List<GameVO> todayGames = gameService.getAllGamesToday();
+
+        for (GameVO game : todayGames) {
+            try {
+                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
+                    continue;
+                }
+
+                GameVO updatedGame = gameDataService.fetchSingleGameInfo(game.getApiGameId());
+                if (updatedGame != null) {
+                    if (!game.getStatus().equals(updatedGame.getStatus())) {
+                        log.info(">>> [상태 변경 감지] {} vs {}, 상태 : {} -> {}",
+                                updatedGame.getHomeTeamName(), updatedGame.getAwayTeamName(), game.getStatus(), updatedGame.getStatus());
+
+                        // 상태가 변했을 때 알림 데이터 생성
+                        createGameStatusAlarm(updatedGame, updatedGame.getStatus());
+
+                        gameDataService.updateGameStatus(updatedGame);
+
+                        if ("FINISHED".equals(updatedGame.getStatus())) {
+                            playService.processPredictionResult(updatedGame);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.error(">>> [라이브 스케줄러] 경기({}) 업데이트 실패: {}", game.getGameId(), e.getMessage());
+            }
+        }
+    }
+
+    // 경기 알림 DB 생성 메서드
+    private void createGameStatusAlarm(GameVO game, String newStatus) {
+        try {
+            String message = "";
+            if ("LIVE".equals(newStatus)) {
+                message = game.getHomeTeamName() + " vs " + game.getAwayTeamName() + " 경기가 시작되었습니다!";
+            } else if ("FINISHED".equals(newStatus)) {
+                message = game.getHomeTeamName() + " vs " + game.getAwayTeamName() + " 경기가 종료되었습니다.";
+            } else if ("CANCELLED".equals(newStatus)) {
+                message = game.getHomeTeamName() + " vs " + game.getAwayTeamName() + " 경기가 취소되었습니다.";
+            }
+
+            if (message.isEmpty()) return;
+
+            // 해당 경기를 치르는 홈/원정팀을 응원팀으로 설정하고 game_alarm='Y'인 회원 조회
+            List<MemberVO> targetMembers = memberMapper.selectMembersForGameAlarm(game.getHomeTeamCode(), game.getAwayTeamCode());
+
+            for (MemberVO member : targetMembers) {
+                // [수정됨] 기존에 구현된 AlarmService의 sendAlarm 메서드 사용 (VO 직접 생성 X)
+                alarmService.sendAlarm(member.getMemberId(), "GAME", message, "/main");
+            }
+        } catch (Exception e) {
+            log.error("경기 상태 변경 알림 DB 저장 실패", e);
         }
     }
 

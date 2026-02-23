@@ -283,7 +283,7 @@
                         $('#previewImg').attr('src', e.target.result);
                         $('#hiddenImageUrl').val(''); // 파일이 우선이므로 추출 URL 제거
 
-                        // [추가] 파일 로드 완료 시 로딩바 숨김 및 이미지 투명도 원복
+                        // 파일 로드 완료 시 로딩바 숨김 및 이미지 투명도 원복
                         $('#previewLoader').removeClass('d-flex').hide();
                         $('#previewImg').css('opacity', 1);
                     }
@@ -382,7 +382,7 @@
         }
 
         /**
-         * [추가] 콘텐츠 등록 (AJAX)
+         * 콘텐츠 등록 (AJAX)
          */
         function saveContent() {
             // 1. 유효성 검사

@@ -12,7 +12,7 @@ public class CommentDTO {
     private String content;
     private LocalDateTime createdAt;
 
-    // [추가] JSP에서 사용하는 필드 추가
+    // JSP에서 사용하는 필드 추가
     private String email;       // 작성자 이메일
     private String delYn;       // 삭제 여부 (Y/N)
 

@@ -211,7 +211,7 @@
             });
         });
 
-        // [추가] 검색 시 1페이지로 초기화
+        // 검색 시 1페이지로 초기화
         function searchInit() {
             const form = document.getElementById('searchForm');
             form.pageNum.value = 1; // 1페이지로 리셋

@@ -207,4 +207,19 @@
         SELECT * FROM stadiums ORDER BY stadium_id ASC
     </select>
 
+    <update id="updateGameStatusOnly" parameterType="com.viotory.diary.vo.GameVO">
+        UPDATE games
+        SET status = #{status},
+            score_home = #{scoreHome},
+            score_away = #{scoreAway},
+            winning_team = CASE
+                               WHEN #{status} = 'FINISHED' AND #{scoreHome} > #{scoreAway} THEN home_team_code
+                               WHEN #{status} = 'FINISHED' AND #{scoreAway} > #{scoreHome} THEN away_team_code
+                               WHEN #{status} = 'FINISHED' AND #{scoreHome} = #{scoreAway} THEN 'DRAW'
+                               ELSE winning_team
+                END,
+            updated_at = NOW()
+        WHERE game_id = #{gameId}
+    </update>
+
 </mapper>

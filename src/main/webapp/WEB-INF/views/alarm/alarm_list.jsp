@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!doctype html>
 <html lang="ko">
@@ -49,29 +50,23 @@
               </c:if>
 
               <c:forEach var="item" items="${list}">
-                  <div class="card notice-item ${item.read ? 'read' : ''}"
-                       onclick="readAndGo(${item.alarmId}, '${item.redirectUrl}')"
-                       style="cursor:pointer;">
-
+                  <div class="card notice-item ${item.read == 1 or item.read eq true or item.read ? 'read' : ''}"
+                       onclick="readAndGo(${item.alarmId}, '${item.redirectUrl}')" style="cursor:pointer;">
                       <div class="row">
-                                <span class="status-badge">
-                                    <c:choose>
-                                        <c:when test="${item.category eq 'GAME'}">경기</c:when>
-                                        <c:when test="${item.category eq 'NEWS'}">소식</c:when>
-                                        <c:when test="${item.category eq 'EVENT'}">이벤트</c:when>
-                                        <c:when test="${item.category eq 'FRIEND'}">친구</c:when>
-                                        <c:otherwise>알림</c:otherwise>
-                                    </c:choose>
-                                </span>
-                          <div class="notice-item_time text-muted">
-                              <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate"
-                                             type="both"/>
-                              <fmt:formatDate value="${parsedDate}" pattern="MM-dd"/>
-                          </div>
+                        <span class="status-badge">
+                            <c:choose>
+                                <c:when test="${item.category eq 'GAME'}">경기</c:when>
+                                <c:when test="${item.category eq 'NEWS'}">소식</c:when>
+                                <c:when test="${item.category eq 'EVENT'}">이벤트</c:when>
+                                <c:when test="${item.category eq 'FRIEND'}">친구</c:when>
+                                <c:otherwise>알림</c:otherwise>
+                            </c:choose>
+                        </span>
+                        <div class="notice-item_time text-muted">
+                            ${fn:substring(item.createdAt, 5, 10)}
+                        </div>
                       </div>
-                      <p class="notice-item_desc">
-                              ${item.content}
-                      </p>
+                      <p class="notice-item_desc">${item.content}</p>
                   </div>
               </c:forEach>
 

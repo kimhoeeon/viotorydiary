@@ -43,7 +43,7 @@ public class DiaryService {
             throw new Exception("이미 이 경기에 대한 일기를 작성하셨습니다.");
         }
 
-        // [추가] 직관 인증 시, 인증 시간 저장
+        // 직관 인증 시, 인증 시간 저장
         if (diary.isVerified()) {
             diary.setVerifiedAt(LocalDateTime.now());
         }

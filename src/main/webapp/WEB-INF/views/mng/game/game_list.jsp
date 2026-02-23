@@ -401,7 +401,7 @@
             }
         }
 
-        // [추가] 경기 저장 (AJAX)
+        // 경기 저장 (AJAX)
         function saveGameAction() {
             // 1. 유효성 검사
             const gameDate = $('#gameDate').val();
@@ -413,7 +413,7 @@
                 return;
             }
 
-            // [추가] 구장 선택 여부 확인
+            // 구장 선택 여부 확인
             if (!stadiumId) {
                 alert('구장을 선택해주세요.');
                 return;

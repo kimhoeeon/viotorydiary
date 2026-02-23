@@ -221,7 +221,7 @@
             }
         });
 
-        // [추가] 수정 폼 AJAX 제출 처리
+        // 수정 폼 AJAX 제출 처리
         function updateNotice() {
             // 1. 유효성 검사
             const title = $('input[name="title"]').val();

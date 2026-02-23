@@ -93,7 +93,7 @@ public class GameMngController {
 
         List<GameVO> list = gameMngService.getGameList(ym);
 
-        // [추가] 구장 목록 조회 및 모델 추가
+        // 구장 목록 조회 및 모델 추가
         List<StadiumVO> stadiums = gameMngService.getStadiumList();
         model.addAttribute("stadiums", stadiums);
 
@@ -115,7 +115,7 @@ public class GameMngController {
     @ResponseBody
     public String saveGame(GameVO game) {
         try {
-            // [추가] "우천취소" 선택 시 DB 스키마에 맞게 데이터 매핑
+            // "우천취소" 선택 시 DB 스키마에 맞게 데이터 매핑
             if ("RAIN".equals(game.getStatus())) {
                 game.setStatus("CANCELLED");
                 game.setCancelReason("우천취소");

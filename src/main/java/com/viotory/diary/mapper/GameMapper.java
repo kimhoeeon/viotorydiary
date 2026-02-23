@@ -57,4 +57,5 @@ public interface GameMapper {
 
     List<StadiumVO> selectAllStadiums();
 
+    int updateGameStatusOnly(GameVO game);
 }

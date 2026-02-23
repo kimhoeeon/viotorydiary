@@ -550,4 +550,63 @@ public class GameDataService {
         return null;
     }
 
+    /**
+     * API에서 특정 경기(단건) 정보만 가져와 기존 DB 데이터와 병합
+     */
+    public GameVO fetchSingleGameInfo(String apiGameId) {
+        // 1. DB에서 기존 경기 정보 조회 (필수값 유지를 위해)
+        GameVO game = gameMapper.selectGameByApiId(apiGameId);
+        if (game == null) return null;
+
+        try {
+            // 2. API 호출
+            URI uri = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                    .queryParam("id", apiGameId)
+                    .build().toUri();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("x-rapidapi-key", apiKey);
+            headers.set("x-rapidapi-host", apiHost);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonNode root = objectMapper.readTree(response.getBody());
+                JsonNode responseNode = root.path("response");
+                if (responseNode != null && responseNode.isArray() && responseNode.size() > 0) {
+                    JsonNode item = responseNode.get(0);
+
+                    // 상태 업데이트
+                    JsonNode statusNode = item.path("status");
+                    game.setStatus(convertStatus(statusNode.path("short").asText()));
+
+                    // 점수 업데이트
+                    JsonNode scoresNode = item.path("scores");
+                    if (!scoresNode.isMissingNode()) {
+                        game.setScoreHome(scoresNode.path("home").path("total").asInt(0));
+                        game.setScoreAway(scoresNode.path("away").path("total").asInt(0));
+                    }
+
+                    // 로그 출력을 위한 팀 이름 세팅
+                    game.setHomeTeamName(item.path("teams").path("home").path("name").asText());
+                    game.setAwayTeamName(item.path("teams").path("away").path("name").asText());
+
+                    return game;
+                }
+            }
+        } catch (Exception e) {
+            log.error("단일 경기 데이터 조회 중 오류 발생 (apiGameId: {})", apiGameId, e);
+        }
+        return game;
+    }
+
+    /**
+     * 라이브 경기 상태 변경 시 점수 및 상태만 업데이트
+     */
+    @Transactional
+    public void updateGameStatus(GameVO game) {
+        gameMapper.updateGameStatusOnly(game);
+    }
+
 }

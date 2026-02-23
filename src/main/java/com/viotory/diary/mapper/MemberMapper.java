@@ -107,4 +107,7 @@ public interface MemberMapper {
     // 소셜 정보 업데이트 (계정 연동)
     void updateSocialInfo(MemberVO member);
 
+    // 경기 상태 알림을 받을 대상 회원 조회
+    List<MemberVO> selectMembersForGameAlarm(@Param("homeTeamCode") String homeTeamCode, @Param("awayTeamCode") String awayTeamCode);
+
 }

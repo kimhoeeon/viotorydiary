@@ -390,7 +390,7 @@ public class MemberController {
                                 @RequestParam("authCode") String authCode,
                                 Model model) {
 
-        // [추가] 0. 카카오 소셜 로그인 회원 여부 확인
+        // 0. 카카오 소셜 로그인 회원 여부 확인
         // memberId는 이메일 형식이므로 이메일로 조회
         MemberVO member = memberService.getMemberByEmail(memberId);
 
