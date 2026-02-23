@@ -70,8 +70,8 @@
                                 <div class="card mb-7">
                                     <div class="card-body py-4 d-flex justify-content-between align-items-center">
                                         <form action="/mng/game/list" method="get" class="d-flex align-items-center">
-                                            <input type="month" class="form-control form-control-solid w-150px me-3"
-                                                   name="ym" value="${ym}" onchange="this.form.submit()">
+                                            <input type="month" class="form-control form-control-solid w-150px me-3" name="ym" value="${ym}">
+                                            <button type="submit" class="btn btn-primary">조회</button>
                                         </form>
                                         <div>
                                             <button type="button" class="btn btn-light-success me-2" onclick="syncData('MONTH')">
@@ -132,11 +132,14 @@
                                                                     <c:when test="${item.status eq 'FINISHED'}">
                                                                         <span class="badge badge-light-dark">종료</span>
                                                                     </c:when>
+                                                                    <c:when test="${item.status eq 'LIVE'}">
+                                                                        <span class="badge badge-light-primary">진행중</span>
+                                                                    </c:when>
+                                                                    <c:when test="${item.status eq 'CANCELLED' and item.cancelReason eq '우천취소'}">
+                                                                        <span class="badge badge-light-warning">우천취소</span>
+                                                                    </c:when>
                                                                     <c:when test="${item.status eq 'CANCELLED'}">
                                                                         <span class="badge badge-light-danger">취소</span>
-                                                                    </c:when>
-                                                                    <c:when test="${item.status eq 'RAIN'}">
-                                                                        <span class="badge badge-light-warning">우천취소</span>
                                                                     </c:when>
                                                                     <c:otherwise>
                                                                         <span class="badge badge-light-success">예정</span>
@@ -323,7 +326,12 @@
                     document.getElementById('homeTeamCode').value = data.homeTeamCode;
                     document.getElementById('scoreAway').value = data.scoreAway;
                     document.getElementById('scoreHome').value = data.scoreHome;
-                    document.getElementById('status').value = data.status;
+                    // [수정] DB의 상태와 취소 사유를 조합하여 팝업의 Select Box에 매칭
+                    if (data.status === 'CANCELLED' && data.cancelReason === '우천취소') {
+                        document.getElementById('status').value = 'RAIN';
+                    } else {
+                        document.getElementById('status').value = data.status;
+                    }
                     document.getElementById('stadiumId').value = data.stadiumId;
                     document.getElementById('etcInfo').value = data.etcInfo;
 
@@ -436,9 +444,8 @@
                         }
 
                         // [중요] 2. 커스텀 알림창 띄우고 확인 클릭 시 새로고침
-                        alert('저장되었습니다.', function() {
-                            location.reload();
-                        });
+                        alert('저장되었습니다.');
+                        location.reload();
                     } else {
                         alert('저장에 실패했습니다.\n' + res);
                     }

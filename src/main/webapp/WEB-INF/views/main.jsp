@@ -88,55 +88,57 @@
                                 <div class="tit game_tit">오늘 우리팀 경기는?</div>
 
                                 <c:choose>
-                                    <c:when test="${not empty todayGame}">
-                                        <div class="game-board" onclick="location.href='/play'">
-                                            <div class="row row-center gap-24">
-                                                <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
-                                                    <img src="${todayGame.homeTeamLogo}" alt="${todayGame.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
-                                                    </div>
-
-                                                <c:set var="statusClass" value="schedule" />
-                                                <c:if test="${todayGame.status == 'LIVE'}"><c:set var="statusClass" value="during" /></c:if>
-                                                <c:if test="${todayGame.status == 'FINISHED'}"><c:set var="statusClass" value="end" /></c:if>
-                                                <c:if test="${todayGame.status == 'CANCELLED'}"><c:set var="statusClass" value="cancel" /></c:if>
-
-                                                <div class="game-score ${statusClass}">
-                                                    <div class="left-team-score ${todayGame.scoreHome > todayGame.scoreAway ? 'high' : ''}">
-                                                        ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreHome}
-                                                    </div>
-
-                                                    <div class="game-info-wrap">
-                                                        <div class="badge">
-                                                            <c:choose>
-                                                                <c:when test="${todayGame.status == 'SCHEDULED'}">예정</c:when>
-                                                                <c:when test="${todayGame.status == 'LIVE'}">LIVE</c:when>
-                                                                <c:when test="${todayGame.status == 'FINISHED'}">종료</c:when>
-                                                                <c:when test="${todayGame.status == 'CANCELLED'}">취소</c:when>
-                                                            </c:choose>
+                                    <c:when test="${not empty todayGames}">
+                                        <c:forEach var="todayGame" items="${todayGames}">
+                                            <div class="game-board" onclick="location.href='/play'">
+                                                <div class="row row-center gap-24">
+                                                    <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
+                                                        <img src="${todayGame.homeTeamLogo}" alt="${todayGame.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
                                                         </div>
-                                                        <div class="game-info">
-                                                            <div class="day">
-                                                                <c:out value="${fn:substring(todayGame.gameTime, 0, 5)}" />
+
+                                                    <c:set var="statusClass" value="schedule" />
+                                                    <c:if test="${todayGame.status == 'LIVE'}"><c:set var="statusClass" value="during" /></c:if>
+                                                    <c:if test="${todayGame.status == 'FINISHED'}"><c:set var="statusClass" value="end" /></c:if>
+                                                    <c:if test="${todayGame.status == 'CANCELLED'}"><c:set var="statusClass" value="cancel" /></c:if>
+
+                                                    <div class="game-score ${statusClass}">
+                                                        <div class="left-team-score ${todayGame.scoreHome > todayGame.scoreAway ? 'high' : ''}">
+                                                            ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreHome}
+                                                        </div>
+
+                                                        <div class="game-info-wrap">
+                                                            <div class="badge">
+                                                                <c:choose>
+                                                                    <c:when test="${todayGame.status == 'SCHEDULED'}">예정</c:when>
+                                                                    <c:when test="${todayGame.status == 'LIVE'}">LIVE</c:when>
+                                                                    <c:when test="${todayGame.status == 'FINISHED'}">종료</c:when>
+                                                                    <c:when test="${todayGame.status == 'CANCELLED'}">취소</c:when>
+                                                                </c:choose>
                                                             </div>
-                                                            <div class="place">${todayGame.stadiumName}</div>
+                                                            <div class="game-info">
+                                                                <div class="day">
+                                                                    <c:out value="${fn:substring(todayGame.gameTime, 0, 5)}" />
+                                                                </div>
+                                                                <div class="place">${todayGame.stadiumName}</div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="right-team-score ${todayGame.scoreAway > todayGame.scoreHome ? 'high' : ''}">
+                                                            ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreAway}
                                                         </div>
                                                     </div>
 
-                                                    <div class="right-team-score ${todayGame.scoreAway > todayGame.scoreHome ? 'high' : ''}">
-                                                        ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreAway}
+                                                    <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreAway > todayGame.scoreHome ? 'win' : ''}">
+                                                        <img src="${todayGame.awayTeamLogo}" alt="${todayGame.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
                                                     </div>
                                                 </div>
-
-                                                <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreAway > todayGame.scoreHome ? 'win' : ''}">
-                                                    <img src="${todayGame.awayTeamLogo}" alt="${todayGame.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                            </div>
+                                            <c:if test="${todayGame.status ne 'CANCELLED'}">
+                                                <div class="btn-wrap">
+                                                    <a href="/diary/write?gameId=${todayGame.gameId}" class="btn btn-primary">오늘의 경기 기록하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <c:if test="${todayGame.status ne 'CANCELLED'}">
-                                            <div class="btn-wrap mt-16">
-                                                <a href="/play" class="btn btn-primary">오늘의 경기 기록하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>
-                                            </div>
-                                        </c:if>
+                                            </c:if>
+                                        </c:forEach>
                                     </c:when>
                                     <c:otherwise>
                                         <div class="nodt_wrap">
@@ -278,8 +280,8 @@
                                         </c:when>
                                         <c:otherwise>
                                             <div class="score_list empty">
-                                                <div class="score_txt" style="justify-content: center; width: 100%;">
-                                                    <div class="txt_box" style="text-align: center;">
+                                                <div class="score_txt">
+                                                    <div class="txt_box">
                                                         <div class="tit">작성된 일기가 없어요</div>
                                                     </div>
                                                 </div>
@@ -326,8 +328,8 @@
                                         </c:when>
                                         <c:otherwise>
                                             <div class="clip_list empty">
-                                                <div class="clip_txt" style="justify-content: center; width: 100%;">
-                                                    <div class="txt_box" style="text-align: center;">
+                                                <div class="clip_txt">
+                                                    <div class="txt_box">
                                                         <div class="tit">새로운 소식이 없습니다.</div>
                                                     </div>
                                                 </div>

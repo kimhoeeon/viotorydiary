@@ -24,6 +24,7 @@
     <style>
         /* 동적 이미지 스타일링 (퍼블리싱 .team 클래스 크기에 맞춤) */
         .team-logo-box {
+            padding: 8px;
             width: 100%;
             height: 100%;
             display: flex;

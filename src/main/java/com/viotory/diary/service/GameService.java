@@ -39,8 +39,8 @@ public class GameService {
         return gameMapper.selectGamesByDate(today, memberId);
     }
 
-    public GameVO getTodayGame(String myTeamCode) {
-        return gameMapper.selectTodayGame(myTeamCode);
+    public List<GameVO> getTodayGame(String teamCode) {
+        return gameMapper.selectTodayGame(teamCode);
     }
 
     /**

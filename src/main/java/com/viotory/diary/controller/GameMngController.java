@@ -115,6 +115,15 @@ public class GameMngController {
     @ResponseBody
     public String saveGame(GameVO game) {
         try {
+            // [추가] "우천취소" 선택 시 DB 스키마에 맞게 데이터 매핑
+            if ("RAIN".equals(game.getStatus())) {
+                game.setStatus("CANCELLED");
+                game.setCancelReason("우천취소");
+            } else if (!"CANCELLED".equals(game.getStatus())) {
+                // "취소"가 아닌 다른 상태(예정, 진행중, 종료)일 경우 취소 사유 초기화
+                game.setCancelReason(null);
+            }
+
             gameMngService.saveGame(game);
             return "ok"; // 성공 시 ok 반환
         } catch (Exception e) {

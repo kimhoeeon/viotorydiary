@@ -31,7 +31,7 @@
 
         /* 이미지 미리보기 스타일 보정 */
         .upload img {
-            width: 100%;
+            width: 90%;
             height: 100%;
             object-fit: cover;
             border-radius: 8px;
@@ -283,7 +283,7 @@
                                   data-away-code="\${game.awayTeamCode}"
                                   onclick="selectGameItem(this)">
                                   <span class="match">\${title}</span>
-                                  <span class="place">\${game.stadiumName}</span>
+                                  <span class="place">(\${game.stadiumName})</span>
                               </button>
                           </li>
                       `;

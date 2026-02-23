@@ -556,7 +556,7 @@
                         btnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn btn-light-primary mt-8">직관일기 바로가기
                                    <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
                     } else {
-                        btnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn mt-8">오늘 경기 기록하기
+                        btnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn cls-1 mt-8">오늘 경기 기록하기
                                    <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
                     }
                 }
@@ -571,12 +571,12 @@
 
                         btnHtml = `
                             \${heroHtml}
-                            <a href="/diary/detail?diaryId=\${game.diaryId}" class="btn sub-btn mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">직관일기 바로가기
+                            <a href="/diary/detail?diaryId=\${game.diaryId}" class="btn sub-btn cls-1 mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">직관일기 바로가기
                             <svg viewBox="0 0 5.5 9.5" style="stroke:#1A7CFF;"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
                     }
                     // ★ 작성된 일기가 없으면 -> 기록하기 버튼
                     else {
-                        btnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn mt-8">오늘 경기 기록하기
+                        btnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn cls-1 mt-8">오늘 경기 기록하기
                                    <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
                     }
                 }

@@ -54,10 +54,9 @@
                         <div class="login-inputwrap phone-field">
                             <div class="phone">
                                 <input class="login-input" id="phoneNumber" name="phoneNumber" type="tel"
-                                       maxlength="11"
-                                       oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11);"
-                                       inputmode="numeric" autocomplete="tel" placeholder="휴대폰 번호를 입력해주세요"
-                                       required value="${param.phoneNumber}">
+                                    maxlength="13"
+                                    inputmode="numeric" autocomplete="tel" placeholder="휴대폰 번호를 입력해주세요"
+                                    required value="${param.phoneNumber}">
                                 <button type="button" class="phone-cert wpx-80" id="sendBtn" onclick="sendSms()">
                                     인증하기
                                 </button>
@@ -115,10 +114,32 @@
     </c:if>
 
     <script>
+
+        $(document).ready(function() {
+            // 휴대폰 번호 입력 시 자동 하이픈 (-) 추가
+            $('#phoneNumber').on('input', function() {
+                let number = $(this).val().replace(/[^0-9]/g, ''); // 숫자만 남김
+                let phone = '';
+
+                if (number.length < 4) {
+                    phone = number;
+                } else if (number.length < 7) {
+                    phone = number.substr(0, 3) + '-' + number.substr(3);
+                } else if (number.length < 11) {
+                    phone = number.substr(0, 3) + '-' + number.substr(3, 3) + '-' + number.substr(6);
+                } else {
+                    phone = number.substr(0, 3) + '-' + number.substr(3, 4) + '-' + number.substr(7);
+                }
+
+                $(this).val(phone);
+            });
+        });
+
         // 1. SMS 인증번호 발송
         function sendSms() {
             const memberId = $('#memberId').val().trim();
-            const phone = $('#phoneNumber').val().trim();
+            const rawPhone = $('#phoneNumber').val().trim();
+            const phone = rawPhone.replace(/-/g, '');
 
             if(!memberId) { alert('아이디(이메일)을 입력해주세요.'); return; }
             if(phone.length < 10) { alert('올바른 휴대폰 번호를 입력해주세요.'); return; }

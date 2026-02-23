@@ -59,10 +59,8 @@ public class MainController {
 
             // 1. [오늘 경기]
             if (myTeamCode != null && !"NONE".equals(myTeamCode)) {
-                GameVO todayGame = gameService.getTodayGame(myTeamCode);
-                if (todayGame != null) {
-                    model.addAttribute("todayGame", todayGame);
-                }
+                List<GameVO> todayGames = gameService.getTodayGame(myTeamCode);
+                model.addAttribute("todayGames", todayGames);
             }
 
             // 2. [승요력]

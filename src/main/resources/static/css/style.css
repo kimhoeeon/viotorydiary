@@ -125,8 +125,9 @@
 .notice-item_desc{margin-top: 5px;}
 .message{ font-size: var(--fs-14);color: #A6A9B0;text-align: center;}
 
-.game-score{display: flex; gap: 20px; align-items: center;}
-.game-score .game-info-wrap{text-align: center;}
+.game-score{display: flex; gap: 15px; align-items: center;}
+.game-score .game-info-wrap{text-align: center; min-width: 70px; max-width: 70px;}
+.game-score .game-info-wrap .place{ word-break: keep-all;}
 .game-score .game-info{font-size: var(--fs-12); margin-top: 8px; line-height: 1.4;}
 .game-score .left-team-score{font-size: var(--fs-24); font-weight: 700; min-width: 30px; text-align: center; color: #AAAAAA;}
 .game-score .right-team-score{font-size: var(--fs-24); font-weight: 700;min-width: 30px; text-align: center; color: #AAAAAA;}
@@ -159,6 +160,8 @@
 .clip_list .clip_txt{display: flex; justify-content: space-between; margin-top: 8px;}
 .clip_list .img{border-radius: 15px; overflow: hidden;}
 .clip_list .img img{width: 100%;}
+.clip_list.empty .clip_txt{margin-top: 0;}
+.clip_list.empty .clip_txt .tit{font-size: var(--fs-16);color: #A6A9B0;margin-top: 0; padding: 0 0 64px; font-weight: 500;}
 
 .game-board{background: #E9ECF1;padding: 16px; border-radius: 10px;}
 
@@ -208,7 +211,7 @@
 
 .upload{display: flex; align-items: center;}
 .upload .del{width: 10%; height: 100%; background-color: #f5f5f5;}
-.upload .del img{width: 22px;}
+.upload .del img{width: 22px;height: 22px;}
 .upload img{width: 90%;}
 
 .tab-pill {width: 100%;display: flex;gap: 5px;margin-top: 10px;}
@@ -467,16 +470,21 @@
 .terms-txt .terms_wrap br.terms_br{display: block;}
 .terms .center-popup_body{padding-right: 17px;}
 
-.app-main .terms_wrap{box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);padding: 16px;border-radius: 20px;}
+.app-main .terms_wrap{box-shadow: 0 0 8px rgba(0, 0, 0, 0.15); padding: 16px; border-radius: 20px;}
 
 
-.notice_view{background: #fff; padding: 16px; border-radius: 20px; box-shadow: 0 0 8px rgba(0, 0, 0, 0.15); padding-top: 24px; padding-bottom: 24px;}
+.notice_view{background: #fff; border-radius: 20px; box-shadow: 0 0 8px rgba(0, 0, 0, 0.15); padding: 24px 16px;}
 .notice_view .tit{font-size: var(--fs-18); font-weight: 700; }
-.notice_view_head{display: flex; gap: 5px; align-items: center;border-bottom: 1px solid #e1e1e1;margin-bottom: 20px; padding-bottom: 10px;}
-.notice_view_head .date{ margin-left: auto; font-size: var(--fs-12);color: #A6A9B0;}
+.notice_view_head{display: flex; gap: 5px; align-items: center; border-bottom: 1px solid #e1e1e1; margin-bottom: 20px; padding-bottom: 10px;}
+.notice_view_head .date{ margin-left: auto; font-size: var(--fs-12); color: #A6A9B0;}
 .dob-picker{margin: 0;padding: 30px 0;}
 .dob-picker .dob-picker_value{font-size: 20px;font-weight: 600;}
 .score_list .img img, .clip_list .img img, .nodt_wrap img{max-height: 100px;}
+
+.score_list.empty .score_txt{margin-top: 0;}
+.score_list.empty .score_txt .tit{font-size: var(--fs-16);color: #A6A9B0;margin-top: 0; padding: 0 0 64px; font-weight: 500;}
+
+.team-logo{margin: 0 auto;}
 
 /* 경기 종류 배지 스타일 */
 .badge-game-type {

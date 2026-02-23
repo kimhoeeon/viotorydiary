@@ -145,6 +145,7 @@
                  JOIN stadiums s ON g.stadium_id = s.stadium_id
         WHERE g.game_date = CURRENT_DATE()
           AND (g.home_team_code = #{teamCode} OR g.away_team_code = #{teamCode})
+        ORDER BY g.game_time ASC
     </select>
 
     <select id="selectGameById" resultType="com.viotory.diary.vo.GameVO">

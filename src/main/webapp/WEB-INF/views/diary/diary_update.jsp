@@ -24,7 +24,7 @@
 
     <style>
         .upload img {
-            width: 100%;
+            width: 90%;
             height: 100%;
             object-fit: cover;
             border-radius: 8px;
