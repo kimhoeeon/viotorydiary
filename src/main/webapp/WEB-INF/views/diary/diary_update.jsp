@@ -59,37 +59,56 @@
                                 <div class="diary_write_list req diary_character">
                                     <div class="tit">직관한 경기</div>
                                     <button type="button" class="select-field" disabled style="opacity: 1; cursor: default;">
-                                            <span class="select-field_value" style="color:#000; font-weight:bold;">
-                                                [${diary.stadiumName}] ${diary.homeTeamName} vs ${diary.awayTeamName}
-                                                <span style="font-weight:400; font-size:13px; margin-left:4px;">
-                                                    (${fn:substring(diary.gameDate, 5, 7)}.${fn:substring(diary.gameDate, 8, 10)})
-                                                </span>
+                                        <span class="select-field_value" style="color:#000; font-weight:bold;">
+                                            [${diary.stadiumName}] ${diary.homeTeamName} vs ${diary.awayTeamName}
+                                            <span style="font-weight:400; font-size:13px; margin-left:4px;">
+                                                (${fn:substring(diary.gameDate, 5, 7)}.${fn:substring(diary.gameDate, 8, 10)})
                                             </span>
+                                        </span>
                                     </button>
                                 </div>
 
                                 <div class="diary_write_list req diary_character yellow">
-                                    <div class="tit">스코어를 수정하시겠어요?</div>
+                                    <div class="tit">
+                                        <c:choose>
+                                            <c:when test="${isScoreEditable}">스코어를 수정하시겠어요?</c:when>
+                                            <c:otherwise>내가 예상한 스코어 <span style="font-size:12px; color:#ff4d4d; font-weight:normal;">(스코어 수정 불가)</span></c:otherwise>
+                                        </c:choose>
+                                    </div>
                                     <div class="card_item">
                                         <div class="game-board">
-                                            <div class="row row-center gap-24">
+                                            <div class="row row-center gap-6">
                                                 <div class="team">
-                                                    <div class="team-logo mb-8"> <img src="/img/logo/logo_${fn:toLowerCase(diary.homeTeamCode)}.svg"
-                                                                                      alt="${diary.homeTeamName}"
-                                                                                      style="height: 48px; width: auto; object-fit: contain;">
+                                                    <div class="team-logo mb-8">
+                                                        <img src="/img/logo/logo_${fn:toLowerCase(diary.homeTeamCode)}.svg"
+                                                             alt="${diary.homeTeamName}"
+                                                             style="height: 48px; width: auto; object-fit: contain;">
                                                     </div>
-
                                                     <div class="team-name">${diary.homeTeamName}</div>
-                                                    <div class="text-12 color-gray mt-4">${diary.homeStarter}</div>
+                                                    <div class="starting mt-4">${diary.homeStarter}</div>
                                                 </div>
 
                                                 <div class="game-score schedule">
                                                     <div class="left-team-score">
-                                                        <input type="number" name="predScoreHome" value="${diary.predScoreHome}" placeholder="0">
+                                                        <c:choose>
+                                                            <c:when test="${isScoreEditable}">
+                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" placeholder="0">
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" placeholder="0">
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </div>
                                                     <div class="game-info-wrap">VS</div>
                                                     <div class="right-team-score">
-                                                        <input type="number" name="predScoreAway" value="${diary.predScoreAway}" placeholder="0">
+                                                        <c:choose>
+                                                            <c:when test="${isScoreEditable}">
+                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" placeholder="0">
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" placeholder="0">
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </div>
                                                 </div>
 
@@ -99,9 +118,8 @@
                                                              alt="${diary.awayTeamName}"
                                                              style="height: 48px; width: auto; object-fit: contain;">
                                                     </div>
-
                                                     <div class="team-name">${diary.awayTeamName}</div>
-                                                    <div class="text-12 color-gray mt-4">${diary.awayStarter}</div>
+                                                    <div class="starting mt-4">${diary.awayStarter}</div>
                                                 </div>
                                             </div>
                                         </div>

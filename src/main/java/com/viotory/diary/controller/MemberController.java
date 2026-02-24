@@ -696,7 +696,11 @@ public class MemberController {
             // 서비스에서 '댓글 작성자' 또는 '일기 주인'인지 확인하고 삭제함
             commentService.deleteComment(commentId, loginMember.getMemberId());
             return "ok";
+        } catch (AlertException ae) {
+            log.info("내가 쓴 댓글 삭제 거부: {}", ae.getMessage());
+            return "fail:" + ae.getMessage();
         } catch (Exception e) {
+            log.error("내가 쓴 댓글 삭제 중 치명적 오류", e);
             return "fail";
         }
     }

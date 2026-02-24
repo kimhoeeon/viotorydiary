@@ -148,7 +148,7 @@
 .score_list .score_txt{display: flex; justify-content: space-between; margin-top: 8px;}
 .score_list .score_txt .score_win img{max-width: 24px;}
 .score_list .img{border-radius: 15px; overflow: hidden;}
-.score_list .img img{width: 100%;}
+.score_list .img img{width: 100%; object-fit: cover;}
 .score_list.nodt_list{display: flex; justify-content: center;  grid-template-columns:repeat(1, 1fr) !important}
 .content_list.nodt_list{display: flex; justify-content: center; grid-template-columns:repeat(1, 1fr) !important}
 
@@ -487,6 +487,8 @@
 .team-logo{margin: 0 auto;}
 
 .diary_character .game-score .game-info-wrap{min-width:30px !important}
+
+.starting { font-size: 12px; color:#666; text-align: center}
 
 /* 경기 종류 배지 스타일 */
 .badge-game-type {

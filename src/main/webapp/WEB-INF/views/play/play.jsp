@@ -553,8 +553,8 @@
                 else if (game.status === 'LIVE') {
                     // 일기를 이미 썼다면 바로가기, 아니면 쓰기
                     if (game.diaryId && game.diaryId > 0) {
-                        btnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn btn-light-primary mt-8">직관일기 바로가기
-                                   <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
+                        btnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn sub-btn cls-1 mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">직관일기 바로가기
+                                   <svg viewBox="0 0 5.5 9.5" style="stroke:#1A7CFF;"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
                     } else {
                         btnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn cls-1 mt-8">오늘 경기 기록하기
                                    <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;

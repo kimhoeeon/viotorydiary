@@ -124,7 +124,7 @@
                                 <div class="tit">오늘의 스코어 예상해 본다면?</div>
                                 <div class="card_item">
                                     <div class="game-board">
-                                        <div class="row row-center gap-24">
+                                        <div class="row row-center gap-6">
                                             <div class="team">
                                                 <c:if test="${diary.homeTeamCode eq writer.myTeamCode}">
                                                     <div class="my-team">MY</div>

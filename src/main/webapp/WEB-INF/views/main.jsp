@@ -91,7 +91,7 @@
                                     <c:when test="${not empty todayGames}">
                                         <c:forEach var="todayGame" items="${todayGames}">
                                             <div class="game-board" onclick="location.href='/play'">
-                                                <div class="row row-center gap-24">
+                                                <div class="row row-center gap-6">
                                                     <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
                                                         <img src="${todayGame.homeTeamLogo}" alt="${todayGame.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
                                                         </div>

@@ -70,7 +70,7 @@
                   </div>
               </c:forEach>
 
-              <div class="message mt-8">
+              <div class="message mt-16">
                   최근 7일 전 알림까지 확인할 수 있어요
               </div>
           </div>

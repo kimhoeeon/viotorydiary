@@ -17,8 +17,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,9 +42,20 @@ public class DiaryController {
     // 1. 일기 작성 페이지 이동
     @GetMapping("/write")
     public String writePage(@RequestParam(value = "gameId", required = false) Long gameId,
-                            HttpSession session, Model model) {
+                            HttpSession session, Model model, HttpServletResponse response) throws Exception {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
+
+        // [추가] 이미 작성된 일기가 있는지 체크
+        DiaryVO existingDiary = diaryService.getDiaryByMemberAndGame(loginMember.getMemberId(), gameId);
+        if (existingDiary != null) {
+            // 이미 작성한 기록이 있다면 alert 후 상세 페이지로 이동
+            response.setContentType("text/html; charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            out.println("<script>alert('이미 작성된 기록입니다.'); location.href='/diary/detail?diaryId=" + existingDiary.getDiaryId() + "';</script>");
+            out.flush();
+            return null; // 뷰를 렌더링하지 않고 스크립트만 실행 후 종료
+        }
 
         // 메인에서 '오늘의 경기 기록하기'로 넘어온 경우, 해당 경기 정보를 미리 세팅
         if (gameId != null) {
@@ -114,8 +127,23 @@ public class DiaryController {
         // 3. 경기 정보 조회 (화면에 "LG vs 두산" 등을 보여주기 위함)
         GameVO game = gameService.getGameById(diary.getGameId());
 
+        // [수정] 스코어 수정 가능 여부 판단
+        boolean isScoreEditable = true;
+        if (game != null) {
+            if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
+                isScoreEditable = false;
+            } else {
+                String dateTimeStr = game.getGameDate() + " " + game.getGameTime();
+                LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                    isScoreEditable = false;
+                }
+            }
+        }
+
         model.addAttribute("diary", diary);
         model.addAttribute("game", game);
+        model.addAttribute("isScoreEditable", isScoreEditable);
 
         return "diary/diary_update";
     }
@@ -147,14 +175,20 @@ public class DiaryController {
             // 3. [핵심] 경기 시작 1시간 전 체크
             // 원본 일기의 경기 정보를 가져옴
             GameVO game = gameService.getGameById(originalDiary.getGameId());
+            boolean isScoreEditable = true;
             if (game != null) {
                 String dateTimeStr = game.getGameDate() + " " + game.getGameTime();
                 LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); // 초 단위 포맷 주의
 
-                // 현재 시간이 (경기시작 - 1시간) 이후라면 수정 불가
-                if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
-                    return "<script>alert('경기 시작 1시간 전까지만 수정할 수 있습니다.'); history.back();</script>";
+                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus()) || LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                    isScoreEditable = false;
                 }
+            }
+
+            // 스코어 수정 불가능 시간이면 원본 데이터(기존 스코어) 유지
+            if (!isScoreEditable) {
+                diary.setPredScoreHome(originalDiary.getPredScoreHome());
+                diary.setPredScoreAway(originalDiary.getPredScoreAway());
             }
 
             // [이미지 처리 로직]
@@ -222,6 +256,8 @@ public class DiaryController {
         // 수정 가능 여부 체크 (경기 시작 1시간 전까지만 수정 가능)
         // diary.gameDate(yyyy-MM-dd)와 diary.gameTime(HH:mm)을 합쳐서 비교
         boolean isEditable = true;
+        // 스코어 수정 가능 여부만 따로 체크해서 멘트 제어용으로 전달
+        boolean isScoreEditable = true;
         String lockReason = ""; // JSP에서 멘트 구분을 위해 사용
 
         // 정확한 상태 판단을 위해 Game 정보 조회
@@ -231,7 +267,7 @@ public class DiaryController {
             try {
                 // 1. 경기 종료/취소 여부 확인
                 if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
-                    isEditable = false;
+                    isScoreEditable = false;
                     lockReason = "FINISHED"; // 이미 종료됨
                 } else {
                     // 2. 경기 시작 1시간 전 체크 (초 단위 포함 포맷으로 수정)
@@ -239,7 +275,7 @@ public class DiaryController {
                     LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
                     if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
-                        isEditable = false;
+                        isScoreEditable = false;
                         lockReason = "IMMINENT"; // 임박함
                     }
                 }
@@ -252,6 +288,7 @@ public class DiaryController {
         model.addAttribute("comments", comments);
         model.addAttribute("isOwner", isOwner);
         model.addAttribute("isEditable", isEditable);
+        model.addAttribute("isScoreEditable", isScoreEditable);
         model.addAttribute("lockReason", lockReason);
 
         return "diary/diary_detail";

@@ -83,16 +83,16 @@
                                 <div class="tit">내가 예상한 스코어</div>
                                 <div class="card_item">
                                     <div class="game-board">
-                                        <div class="row row-center gap-24">
+                                        <div class="row row-center gap-6">
                                             <div class="team">
                                                 <div class="team-logo mb-8">
                                                     <img src="/img/logo/logo_${fn:toLowerCase(diary.homeTeamCode)}.svg"
-                                                                                      alt="${diary.homeTeamName}"
-                                                                                      style="height: 48px; width: auto; object-fit: contain;">
+                                                        alt="${diary.homeTeamName}"
+                                                        style="height: 48px; width: auto; object-fit: contain;">
                                                 </div>
 
                                                 <div class="team-name">${diary.homeTeamName}</div>
-                                                <div class="text-12 color-gray mt-4">${diary.homeStarter}</div>
+                                                <div class="starting mt-4">${diary.homeStarter}</div>
                                             </div>
 
                                             <div class="game-score schedule">
@@ -113,7 +113,7 @@
                                                 </div>
 
                                                 <div class="team-name">${diary.awayTeamName}</div>
-                                                <div class="text-12 color-gray mt-4">${diary.awayStarter}</div>
+                                                <div class="starting mt-4">${diary.awayStarter}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -219,18 +219,18 @@
                             <fmt:formatNumber value="${diary.viewCount}" pattern="#,###"/> view
                         </div>
 
-                        <c:if test="${!isEditable}">
+                        <c:if test="${!isScoreEditable}">
                             <div class="horizon-mes" style="margin-top:16px;">
                                 <img src="/img/ico_not_mark_red.svg" alt="수정 불가">
                                 <c:choose>
                                     <c:when test="${lockReason eq 'FINISHED'}">
-                                        종료되거나 취소된 경기의 일기는 수정할 수 없어요.
+                                        종료되거나 취소된 경기의 승부 예측(스코어)은 수정할 수 없어요.<br>(후기 및 사진은 수정 가능)
                                     </c:when>
                                     <c:when test="${lockReason eq 'IMMINENT'}">
-                                        경기가 임박해 기록이 잠겼어요. (시작 1시간 전부터 수정 불가)
+                                        경기가 임박해 승부 예측(스코어)이 잠겼어요.<br>(후기 및 사진은 수정 가능)
                                     </c:when>
                                     <c:otherwise>
-                                        이 기록은 현재 수정이 불가능합니다.
+                                        승부 예측(스코어)은 현재 수정이 불가능합니다.
                                     </c:otherwise>
                                 </c:choose>
                             </div>

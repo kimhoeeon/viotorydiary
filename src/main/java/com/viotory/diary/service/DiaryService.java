@@ -190,4 +190,10 @@ public class DiaryService {
     public List<DiaryVO> getMemberPublicDiaries(Long targetMemberId) {
         return diaryMapper.selectMemberPublicDiaries(targetMemberId);
     }
+
+    // 특정 경기와 멤버의 직관일기 단건 조회 (작성 여부 체크용)
+    public DiaryVO getDiaryByMemberAndGame(Long memberId, Long gameId) {
+        return diaryMapper.selectDiaryByMemberAndGame(memberId, gameId);
+    }
+
 }

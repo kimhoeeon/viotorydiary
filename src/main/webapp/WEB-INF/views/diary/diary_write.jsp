@@ -99,7 +99,7 @@
                                   <div class="tit">오늘의 스코어 예상해 본다면?</div>
                                   <div class="card_item">
                                       <div class="game-board">
-                                          <div class="row row-center gap-24">
+                                          <div class="row row-center gap-6">
                                               <div class="team" id="homeTeamBox">
                                                   <div class="my-team" id="homeMyTeam" style="display:none;">MY</div>
                                                   <div class="team-logo mb-4">
