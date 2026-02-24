@@ -61,7 +61,7 @@
                              WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) THEN 1
                              WHEN (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1
                              ELSE 0
-                        END) / COUNT(d.diary_id)) * 100
+                        END) * 100.0 / NULLIF(COUNT(d.diary_id), 0))
                 , 0) AS avgWinRate
         FROM diaries d
         INNER JOIN games g ON d.game_id = g.game_id

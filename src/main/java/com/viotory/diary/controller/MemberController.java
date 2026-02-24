@@ -70,7 +70,7 @@ public class MemberController {
             memberService.updateLastLogin(loginMember.getMemberId());
 
             // 접속 로그 기록 (DAU/MAU 통계용)
-            memberService.recordAccessLog(member.getMemberId());
+            memberService.recordAccessLog(loginMember.getMemberId());
 
             // 자동 로그인 처리 (쿠키 설정)
             if ("on".equals(remember) || "true".equals(remember)) {
