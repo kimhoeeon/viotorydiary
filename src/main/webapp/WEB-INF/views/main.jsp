@@ -135,7 +135,46 @@
                                             </div>
                                             <c:if test="${todayGame.status ne 'CANCELLED'}">
                                                 <div class="btn-wrap">
-                                                    <a href="/diary/write?gameId=${todayGame.gameId}" class="btn btn-primary">오늘의 경기 기록하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>
+                                                    <%-- 일기 작성 여부 체크 (diaryId가 있으면 작성한 것으로 간주) --%>
+                                                    <c:set var="isWritten" value="${not empty todayGame.diaryId and todayGame.diaryId > 0}" />
+
+                                                    <c:choose>
+                                                        <%-- 1. 경기 시작 전 (SCHEDULED) --%>
+                                                        <c:when test="${todayGame.status eq 'SCHEDULED'}">
+                                                            <c:choose>
+                                                                <c:when test="${isWritten}">
+                                                                    <%-- 조건 2: 경기 전 & 직관일기 작성 후 --%>
+                                                                    <a href="/diary/detail?diaryId=${todayGame.diaryId}" class="btn btn-primary" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">
+                                                                        오늘 경기 기록하기 (경기 후 작성)
+                                                                    </a>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <%-- 조건 1: 경기 전 & 직관일기 작성 전 --%>
+                                                                    <a href="/diary/write?gameId=${todayGame.gameId}" class="btn btn-primary">
+                                                                        오늘의 직관 인증<span><img src="/img/ico_right_arrow.svg" alt=""></span>
+                                                                    </a>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </c:when>
+
+                                                        <%-- 2. 경기 중이거나 종료 후 (LIVE, FINISHED) --%>
+                                                        <c:otherwise>
+                                                            <c:choose>
+                                                                <c:when test="${isWritten}">
+                                                                    <%-- 경기 후 & 직관일기 작성 후 --%>
+                                                                    <a href="/diary/detail?diaryId=${todayGame.diaryId}" class="btn btn-primary" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">
+                                                                        직관일기 바로가기
+                                                                    </a>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <%-- 조건 3: 경기 후 & 직관일기 작성 전 --%>
+                                                                    <a href="/diary/write?gameId=${todayGame.gameId}" class="btn btn-primary">
+                                                                        오늘의 경기 기록하기<span><img src="/img/ico_right_arrow.svg" alt=""></span>
+                                                                    </a>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </div>
                                             </c:if>
                                         </c:forEach>
