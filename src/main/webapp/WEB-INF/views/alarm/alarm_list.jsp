@@ -50,7 +50,7 @@
               </c:if>
 
               <c:forEach var="item" items="${list}">
-                  <div class="card notice-item ${item.read == 1 or item.read eq true or item.read ? 'read' : ''}"
+                  <div class="card notice-item ${item.read ? 'read' : ''}"
                        onclick="readAndGo(${item.alarmId}, '${item.redirectUrl}')" style="cursor:pointer;">
                       <div class="row">
                         <span class="status-badge">

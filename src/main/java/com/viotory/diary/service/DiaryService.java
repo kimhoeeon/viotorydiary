@@ -1,6 +1,7 @@
 package com.viotory.diary.service;
 
 import com.viotory.diary.dto.StadiumVisitDTO;
+import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.mapper.DiaryMapper;
 import com.viotory.diary.mapper.GameMapper;
 import com.viotory.diary.mapper.MemberMapper;
@@ -32,15 +33,15 @@ public class DiaryService {
     @Transactional
     public Long writeDiary(DiaryVO diary) throws Exception {
         // 1. 필수값 체크
-        if (diary.getGameId() == null) throw new Exception("경기를 선택해주세요.");
+        if (diary.getGameId() == null) throw new AlertException("경기를 선택해주세요.");
         /*if (diary.getOneLineComment() == null || diary.getOneLineComment().isEmpty()) {
-            throw new Exception("한줄평을 입력해주세요.");
+            throw new AlertException("한줄평을 입력해주세요.");
         }*/
 
         // 1-1. 중복 작성 체크
         DiaryVO existingDiary = diaryMapper.selectDiaryByMemberAndGame(diary.getMemberId(), diary.getGameId());
         if (existingDiary != null) {
-            throw new Exception("이미 이 경기에 대한 일기를 작성하셨습니다.");
+            throw new AlertException("이미 이 경기에 대한 일기를 작성하셨습니다.");
         }
 
         // 직관 인증 시, 인증 시간 저장
@@ -51,7 +52,7 @@ public class DiaryService {
         // 2. 작성 당시 응원팀 스냅샷 저장
         // (Controller에서 세션의 팀코드를 넣어주겠지만, 한번 더 체크)
         if (diary.getSnapshotTeamCode() == null) {
-            throw new Exception("응원팀 정보가 없습니다.");
+            throw new AlertException("응원팀 정보가 없습니다.");
         }
 
         // 3. 저장
@@ -67,7 +68,7 @@ public class DiaryService {
     public void modifyDiary(DiaryVO diary) throws Exception {
         int result = diaryMapper.updateDiary(diary);
         if (result == 0) {
-            throw new Exception("일기 수정에 실패했습니다. (본인 일기가 아니거나 존재하지 않음)");
+            throw new AlertException("일기 수정에 실패했습니다. (본인 일기가 아니거나 존재하지 않음)");
         }
     }
 
@@ -130,7 +131,7 @@ public class DiaryService {
         int result = diaryMapper.updateDiaryStatus(diaryId, memberId, "DELETED");
 
         if (result == 0) {
-            throw new Exception("삭제 권한이 없거나 이미 삭제된 일기입니다.");
+            throw new AlertException("삭제 권한이 없거나 이미 삭제된 일기입니다.");
         }
 
         log.info("일기 삭제 완료: diaryId={}, memberId={}", diaryId, memberId);

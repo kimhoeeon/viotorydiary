@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.dto.SmsDTO;
+import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.util.SHA512;
 import com.viotory.diary.vo.MemberVO;
@@ -47,21 +48,21 @@ public class MemberService {
         if (member.getBirthdate() != null) {
             int age = Period.between(member.getBirthdate(), LocalDate.now()).getYears();
             if (age < 14) {
-                throw new Exception("만 14세 미만은 가입할 수 없습니다.");
+                throw new AlertException("만 14세 미만은 가입할 수 없습니다.");
             }
         }
 
         // 2. 비밀번호 복잡도 체크 (8~14자, 영문/숫자/특수문자 중 2종 이상)
         if (!isValidPassword(member.getPassword())) {
-            throw new Exception("비밀번호는 8~14자이며, 영문/숫자/특수문자 중 2개 이상을 포함해야 합니다.");
+            throw new AlertException("비밀번호는 8~14자이며, 영문/숫자/특수문자 중 2개 이상을 포함해야 합니다.");
         }
 
         // 3. 중복 체크
         if (memberMapper.selectMemberByEmail(member.getEmail()) != null) {
-            throw new Exception("이미 가입된 이메일입니다.");
+            throw new AlertException("이미 가입된 이메일입니다.");
         }
         if (memberMapper.countByNickname(member.getNickname()) > 0) {
-            throw new Exception("이미 사용 중인 닉네임입니다.");
+            throw new AlertException("이미 사용 중인 닉네임입니다.");
         }
 
         // 3. 비밀번호 암호화
@@ -103,20 +104,20 @@ public class MemberService {
         // 1. 회원 조회
         MemberVO member = memberMapper.selectMemberByEmail(email);
         if (member == null) {
-            throw new Exception("아이디 또는 비밀번호가 틀렸습니다."); // 보안상 "아이디 또는 비밀번호가 틀렸습니다" 권장
+            throw new AlertException("아이디 또는 비밀번호가 틀렸습니다."); // 보안상 "아이디 또는 비밀번호가 틀렸습니다" 권장
         }
 
         if ("WITHDRAWN".equals(member.getStatus())) {
-            throw new Exception("탈퇴한 회원입니다.");
+            throw new AlertException("탈퇴한 회원입니다.");
         }
         if ("SUSPENDED".equals(member.getStatus())) {
-            throw new Exception("운영정책 위반으로 활동이 정지된 계정입니다. 고객센터로 문의해 주세요.");
+            throw new AlertException("운영정책 위반으로 활동이 정지된 계정입니다. 고객센터로 문의해 주세요.");
         }
 
         // 2. 비밀번호 비교 (입력받은 비밀번호를 암호화하여 DB 값과 비교)
         String encryptedInputPassword = sha512.hash(password);
         if (!member.getPassword().equals(encryptedInputPassword)) {
-            throw new Exception("비밀번호가 일치하지 않습니다.");
+            throw new AlertException("비밀번호가 일치하지 않습니다.");
         }
 
         // 3. 마지막 로그인 시간 갱신
@@ -143,12 +144,12 @@ public class MemberService {
         // 1. 닉네임 중복 체크 (기존 닉네임과 다를 경우에만 수행)
         MemberVO currentMember = memberMapper.selectMemberById(member.getMemberId());
         if (currentMember == null) {
-            throw new Exception("회원 정보를 찾을 수 없습니다.");
+            throw new AlertException("회원 정보를 찾을 수 없습니다.");
         }
 
         if (!currentMember.getNickname().equals(member.getNickname())) {
             if (memberMapper.countByNickname(member.getNickname()) > 0) {
-                throw new Exception("이미 사용 중인 닉네임입니다.");
+                throw new AlertException("이미 사용 중인 닉네임입니다.");
             }
         }
 
@@ -165,19 +166,19 @@ public class MemberService {
         // 1. 현재 회원 정보 조회
         MemberVO member = memberMapper.selectMemberById(memberId);
         if (member == null) {
-            throw new Exception("회원 정보가 없습니다.");
+            throw new AlertException("회원 정보가 없습니다.");
         }
 
         // 2. 현재 비밀번호 검증
         String encryptedCurrent = sha512.hash(currentPassword);
         if (!member.getPassword().equals(encryptedCurrent)) {
-            throw new Exception("현재 비밀번호가 일치하지 않습니다.");
+            throw new AlertException("현재 비밀번호가 일치하지 않습니다.");
         }
 
         // 3. 새 비밀번호 유효성 검사
         if (!isValidPassword(newPassword)) {
             // 메시지도 프론트엔드와 일치시킴
-            throw new Exception("비밀번호는 영문, 숫자, 특수문자(!@#$%^&*-_?) 중 2종 이상을 조합하여 8~14자로 입력해주세요.");
+            throw new AlertException("비밀번호는 영문, 숫자, 특수문자(!@#$%^&*-_?) 중 2종 이상을 조합하여 8~14자로 입력해주세요.");
         }
 
         // 4. 새 비밀번호 암호화 및 저장
@@ -194,12 +195,12 @@ public class MemberService {
         // 1. 회원 검증
         MemberVO member = memberMapper.selectMemberById(memberId); // 기존에 있던 selectMemberById 사용
         if (member == null) {
-            throw new Exception("회원 정보를 찾을 수 없습니다.");
+            throw new AlertException("회원 정보를 찾을 수 없습니다.");
         }
 
         // 2. 팀 코드 유효성 검사 (예시: KBO 10개 구단 코드)
         if (teamCode == null || teamCode.isEmpty()) {
-            throw new Exception("팀을 선택해주세요.");
+            throw new AlertException("팀을 선택해주세요.");
         }
 
         // 3. 팀 변경 제한 체크 (고도화: 최초 1회 즉시 가능, 이후 월 1회 제한)
@@ -213,7 +214,7 @@ public class MemberService {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
                 String dateStr = limitDate.format(formatter);
 
-                throw new Exception("응원 팀은 한 달에 한 번만 변경할 수 있어요.\n(" + dateStr + "부터 변경 가능)");
+                throw new AlertException("응원 팀은 한 달에 한 번만 변경할 수 있어요.\n(" + dateStr + "부터 변경 가능)");
             }
         }
 
@@ -230,11 +231,11 @@ public class MemberService {
     @Transactional
     public void withdraw(Long memberId) throws Exception {
         MemberVO member = memberMapper.selectMemberById(memberId);
-        if (member == null) throw new Exception("회원 정보가 없습니다.");
+        if (member == null) throw new AlertException("회원 정보가 없습니다.");
 
         // 이미 탈퇴 상태인지 체크
         if ("WITHDRAWN".equals(member.getStatus())) {
-            throw new Exception("이미 탈퇴 처리된 회원입니다.");
+            throw new AlertException("이미 탈퇴 처리된 회원입니다.");
         }
 
         memberMapper.withdrawMember(memberId);
@@ -283,12 +284,12 @@ public class MemberService {
         // 1. 존재 여부 확인
         MemberVO member = memberMapper.selectMemberById(memberId);
         if (member == null) {
-            throw new Exception("존재하지 않는 회원입니다.");
+            throw new AlertException("존재하지 않는 회원입니다.");
         }
 
         // 2. 이미 탈퇴한 회원인지 확인
         if ("WITHDRAWN".equals(member.getStatus())) {
-            throw new Exception("이미 탈퇴 처리된 회원입니다.");
+            throw new AlertException("이미 탈퇴 처리된 회원입니다.");
         }
 
         // 3. 탈퇴 처리
@@ -361,7 +362,7 @@ public class MemberService {
         // 1. 기존 닉네임과 동일한지 확인 (DB 조회)
         MemberVO currentMember = memberMapper.selectMemberById(memberId);
         if (currentMember == null) {
-            throw new Exception("회원 정보를 찾을 수 없습니다.");
+            throw new AlertException("회원 정보를 찾을 수 없습니다.");
         }
 
         if (newNickname.equals(currentMember.getNickname())) {
@@ -370,7 +371,7 @@ public class MemberService {
 
         // 2. 중복 체크
         if (memberMapper.countByNickname(newNickname) > 0) {
-            throw new Exception("이미 사용 중인 닉네임입니다.");
+            throw new AlertException("이미 사용 중인 닉네임입니다.");
         }
 
         // 3. 닉네임 업데이트 실행
@@ -385,7 +386,7 @@ public class MemberService {
     public void updateAlarm(Long memberId, String type, String value) throws Exception {
         // 1. 현재 회원 정보 조회
         MemberVO member = memberMapper.selectMemberById(memberId);
-        if (member == null) throw new Exception("회원 정보가 없습니다.");
+        if (member == null) throw new AlertException("회원 정보가 없습니다.");
 
         // 2. 타입에 따라 값 변경 (Controller에서 대문자로 넘겨줌)
         switch (type) {
@@ -398,7 +399,7 @@ public class MemberService {
             case "GAME": member.setGameAlarm(value); break;
             case "FRIEND": member.setFriendAlarm(value); break;
             case "MARKETING": member.setMarketingAgree(value); break;
-            default: throw new Exception("잘못된 알림 타입입니다: " + type);
+            default: throw new AlertException("잘못된 알림 타입입니다: " + type);
         }
 
         memberMapper.updateAlarmSetting(member);

@@ -1,5 +1,6 @@
 package com.viotory.diary.service;
 
+import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.mapper.AdminMapper;
 import com.viotory.diary.util.SHA512;
 import com.viotory.diary.vo.AdminVO;
@@ -38,14 +39,14 @@ public class AdminService {
 
         if (admin == null) {
             log.warn("로그인 실패 - 존재하지 않는 계정: {}", loginId);
-            throw new Exception("존재하지 않는 관리자 계정입니다.");
+            throw new AlertException("존재하지 않는 관리자 계정입니다.");
         }
 
         // 2. 비밀번호 검증 (BCrypt 매칭)
         // DB에 저장된 해시값과 입력받은 평문을 비교
         if (!passwordEncoder.matches(password, admin.getPassword())) {
             log.warn("로그인 실패 - 비밀번호 불일치: {}", loginId);
-            throw new Exception("비밀번호가 일치하지 않습니다.");
+            throw new AlertException("비밀번호가 일치하지 않습니다.");
         }
 
         // 3. 허용 IP 목록 별도 조회 및 검증
@@ -64,7 +65,7 @@ public class AdminService {
             }
             if (!isAllowed) {
                 log.warn("로그인 차단 - 허용되지 않은 IP. ID: {}, IP: {}", loginId, clientIp);
-                throw new Exception("접속이 허용되지 않은 IP입니다.");
+                throw new AlertException("접속이 허용되지 않은 IP입니다.");
             }
         }
 

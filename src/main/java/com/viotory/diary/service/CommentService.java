@@ -1,6 +1,7 @@
 package com.viotory.diary.service;
 
 import com.viotory.diary.dto.CommentDTO;
+import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.mapper.CommentMapper;
 import com.viotory.diary.mapper.DiaryMapper;
 import com.viotory.diary.mapper.MemberMapper;
@@ -38,7 +39,7 @@ public class CommentService {
         int deletedCount = commentMapper.deleteComment(commentId, requestMemberId);
 
         if (deletedCount == 0) {
-            throw new Exception("삭제 권한이 없거나 이미 삭제된 댓글입니다.");
+            throw new AlertException("삭제 권한이 없거나 이미 삭제된 댓글입니다.");
         }
     }
 
