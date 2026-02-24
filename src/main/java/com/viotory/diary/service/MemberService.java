@@ -616,4 +616,13 @@ public class MemberService {
         memberMapper.updateLastLogin(memberId);
     }
 
+    // [추가] 사용자의 일일 접속 로그 기록
+    public void recordAccessLog(Long memberId) {
+        try {
+            memberMapper.insertAccessLog(memberId);
+        } catch (Exception e) {
+            log.error("접속 로그 기록 실패", e);
+        }
+    }
+
 }

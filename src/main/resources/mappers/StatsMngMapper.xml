@@ -80,4 +80,13 @@
           AND g.status != 'CANCELLED'
     </select>
 
+    <select id="selectWeeklyAccessStats" resultType="map">
+        SELECT DATE_FORMAT(login_date, '%Y-%m-%d') as logDate,
+               COUNT(member_id) as cnt
+        FROM access_logs
+        WHERE login_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY login_date
+        ORDER BY login_date ASC
+    </select>
+
 </mapper>

@@ -15,7 +15,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -117,16 +120,43 @@ public class AdminController {
         addSystemStatus(model);
 
         // 1. 대시보드 전체 통계 조회
+        // 1. 기존: 회원 전체 통계 영역
         int dau = statsMngService.getDau();
         int mau = statsMngService.getMau();
         double avgWinRate = statsMngService.getTotalAvgWinRate();
         double avgMonthlyDiaries = statsMngService.getAvgMonthlyDiaries(mau);
 
-        // 2. 뷰(JSP)로 데이터 전달 (소수점 1자리까지 포맷팅)
         model.addAttribute("dau", dau);
         model.addAttribute("mau", mau);
         model.addAttribute("avgWinRate", String.format("%.1f", avgWinRate));
         model.addAttribute("avgMonthlyDiaries", String.format("%.1f", avgMonthlyDiaries));
+
+        // 2. ⭐️ [신규] 주간 접속 통계 차트 데이터 가공
+        List<Map<String, Object>> weeklyStats = statsMngService.getWeeklyAccessStats(); // 서비스 거치도록 수정하셔도 무방합니다.
+
+        // DB 결과를 Map으로 변환 (빠른 매칭을 위함)
+        Map<String, Integer> statMap = new HashMap<>();
+        for (Map<String, Object> stat : weeklyStats) {
+            statMap.put((String) stat.get("logDate"), ((Number) stat.get("cnt")).intValue());
+        }
+
+        // 최근 7일의 날짜를 생성하여 빈 날짜(0명)도 그래프에 정상 노출되도록 처리
+        List<String> chartDates = new ArrayList<>();
+        List<Integer> chartCounts = new ArrayList<>();
+        java.time.LocalDate today = java.time.LocalDate.now();
+
+        for (int i = 6; i >= 0; i--) {
+            java.time.LocalDate targetDate = today.minusDays(i);
+            String dbDateStr = targetDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String displayStr = targetDate.format(java.time.format.DateTimeFormatter.ofPattern("MM.dd")); // 화면 표기용 (예: 02.24)
+
+            chartDates.add("'" + displayStr + "'");
+            chartCounts.add(statMap.getOrDefault(dbDateStr, 0));
+        }
+
+        // JSTL이 배열 형태로 그대로 찍을 수 있도록 변환하여 전달
+        model.addAttribute("chartDates", chartDates.toString());  // ['02.18', '02.19', ...]
+        model.addAttribute("chartCounts", chartCounts.toString()); // [0, 5, 12, ...]
 
         return "mng/main";
     }

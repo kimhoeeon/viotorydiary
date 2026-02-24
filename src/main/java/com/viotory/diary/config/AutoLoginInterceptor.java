@@ -50,6 +50,9 @@ public class AutoLoginInterceptor implements HandlerInterceptor {
                     // 4. 세션 생성 (자동 로그인 성공)
                     session.setAttribute("loginMember", member);
                     log.info("자동 로그인 성공: {}", userEmail);
+
+                    // ⭐️ [추가] 자동 로그인 시에도 접속 로그 기록
+                    memberService.recordAccessLog(member.getMemberId());
                 }
             } catch (Exception e) {
                 log.warn("자동 로그인 처리 중 오류: {}", e.getMessage());

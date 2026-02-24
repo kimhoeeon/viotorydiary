@@ -409,7 +409,7 @@
 
                                 <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
                                     <div class="col-xl-12">
-                                        <div class="card">
+                                        <div class="card card-flush h-xl-100">
                                             <div class="card-header border-0 pt-5">
                                                 <h3 class="card-title align-items-start flex-column">
                                                     <span class="card-label fw-bold text-gray-900 fs-3 mb-2">회원 전체 통계</span>
@@ -519,8 +519,8 @@
 
                 var options = {
                     series: [{
-                        name: '방문자 수',
-                        data: [30, 40, 45, 50, 49, 60, 70]
+                        name: '접속자 수',
+                        data: ${chartCounts}
                     }],
                     chart: {
                         fontFamily: 'inherit',
@@ -550,7 +550,7 @@
                         colors: [baseColor]
                     },
                     xaxis: {
-                        categories: ['월', '화', '수', '목', '금', '토', '일'],
+                        categories: ${chartDates},
                         axisBorder: {
                             show: false,
                         },

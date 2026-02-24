@@ -67,6 +67,11 @@ public class MemberController {
             HttpSession session = request.getSession();
             session.setAttribute("loginMember", loginMember);
 
+            memberService.updateLastLogin(loginMember.getMemberId());
+
+            // 접속 로그 기록 (DAU/MAU 통계용)
+            memberService.recordAccessLog(member.getMemberId());
+
             // 자동 로그인 처리 (쿠키 설정)
             if ("on".equals(remember) || "true".equals(remember)) {
                 // 30일간 유지되는 쿠키 생성 (보안을 위해 추후 암호화된 토큰 사용 권장)
@@ -137,7 +142,11 @@ public class MemberController {
 
             // 3. 기존 회원 -> 로그인 처리
             session.setAttribute("loginMember", member);
+
             memberService.updateLastLogin(member.getMemberId());
+
+            // 접속 로그 기록 (DAU/MAU 통계용)
+            memberService.recordAccessLog(member.getMemberId());
 
             // 4. 팀 설정 여부에 따른 이동
             if (member.getMyTeamCode() == null || "NONE".equals(member.getMyTeamCode())) {

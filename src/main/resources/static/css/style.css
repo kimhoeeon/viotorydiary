@@ -38,7 +38,7 @@
 .check input[type="checkbox"] {appearance: none;-webkit-appearance: none;width: 18px;height: 18px;border: 1px solid #e1e1e1;background-color: #fff;position: relative;display: inline-block;vertical-align: middle;cursor: pointer;}
 .check input[type="checkbox"]:checked {border-color: var(--color-primary);background-color: var(--color-primary);}
 .check input[type="checkbox"]:checked::after {content: "";position: absolute;top: 50%;left: 50%;width: 6px;height: 6px;background-color: #fff;transform: translate(-50%, -50%);}
-.check input[type="radio"] {appearance: none;-webkit-appearance: none;width: 18px;height: 18px;border: 1px solid #e1e1e1;border-radius: 50px; background-color: #fff;position: relative;display: inline-block;vertical-align: middle;cursor: pointer;}
+.check input[type="radio"] {padding:0;appearance: none;-webkit-appearance: none;width: 18px;height: 18px;border: 1px solid #e1e1e1;border-radius: 50px; background-color: #fff;position: relative;display: inline-block;vertical-align: middle;cursor: pointer;}
 .check input[type="radio"]:checked {border-color: var(--color-primary);background-color: var(--color-primary); border-radius: 50px;}
 .check input[type="radio"]:checked::after {content: "";position: absolute;top: 50%;left: 50%;width: 6px;height: 6px;background-color: #fff;border-radius: 50px;transform: translate(-50%, -50%);}
 .login-link {font-size: var(--fs-14); border-bottom: 1px solid var(--color-text);}
@@ -195,7 +195,7 @@
 .diary_write_list.diary_character::after{content: ''; background: url(/img/diary_character01.svg) no-repeat; width: 90px; height: 60px; z-index: 0; position: absolute; top: 0; right: 14px;}
 .diary_write_list.diary_character.yellow::after{content: ''; background: url(/img/diary_character02.svg) no-repeat; width: 97px; height: 60px; z-index: 0; position: absolute; top: 0; right: 30px;}
 
-.select-field{background: #fff; border: 1px solid #e1e1e1; color: #000; font-size: var(--fs-14);padding: 10px 8px; text-align: left; position: relative;}
+.select-field{background: #fff; border: 1px solid #e1e1e1; color: #000; font-size: var(--fs-14);padding: 10px 30px 10px 8px; text-align: left; position: relative;}
 .select-field::after{content: ''; background: url(/img/ico_back_down_arrow.svg) no-repeat; width: 16px; height: 16px; position: absolute;top: 50%; right: 8px; transform: translateY(-50%);}
 .select-field[disabled]::after{display: none;}
 .select-sheet{display: flex;flex-direction: column;gap: 16px;max-width: 460px;width: 95%;margin: 0 auto;bottom: calc(10px + env(safe-area-inset-bottom));padding-top: 24px;padding-bottom: 24px;}
@@ -238,7 +238,7 @@
 .write_input .send[disabled]{background: #3E424D !important; color:#fff !important}
 
 .viewers{text-align: center; color: #707070; font-size: var(--fs-14);}
-.horizon-mes{display: flex; align-items: center; justify-content: center; padding: 15px 0; gap: 5px; text-align: center; color: #666; font-size: var(--fs-14); color: #FF4D4D;}
+.horizon-mes{flex-direction: column; display: flex; align-items: center; justify-content: center; padding: 15px 0; gap: 5px; text-align: center; font-size: var(--fs-14); color: #FF4D4D;}
 
 .friend_info_wrap{display: flex; font-size: var(--fs-16); align-items: center; justify-content: space-between;}
 .friend_item{display: flex; align-items: center;}

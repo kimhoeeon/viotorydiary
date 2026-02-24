@@ -5,6 +5,7 @@ import com.viotory.diary.vo.UserStatsVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -47,4 +48,7 @@ public class StatsMngService {
         return statsMapper.selectAvgMonthlyDiaries(mau);
     }
 
+    public List<Map<String, Object>> getWeeklyAccessStats() {
+        return statsMapper.selectWeeklyAccessStats();
+    }
 }

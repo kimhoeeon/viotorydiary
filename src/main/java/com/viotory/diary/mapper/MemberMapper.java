@@ -110,4 +110,6 @@ public interface MemberMapper {
     // 경기 상태 알림을 받을 대상 회원 조회
     List<MemberVO> selectMembersForGameAlarm(@Param("homeTeamCode") String homeTeamCode, @Param("awayTeamCode") String awayTeamCode);
 
+    void insertAccessLog(Long memberId);
+
 }

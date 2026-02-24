@@ -336,4 +336,9 @@
           AND status = 'ACTIVE'
     </select>
 
+    <insert id="insertAccessLog">
+        INSERT IGNORE INTO access_logs (member_id, login_date, created_at)
+        VALUES (#{memberId}, CURDATE(), NOW())
+    </insert>
+
 </mapper>
