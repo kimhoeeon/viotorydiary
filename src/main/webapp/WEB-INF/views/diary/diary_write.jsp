@@ -103,7 +103,7 @@
                                               <div class="team" id="homeTeamBox">
                                                   <div class="my-team" id="homeMyTeam" style="display:none;">MY</div>
                                                   <div class="team-logo mb-4">
-                                                      <img id="homeTeamLogo" alt="홈팀" style="width: 48px; height: 48px; object-fit: contain;">
+                                                      <img id="homeTeamLogo" src="/img/team_default.svg" alt="홈팀" style="width: 48px; height: 48px; object-fit: contain;">
                                                   </div>
                                                   <div class="team-name" id="homeTeamName">HOME</div>
                                               </div>
@@ -121,7 +121,7 @@
                                               <div class="team" id="awayTeamBox">
                                                   <div class="my-team" id="awayMyTeam" style="display:none;">MY</div>
                                                   <div class="team-logo mb-4">
-                                                      <img id="awayTeamLogo" alt="원정팀" style="width: 48px; height: 48px; object-fit: contain;">
+                                                      <img id="awayTeamLogo" src="/img/team_default.svg" alt="원정팀" style="width: 48px; height: 48px; object-fit: contain;">
                                                   </div>
                                                   <div class="team-name" id="awayTeamName">AWAY</div>
                                               </div>

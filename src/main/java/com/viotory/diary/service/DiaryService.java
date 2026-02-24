@@ -104,8 +104,16 @@ public class DiaryService {
 
         // 3. 전체 구장을 순회하며 방문 여부 체크 및 DTO 생성
         for (StadiumVO stadium : allStadiums) {
-            // visitedIds에 현재 구장 ID가 포함되어 있는지 확인
-            boolean isVisited = visitedIds.contains(Long.valueOf(stadium.getStadiumId()));
+            boolean isVisited = false;
+
+            if (visitedIds != null) {
+                for (Object vId : visitedIds) {
+                    if (vId != null && String.valueOf(vId).equals(String.valueOf(stadium.getStadiumId()))) {
+                        isVisited = true;
+                        break;
+                    }
+                }
+            }
 
             statusList.add(new StadiumVisitDTO(
                     stadium.getStadiumId(),

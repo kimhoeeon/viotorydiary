@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class StadiumVisitDTO {
     private Integer stadiumId;
     private String name;
-    private boolean isVisited; // 방문 여부
+    private boolean visited; // 방문 여부
 }

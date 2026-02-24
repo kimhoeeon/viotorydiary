@@ -245,7 +245,7 @@
                             </div>
                             <div class="card_item">
                                 <div class="score_card_wrap">
-                                    <div class="tit">9개 구장 중, ${visitedCount}개 구장에 방문했어요!</div>
+                                    <div class="tit">${stadiumStatus.size()}개 구장 중, ${visitedCount}개 구장에 방문했어요!</div>
                                     <ul class="score_card_item">
                                         <c:forEach var="stadium" items="${stadiumStatus}">
                                             <li>
