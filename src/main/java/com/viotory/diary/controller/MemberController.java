@@ -232,9 +232,12 @@ public class MemberController {
 
             memberService.registerMember(member);
             return "ok"; // 성공 시 "ok" 문자열 반환 (AJAX에서 확인)
+        } catch (AlertException ae) {
+            log.info("회원가입 알럿: {}", ae.getMessage());
+            return "가입 처리에 실패했습니다: " + ae.getMessage();
         } catch (Exception e) {
-            log.error("회원가입 실패", e);
-            return "가입 처리에 실패했습니다: " + e.getMessage();
+            log.error("회원가입 중 치명적 오류", e);
+            return "가입 처리에 실패했습니다: 시스템 오류가 발생했습니다.";
         }
     }
 
@@ -353,13 +356,12 @@ public class MemberController {
 
             return "ok";
 
+        } catch (AlertException ae) {
+            log.info("비밀번호 변경 알럿: {}", ae.getMessage());
+            return ae.getMessage();
         } catch (Exception e) {
-            // Service에서 비밀번호가 틀렸을 때 예외(Exception)를 던진다면 여기서 잡힘
-            e.printStackTrace();
-
-            // 예외 메시지(예: "기존 비밀번호가 일치하지 않습니다.")를 그대로 화면에 전달
-            // 만약 Service가 구체적인 메시지를 주지 않는다면 "기존 비밀번호가 일치하지 않습니다."로 하드코딩해도 됩니다.
-            return e.getMessage();
+            log.error("비밀번호 변경 중 시스템 오류", e);
+            return "시스템 오류가 발생했습니다.";
         }
     }
 
@@ -612,8 +614,11 @@ public class MemberController {
             session.setAttribute("loginMember", loginMember);
 
             return "ok";
+        } catch (AlertException ae) {
+            log.info("알림 설정 변경 알럿: {}", ae.getMessage());
+            return "fail";
         } catch (Exception e) {
-            log.error("알림 설정 변경 오류", e);
+            log.error("알림 설정 변경 중 치명적 오류", e);
             return "fail";
         }
     }
@@ -706,8 +711,11 @@ public class MemberController {
             memberService.withdraw(loginMember.getMemberId());
             session.invalidate(); // 세션 만료
             return "redirect:/member/login?msg=withdrawn";
+        } catch (AlertException ae) {
+            log.info("회원 탈퇴 알럿: {}", ae.getMessage());
+            return "redirect:/member/mypage";
         } catch (Exception e) {
-            // 탈퇴 실패 시 마이페이지로 돌아감 (에러 메시지는 alert 등으로 처리 필요)
+            log.error("회원 탈퇴 중 치명적 오류", e);
             return "redirect:/member/mypage";
         }
     }

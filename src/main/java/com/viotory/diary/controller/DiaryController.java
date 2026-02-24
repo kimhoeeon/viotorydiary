@@ -82,9 +82,14 @@ public class DiaryController {
 
             Long diaryId = diaryService.writeDiary(diary);
             return "redirect:/diary/complete?diaryId=" + diaryId;
+        } catch (AlertException ae) {
+            log.info("일기 작성 알럿: {}", ae.getMessage());
+            model.addAttribute("error", ae.getMessage());
+            model.addAttribute("diary", diary);
+            return "diary/diary_write";
         } catch (Exception e) {
-            log.error("일기 작성 실패", e);
-            model.addAttribute("error", e.getMessage());
+            log.error("일기 작성 중 치명적 오류", e);
+            model.addAttribute("error", "시스템 오류가 발생했습니다.");
             model.addAttribute("diary", diary);
             return "diary/diary_write";
         }
@@ -166,8 +171,11 @@ public class DiaryController {
 
             return "<script>alert('수정되었습니다.'); location.href='/diary/detail?diaryId=" + diary.getDiaryId() + "';</script>";
 
+        } catch (AlertException ae) {
+            log.info("일기 수정 알럿: {}", ae.getMessage());
+            return "<script>alert('" + ae.getMessage() + "'); history.back();</script>";
         } catch (Exception e) {
-            log.error("일기 수정 실패", e);
+            log.error("일기 수정 중 치명적 오류", e);
             return "<script>alert('수정 중 오류가 발생했습니다.'); history.back();</script>";
         }
     }
@@ -322,8 +330,11 @@ public class DiaryController {
         try {
             diaryService.deleteDiary(diaryId, loginMember.getMemberId());
             return "ok";
+        } catch (AlertException ae) {
+            log.info("일기 삭제 알럿: {}", ae.getMessage());
+            return "fail:" + ae.getMessage(); // 프론트에서 사유를 띄워주기 위해 메시지 포함
         } catch (Exception e) {
-            log.error("일기 삭제 실패", e);
+            log.error("일기 삭제 중 치명적 오류", e);
             return "fail";
         }
     }
