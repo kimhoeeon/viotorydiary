@@ -27,6 +27,7 @@ public class AdminController {
     private final GameService gameService;
     private final MemberService memberService;
     private final DiaryService diaryService;
+    private final StatsMngService statsMngService;
 
     private final AdminMngMapper adminMngMapper;
 
@@ -114,6 +115,18 @@ public class AdminController {
 
         // 시스템 상태 정보 수집
         addSystemStatus(model);
+
+        // 1. 대시보드 전체 통계 조회
+        int dau = statsMngService.getDau();
+        int mau = statsMngService.getMau();
+        double avgWinRate = statsMngService.getTotalAvgWinRate();
+        double avgMonthlyDiaries = statsMngService.getAvgMonthlyDiaries(mau);
+
+        // 2. 뷰(JSP)로 데이터 전달 (소수점 1자리까지 포맷팅)
+        model.addAttribute("dau", dau);
+        model.addAttribute("mau", mau);
+        model.addAttribute("avgWinRate", String.format("%.1f", avgWinRate));
+        model.addAttribute("avgMonthlyDiaries", String.format("%.1f", avgMonthlyDiaries));
 
         return "mng/main";
     }

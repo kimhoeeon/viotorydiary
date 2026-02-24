@@ -28,4 +28,23 @@ public class StatsMngService {
         }
         return list;
     }
+
+    // 대시보드 통계 조회용
+    public int getDau() {
+        return statsMapper.selectDau();
+    }
+
+    public int getMau() {
+        return statsMapper.selectMau();
+    }
+
+    public double getTotalAvgWinRate() {
+        return statsMapper.selectTotalAvgWinRate();
+    }
+
+    public double getAvgMonthlyDiaries(int mau) {
+        if (mau == 0) return 0.0;
+        return statsMapper.selectAvgMonthlyDiaries(mau);
+    }
+
 }

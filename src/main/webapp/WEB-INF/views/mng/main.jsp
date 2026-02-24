@@ -409,6 +409,52 @@
 
                                 <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
                                     <div class="col-xl-12">
+                                        <div class="card">
+                                            <div class="card-header border-0 pt-5">
+                                                <h3 class="card-title align-items-start flex-column">
+                                                    <span class="card-label fw-bold text-gray-900 fs-3 mb-2">회원 전체 통계</span>
+                                                    <span class="text-muted fw-semibold fs-7" style="line-height:1.6;">
+                                                        • DAU : 오늘 앱을 사용한 사용자 수<br>
+                                                        • MAU : 최근 30일 내 앱을 사용한 사용자 수<br>
+                                                        • 평균 승률 : 전체 사용자 평균 직관 승률<br>
+                                                        • 월 평균 직관 수 : 사용자 1인당 월 평균 직관 경기 수
+                                                    </span>
+                                                </h3>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row g-5 g-xl-8">
+                                                    <div class="col-sm-6 col-xxl-3">
+                                                        <div class="bg-light-primary border border-primary border-dashed rounded p-5">
+                                                            <div class="text-gray-600 fw-bold fs-6 mb-2">DAU (일간)</div>
+                                                            <div class="text-dark fw-bolder fs-2">${dau} <span class="fs-5 text-muted">명</span></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6 col-xxl-3">
+                                                        <div class="bg-light-success border border-success border-dashed rounded p-5">
+                                                            <div class="text-gray-600 fw-bold fs-6 mb-2">MAU (월간)</div>
+                                                            <div class="text-dark fw-bolder fs-2">${mau} <span class="fs-5 text-muted">명</span></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6 col-xxl-3">
+                                                        <div class="bg-light-warning border border-warning border-dashed rounded p-5">
+                                                            <div class="text-gray-600 fw-bold fs-6 mb-2">평균 직관 승률</div>
+                                                            <div class="text-dark fw-bolder fs-2">${avgWinRate} <span class="fs-5 text-muted">%</span></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6 col-xxl-3">
+                                                        <div class="bg-light-info border border-info border-dashed rounded p-5">
+                                                            <div class="text-gray-600 fw-bold fs-6 mb-2">1인 월평균 직관 수</div>
+                                                            <div class="text-dark fw-bolder fs-2">${avgMonthlyDiaries} <span class="fs-5 text-muted">회</span></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
+                                    <div class="col-xl-12">
                                         <div class="card card-flush h-xl-100">
                                             <div class="card-header pt-7">
                                                 <h3 class="card-title align-items-start flex-column">
