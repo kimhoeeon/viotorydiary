@@ -79,6 +79,12 @@ public class DiaryService {
         return diaryMapper.selectDiaryById(diaryId);
     }
 
+    // [추가] 조회수 증가 처리
+    @Transactional
+    public void increaseViewCount(Long diaryId) {
+        diaryMapper.updateViewCount(diaryId);
+    }
+
     public List<DiaryVO> getRecentDiaries(Long memberId) {
         return diaryMapper.selectRecentDiaries(memberId);
     }

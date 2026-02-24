@@ -276,6 +276,12 @@
           AND member_id = #{memberId} -- 본인 확인
     </update>
 
+    <update id="updateViewCount">
+        UPDATE diaries
+        SET view_count = IFNULL(view_count, 0) + 1
+        WHERE diary_id = #{diaryId}
+    </update>
+
     <select id="selectRelatedDiaries" resultType="com.viotory.diary.vo.DiaryVO">
         SELECT d.diary_id,
                d.member_id,

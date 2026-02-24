@@ -257,6 +257,10 @@ public class DiaryController {
     @GetMapping("/detail")
     public String detailPage(@RequestParam("diaryId") Long diaryId,
                              HttpSession session, Model model) {
+
+        // [추가] 페이지 진입 시 먼저 조회수 1 증가
+        diaryService.increaseViewCount(diaryId);
+
         // 1. 일기 정보 조회
         DiaryVO diary = diaryService.getDiary(diaryId);
         if (diary == null) return "redirect:/diary/list";
@@ -399,6 +403,9 @@ public class DiaryController {
                                    HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
+
+        // [추가] 친구 일기 페이지 진입 시 조회수 1 증가
+        diaryService.increaseViewCount(diaryId);
 
         // 1. 일기 정보 조회
         DiaryVO diary = diaryService.getDiary(diaryId);
