@@ -15,6 +15,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +98,6 @@ public class AdminController {
     public String mainPage(Model model) {
 
         // [대시보드 통계 데이터 조회]
-
         // 1. 회원 현황
         int totalMembers = memberService.countMembers("", "");
         int todayMembers = memberService.countTodayMembers();
@@ -119,8 +120,7 @@ public class AdminController {
         // 시스템 상태 정보 수집
         addSystemStatus(model);
 
-        // 1. 대시보드 전체 통계 조회
-        // 1. 기존: 회원 전체 통계 영역
+        // 회원 전체 통계 영역
         int dau = statsMngService.getDau();
         int mau = statsMngService.getMau();
         double avgWinRate = statsMngService.getTotalAvgWinRate();
@@ -131,8 +131,8 @@ public class AdminController {
         model.addAttribute("avgWinRate", String.format("%.1f", avgWinRate));
         model.addAttribute("avgMonthlyDiaries", String.format("%.1f", avgMonthlyDiaries));
 
-        // 2. ⭐️ [신규] 주간 접속 통계 차트 데이터 가공
-        List<Map<String, Object>> weeklyStats = statsMngService.getWeeklyAccessStats(); // 서비스 거치도록 수정하셔도 무방합니다.
+        // 2. 주간 접속 통계 차트 데이터 가공
+        List<Map<String, Object>> weeklyStats = statsMngService.getWeeklyAccessStats();
 
         // DB 결과를 Map으로 변환 (빠른 매칭을 위함)
         Map<String, Integer> statMap = new HashMap<>();
@@ -143,12 +143,12 @@ public class AdminController {
         // 최근 7일의 날짜를 생성하여 빈 날짜(0명)도 그래프에 정상 노출되도록 처리
         List<String> chartDates = new ArrayList<>();
         List<Integer> chartCounts = new ArrayList<>();
-        java.time.LocalDate today = java.time.LocalDate.now();
+        LocalDate today = LocalDate.now();
 
         for (int i = 6; i >= 0; i--) {
-            java.time.LocalDate targetDate = today.minusDays(i);
-            String dbDateStr = targetDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            String displayStr = targetDate.format(java.time.format.DateTimeFormatter.ofPattern("MM.dd")); // 화면 표기용 (예: 02.24)
+            LocalDate targetDate = today.minusDays(i);
+            String dbDateStr = targetDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            String displayStr = targetDate.format(DateTimeFormatter.ofPattern("MM.dd")); // 화면 표기용 (예: 02.24)
 
             chartDates.add("'" + displayStr + "'");
             chartCounts.add(statMap.getOrDefault(dbDateStr, 0));

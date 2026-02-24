@@ -182,7 +182,7 @@
 
         // [기능 3] 인증번호 입력 시 다음 버튼 활성화 (ID 수정: nextBtn -> termsNext)
         $('#number_cert').on('input', function() {
-            // ⭐️ 입력 시작 시 실패 아이콘 숨김 (겹침 방지)
+            //  입력 시작 시 실패 아이콘 숨김 (겹침 방지)
             $('#certFailIcon').removeClass('is-show');
 
             // 입력값이 있으면 버튼 활성화, 없으면 비활성화

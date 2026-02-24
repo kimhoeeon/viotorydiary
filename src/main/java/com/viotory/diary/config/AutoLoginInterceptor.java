@@ -35,15 +35,7 @@ public class AutoLoginInterceptor implements HandlerInterceptor {
             String userEmail = loginCookie.getValue();
 
             // 3. 쿠키에 저장된 이메일로 회원 정보 조회 (DB)
-            // (주의: MemberMapper에 selectMemberByEmail 메소드가 있어야 함. MemberService의 login 로직 일부 활용)
             try {
-                // MemberService에 getMemberByEmail 같은 메소드를 추가하거나,
-                // 기존 login 메소드는 비밀번호가 필요하므로, 이메일로만 조회하는 로직 필요.
-                // 여기서는 예시로 MemberService에 새로 만들거나 Mapper를 직접 호출한다고 가정
-                // 하지만 Service를 거치는게 정석이므로 Service에 메소드 추가를 권장합니다.
-
-                // 임시: MemberMapper를 직접 쓸 수 없으니 Service에 메소드를 추가해야 함.
-                // MemberService.java에 public MemberVO findByEmail(String email) 추가 필요
                 MemberVO member = memberService.getMemberByEmail(userEmail);
 
                 if (member != null && !"WITHDRAWN".equals(member.getStatus())) {
@@ -51,7 +43,7 @@ public class AutoLoginInterceptor implements HandlerInterceptor {
                     session.setAttribute("loginMember", member);
                     log.info("자동 로그인 성공: {}", userEmail);
 
-                    // ⭐️ [추가] 자동 로그인 시에도 접속 로그 기록
+                    // [추가] 자동 로그인 시에도 접속 로그 기록
                     memberService.recordAccessLog(member.getMemberId());
                 }
             } catch (Exception e) {
