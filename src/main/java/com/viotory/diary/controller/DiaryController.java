@@ -2,6 +2,7 @@ package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.CommentDTO;
 import com.viotory.diary.dto.WinYoAnalysisDTO;
+import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.service.*;
 import com.viotory.diary.util.DistanceUtil;
 import com.viotory.diary.util.FileUtil;
@@ -260,8 +261,11 @@ public class DiaryController {
             // 본인 확인은 Service/Mapper 레벨에서 처리 (requestMemberId 전달)
             commentService.deleteComment(commentId, loginMember.getMemberId());
             return "ok";
+        } catch (AlertException ae) {
+            log.info("댓글 삭제 거부: {}", ae.getMessage());
+            return "fail:" + ae.getMessage(); // 프론트에서 이 메시지를 띄우도록 수정하면 더 좋습니다.
         } catch (Exception e) {
-            log.error("댓글 삭제 오류", e);
+            log.error("댓글 삭제 중 치명적 오류", e);
             return "fail";
         }
     }

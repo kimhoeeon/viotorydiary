@@ -88,8 +88,7 @@
                                                 <div class="team-logo mb-8">
                                                     <img src="/img/logo/logo_${fn:toLowerCase(diary.homeTeamCode)}.svg"
                                                                                       alt="${diary.homeTeamName}"
-                                                                                      style="height: 48px; width: auto; object-fit: contain;"
-                                                                                      onerror="this.src='/img/logo/logo_default.svg'">
+                                                                                      style="height: 48px; width: auto; object-fit: contain;">
                                                 </div>
 
                                                 <div class="team-name">${diary.homeTeamName}</div>
@@ -110,8 +109,7 @@
                                                 <div class="team-logo mb-8">
                                                     <img src="/img/logo/logo_${fn:toLowerCase(diary.awayTeamCode)}.svg"
                                                          alt="${diary.awayTeamName}"
-                                                         style="height: 48px; width: auto; object-fit: contain;"
-                                                         onerror="this.src='/img/logo/logo_default.svg'">
+                                                         style="height: 48px; width: auto; object-fit: contain;">
                                                 </div>
 
                                                 <div class="team-name">${diary.awayTeamName}</div>

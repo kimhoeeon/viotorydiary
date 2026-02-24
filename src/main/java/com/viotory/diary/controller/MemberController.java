@@ -1,6 +1,7 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.CommentDTO;
+import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.service.CommentService;
 import com.viotory.diary.service.MemberService;
 import com.viotory.diary.service.SmsService;
@@ -89,11 +90,15 @@ public class MemberController {
                 result.put("redirect", "/main");
             }
 
-        } catch (Exception e) {
-            log.warn("로그인 실패: {}", e.getMessage());
-            // 실패 응답
+        } catch (AlertException ae) {
+            // 사용자 잘못 (비밀번호 틀림 등)
+            log.info("로그인 알럿 발생: {}", ae.getMessage());
             result.put("status", "fail");
-            result.put("message", e.getMessage());
+            result.put("message", ae.getMessage());
+        } catch (Exception e) {
+            log.error("로그인 중 치명적 오류 발생", e);
+            result.put("status", "fail");
+            result.put("message", "시스템 오류가 발생했습니다.");
         }
 
         return result;
@@ -305,9 +310,14 @@ public class MemberController {
             session.setAttribute("loginMember", loginMember);
 
             return "redirect:/member/mypage?status=success";
+        } catch (AlertException ae) {
+            log.info("회원정보 수정 알럿: {}", ae.getMessage());
+            model.addAttribute("error", ae.getMessage());
+            model.addAttribute("member", member);
+            return "member/mypage";
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
-            // 에러 발생 시 입력했던 정보를 유지하기 위해 member 객체 전달
+            log.error("회원정보 수정 중 치명적 오류", e);
+            model.addAttribute("error", "시스템 오류가 발생했습니다.");
             model.addAttribute("member", member);
             return "member/mypage";
         }
@@ -470,8 +480,18 @@ public class MemberController {
             // 구분하기 복잡하다면, 마이페이지로 보내는 것이 무난합니다.
             return "redirect:/member/mypage";
 
+        } catch (AlertException ae) {
+            log.info("팀 변경 알럿: {}", ae.getMessage());
+            model.addAttribute("error", ae.getMessage());
+            // 에러 시 다시 목록 불러와서 페이지 이동
+            Criteria cri = new Criteria();
+            cri.setAmount(20);
+            List<TeamVO> teamList = teamInfoMngService.selectTeamList(cri);
+            model.addAttribute("teamList", teamList);
+            return "member/team_setting";
         } catch (Exception e) {
-            model.addAttribute("error", e.getMessage());
+            log.error("팀 변경 중 치명적 오류", e);
+            model.addAttribute("error", "시스템 오류가 발생했습니다.");
             // 에러 시 다시 목록 불러와서 페이지 이동
             Criteria cri = new Criteria();
             cri.setAmount(20);
