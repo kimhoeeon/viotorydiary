@@ -46,6 +46,13 @@
                 </c:if>
             </div>
 
+            <c:if test="${isOwner}">
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button type="button" class="btn sub-btn w-auto" style="background:#f1f1f1; border:none;" onclick="deleteDiary(${diary.diaryId})">삭제</button>
+                    <a href="/diary/update?diaryId=${diary.diaryId}" class="btn btn-primary w-auto">수정</a>
+                </div>
+            </c:if>
+
             <div class="page-main_wrap">
                 <div class="history">
                     <div class="history-list mt-24">
@@ -97,11 +104,11 @@
 
                                             <div class="game-score schedule">
                                                 <div class="left-team-score">
-                                                    <input type="text" value="${diary.scoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
+                                                    <input type="text" value="${diary.predScoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
                                                 </div>
                                                 <div class="game-info-wrap">VS</div>
                                                 <div class="right-team-score">
-                                                    <input type="text" value="${diary.scoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
+                                                    <input type="text" value="${diary.predScoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
                                                 </div>
                                             </div>
 
@@ -331,23 +338,20 @@
             }
         }
 
-        function deleteDiary() {
-            if(!confirm('정말 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.')) return;
+        function deleteDiary(diaryId) {
+            if (!confirm('정말로 이 일기를 삭제하시겠습니까?')) return;
 
-            $.post('/diary/delete', { diaryId: '${diary.diaryId}' }, function(res) {
+            $.post('/diary/delete', { diaryId: diaryId }, function(res) {
                 if (res === 'ok') {
-                    alert('삭제되었습니다.', function() {
-                        location.href = '/diary/list';
-                    });
-                } else if (res === 'fail:login') {
-                    alert('로그인이 필요합니다.', function() {
-                        location.href = '/member/login';
-                    });
+                    alert('삭제되었습니다.');
+                    location.href = '/diary/list';
+                } else if (res.startsWith('fail:')) {
+                    alert(res.substring(5)); // 서버에서 보낸 거절 사유 노출
                 } else {
-                    alert('일기 삭제에 실패했습니다.');
+                    alert('삭제에 실패했습니다.');
                 }
             }).fail(function() {
-                alert('서버 통신 오류가 발생했습니다.');
+                alert('서버 통신 중 오류가 발생했습니다.');
             });
         }
 

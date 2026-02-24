@@ -133,10 +133,16 @@ public class DiaryController {
             if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
                 isScoreEditable = false;
             } else {
-                String dateTimeStr = game.getGameDate() + " " + game.getGameTime();
-                LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
-                    isScoreEditable = false;
+                try {
+                    String timeStr = game.getGameTime();
+                    if (timeStr != null && timeStr.length() == 5) timeStr += ":00"; // HH:mm 초단위 예외 처리
+                    String dateTimeStr = game.getGameDate() + " " + timeStr;
+                    LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                        isScoreEditable = false;
+                    }
+                } catch (Exception e) {
+                    log.error("경기 시작시간 파싱 오류", e);
                 }
             }
         }
@@ -177,11 +183,20 @@ public class DiaryController {
             GameVO game = gameService.getGameById(originalDiary.getGameId());
             boolean isScoreEditable = true;
             if (game != null) {
-                String dateTimeStr = game.getGameDate() + " " + game.getGameTime();
-                LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); // 초 단위 포맷 주의
-
-                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus()) || LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
                     isScoreEditable = false;
+                } else {
+                    try {
+                        String timeStr = game.getGameTime();
+                        if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
+                        String dateTimeStr = game.getGameDate() + " " + timeStr;
+                        LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                            isScoreEditable = false;
+                        }
+                    } catch (Exception e) {
+                        log.error("경기 시작시간 파싱 오류", e);
+                    }
                 }
             }
 
@@ -264,23 +279,25 @@ public class DiaryController {
         GameVO game = gameService.getGameById(diary.getGameId());
 
         if (game != null) {
-            try {
-                // 1. 경기 종료/취소 여부 확인
-                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
-                    isScoreEditable = false;
-                    lockReason = "FINISHED"; // 이미 종료됨
-                } else {
-                    // 2. 경기 시작 1시간 전 체크 (초 단위 포함 포맷으로 수정)
-                    String dateTimeStr = game.getGameDate() + " " + game.getGameTime(); // "2024-03-09 13:00:00"
+            // 1. 경기 종료/취소 여부 확인
+            if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
+                isScoreEditable = false;
+                lockReason = "FINISHED"; // 이미 종료됨
+            } else {
+                try {
+                    // 2. 경기 시작 1시간 전 체크
+                    String timeStr = game.getGameTime();
+                    if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
+                    String dateTimeStr = game.getGameDate() + " " + timeStr;
                     LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
                     if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
                         isScoreEditable = false;
                         lockReason = "IMMINENT"; // 임박함
                     }
+                } catch (Exception e) {
+                    log.error("경기 상태 체크 중 오류: {}", e.getMessage());
                 }
-            } catch (Exception e) {
-                log.error("경기 상태 체크 중 오류: {}", e.getMessage());
             }
         }
 
