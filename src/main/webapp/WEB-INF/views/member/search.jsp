@@ -42,7 +42,7 @@
             <div class="stack mt-24">
 
                 <form action="/member/search/result" method="get">
-                    <div class="search-box" style="padding: 16px;">
+                    <div class="search-box">
                         <div class="input-row" style="display:flex; gap:8px;">
                             <input type="text" name="keyword" value="${keyword}" placeholder="닉네임을 검색해보세요" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px;">
                             <button type="submit" class="btn btn-primary" style="width:60px;">검색</button>

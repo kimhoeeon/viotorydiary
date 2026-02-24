@@ -233,10 +233,13 @@
         SELECT
             m.member_id,
             m.nickname,
-            m.my_team_code AS teamCode,
-            1 AS isFollowing -- 팔로잉 목록이므로 무조건 true
+            m.my_team_code AS myTeamCode,
+            (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
+            1 AS isFollowing,
+            -- 맞팔 여부 확인 (이 사람이 나를 팔로우 하는가?)
+            (SELECT COUNT(*) > 0 FROM follows f2 WHERE f2.follower_id = m.member_id AND f2.following_id = #{targetMemberId}) AS isMutual
         FROM follows f
-        JOIN members m ON f.following_id = m.member_id
+         JOIN members m ON f.following_id = m.member_id
         WHERE f.follower_id = #{targetMemberId}
         ORDER BY f.created_at DESC
     </select>
@@ -245,12 +248,16 @@
         SELECT
             m.member_id,
             m.nickname,
-            m.my_team_code AS teamCode,
-            -- 맞팔 여부 확인 (나도 그 사람을 팔로우 중인가?)
-            (SELECT COUNT(*) FROM follows f2
-             WHERE f2.follower_id = #{myMemberId} AND f2.following_id = m.member_id) AS isFollowing
+            m.my_team_code AS myTeamCode,
+            (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
+            -- 내가 이 사람을 팔로우 중인가?
+            (SELECT COUNT(*) > 0 FROM follows f2
+             WHERE f2.follower_id = #{myMemberId} AND f2.following_id = m.member_id) AS isFollowing,
+            -- 팔로워 목록에서 mutual(맞팔)은 isFollowing과 동일한 조건임
+            (SELECT COUNT(*) > 0 FROM follows f2
+             WHERE f2.follower_id = #{myMemberId} AND f2.following_id = m.member_id) AS isMutual
         FROM follows f
-        JOIN members m ON f.follower_id = m.member_id
+         JOIN members m ON f.follower_id = m.member_id
         WHERE f.following_id = #{targetMemberId}
         ORDER BY f.created_at DESC
     </select>

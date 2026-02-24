@@ -73,8 +73,8 @@
                                                 <div class="friend_info" onclick="location.href='/diary/friend/list?targetMemberId=${item.memberId}'" style="cursor:pointer;">
                                                     <div class="friend_item ${item.mutual ? 'follow-back' : ''}">
                                                         <div class="name">${item.nickname}</div>
-                                                        <c:if test="${not empty item.myTeamCode}">
-                                                            <div class="friend_team">${item.myTeamCode}</div>
+                                                        <c:if test="${not empty item.myTeamName}">
+                                                            <div class="friend_team">${item.myTeamName}</div>
                                                         </c:if>
                                                     </div>
                                                     <div class="win_rate">승요력 ${item.winRate}%</div>
@@ -115,8 +115,8 @@
                                                 <div class="friend_info" onclick="location.href='/diary/friend/view?memberId=${item.memberId}'" style="cursor:pointer;">
                                                     <div class="friend_item ${item.mutual ? 'follow-back' : ''}">
                                                         <div class="name">${item.nickname}</div>
-                                                        <c:if test="${not empty item.myTeamCode}">
-                                                            <div class="friend_team">${item.myTeamCode}</div>
+                                                        <c:if test="${not empty item.myTeamName}">
+                                                            <div class="friend_team">${item.myTeamName}</div>
                                                         </c:if>
                                                     </div>
                                                     <div class="win_rate">승요력 ${item.winRate}%</div>
