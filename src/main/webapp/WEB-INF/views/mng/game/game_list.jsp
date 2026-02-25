@@ -395,6 +395,7 @@
                     document.getElementById('cancelReason').value = data.cancelReason || '';
 
                     document.getElementById('modalTitle').innerText = '경기 수정';
+
                     modal.show();
                 });
         }
