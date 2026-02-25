@@ -72,35 +72,46 @@
             m.email,
             m.nickname,
             m.phone_number AS phoneNumber,
+            m.birthdate,
             m.my_team_code AS myTeamCode,
             (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
             m.status,
             m.created_at AS createdAt,
             m.social_provider AS socialProvider,
 
-            -- 1. 직관 횟수 (이번달)
-            (SELECT COUNT(d.diary_id)
-             FROM diaries d
-                      JOIN games g ON d.game_id = g.game_id
-             WHERE d.member_id = m.member_id
-               AND d.is_verified = 1
-               AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
-               AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
+            -- 이용 정보 (이번달 직관, 누적 직관)
+            (SELECT COUNT(d.diary_id) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
+            (SELECT COUNT(d.diary_id) FROM diaries d WHERE d.member_id = m.member_id AND d.is_verified = 1 AND d.status = 'COMPLETED') AS totalAttendanceCount,
 
-            -- 2. 팔로잉 수 (내가 팔로우하는 사람)
+            -- 이용 정보 (팔로잉, 팔로워, 맞팔)
             (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
-
-            -- 3. 팔로워 수 (나를 팔로우하는 사람)
             (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
+            (SELECT COUNT(f1.follow_id) FROM follows f1 JOIN follows f2 ON f1.follower_id = f2.following_id AND f1.following_id = f2.follower_id WHERE f1.follower_id = m.member_id) AS mutualFollowCount,
 
-            -- 4. 승률 예측 전적 (맞추면 1승, 틀리면 1패)
+            -- 승요 정보 (승패 전적)
             (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 1) AS winCount,
             (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 0) AS loseCount,
-            0 AS drawCount
+            0 AS drawCount,
+
+            -- 승요 정보 (최다 방문 구장)
+            (SELECT s.name
+             FROM diaries d
+                      JOIN games g ON d.game_id = g.game_id
+                      JOIN stadiums s ON g.stadium_id = s.stadium_id
+             WHERE d.member_id = m.member_id AND d.is_verified = 1 AND d.status = 'COMPLETED'
+             GROUP BY s.stadium_id, s.name
+             ORDER BY COUNT(*) DESC LIMIT 1) AS mostVisitedStadium
 
         FROM members m
         WHERE m.member_id = #{memberId}
     </select>
+
+    <update id="updateAdminMemberInfo" parameterType="com.viotory.diary.vo.MemberVO">
+        UPDATE members
+        SET nickname = #{nickname},
+            phone_number = #{phoneNumber}
+        WHERE member_id = #{memberId}
+    </update>
 
     <update id="updateMemberStatus">
         UPDATE members

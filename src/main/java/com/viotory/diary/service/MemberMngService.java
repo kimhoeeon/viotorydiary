@@ -71,6 +71,12 @@ public class MemberMngService {
         }
     }
 
+    // 관리자: 회원 정보 업데이트 (닉네임, 연락처)
+    @Transactional
+    public void updateAdminMemberInfo(MemberVO member) {
+        memberMngMapper.updateAdminMemberInfo(member);
+    }
+
     // 엑셀 다운로드 서비스
     public void downloadExcel(HttpServletResponse response) throws Exception {
         // 1. 엑셀용 전체 데이터 조회

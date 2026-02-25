@@ -1,10 +1,12 @@
 package com.viotory.diary.controller;
 
+import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.service.MemberMngService;
 import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.MemberVO;
 import com.viotory.diary.vo.PageDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/mng/members")
 @RequiredArgsConstructor
@@ -67,6 +70,22 @@ public class MemberMngController {
         try {
             return memberMngService.resetPassword(memberId);
         } catch (Exception e) {
+            return "fail";
+        }
+    }
+
+    // 관리자: 회원 닉네임 및 연락처 수정
+    @PostMapping("/updateInfo")
+    @ResponseBody
+    public String updateAdminInfo(MemberVO member) {
+        try {
+            memberMngService.updateAdminMemberInfo(member);
+            return "ok";
+        } catch (AlertException ae) {
+            log.info("회원 닉네임 및 연락처 수정 알럿: {}", ae.getMessage());
+            return ae.getMessage();
+        } catch (Exception e) {
+            log.error("회원 닉네임 및 연락처 수정 중 시스템 오류", e);
             return "fail";
         }
     }

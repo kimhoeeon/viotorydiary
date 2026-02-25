@@ -23,4 +23,6 @@ public interface MemberMngMapper {
     void updatePassword(MemberVO member);
 
     List<MemberVO> selectMemberListForExcel();
+
+    void updateAdminMemberInfo(MemberVO member);
 }

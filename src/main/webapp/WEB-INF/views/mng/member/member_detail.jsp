@@ -104,89 +104,137 @@
                                     </div>
 
                                     <div class="card-body p-9">
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">닉네임</label>
-                                            <div class="col-lg-4">
-                                                <span class="d-flex align-items-center fw-bold fs-6 text-gray-800">
-                                                    ${member.nickname}
+                                        <input type="hidden" id="memberId" value="${member.memberId}">
+
+                                        <div class="mb-10">
+                                            <h3 class="fw-bolder mb-6 text-gray-900">기본 정보</h3>
+
+                                            <div class="row mb-7 align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">현재 상태</label>
+                                                <div class="col-lg-4">
+                                                    <c:choose>
+                                                        <c:when test="${member.status eq 'ACTIVE'}"><span class="badge badge-light-success fs-7">정상</span></c:when>
+                                                        <c:when test="${member.status eq 'SUSPENDED'}"><span class="badge badge-light-warning fs-7">정지</span></c:when>
+                                                        <c:when test="${member.status eq 'WITHDRAWN'}"><span class="badge badge-light-danger fs-7">탈퇴</span></c:when>
+                                                        <c:otherwise><span class="badge badge-light-secondary fs-7">${member.status}</span></c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-muted">이메일</label>
+                                                <div class="col-lg-4 d-flex align-items-center">
+                                                    <span class="fw-bold fs-6 text-gray-800">${member.email}</span>
                                                     <c:if test="${not empty member.socialProvider and member.socialProvider ne 'NONE'}">
                                                         <span class="badge fs-9 ms-2" style="background-color: #f8df00; color: #3c1e1e;">${member.socialProvider}</span>
                                                     </c:if>
-                                                </span>
+                                                </div>
                                             </div>
-                                            <label class="col-lg-2 fw-semibold text-muted">이메일</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">${member.email}</span>
+
+                                            <div class="row mb-7 align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">닉네임</label>
+                                                <div class="col-lg-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <input type="text" id="nickname" class="form-control form-control-sm form-control-solid w-200px me-3" value="${member.nickname}">
+                                                        <button type="button" class="btn btn-sm btn-primary text-nowrap" onclick="updateMemberInfo()">수정</button>
+                                                    </div>
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-muted">연락처</label>
+                                                <div class="col-lg-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <input type="text" id="phoneNumber" class="form-control form-control-sm form-control-solid w-200px me-3" value="${member.phoneNumber}" placeholder="숫자만 입력">
+                                                        <button type="button" class="btn btn-sm btn-primary text-nowrap" onclick="updateMemberInfo()">수정</button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">응원 구단</label>
-                                            <div class="col-lg-4">
-                                                <span class="badge badge-light-primary fw-bold">
-                                                    ${empty member.myTeamName ? '미설정' : member.myTeamName}
-                                                </span>
-                                            </div>
-                                            <label class="col-lg-2 fw-semibold text-muted">현재 상태</label>
-                                            <div class="col-lg-4">
-                                                <c:choose>
-                                                    <c:when test="${member.status eq 'ACTIVE'}"><span class="text-success fw-bold">정상</span></c:when>
-                                                    <c:when test="${member.status eq 'SUSPENDED'}"><span class="text-warning fw-bold">정지</span></c:when>
-                                                    <c:when test="${member.status eq 'WITHDRAWN'}"><span class="text-danger fw-bold">탈퇴</span></c:when>
-                                                    <c:otherwise><span class="text-muted fw-bold">${member.status}</span></c:otherwise>
-                                                </c:choose>
+
+                                            <div class="row align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">비밀번호</label>
+                                                <div class="col-lg-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <button type="button" class="btn btn-sm btn-danger text-nowrap me-3" onclick="resetPassword()">비밀번호 초기화</button>
+                                                    </div>
+                                                    <div class="fs-8 text-muted mt-2">(가입된 연락처로 SMS 임시 비밀번호 발송)</div>
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-muted">생년월일</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">${empty member.birthdate ? '-' : member.birthdate}</span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">이번달 직관 횟수</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">${member.monthlyAttendanceCount} 회</span>
+                                        <div class="separator separator-dashed my-10"></div>
+
+                                        <div class="mb-10">
+                                            <h3 class="fw-bolder mb-6 text-gray-900">승요 정보</h3>
+
+                                            <div class="row mb-7 align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">응원 구단</label>
+                                                <div class="col-lg-4">
+                                                    <span class="badge badge-light-primary fw-bold fs-6">${empty member.myTeamName ? '미설정' : member.myTeamName}</span>
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-muted">최다 방문 구장</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">${empty member.mostVisitedStadium ? '기록 없음' : member.mostVisitedStadium}</span>
+                                                </div>
                                             </div>
-                                            <label class="col-lg-2 fw-semibold text-muted">팔로우 / 팔로워</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">
-                                                    <span class="text-primary">${member.followingCount}</span> / <span class="text-info">${member.followerCount}</span>
-                                                </span>
+
+                                            <div class="row align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">예측 승률</label>
+                                                <div class="col-lg-4">
+                                                    <c:set var="totalGames" value="${member.winCount + member.loseCount}" />
+                                                    <c:set var="winRate" value="0.0" />
+                                                    <c:if test="${totalGames > 0}">
+                                                        <c:set var="winRate" value="${(member.winCount * 100.0) / totalGames}" />
+                                                    </c:if>
+                                                    <span class="fw-bolder fs-3 text-primary"><fmt:formatNumber value="${winRate}" pattern="0.0"/>%</span>
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-muted">전적</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">${member.winCount}승 ${member.loseCount}패</span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">예측 승률 (전적)</label>
-                                            <div class="col-lg-4">
-                                                <c:set var="totalGames" value="${member.winCount + member.loseCount}" />
-                                                <c:set var="winRate" value="0.0" />
-                                                <c:if test="${totalGames > 0}">
-                                                    <c:set var="winRate" value="${(member.winCount * 100.0) / totalGames}" />
-                                                </c:if>
+                                        <div class="separator separator-dashed my-10"></div>
 
-                                                <span class="fw-bold fs-6 text-gray-800">
-                                                    <fmt:formatNumber value="${winRate}" pattern="0.0"/>%
-                                                    <span class="text-muted fs-7 ms-1">(${member.winCount}승 ${member.loseCount}패)</span>
-                                                </span>
+                                        <div class="mb-10">
+                                            <h3 class="fw-bolder mb-6 text-gray-900">이용 정보</h3>
+
+                                            <div class="row mb-7 align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">이번달 직관 횟수</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">${member.monthlyAttendanceCount} 회</span>
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-muted">누적 직관 횟수</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">${member.totalAttendanceCount} 회</span>
+                                                </div>
                                             </div>
-                                            <label class="col-lg-2 fw-semibold text-muted">연락처</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">${member.formattedPhoneNumber}</span>
+
+                                            <div class="row align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">팔로우 / 팔로워 (맞팔)</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">
+                                                        <span class="text-primary">${member.followingCount}</span> / <span class="text-info">${member.followerCount}</span>
+                                                        <span class="text-muted fs-7 ms-1">(${member.mutualFollowCount}명)</span>
+                                                    </span>
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-muted">가입일시</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">
+                                                        <c:choose>
+                                                            <c:when test="${not empty member.createdAt}">
+                                                                <c:set var="cDate" value="${fn:replace(member.createdAt, 'T', ' ')}" />
+                                                                <c:choose>
+                                                                    <c:when test="${fn:length(cDate) == 16}">${cDate}:00</c:when>
+                                                                    <c:otherwise>${fn:substring(cDate, 0, 19)}</c:otherwise>
+                                                                </c:choose>
+                                                            </c:when>
+                                                            <c:otherwise>-</c:otherwise>
+                                                        </c:choose>
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">가입일시</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">
-                                                    <c:choose>
-                                                        <c:when test="${not empty member.createdAt}">
-                                                            <c:set var="cDate" value="${fn:replace(member.createdAt, 'T', ' ')}" />
-                                                            <c:choose>
-                                                                <c:when test="${fn:length(cDate) == 16}">${cDate}:00</c:when>
-                                                                <c:otherwise>${fn:substring(cDate, 0, 19)}</c:otherwise>
-                                                            </c:choose>
-                                                        </c:when>
-                                                        <c:otherwise>-</c:otherwise>
-                                                    </c:choose>
-                                                </span>
-                                            </div>
-                                        </div>
                                     </div>
                                     <div class="card-footer d-flex justify-content-end py-6 px-9">
                                         <a href="/mng/members/list" class="btn btn-light btn-active-light-primary">목록으로</a>
@@ -225,14 +273,52 @@
             }
         }
 
+        // 관리자: 닉네임, 연락처 수정 기능
+        function updateMemberInfo() {
+            var memberId = $('#memberId').val();
+            var nickname = $('#nickname').val();
+            var phoneNumber = $('#phoneNumber').val();
+
+            if(!nickname) { alert('닉네임을 입력해주세요.'); return; }
+
+            if(confirm("회원 정보를 수정하시겠습니까?")) {
+                $.ajax({
+                    url: '/mng/members/updateInfo',
+                    type: 'POST',
+                    data: {
+                        memberId: memberId,
+                        nickname: nickname,
+                        phoneNumber: phoneNumber
+                    },
+                    success: function(res) {
+                        if(res === 'ok') {
+                            alert("수정되었습니다.");
+                        } else {
+                            alert("수정 중 오류가 발생했습니다.");
+                        }
+                    }
+                });
+            }
+        }
+
+        // 관리자: 비밀번호 초기화 및 SMS 발송
         function resetPassword() {
-            if (confirm('비밀번호를 초기화하고 회원에게 SMS를 발송하시겠습니까?')) {
-                $.post('/mng/members/resetPassword', {
-                    memberId: '${member.memberId}'
-                }, function (res) {
-                    if (res === 'ok') alert('임시 비밀번호가 발송되었습니다.');
-                    else if (res === 'no_phone') alert('등록된 연락처가 없습니다.');
-                    else alert('오류가 발생했습니다.');
+            var memberId = $('#memberId').val();
+
+            if(confirm("해당 회원의 비밀번호를 초기화하시겠습니까?\\n임시 비밀번호가 회원의 연락처로 문자로 발송됩니다.")) {
+                $.ajax({
+                    url: '/mng/members/resetPassword',
+                    type: 'POST',
+                    data: { memberId: memberId },
+                    success: function(res) {
+                        if(res === 'ok') {
+                            alert("비밀번호 초기화 완료 및 SMS 문자가 정상 발송되었습니다.");
+                        } else if(res === 'no_phone') {
+                            alert("등록된 연락처가 없어 SMS를 발송할 수 없습니다.");
+                        } else {
+                            alert("처리 중 오류가 발생했습니다.");
+                        }
+                    }
                 });
             }
         }
