@@ -90,11 +90,8 @@
                                                 <button type="button" class="btn btn-sm btn-light-success me-2" onclick="changeStatus('ACTIVE')">
                                                     정지 해제
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-light-danger me-2" onclick="changeStatus('WITHDRAWN')">
+                                                <button type="button" class="btn btn-sm btn-light-danger" onclick="changeStatus('WITHDRAWN')">
                                                     강제 탈퇴
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-light-primary" onclick="resetPassword()">
-                                                    비밀번호 초기화
                                                 </button>
                                             </c:if>
                                             <c:if test="${member.status eq 'WITHDRAWN'}">
@@ -168,7 +165,26 @@
                                             <div class="row mb-7 align-items-center">
                                                 <label class="col-lg-2 fw-semibold text-muted">응원 구단</label>
                                                 <div class="col-lg-4">
-                                                    <span class="badge badge-light-primary fw-bold fs-6">${empty member.myTeamName ? '미설정' : member.myTeamName}</span>
+                                                    <c:choose>
+                                                        <c:when test="${empty member.myTeamCode or member.myTeamCode eq 'NONE'}">
+                                                            <span class="badge badge-light-secondary fw-bold fs-6">미설정</span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="symbol symbol-30px symbol-circle me-3 border border-1 border-gray-300">
+                                                                    <c:choose>
+                                                                        <c:when test="${not empty member.myTeamLogoUrl}">
+                                                                            <img src="${member.myTeamLogoUrl}" alt="${member.myTeamName}" class="p-1 object-fit-contain"/>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <img src="/img/team_default.svg" alt="기본로고" class="p-1 object-fit-contain"/>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </div>
+                                                                <span class="fw-bold fs-6 text-gray-800">${member.myTeamName}</span>
+                                                            </div>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </div>
                                                 <label class="col-lg-2 fw-semibold text-muted">최다 방문 구장</label>
                                                 <div class="col-lg-4">
@@ -293,6 +309,7 @@
                     success: function(res) {
                         if(res === 'ok') {
                             alert("수정되었습니다.");
+                            location.reload();
                         } else {
                             alert("수정 중 오류가 발생했습니다.");
                         }

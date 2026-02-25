@@ -75,6 +75,7 @@
             m.birthdate,
             m.my_team_code AS myTeamCode,
             (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
+            (SELECT logo_image_url FROM teams WHERE team_code = m.my_team_code) AS myTeamLogoUrl,
             m.status,
             m.created_at AS createdAt,
             m.social_provider AS socialProvider,
