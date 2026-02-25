@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -73,8 +74,8 @@
                                         <div class="card-title m-0"><h3 class="fw-bold m-0">일기 상세 정보</h3></div>
                                         <div class="card-toolbar">
                                             <c:if test="${diary.status eq 'COMPLETED'}">
-                                                <button type="button" class="btn btn-sm btn-light-danger"
-                                                        onclick="deleteDiary()">관리자 삭제
+                                                <button type="button" class="btn btn-sm btn-light-danger" onclick="deleteDiary()">
+                                                    일기 삭제
                                                 </button>
                                             </c:if>
                                             <c:if test="${diary.status eq 'DELETED'}">
@@ -83,40 +84,143 @@
                                         </div>
                                     </div>
                                     <div class="card-body p-9">
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">작성자</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">${diary.memberName} (${diary.memberEmail})</span>
-                                            </div>
-                                            <label class="col-lg-2 fw-semibold text-muted">작성일</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">
-                                                    <fmt:parseDate value="${diary.createdAt}"
-                                                                   pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate"
-                                                                   type="both"/>
-                                                    <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd HH:mm"/>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">관람 경기</label>
-                                            <div class="col-lg-10">
-                                                <c:if test="${not empty diary.gameDate}">
-                                                    <div class="d-flex align-items-center bg-light p-3 rounded">
-                                                        <span class="badge badge-primary me-2">GAME</span>
-                                                        <span class="fw-bold text-gray-800 me-3">${diary.gameDate} ${diary.gameTime}</span>
-                                                        <span class="text-gray-600">${diary.stadiumName} | ${diary.awayTeamName} vs ${diary.homeTeamName}</span>
+                                        <div class="mb-10">
+                                            <h3 class="fw-bolder mb-6 text-gray-900">기본 정보</h3>
+                                            <div class="row mb-7 align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">작성자</label>
+                                                <div class="col-lg-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <c:if test="${not empty diary.profileImage}">
+                                                            <div class="symbol symbol-circle symbol-30px me-3">
+                                                                <img src="${diary.profileImage}" alt="프로필">
+                                                            </div>
+                                                        </c:if>
+                                                        <span class="fw-bold fs-6 text-gray-800">${diary.memberName} <span class="text-muted fs-7">(${diary.memberEmail})</span></span>
                                                     </div>
-                                                </c:if>
-                                                <c:if test="${empty diary.gameDate}"><span
-                                                        class="text-gray-400">경기 정보 없음</span></c:if>
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-muted">작성일시</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">
+                                                        <fmt:parseDate value="${diary.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
+                                                        <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">일기 속성</label>
+                                                <div class="col-lg-4 d-flex align-items-center gap-2">
+                                                    <c:choose>
+                                                        <c:when test="${diary.verified}">
+                                                            <span class="badge badge-light-success fw-bold">직관 인증</span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="badge badge-light-secondary fw-bold">미인증</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+
+                                                    <c:choose>
+                                                        <c:when test="${diary.isPublic eq 'PUBLIC'}"><span class="badge badge-light-primary">전체 공개</span></c:when>
+                                                        <c:when test="${diary.isPublic eq 'FRIENDS'}"><span class="badge badge-light-info">친구 공개</span></c:when>
+                                                        <c:when test="${diary.isPublic eq 'PRIVATE'}"><span class="badge badge-light-warning">비공개</span></c:when>
+                                                    </c:choose>
+
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-muted">조회수</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">${diary.viewCount} 회</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">내용</label>
-                                            <div class="col-lg-10">
-                                                <div class="p-5 border rounded bg-white text-gray-800 fs-6"
-                                                     style="white-space: pre-wrap; min-height: 200px;">${diary.content}</div>
+
+                                        <div class="separator separator-dashed my-10"></div>
+
+                                        <div class="mb-10">
+                                            <h3 class="fw-bolder mb-6 text-gray-900">경기 정보</h3>
+                                            <div class="row mb-7 align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">관람 경기</label>
+                                                <div class="col-lg-10">
+                                                    <c:choose>
+                                                        <c:when test="${not empty diary.gameDate}">
+                                                            <div class="d-flex align-items-center bg-light p-4 rounded border border-gray-200">
+                                                                <div class="d-flex flex-column me-8">
+                                                                    <span class="text-gray-600 fs-7 fw-bold mb-1">${diary.gameDate} ${diary.gameTime}</span>
+                                                                    <span class="text-gray-500 fs-8">
+                                                                        <i class="ki-duotone ki-geolocation fs-6 text-gray-400 me-1">
+                                                                            <span class="path1"></span>
+                                                                            <span class="path2"></span>
+                                                                        </i>${diary.stadiumName}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="d-flex align-items-center flex-grow-1">
+                                                                    <span class="fw-bolder fs-4 text-gray-800">${diary.awayTeamName}</span>
+
+                                                                    <c:if test="${diary.gameStatus eq 'FINISHED'}">
+                                                                        <span class="badge badge-dark fs-5 mx-3 px-3 py-2">${diary.scoreAway} : ${diary.scoreHome}</span>
+                                                                    </c:if>
+                                                                    <c:if test="${diary.gameStatus ne 'FINISHED'}">
+                                                                        <span class="badge badge-light text-muted fs-6 mx-3 px-3 py-2">VS</span>
+                                                                    </c:if>
+
+                                                                    <span class="fw-bolder fs-4 text-gray-800">${diary.homeTeamName}</span>
+                                                                </div>
+                                                            </div>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="text-gray-400">경기 정보가 연결되지 않았습니다.</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                            </div>
+
+                                            <div class="row align-items-center bg-light-info p-4 rounded">
+                                                <label class="col-lg-2 fw-semibold text-info">사용자 예측</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">
+                                                        <c:choose>
+                                                            <c:when test="${not empty diary.predScoreAway and not empty diary.predScoreHome}">
+                                                                예상 스코어 : ${diary.predScoreAway} (어웨이) vs ${diary.predScoreHome} (홈)
+                                                            </c:when>
+                                                            <c:otherwise><span class="text-muted fs-7">스코어 예측 없음</span></c:otherwise>
+                                                        </c:choose>
+                                                    </span>
+                                                </div>
+                                                <label class="col-lg-2 fw-semibold text-info">예상 히어로</label>
+                                                <div class="col-lg-4">
+                                                    <span class="fw-bold fs-6 text-gray-800">${empty diary.predHero ? '<span class="text-muted fs-7">없음</span>' : diary.predHero}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="separator separator-dashed my-10"></div>
+
+                                        <div class="mb-10">
+                                            <h3 class="fw-bolder mb-6 text-gray-900">일기 내용</h3>
+
+                                            <div class="row mb-5">
+                                                <label class="col-lg-2 fw-semibold text-muted align-top pt-2">한줄평</label>
+                                                <div class="col-lg-10">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <span class="fw-bold fs-5 text-gray-800">
+                                                            "${empty diary.oneLineComment ? '한줄평이 없습니다.' : diary.oneLineComment}"
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-7">
+                                                <label class="col-lg-2 fw-semibold text-muted align-top pt-3">본문 및 사진</label>
+                                                <div class="col-lg-10">
+                                                    <div class="p-5 border border-gray-300 rounded bg-white text-gray-800 fs-6" style="min-height: 200px;">
+                                                        <c:if test="${not empty diary.imageUrl}">
+                                                            <div class="mb-5 text-center">
+                                                                <img src="${diary.imageUrl}" alt="일기 첨부 사진" class="mw-100 rounded" style="max-height: 400px; object-fit: contain;">
+                                                            </div>
+                                                        </c:if>
+
+                                                        <div style="white-space: pre-wrap;">${diary.content}</div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

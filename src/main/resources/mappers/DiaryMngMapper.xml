@@ -19,14 +19,20 @@
 
     <select id="selectDiaryList" resultType="com.viotory.diary.vo.DiaryVO">
         SELECT d.diary_id
-             , d.content
-             , d.created_at
-             , d.status
-             , d.member_id
-             , m.nickname AS memberName
-             , g.game_date
-             , t1.name_kr AS homeTeamName
-             , t2.name_kr AS awayTeamName
+        , d.content
+        , d.one_line_comment
+        , d.image_url
+        , d.created_at
+        , d.status
+        , d.is_public
+        , d.is_verified
+        , d.member_id
+        , m.nickname AS memberName
+        , m.email AS memberEmail
+        , m.profile_image AS profileImage
+        , g.game_date
+        , t1.name_kr AS homeTeamName
+        , t2.name_kr AS awayTeamName
         FROM diaries d
         JOIN members m ON d.member_id = m.member_id
         LEFT JOIN games g ON d.game_id = g.game_id

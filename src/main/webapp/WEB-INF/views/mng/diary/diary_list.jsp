@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -103,56 +104,126 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">No</th>
-                                                    <th class="min-w-100px">작성자</th>
-                                                    <th class="min-w-250px">내용 (미리보기)</th>
-                                                    <th class="min-w-150px">경기 정보</th>
-                                                    <th class="min-w-100px">작성일</th>
-                                                    <th class="min-w-100px">상태</th>
-                                                    <th class="min-w-100px">관리</th>
+                                                    <th class="w-50px text-center">No.</th>
+                                                    <th class="min-w-150px">작성자 정보</th>
+                                                    <th class="min-w-200px">내용 (미리보기)</th>
+                                                    <th class="min-w-200px text-center">관람 경기 정보</th>
+                                                    <th class="min-w-100px text-center">직관 인증 / 공개</th>
+                                                    <th class="min-w-125px text-center">작성일시</th>
+                                                    <th class="min-w-100px text-center">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${list}">
-                                                    <tr>
-                                                        <td>${item.diaryId}</td>
-                                                        <td><span class="text-gray-800 fw-bold">${item.nickname}</span></td>
-                                                        <td>
-                                                            <a href="/mng/diary/detail?diaryId=${item.diaryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
-                                                               class="text-gray-800 text-hover-primary text-truncate d-block" style="max-width: 300px;">
-                                                                ${item.content}
-                                                            </a>
-                                                        </td>
-                                                        <td>
-                                                            <c:if test="${not empty item.gameDate}">
-                                                                <div class="fs-7 text-gray-600">${item.gameDate}</div>
-                                                                <div class="badge badge-light-info">${item.awayTeamName} vs ${item.homeTeamName}</div>
-                                                            </c:if>
-                                                            <c:if test="${empty item.gameDate}">-</c:if>
-                                                        </td>
-                                                        <td>
-                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
-                                                            <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd"/>
-                                                        </td>
-                                                        <td>
-                                                            <c:if test="${item.status eq 'COMPLETED'}">
-                                                                <span class="badge badge-light-success">게시중</span>
-                                                            </c:if>
-                                                            <c:if test="${item.status eq 'DELETED'}">
-                                                                <span class="badge badge-light-danger">삭제됨</span>
-                                                            </c:if>
-                                                        </td>
-                                                        <td>
-                                                            <a href="/mng/diary/detail?diaryId=${item.diaryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
-                                                               class="btn btn-light btn-active-light-primary btn-sm">상세</a>
-                                                        </td>
-                                                    </tr>
-                                                </c:forEach>
-                                                <c:if test="${empty list}">
-                                                    <tr>
-                                                        <td colspan="7" class="text-center py-10">작성된 일기가 없습니다.</td>
-                                                    </tr>
-                                                </c:if>
+                                                    <c:choose>
+                                                        <c:when test="${empty list}">
+                                                            <tr>
+                                                                <td colspan="7" class="text-center p-10">조회된 일기가 없습니다.</td>
+                                                            </tr>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <c:forEach var="item" items="${list}" varStatus="status">
+                                                                <c:set var="rowNum" value="${pageMaker.total - (pageMaker.cri.pageNum - 1) * pageMaker.cri.amount - status.index}"/>
+
+                                                                <tr>
+                                                                    <td class="text-center">${rowNum}</td>
+
+                                                                    <td>
+                                                                        <div class="d-flex align-items-center">
+                                                                            <%--<c:if test="${not empty item.profileImage}">
+                                                                                <div class="symbol symbol-circle symbol-35px me-3">
+                                                                                    <img src="${item.profileImage}" alt="프로필">
+                                                                                </div>
+                                                                            </c:if>
+                                                                            <c:if test="${empty item.profileImage}">
+                                                                                <div class="symbol symbol-circle symbol-35px me-3 bg-light">
+                                                                                    <i class="ki-duotone ki-user fs-3 text-gray-500 mt-2 ms-2">
+                                                                                        <span class="path1"></span>
+                                                                                        <span class="path2"></span>
+                                                                                    </i>
+                                                                                </div>
+                                                                            </c:if>--%>
+
+                                                                            <div class="d-flex flex-column">
+                                                                                <span class="text-gray-800 fw-bold mb-1">${item.memberName}</span>
+                                                                                <span class="text-muted fs-7">${item.memberEmail}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <div class="d-flex flex-column">
+                                                                            <c:if test="${not empty item.oneLineComment}">
+                                                                                <span class="text-dark fw-bold mb-1 fs-6 text-truncate" style="max-width: 250px;">
+                                                                                    "${item.oneLineComment}"
+                                                                                </span>
+                                                                            </c:if>
+
+                                                                            <div class="d-flex align-items-center mt-1">
+                                                                                <c:if test="${not empty item.imageUrl}">
+                                                                                    <i class="ki-duotone ki-picture fs-5 text-primary me-2" title="사진 포함">
+                                                                                        <span class="path1"></span>
+                                                                                        <span class="path2"></span>
+                                                                                    </i>
+                                                                                </c:if>
+                                                                                <c:set var="cleanText" value="${item.content.replaceAll('<[^>]*>', '')}" />
+                                                                                <c:set var="trimText" value="${fn:trim(cleanText)}" />
+                                                                                <span class="text-muted fs-7 text-truncate" style="max-width: ${empty item.imageUrl ? '250px' : '220px'};">
+                                                                                    <c:choose>
+                                                                                        <c:when test="${empty trimText}">-</c:when>
+                                                                                        <c:when test="${fn:length(trimText) > 30}">${fn:substring(trimText, 0, 30)}...</c:when>
+                                                                                        <c:otherwise>${trimText}</c:otherwise>
+                                                                                    </c:choose>
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        <c:choose>
+                                                                            <c:when test="${not empty item.gameDate}">
+                                                                                <div class="d-flex flex-column align-items-center">
+                                                                                    <span class="badge badge-light fs-8 mb-1">${item.gameDate}</span>
+                                                                                    <span class="fw-bold text-gray-800">${item.awayTeamName} vs ${item.homeTeamName}</span>
+                                                                                </div>
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                <span class="text-muted">-</span>
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        <div class="d-flex flex-column align-items-center gap-1">
+                                                                            <c:choose>
+                                                                                <c:when test="${item.verified}">
+                                                                                    <span class="badge badge-light-success fs-8">직관 인증</span>
+                                                                                </c:when>
+                                                                                <c:otherwise>
+                                                                                    <span class="badge badge-light-secondary fs-8">미인증</span>
+                                                                                </c:otherwise>
+                                                                            </c:choose>
+
+                                                                            <c:choose>
+                                                                                <c:when test="${item.isPublic eq 'PUBLIC'}"><span class="badge badge-light-primary fs-8">전체 공개</span></c:when>
+                                                                                <c:when test="${item.isPublic eq 'FRIENDS'}"><span class="badge badge-light-info fs-8">친구 공개</span></c:when>
+                                                                                <c:when test="${item.isPublic eq 'PRIVATE'}"><span class="badge badge-light-warning fs-8">비공개</span></c:when>
+                                                                            </c:choose>
+                                                                        </div>
+                                                                    </td>
+
+                                                                    <td class="text-center fs-7 text-muted">
+                                                                        <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
+                                                                        <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        <a href="/mng/diary/detail?diaryId=${item.diaryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
+                                                                           class="btn btn-sm btn-light btn-active-light-primary">상세</a>
+                                                                    </td>
+                                                                </tr>
+                                                            </c:forEach>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </tbody>
                                             </table>
                                         </div>
