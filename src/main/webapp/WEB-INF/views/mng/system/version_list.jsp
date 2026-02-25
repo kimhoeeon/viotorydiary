@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -83,48 +84,73 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">OS</th>
-                                                    <th class="min-w-100px">버전명</th>
-                                                    <th class="min-w-100px">빌드번호</th>
-                                                    <th class="min-w-100px">강제업데이트</th>
+                                                    <th class="min-w-50px text-center">OS</th>
+                                                    <th class="min-w-100px text-center">버전명</th>
+                                                    <th class="min-w-100px text-center">빌드번호</th>
+                                                    <th class="min-w-100px text-center">강제업데이트</th>
                                                     <th class="min-w-200px">메시지</th>
-                                                    <th class="min-w-100px">등록일</th>
-                                                    <th class="text-end min-w-100px">삭제</th>
+                                                    <th class="min-w-100px text-center">등록일</th>
+                                                    <th class="min-w-100px text-center">삭제</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
                                                 <c:forEach var="item" items="${list}">
                                                     <tr>
-                                                        <td>
-                                                            <c:if test="${item.osType eq 'ANDROID'}"><i
-                                                                    class="fab fa-android fs-2 text-success"></i></c:if>
-                                                            <c:if test="${item.osType eq 'IOS'}"><i
-                                                                    class="fab fa-apple fs-2 text-dark"></i></c:if>
+                                                        <td class="text-center">
+                                                            <c:if test="${item.osType eq 'ANDROID'}">
+                                                                <i class="ki-duotone ki-android fs-2 text-success">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                    <span class="path3"></span>
+                                                                    <span class="path4"></span>
+                                                                    <span class="path5"></span>
+                                                                    <span class="path6"></span>
+                                                                </i>
+                                                            </c:if>
+                                                            <c:if test="${item.osType eq 'IOS'}">
+                                                                <i class="ki-duotone ki-apple fs-2 text-dark">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                </i>
+                                                            </c:if>
                                                         </td>
-                                                        <td class="fw-bold text-gray-800">${item.versionName}</td>
-                                                        <td>${item.versionCode}</td>
-                                                        <td>
-                                                            <c:if test="${item.forceUpdateYn eq 'Y'}"><span
-                                                                    class="badge badge-light-danger">필수</span></c:if>
-                                                            <c:if test="${item.forceUpdateYn eq 'N'}"><span
-                                                                    class="badge badge-light-secondary">선택</span></c:if>
+                                                        <td class="fw-bold text-gray-800 text-center">${item.versionName}</td>
+                                                        <td class="text-center">${item.versionCode}</td>
+                                                        <td class="text-center">
+                                                            <c:if test="${item.forceUpdateYn eq 'Y'}">
+                                                                <span class="badge badge-light-danger">필수</span>
+                                                            </c:if>
+                                                            <c:if test="${item.forceUpdateYn eq 'N'}">
+                                                                <span class="badge badge-light-secondary">선택</span>
+                                                            </c:if>
                                                         </td>
-                                                        <td class="text-truncate"
-                                                            style="max-width: 200px;">${item.message}</td>
-                                                        <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate"
-                                                                           type="both"/>
-                                                            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
+                                                        <td class="text-truncate" style="max-width: 200px;">${item.message}</td>
+                                                        <td class="text-center">
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.createdAt}">
+                                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                    <c:choose>
+                                                                        <c:when test="${fn:length(cDate) > 19}">
+                                                                            ${fn:substring(cDate, 0, 19)}
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            ${cDate}
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:when>
+                                                                <c:otherwise>-</c:otherwise>
+                                                            </c:choose>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
                                                                     onclick="deleteVersion('${item.versionId}')">
-                                                                <i class="ki-duotone ki-trash fs-2"><span
-                                                                        class="path1"></span><span
-                                                                        class="path2"></span><span
-                                                                        class="path3"></span><span
-                                                                        class="path4"></span><span class="path5"></span></i>
+                                                                <i class="ki-duotone ki-trash fs-2">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                    <span class="path3"></span>
+                                                                    <span class="path4"></span>
+                                                                    <span class="path5"></span>
+                                                                </i>
                                                             </button>
                                                         </td>
                                                     </tr>
