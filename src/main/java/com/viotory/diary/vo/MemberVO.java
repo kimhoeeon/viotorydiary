@@ -41,9 +41,15 @@ public class MemberVO {
     private String deviceUuid;     // device_uuid
 
     // [관리자 목록 표시용 통계 필드]
-    private int monthlyVisitCount; // 이번 달 방문 횟수
-    private int followerCount;     // 팔로워 수
+    private Integer monthlyVisitCount; // 이번 달 방문 횟수
     private String winRateStr;     // 승률 (예: "84% (7승 5패)")
+
+    private Integer monthlyAttendanceCount; // 이번달 직관 횟수
+    private Integer followingCount;         // 팔로잉 수 (내가 팔로우함)
+    private Integer followerCount;          // 팔로워 수 (나를 팔로우함)
+    private Integer winCount;               // 승리 횟수
+    private Integer loseCount;              // 패배 횟수
+    private Integer drawCount;              // 무승부 횟수
 
     private boolean isFollowing;
 

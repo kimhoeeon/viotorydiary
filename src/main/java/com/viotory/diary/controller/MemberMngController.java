@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Controller
@@ -69,4 +70,11 @@ public class MemberMngController {
             return "fail";
         }
     }
+
+    // 회원 목록 엑셀 다운로드
+    @GetMapping("/excel")
+    public void downloadExcel(HttpServletResponse response) throws Exception {
+        memberMngService.downloadExcel(response);
+    }
+
 }

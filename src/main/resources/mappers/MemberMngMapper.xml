@@ -16,40 +16,47 @@
     </sql>
 
     <select id="selectMemberListWithPaging" resultType="com.viotory.diary.vo.MemberVO">
-        SELECT m.*,
-        -- 1. 이번 달 직관 횟수 (일기 작성 기준)
-        (SELECT COUNT(*)
+        SELECT
+        m.member_id AS memberId,
+        m.email,
+        m.nickname,
+        m.phone_number,
+        m.my_team_code AS myTeamCode,
+        (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
+        m.status,
+        m.created_at AS createdAt,
+        m.social_provider,
+
+        -- 1. 직관 횟수 (이번달)
+        (SELECT COUNT(d.diary_id)
         FROM diaries d
         JOIN games g ON d.game_id = g.game_id
         WHERE d.member_id = m.member_id
-        AND d.status = 'COMPLETED'
+        AND d.is_verified = 1
         AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
-        ) AS monthlyVisitCount,
-        -- 2. 팔로워 수 (follows 테이블이 있다고 가정)
-        (SELECT COUNT(*) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
+        AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
 
-        -- 3. 승률 및 전적 문자열 생성 (예: "60% (3승 2패)")
-        -- 부등호가 포함된 쿼리 부분을 CDATA로 처리하여 XML 파싱 오류 방지
+        -- 2. 팔로잉 수 (내가 팔로우하는 사람)
+        (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
+
+        -- 3. 팔로워 수 (나를 팔로우하는 사람)
+        (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
+
+        -- 4. 전적 (승/패/무)
         <![CDATA[
-               (SELECT
-                    CONCAT( ROUND( SUM(CASE WHEN (g.home_team_code = m.my_team_code AND g.score_home > g.score_away) THEN 1
-                        WHEN (g.away_team_code = m.my_team_code AND g.score_away > g.score_home) THEN 1
-                        ELSE 0
-                        END) / COUNT(*) * 100, 0
-                            ), '% (', SUM(CASE WHEN (g.home_team_code = m.my_team_code AND g.score_home > g.score_away) THEN 1
-                                WHEN (g.away_team_code = m.my_team_code AND g.score_away > g.score_home) THEN 1
-                                ELSE 0
-                                END), '승 ', SUM(CASE WHEN (g.home_team_code = m.my_team_code AND g.score_home < g.score_away) THEN 1
-                                    WHEN (g.away_team_code = m.my_team_code AND g.score_away < g.score_home) THEN 1
-                                    ELSE 0
-                                    END), '패)' )
-                FROM diaries d
-                JOIN games g ON d.game_id = g.game_id
-                WHERE d.member_id = m.member_id
-                  AND d.status = 'COMPLETED'
-                  AND g.status = 'FINISHED'
-                ) AS winRateStr
-               ]]>
+            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1 ELSE 0 END)
+             FROM diaries d JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS winCount,
+
+            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home) THEN 1 ELSE 0 END)
+             FROM diaries d JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS loseCount,
+
+            IFNULL((SELECT SUM(CASE WHEN g.score_home = g.score_away THEN 1 ELSE 0 END)
+             FROM diaries d JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS drawCount
+            ]]>
+
         FROM members m
         <include refid="criteria"/>
         ORDER BY m.created_at DESC
@@ -70,7 +77,49 @@
     </select>
 
     <select id="selectMemberById" resultType="com.viotory.diary.vo.MemberVO">
-        SELECT * FROM members WHERE member_id = #{memberId}
+        SELECT
+            m.member_id AS memberId,
+            m.email,
+            m.nickname,
+            m.phone_number AS phoneNumber,
+            m.my_team_code AS myTeamCode,
+            (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
+            m.status,
+            m.created_at AS createdAt,
+            m.social_provider AS socialProvider,
+
+            -- 1. 직관 횟수 (이번달)
+            (SELECT COUNT(d.diary_id)
+             FROM diaries d
+                      JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id
+               AND d.is_verified = 1
+               AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
+               AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
+
+            -- 2. 팔로잉 수 (내가 팔로우하는 사람)
+            (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
+
+            -- 3. 팔로워 수 (나를 팔로우하는 사람)
+            (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
+
+            -- 4. 전적 (승/패/무)
+            <![CDATA[
+            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1 ELSE 0 END)
+                    FROM diaries d JOIN games g ON d.game_id = g.game_id
+                    WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS winCount,
+
+            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home) THEN 1 ELSE 0 END)
+                    FROM diaries d JOIN games g ON d.game_id = g.game_id
+                    WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS loseCount,
+
+            IFNULL((SELECT SUM(CASE WHEN g.score_home = g.score_away THEN 1 ELSE 0 END)
+                    FROM diaries d JOIN games g ON d.game_id = g.game_id
+                    WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS drawCount
+            ]]>
+
+        FROM members m
+        WHERE m.member_id = #{memberId}
     </select>
 
     <update id="updateMemberStatus">
@@ -79,5 +128,28 @@
             updated_at = NOW()
         WHERE member_id = #{memberId}
     </update>
+
+    <select id="selectMemberListForExcel" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT
+        m.member_id AS memberId,
+        m.email,
+        m.nickname,
+        m.phone_number AS phoneNumber,
+        m.my_team_code AS myTeamCode,
+        (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
+        m.status,
+        m.created_at AS createdAt,
+        m.social_provider AS socialProvider,
+        (SELECT COUNT(d.diary_id) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
+        (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
+        (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
+        <![CDATA[
+            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1 ELSE 0 END) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS winCount,
+            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home) THEN 1 ELSE 0 END) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS loseCount,
+            IFNULL((SELECT SUM(CASE WHEN g.score_home = g.score_away THEN 1 ELSE 0 END) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS drawCount
+            ]]>
+        FROM members m
+        ORDER BY m.created_at DESC
+    </select>
 
 </mapper>

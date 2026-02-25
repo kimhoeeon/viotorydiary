@@ -62,7 +62,7 @@ public interface DiaryMapper {
     // 팔로워 + 팔로잉 합산 일기 조회
     List<DiaryVO> selectRelatedDiaries(Long memberId);
 
-    // [추가] 조회수 1 증가
+    // 조회수 1 증가
     void updateViewCount(Long diaryId);
 
 }

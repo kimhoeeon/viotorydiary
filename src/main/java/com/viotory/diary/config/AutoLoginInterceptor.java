@@ -43,7 +43,7 @@ public class AutoLoginInterceptor implements HandlerInterceptor {
                     session.setAttribute("loginMember", member);
                     log.info("자동 로그인 성공: {}", userEmail);
 
-                    // [추가] 자동 로그인 시에도 접속 로그 기록
+                    // 자동 로그인 시에도 접속 로그 기록
                     memberService.recordAccessLog(member.getMemberId());
                 }
             } catch (Exception e) {

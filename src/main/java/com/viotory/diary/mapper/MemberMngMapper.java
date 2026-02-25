@@ -21,4 +21,6 @@ public interface MemberMngMapper {
     void updateMemberStatus(@Param("memberId") Long memberId, @Param("status") String status);
 
     void updatePassword(MemberVO member);
+
+    List<MemberVO> selectMemberListForExcel();
 }

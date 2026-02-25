@@ -46,7 +46,7 @@ public class DiaryController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
-        // [추가] 이미 작성된 일기가 있는지 체크
+        // 이미 작성된 일기가 있는지 체크
         DiaryVO existingDiary = diaryService.getDiaryByMemberAndGame(loginMember.getMemberId(), gameId);
         if (existingDiary != null) {
             // 이미 작성한 기록이 있다면 alert 후 상세 페이지로 이동
@@ -258,7 +258,7 @@ public class DiaryController {
     public String detailPage(@RequestParam("diaryId") Long diaryId,
                              HttpSession session, Model model) {
 
-        // [추가] 페이지 진입 시 먼저 조회수 1 증가
+        // 페이지 진입 시 먼저 조회수 1 증가
         diaryService.increaseViewCount(diaryId);
 
         // 1. 일기 정보 조회
@@ -404,7 +404,7 @@ public class DiaryController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
-        // [추가] 친구 일기 페이지 진입 시 조회수 1 증가
+        // 친구 일기 페이지 진입 시 조회수 1 증가
         diaryService.increaseViewCount(diaryId);
 
         // 1. 일기 정보 조회

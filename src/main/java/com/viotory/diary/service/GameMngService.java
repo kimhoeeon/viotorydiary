@@ -58,7 +58,7 @@ public class GameMngService {
     }
 
     // =========================================
-    // [추가] 관리자 수동 상태 변경 시 알림 발송 로직
+    // 관리자 수동 상태 변경 시 알림 발송 로직
     // =========================================
     private void sendGameStatusAlarm(GameVO game) {
         try {
@@ -88,7 +88,7 @@ public class GameMngService {
         }
     }
 
-    // [추가] 영어 팀 코드를 한글 명칭으로 변환
+    // 영어 팀 코드를 한글 명칭으로 변환
     private String getTeamNameKr(String code) {
         if (code == null) return "";
         switch (code.toUpperCase()) {

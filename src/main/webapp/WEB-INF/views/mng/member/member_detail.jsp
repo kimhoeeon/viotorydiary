@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -75,22 +76,22 @@
                                         </div>
                                         <div class="card-toolbar">
                                             <c:if test="${member.status eq 'ACTIVE'}">
-                                                <button type="button" class="btn btn-sm btn-light-warning me-2"
-                                                        onclick="changeStatus('SUSPENDED')">활동 정지
+                                                <button type="button" class="btn btn-sm btn-light-warning me-2" onclick="changeStatus('SUSPENDED')">
+                                                    활동 정지
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-light-danger me-2"
-                                                        onclick="changeStatus('WITHDRAWN')">강제 탈퇴
+                                                <button type="button" class="btn btn-sm btn-light-danger me-2" onclick="changeStatus('WITHDRAWN')">
+                                                    강제 탈퇴
                                                 </button>
                                                 <button type="button" class="btn btn-sm btn-light-primary" onclick="resetPassword()">
                                                     비밀번호 초기화
                                                 </button>
                                             </c:if>
                                             <c:if test="${member.status eq 'SUSPENDED'}">
-                                                <button type="button" class="btn btn-sm btn-light-success me-2"
-                                                        onclick="changeStatus('ACTIVE')">정지 해제
+                                                <button type="button" class="btn btn-sm btn-light-success me-2" onclick="changeStatus('ACTIVE')">
+                                                    정지 해제
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-light-danger me-2"
-                                                        onclick="changeStatus('WITHDRAWN')">강제 탈퇴
+                                                <button type="button" class="btn btn-sm btn-light-danger me-2" onclick="changeStatus('WITHDRAWN')">
+                                                    강제 탈퇴
                                                 </button>
                                                 <button type="button" class="btn btn-sm btn-light-primary" onclick="resetPassword()">
                                                     비밀번호 초기화
@@ -105,36 +106,84 @@
                                     <div class="card-body p-9">
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">닉네임</label>
-                                            <div class="col-lg-4"><span
-                                                    class="fw-bold fs-6 text-gray-800">${member.nickname}</span></div>
+                                            <div class="col-lg-4">
+                                                <span class="fw-bold fs-6 text-gray-800">
+                                                    ${member.nickname}
+                                                    <c:if test="${not empty member.socialProvider and member.socialProvider ne 'NONE'}">
+                                                        <span class="badge fs-9 ms-1" style="background-color: #f8df00; color: #3c1e1e;">${member.socialProvider}</span>
+                                                    </c:if>
+                                                </span>
+                                            </div>
                                             <label class="col-lg-2 fw-semibold text-muted">이메일</label>
-                                            <div class="col-lg-4"><span
-                                                    class="fw-bold fs-6 text-gray-800">${member.email}</span></div>
+                                            <div class="col-lg-4">
+                                                <span class="fw-bold fs-6 text-gray-800">${member.email}</span>
+                                            </div>
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">응원 구단</label>
-                                            <div class="col-lg-4"><span
-                                                    class="badge badge-light-primary fw-bold">${member.myTeamCode}</span></div>
+                                            <div class="col-lg-4">
+                                                <span class="badge badge-light-primary fw-bold">
+                                                    ${empty member.myTeamName ? '미설정' : member.myTeamName}
+                                                </span>
+                                            </div>
                                             <label class="col-lg-2 fw-semibold text-muted">현재 상태</label>
                                             <div class="col-lg-4">
                                                 <c:choose>
-                                                    <c:when test="${member.status eq 'ACTIVE'}"><span
-                                                            class="text-success fw-bold">정상</span></c:when>
-                                                    <c:when test="${member.status eq 'SUSPENDED'}"><span
-                                                            class="text-warning fw-bold">정지</span></c:when>
-                                                    <c:when test="${member.status eq 'WITHDRAWN'}"><span
-                                                            class="text-danger fw-bold">탈퇴</span></c:when>
+                                                    <c:when test="${member.status eq 'ACTIVE'}"><span class="text-success fw-bold">정상</span></c:when>
+                                                    <c:when test="${member.status eq 'SUSPENDED'}"><span class="text-warning fw-bold">정지</span></c:when>
+                                                    <c:when test="${member.status eq 'WITHDRAWN'}"><span class="text-danger fw-bold">탈퇴</span></c:when>
+                                                    <c:otherwise><span class="text-muted fw-bold">${member.status}</span></c:otherwise>
                                                 </c:choose>
                                             </div>
                                         </div>
+
+                                        <div class="row mb-7">
+                                            <label class="col-lg-2 fw-semibold text-muted">이번달 직관 횟수</label>
+                                            <div class="col-lg-4">
+                                                <span class="fw-bold fs-6 text-gray-800">${member.monthlyAttendanceCount} 회</span>
+                                            </div>
+                                            <label class="col-lg-2 fw-semibold text-muted">팔로우 / 팔로워</label>
+                                            <div class="col-lg-4">
+                                                <span class="fw-bold fs-6 text-gray-800">
+                                                    <span class="text-primary">${member.followingCount}</span> / <span class="text-info">${member.followerCount}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-7">
+                                            <label class="col-lg-2 fw-semibold text-muted">직관 승률 (전적)</label>
+                                            <div class="col-lg-4">
+                                                <c:set var="totalGames" value="${member.winCount + member.loseCount + member.drawCount}" />
+                                                <c:set var="winRate" value="0.0" />
+                                                <c:if test="${totalGames > 0}">
+                                                    <c:set var="winRate" value="${(member.winCount * 100.0) / totalGames}" />
+                                                </c:if>
+
+                                                <span class="fw-bold fs-6 text-gray-800">
+                                                    <fmt:formatNumber value="${winRate}" pattern="0.0"/>%
+                                                    <span class="text-muted fs-7 ms-1">(${member.winCount}승 ${member.loseCount}패 ${member.drawCount}무)</span>
+                                                </span>
+                                            </div>
+                                            <label class="col-lg-2 fw-semibold text-muted">연락처</label>
+                                            <div class="col-lg-4">
+                                                <span class="fw-bold fs-6 text-gray-800">${empty member.phoneNumber ? '-' : member.phoneNumber}</span>
+                                            </div>
+                                        </div>
+
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">가입일시</label>
                                             <div class="col-lg-4">
                                                 <span class="fw-bold fs-6 text-gray-800">
-                                                    <fmt:parseDate value="${member.createdAt}"
-                                                                   pattern="yyyy-MM-dd'T'HH:mm:ss" var="joinDate"
-                                                                   type="both"/>
-                                                    <fmt:formatDate value="${joinDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                                                    <c:choose>
+                                                        <c:when test="${not empty member.createdAt}">
+                                                            <c:set var="cDate" value="${fn:replace(member.createdAt, 'T', ' ')}" />
+                                                            <c:choose>
+                                                                <c:when test="${fn:length(cDate) == 16}">${cDate}:00</c:when>
+                                                                <c:otherwise>${fn:substring(cDate, 0, 19)}</c:otherwise>
+                                                            </c:choose>
+                                                        </c:when>
+                                                        <c:otherwise>-</c:otherwise>
+                                                    </c:choose>
                                                 </span>
                                             </div>
                                         </div>

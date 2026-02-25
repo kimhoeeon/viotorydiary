@@ -63,6 +63,13 @@
                                         <li class="breadcrumb-item text-dark">회원 목록</li>
                                     </ul>
                                 </div>
+                                <button type="button" class="btn btn-sm btn-success" onclick="downloadExcel()">
+                                    <i class="ki-duotone ki-file-down">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                    </i>
+                                    엑셀 다운로드
+                                </button>
                             </div>
                         </div>
 
@@ -73,19 +80,21 @@
                                     <div class="card-body">
                                         <form id="searchForm" action="/mng/members/list" method="get"
                                               class="d-flex align-items-center">
-                                            <input type="hidden" name="pageNum" value="1"> <input type="hidden"
-                                                                                                  name="amount"
-                                                                                                  value="${pageMaker.cri.amount}">
+                                            <input type="hidden" name="pageNum" value="1">
+                                            <input type="hidden" name="amount" value="${pageMaker.cri.amount}">
 
                                             <div class="position-relative w-md-400px me-md-2">
-                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6"><span
-                                                        class="path1"></span><span class="path2"></span></i>
+                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
                                                 <input type="text" class="form-control form-control-solid ps-10"
                                                        name="keyword" value="${pageMaker.cri.keyword}"
                                                        placeholder="이메일 또는 닉네임 검색"/>
                                             </div>
                                             <select name="status" class="form-select form-select-solid w-150px me-3">
-                                                <option value="" ${empty pageMaker.cri.status ? 'selected' : ''}>전체 상태
+                                                <option value="" ${empty pageMaker.cri.status ? 'selected' : ''}>
+                                                    전체 상태
                                                 </option>
                                                 <option value="ACTIVE" ${pageMaker.cri.status eq 'ACTIVE' ? 'selected' : ''}>
                                                     정상
@@ -107,82 +116,122 @@
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
-                                                <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">ID</th>
-                                                    <th class="min-w-150px">회원정보 (닉네임/이메일)</th>
-                                                    <th class="min-w-100px">가입일</th>
-                                                    <th class="min-w-100px">최종로그인</th>
-                                                    <th class="min-w-100px">상태</th>
-                                                    <th class="min-w-100px">관리</th>
-                                                </tr>
+                                                    <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                                                        <th class="w-50px text-center">No.</th>
+                                                        <th class="min-w-80px text-center">상태</th>
+                                                        <th class="min-w-150px">회원정보 (닉네임/이메일)</th>
+                                                        <th class="min-w-100px text-center">연락처</th>
+                                                        <th class="min-w-100px text-center">응원팀</th>
+                                                        <th class="min-w-100px text-center">직관 횟수<br><span class="fs-8 text-muted">(이번달)</span></th>
+                                                        <th class="min-w-125px text-center">팔로우/팔로워</th>
+                                                        <th class="min-w-150px text-center">승률 (전적)</th>
+                                                        <th class="min-w-125px text-center">가입일시</th>
+                                                        <th class="min-w-80px text-center">관리</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${list}">
-                                                    <tr>
-                                                        <td>${item.memberId}</td>
-                                                        <td class="d-flex flex-column">
-                                                            <span class="text-gray-800 fw-bold fs-6">${item.nickname}</span>
-                                                            <span class="text-gray-400 fw-semibold fs-7">${item.email}</span>
-                                                        </td>
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${not empty item.createdAt}">
-                                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                    <c:choose>
+                                                        <c:when test="${empty list}">
+                                                            <tr>
+                                                                <td colspan="10" class="text-center p-10">데이터가 없습니다.</td>
+                                                            </tr>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <c:forEach var="item" items="${list}" varStatus="status">
+                                                                <c:set var="rowNum" value="${pageMaker.total - (pageMaker.cri.pageNum - 1) * pageMaker.cri.amount - status.index}"/>
 
-                                                                    <c:choose>
-                                                                        <c:when test="${fn:length(cDate) == 16}">
-                                                                            ${cDate}:00
-                                                                        </c:when>
-                                                                        <c:otherwise>
-                                                                            ${fn:substring(cDate, 0, 19)}
-                                                                        </c:otherwise>
-                                                                    </c:choose>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    -
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${not empty item.lastLoginAt}">
-                                                                    <c:set var="lDate" value="${fn:replace(item.lastLoginAt, 'T', ' ')}" />
+                                                                <c:set var="totalGames" value="${item.winCount + item.loseCount + item.drawCount}" />
+                                                                <c:set var="winRate" value="0.0" />
+                                                                <c:if test="${totalGames > 0}">
+                                                                    <c:set var="winRate" value="${(item.winCount * 100.0) / totalGames}" />
+                                                                </c:if>
 
-                                                                    <c:choose>
-                                                                        <c:when test="${fn:length(lDate) == 16}">
-                                                                            ${lDate}:00
-                                                                        </c:when>
-                                                                        <c:otherwise>
-                                                                            ${fn:substring(lDate, 0, 19)}
-                                                                        </c:otherwise>
-                                                                    </c:choose>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    -
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${item.status eq 'ACTIVE'}"><span
-                                                                        class="badge badge-light-success">정상</span></c:when>
-                                                                <c:when test="${item.status eq 'SUSPENDED'}"><span
-                                                                        class="badge badge-light-warning">정지</span></c:when>
-                                                                <c:when test="${item.status eq 'WITHDRAWN'}"><span
-                                                                        class="badge badge-light-danger">탈퇴</span></c:when>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>
-                                                            <a href="/mng/members/detail?memberId=${item.memberId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
-                                                               class="btn btn-light btn-active-light-primary btn-sm">상세</a>
-                                                        </td>
-                                                    </tr>
-                                                </c:forEach>
-                                                <c:if test="${empty list}">
-                                                    <tr>
-                                                        <td colspan="6" class="text-center py-10">데이터가 없습니다.</td>
-                                                    </tr>
-                                                </c:if>
+                                                                <tr>
+                                                                    <td class="text-center">${rowNum}</td>
+
+                                                                    <td class="text-center">
+                                                                        <c:choose>
+                                                                            <c:when test="${item.status eq 'ACTIVE'}">
+                                                                                <span class="badge badge-light-success">정상</span>
+                                                                            </c:when>
+                                                                            <c:when test="${item.status eq 'SUSPENDED'}">
+                                                                                <span class="badge badge-light-warning">정지</span>
+                                                                            </c:when>
+                                                                            <c:when test="${item.status eq 'WITHDRAWN'}">
+                                                                                <span class="badge badge-light-danger">탈퇴</span>
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                <span class="badge badge-light-secondary">${item.status}</span>
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </td>
+
+                                                                    <td>
+                                                                        <div class="d-flex flex-column">
+                                                                            <span class="text-gray-800 fw-bold fs-6">
+                                                                                ${item.nickname}
+                                                                                <c:if test="${not empty item.socialProvider and item.socialProvider ne 'NONE'}">
+                                                                                    <span class="badge fs-9 ms-1" style="background-color: #f8df00; color: #3c1e1e;">${item.socialProvider}</span>
+                                                                                </c:if>
+                                                                            </span>
+                                                                            <span class="text-gray-400 fw-semibold fs-7">${item.email}</span>
+                                                                        </div>
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        <c:choose>
+                                                                            <c:when test="${empty item.phoneNumber}">-</c:when>
+                                                                            <c:otherwise>${item.phoneNumber}</c:otherwise>
+                                                                        </c:choose>
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        <c:choose>
+                                                                            <c:when test="${empty item.myTeamName}">
+                                                                                <span class="text-muted">미설정</span>
+                                                                            </c:when>
+                                                                            <c:otherwise>${item.myTeamName}</c:otherwise>
+                                                                        </c:choose>
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        <span class="fw-bolder text-dark">${item.monthlyAttendanceCount}</span><span class="text-muted fs-7">회</span>
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        <span class="text-primary fw-bolder">${item.followingCount}</span>
+                                                                        <span class="text-muted mx-1">/</span>
+                                                                        <span class="text-info fw-bolder">${item.followerCount}</span>
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        <div class="d-flex flex-column align-items-center">
+                                                                            <span class="fw-bolder text-gray-800"><fmt:formatNumber value="${winRate}" pattern="0.0"/>%</span>
+                                                                            <span class="text-muted fs-8">(${item.winCount}승 ${item.loseCount}패 ${item.drawCount}무)</span>
+                                                                        </div>
+                                                                    </td>
+
+                                                                    <td class="text-center fs-7 text-muted">
+                                                                        <c:choose>
+                                                                            <c:when test="${not empty item.createdAt}">
+                                                                                <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                                <c:choose>
+                                                                                    <c:when test="${fn:length(cDate) == 16}">${cDate}:00</c:when>
+                                                                                    <c:otherwise>${fn:substring(cDate, 0, 19)}</c:otherwise>
+                                                                                </c:choose>
+                                                                            </c:when>
+                                                                            <c:otherwise>-</c:otherwise>
+                                                                        </c:choose>
+                                                                    </td>
+
+                                                                    <td class="text-end">
+                                                                        <a href="/mng/members/detail?memberId=${item.memberId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
+                                                                           class="btn btn-sm btn-light btn-active-light-primary">상세</a>
+                                                                    </td>
+                                                                </tr>
+                                                            </c:forEach>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -193,8 +242,9 @@
                                             <ul class="pagination">
                                                 <c:if test="${pageMaker.prev}">
                                                     <li class="page-item previous">
-                                                        <a href="${pageMaker.startPage - 1}" class="page-link"><i
-                                                                class="previous"></i></a>
+                                                        <a href="${pageMaker.startPage - 1}" class="page-link">
+                                                            <i class="previous"></i>
+                                                        </a>
                                                     </li>
                                                 </c:if>
 
@@ -207,8 +257,9 @@
 
                                                 <c:if test="${pageMaker.next}">
                                                     <li class="page-item next">
-                                                        <a href="${pageMaker.endPage + 1}" class="page-link"><i
-                                                                class="next"></i></a>
+                                                        <a href="${pageMaker.endPage + 1}" class="page-link">
+                                                            <i class="next"></i>
+                                                        </a>
                                                     </li>
                                                 </c:if>
                                             </ul>
@@ -245,6 +296,14 @@
                 actionForm.submit();
             });
         });
+
+        // 엑셀 다운로드 함수
+        function downloadExcel() {
+            // 다운로드 진행 여부를 묻는 확인 창 띄우기
+            if (confirm("전체 회원 목록을 엑셀로 다운로드 하시겠습니까?")) {
+                location.href = '/mng/members/excel';
+            }
+        }
     </script>
 </body>
 </html>
