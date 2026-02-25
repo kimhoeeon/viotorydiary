@@ -42,4 +42,8 @@ public interface ContentMngMapper {
     TeamContentVO selectRandomActiveContent(@Param("teamCode") String teamCode);
 
     Integer selectMaxSortOrder();
+
+    // 콘텐츠 클릭 로그 저장
+    void insertClickLog(com.viotory.diary.vo.ContentClickLogVO log);
+
 }

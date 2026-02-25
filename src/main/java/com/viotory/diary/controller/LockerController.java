@@ -104,7 +104,11 @@ public class LockerController {
     // 콘텐츠 상세
     @GetMapping("/content/detail")
     public String contentDetail(@RequestParam("contentId") Long contentId, HttpSession session, Model model) {
-        if (session.getAttribute("loginMember") == null) return "redirect:/member/login";
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        // 콘텐츠를 클릭했으므로 로그 기록 및 조회수 증가 처리
+        contentMngService.logContentClick(contentId, loginMember);
 
         TeamContentVO content = contentMngService.getTeamContent(contentId);
         model.addAttribute("post", content);

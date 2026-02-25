@@ -2,7 +2,9 @@ package com.viotory.diary.service;
 
 import com.viotory.diary.mapper.ContentMngMapper;
 import com.viotory.diary.util.FileUtil;
+import com.viotory.diary.vo.ContentClickLogVO;
 import com.viotory.diary.vo.EventVO;
+import com.viotory.diary.vo.MemberVO;
 import com.viotory.diary.vo.TeamContentVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -194,10 +197,9 @@ public class ContentMngService {
 
     /**
      * 랜덤 콘텐츠 1개 조회
-     * @param teamCode 사용자 응원팀 (없으면 'ALL')
      */
     public TeamContentVO getRandomTeamContent(String teamCode) {
-        if (teamCode == null || "NONE".equals(teamCode) || "".equals(teamCode)) {
+        if (teamCode == null || "NONE".equals(teamCode) || teamCode.isEmpty()) {
             teamCode = "ALL";
         }
         return contentMngMapper.selectRandomActiveContent(teamCode);
@@ -207,4 +209,46 @@ public class ContentMngService {
     public void increaseClickCount(Long contentId) {
         contentMngMapper.increaseClickCount(contentId);
     }
+
+    // ⭐️ [추가] 사용자 콘텐츠 클릭 시 로그 기록 + 조회수 증가 처리
+    @Transactional
+    public void logContentClick(Long contentId, MemberVO member) {
+        // 1. 조회수 1 증가
+        contentMngMapper.increaseClickCount(contentId);
+
+        // 2. 로그 정보 세팅
+        ContentClickLogVO logVO = new ContentClickLogVO();
+        logVO.setContentId(contentId);
+
+        if (member != null) {
+            logVO.setMemberId(member.getMemberId());
+            logVO.setGender(member.getGender());
+
+            // 생년월일(YYYY-MM-DD)을 기반으로 연령대(10대, 20대..) 계산
+            String ageGroup = "알수없음";
+            if (member.getBirthdate() != null) {
+                String birthStr = String.valueOf(member.getBirthdate());
+                if (birthStr.length() >= 4) {
+                    try {
+                        int birthYear = Integer.parseInt(birthStr.substring(0, 4));
+                        int currentYear = LocalDate.now().getYear();
+                        int age = currentYear - birthYear;
+                        int group = (age / 10) * 10;
+                        ageGroup = group + "대";
+                    } catch (Exception e) {
+                        log.warn("연령대 계산 실패", e);
+                    }
+                }
+            }
+            logVO.setAgeGroup(ageGroup);
+        } else {
+            // 비회원일 경우
+            logVO.setGender("U");
+            logVO.setAgeGroup("알수없음");
+        }
+
+        // 3. 로그 DB INSERT
+        contentMngMapper.insertClickLog(logVO);
+    }
+
 }

@@ -121,6 +121,11 @@
         UPDATE team_contents SET click_count = click_count + 1 WHERE content_id = #{contentId}
     </update>
 
+    <insert id="insertClickLog" parameterType="com.viotory.diary.vo.ContentClickLogVO">
+        INSERT INTO content_click_logs (content_id, member_id, gender, age_group, clicked_at)
+        VALUES (#{contentId}, #{memberId}, #{gender}, #{ageGroup}, NOW())
+    </insert>
+
     <select id="selectRandomActiveContent" resultType="com.viotory.diary.vo.TeamContentVO">
         SELECT * FROM team_contents
         WHERE status = 'ACTIVE'
