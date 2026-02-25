@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -111,11 +112,11 @@
                                                 <thead>
                                                     <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
                                                         <th class="min-w-50px text-center">순서</th>
-                                                        <th class="min-w-70px">상태</th>
+                                                        <th class="min-w-70px text-center">상태</th>
                                                         <th class="min-w-70px">구단</th>
                                                         <th class="min-w-200px">제목</th>
-                                                        <th class="min-w-70px">클릭수</th>
-                                                        <th class="min-w-100px">등록일</th>
+                                                        <th class="min-w-70px text-center">클릭수</th>
+                                                        <th class="min-w-100px text-center">등록일</th>
                                                         <th class="min-w-70px text-center">관리</th>
                                                     </tr>
                                                 </thead>
@@ -139,7 +140,7 @@
                                                                     </button>
                                                                 </div>
                                                             </td>
-                                                            <td>
+                                                            <td class="text-center">
                                                                 <c:if test="${item.status eq 'ACTIVE'}"><span class="badge badge-light-success">활성</span></c:if>
                                                                 <c:if test="${item.status eq 'INACTIVE'}"><span class="badge badge-light-secondary">비활성</span></c:if>
                                                             </td>
@@ -147,9 +148,24 @@
                                                             <td>
                                                                 ${item.title}
                                                             </td>
-                                                            <td>${item.clickCount}</td>
-                                                            <td>
-                                                                <fmt:formatDate value="${item.createdAt}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                                                            <td class="text-center">${item.clickCount}</td>
+                                                            <td class="text-center">
+                                                                <c:choose>
+                                                                    <c:when test="${not empty item.createdAt}">
+                                                                        <%-- LocalDateTime의 'T'를 공백으로 치환 --%>
+                                                                        <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                        <%-- 초 단위까지만 깔끔하게 자르기 (yyyy-MM-dd HH:mm:ss) --%>
+                                                                        <c:choose>
+                                                                            <c:when test="${fn:length(cDate) > 19}">
+                                                                                ${fn:substring(cDate, 0, 19)}
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                ${cDate}
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </c:when>
+                                                                    <c:otherwise>-</c:otherwise>
+                                                                </c:choose>
                                                             </td>
                                                             <td class="text-center">
                                                                 <a href="/mng/content/teams/detail?contentId=${item.contentId}"
