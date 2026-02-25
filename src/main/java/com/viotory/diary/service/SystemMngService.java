@@ -88,6 +88,11 @@ public class SystemMngService {
         systemMngMapper.deleteNotice(noticeId);
     }
 
+    @Transactional
+    public void increaseNoticeViewCount(Long noticeId) {
+        systemMngMapper.updateNoticeViewCount(noticeId);
+    }
+
     // ==========================================
     // 3. 약관 관리 (Terms)
     // ==========================================

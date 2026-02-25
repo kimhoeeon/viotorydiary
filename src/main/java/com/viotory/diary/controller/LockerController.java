@@ -78,6 +78,9 @@ public class LockerController {
     public String noticeDetail(@RequestParam("noticeId") Long noticeId, HttpSession session, Model model) {
         if (session.getAttribute("loginMember") == null) return "redirect:/member/login";
 
+        // 공지사항 클릭 시 조회수 1 증가
+        systemMngService.increaseNoticeViewCount(noticeId);
+
         NoticeVO notice = systemMngService.getNoticeById(noticeId);
         model.addAttribute("post", notice);
 

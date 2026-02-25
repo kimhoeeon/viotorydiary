@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -84,50 +85,79 @@
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
-                                                <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">No</th>
-                                                    <th class="min-w-50px">구분</th>
-                                                    <th class="min-w-50px">고정</th>
-                                                    <th class="min-w-200px">제목</th>
-                                                    <th class="min-w-100px">상태</th>
-                                                    <th class="min-w-100px">조회수</th>
-                                                    <th class="min-w-100px">등록일</th>
-                                                    <th class="min-w-70px">관리</th>
-                                                </tr>
+                                                    <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                                                        <th class="min-w-50px text-center">No</th>
+                                                        <th class="min-w-50px text-center">구분</th>
+                                                        <th class="min-w-50px text-center">고정</th>
+                                                        <th class="min-w-200px">제목</th>
+                                                        <th class="min-w-100px text-center">상태</th>
+                                                        <th class="min-w-100px text-center">조회수</th>
+                                                        <th class="min-w-100px text-center">등록일</th>
+                                                        <th class="min-w-70px text-center">관리</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${list}">
-                                                    <tr>
-                                                        <td>${item.noticeId}</td>
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${item.category eq 'SURVEY'}"><span class="badge badge-light-info">설문</span></c:when>
-                                                                <c:otherwise><span class="badge badge-light-primary">공지</span></c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>
-                                                            <c:if test="${item.isTop eq 'Y'}"><span class="badge badge-light-danger">TOP</span></c:if>
-                                                            <c:if test="${item.isTop ne 'Y'}">-</c:if>
-                                                        </td>
-                                                        <td>
-                                                            <a href="/mng/system/notices/detail?noticeId=${item.noticeId}" class="text-gray-800 text-hover-primary fs-5 fw-bold">
-                                                                ${item.title}
-                                                            </a>
-                                                        </td>
-                                                        <td>
-                                                            <c:if test="${item.status eq 'ACTIVE'}"><div class="badge badge-light-success">게시중</div></c:if>
-                                                            <c:if test="${item.status eq 'HIDDEN'}"><div class="badge badge-light-secondary">숨김</div></c:if>
-                                                        </td>
-                                                        <td>${item.viewCount}</td>
-                                                        <td>
-                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
-                                                            <fmt:formatDate value="${parsedDate}" pattern="yyyy.MM.dd"/>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-light-danger" onclick="deleteNotice(${item.noticeId})">삭제</button>
-                                                        </td>
-                                                    </tr>
-                                                </c:forEach>
+                                                    <c:forEach var="item" items="${list}" varStatus="status">
+                                                        <tr>
+                                                            <td class="text-center">${list.size() - status.index}</td>
+                                                            <td class="text-center">
+                                                                <c:choose>
+                                                                    <c:when test="${item.category eq 'SURVEY'}"><span class="badge badge-light-info">설문</span></c:when>
+                                                                    <c:otherwise><span class="badge badge-light-primary">공지</span></c:otherwise>
+                                                                </c:choose>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <c:if test="${item.isTop eq 'Y'}"><span class="badge badge-light-danger">TOP</span></c:if>
+                                                                <c:if test="${item.isTop ne 'Y'}">-</c:if>
+                                                            </td>
+                                                            <td>
+                                                                <span class="text-gray-800 fw-bold">${item.title}</span>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <c:if test="${item.status eq 'ACTIVE'}"><div class="badge badge-light-success">게시중</div></c:if>
+                                                                <c:if test="${item.status eq 'HIDDEN'}"><div class="badge badge-light-secondary">숨김</div></c:if>
+                                                            </td>
+                                                            <td class="text-center">${item.viewCount}</td>
+                                                            <td class="text-center">
+                                                                <c:choose>
+                                                                    <c:when test="${not empty item.createdAt}">
+                                                                        <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                        <c:choose>
+                                                                            <c:when test="${fn:length(cDate) > 19}">
+                                                                                ${fn:substring(cDate, 0, 19)}
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                ${cDate}
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </c:when>
+                                                                    <c:otherwise>-</c:otherwise>
+                                                                </c:choose>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <a href="/mng/system/notices/detail?noticeId=${item.noticeId}"
+                                                                   class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+                                                                   title="수정">
+                                                                    <i class="ki-duotone ki-pencil fs-2">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                    </i>
+                                                                </a>
+                                                                <button type="button"
+                                                                        onclick="deleteNotice(${item.noticeId})"
+                                                                        class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
+                                                                        title="삭제">
+                                                                    <i class="ki-duotone ki-trash fs-2">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                        <span class="path3"></span>
+                                                                        <span class="path4"></span>
+                                                                        <span class="path5"></span>
+                                                                    </i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </c:forEach>
                                                 </tbody>
                                             </table>
                                         </div>

@@ -31,6 +31,8 @@ public interface SystemMngMapper {
     // 공지사항 삭제
     void deleteNotice(Long noticeId);
 
+    void updateNoticeViewCount(Long noticeId);
+
     // ==========================================
     // 2. 앱 버전 관리 (App Versions)
     // ==========================================

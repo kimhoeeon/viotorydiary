@@ -59,6 +59,12 @@
         DELETE FROM notices WHERE notice_id = #{noticeId}
     </delete>
 
+    <update id="updateNoticeViewCount">
+        UPDATE notices
+        SET view_count = view_count + 1
+        WHERE notice_id = #{noticeId}
+    </update>
+
     <select id="selectAppVersionList" resultType="com.viotory.diary.vo.AppVersionVO">
         SELECT * FROM app_versions ORDER BY created_at DESC
     </select>
