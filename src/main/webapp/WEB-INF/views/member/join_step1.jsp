@@ -39,7 +39,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // [수정] 소셜 가입으로 진입한 경우(provider가 있음)에는 초기화 하지 않음
+        // 소셜 가입으로 진입한 경우(provider가 있음)에는 초기화 하지 않음
         if (!sessionStorage.getItem('join_provider')) {
             sessionStorage.clear();
         }

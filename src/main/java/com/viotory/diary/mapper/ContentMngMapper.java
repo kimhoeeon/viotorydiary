@@ -26,8 +26,7 @@ public interface ContentMngMapper {
     void updateTeamContent(TeamContentVO vo);
     void deleteTeamContent(Long contentId);
 
-    // 순서 변경 관련
-    // [수정] 순서 변경 대상 찾기 (같은 구단 내에서)
+    // 순서 변경 대상 찾기 (같은 구단 내에서)
     // direction이 UP이면 내 위(작은것 중 최대값), DOWN이면 내 아래(큰것 중 최소값) 조회
     TeamContentVO selectTargetContentForSwap(@Param("teamCode") String teamCode,
                                              @Param("currentSortOrder") int currentSortOrder,
@@ -35,7 +34,6 @@ public interface ContentMngMapper {
     void updateSortOrder(@Param("contentId") Long contentId, @Param("sortOrder") int sortOrder);
 
     // 통계 관련 (Map으로 반환)
-    List<Map<String, Object>> selectGenderStats(Long contentId);
     List<Map<String, Object>> selectAgeStats(Long contentId);
     List<Map<String, Object>> selectDailyStats(Long contentId);
 

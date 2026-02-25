@@ -114,7 +114,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            // [수정] hidden input에서 값 가져오기
+            // hidden input에서 값 가져오기
             const errorMsg = document.getElementById('serverErrorMsg').value;
 
             if (errorMsg && errorMsg.trim() !== '') {

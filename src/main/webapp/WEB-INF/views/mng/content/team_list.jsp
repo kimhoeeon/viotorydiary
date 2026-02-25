@@ -116,7 +116,7 @@
                                                         <th class="min-w-200px">제목</th>
                                                         <th class="min-w-70px">클릭수</th>
                                                         <th class="min-w-100px">등록일</th>
-                                                        <th class="min-w-70px">관리</th>
+                                                        <th class="min-w-70px text-center">관리</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
@@ -126,13 +126,15 @@
                                                                 <div class="d-flex flex-column align-items-center justify-content-center">
                                                                     <button type="button" class="btn btn-icon btn-sm btn-light-primary mb-1 h-20px w-20px" onclick="changeOrder(${item.contentId}, 'UP')">
                                                                         <i class="ki-duotone ki-arrow-up fs-3">
-                                                                            <span class="path1"></span><span class="path2"></span>
+                                                                            <span class="path1"></span>
+                                                                            <span class="path2"></span>
                                                                         </i>
                                                                     </button>
                                                                     <span class="fs-8 fw-bold">${item.sortOrder}</span>
                                                                     <button type="button" class="btn btn-icon btn-sm btn-light-primary mt-1 h-20px w-20px" onclick="changeOrder(${item.contentId}, 'DOWN')">
                                                                         <i class="ki-duotone ki-arrow-down fs-3">
-                                                                            <span class="path1"></span><span class="path2"></span>
+                                                                            <span class="path1"></span>
+                                                                            <span class="path2"></span>
                                                                         </i>
                                                                     </button>
                                                                 </div>
@@ -143,12 +145,32 @@
                                                             </td>
                                                             <td><span class="badge badge-light fw-bold">${item.teamCode}</span></td>
                                                             <td>
-                                                                <a href="/mng/content/teams/detail?contentId=${item.contentId}" class="text-gray-800 text-hover-primary fs-5 fw-bold">${item.title}</a>
+                                                                ${item.title}
                                                             </td>
                                                             <td>${item.clickCount}</td>
-                                                            <td>${item.createdAt.toString().substring(0,10)}</td>
                                                             <td>
-                                                                <button class="btn btn-sm btn-light-danger" onclick="deleteContent(${item.contentId})">삭제</button>
+                                                                <fmt:formatDate value="${item.createdAt}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <a href="/mng/content/teams/detail?contentId=${item.contentId}"
+                                                                   class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1" title="수정">
+                                                                    <i class="ki-duotone ki-pencil fs-2">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                    </i>
+                                                                </a>
+                                                                <button type="button"
+                                                                        onclick="deleteContent('${item.contentId}')"
+                                                                        class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
+                                                                        title="삭제">
+                                                                    <i class="ki-duotone ki-trash fs-2">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                        <span class="path3"></span>
+                                                                        <span class="path4"></span>
+                                                                        <span class="path5"></span>
+                                                                    </i>
+                                                                </button>
                                                             </td>
                                                         </tr>
                                                     </c:forEach>

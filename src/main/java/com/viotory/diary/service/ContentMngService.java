@@ -138,7 +138,6 @@ public class ContentMngService {
     // 통계 조회
     public Map<String, Object> getStats(Long contentId) {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("gender", contentMngMapper.selectGenderStats(contentId));
         stats.put("age", contentMngMapper.selectAgeStats(contentId));
         stats.put("daily", contentMngMapper.selectDailyStats(contentId));
         return stats;

@@ -127,7 +127,7 @@ public class DiaryController {
         // 3. 경기 정보 조회 (화면에 "LG vs 두산" 등을 보여주기 위함)
         GameVO game = gameService.getGameById(diary.getGameId());
 
-        // [수정] 스코어 수정 가능 여부 판단
+        // 스코어 수정 가능 여부 판단
         boolean isScoreEditable = true;
         if (game != null) {
             if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {

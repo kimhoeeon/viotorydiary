@@ -130,28 +130,25 @@
         ORDER BY RAND() LIMIT 1
     </select>
 
-    <select id="selectGenderStats" resultType="map">
-        SELECT IFNULL(gender, 'U') as gender, COUNT(*) as cnt
-        FROM content_click_logs
-        WHERE content_id = #{contentId}
-        GROUP BY gender
-    </select>
-
     <select id="selectAgeStats" resultType="map">
-        SELECT age_group, COUNT(*) as cnt
+        SELECT
+            IFNULL(age_group, '알수없음') AS ageGroup,
+            COUNT(*) AS cnt
         FROM content_click_logs
         WHERE content_id = #{contentId}
-        GROUP BY age_group
-        ORDER BY age_group
+        GROUP BY ageGroup
+        ORDER BY ageGroup ASC
     </select>
 
     <select id="selectDailyStats" resultType="map">
-        SELECT DATE_FORMAT(clicked_at, '%Y-%m-%d') as clickDate, COUNT(*) as cnt
+        SELECT
+            DATE_FORMAT(clicked_at, '%Y-%m-%d') AS clickDate,
+            COUNT(*) AS cnt
         FROM content_click_logs
         WHERE content_id = #{contentId}
-          AND clicked_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+          AND clicked_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
         GROUP BY clickDate
-        ORDER BY clickDate
+        ORDER BY clickDate ASC
     </select>
 
 </mapper>

@@ -108,29 +108,32 @@
                                         </div>
 
                                         <div class="separator my-10"></div>
-                                        <h3 class="fw-bold mb-5">📊 콘텐츠 통계</h3>
-                                        <div class="row">
-                                            <div class="col-md-4">
+                                        <h3 class="fw-bold mb-5">📊 콘텐츠 반응 분석</h3>
+                                        <div class="row g-5 g-xl-8">
+                                            <div class="col-xl-6">
                                                 <div class="card card-bordered h-100">
-                                                    <div class="card-header"><div class="card-title">성별 클릭수</div></div>
-                                                    <div class="card-body d-flex justify-content-center">
-                                                        <canvas id="genderChart" style="max-height: 200px;"></canvas>
+                                                    <div class="card-header border-0 pt-5">
+                                                        <h3 class="card-title align-items-start flex-column">
+                                                            <span class="card-label fw-bold text-dark">연령대별 클릭수</span>
+                                                            <span class="text-muted mt-1 fw-semibold fs-7">어떤 연령층이 가장 많이 봤을까요?</span>
+                                                        </h3>
+                                                    </div>
+                                                    <div class="card-body pt-0">
+                                                        <canvas id="ageChart" style="max-height: 300px;"></canvas>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+
+                                            <div class="col-xl-6">
                                                 <div class="card card-bordered h-100">
-                                                    <div class="card-header"><div class="card-title">연령대별 클릭수</div></div>
-                                                    <div class="card-body d-flex justify-content-center">
-                                                        <canvas id="ageChart" style="max-height: 200px;"></canvas>
+                                                    <div class="card-header border-0 pt-5">
+                                                        <h3 class="card-title align-items-start flex-column">
+                                                            <span class="card-label fw-bold text-dark">최근 30일 클릭 추이</span>
+                                                            <span class="text-muted mt-1 fw-semibold fs-7">일별 조회수 변화 그래프</span>
+                                                        </h3>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="card card-bordered h-100">
-                                                    <div class="card-header"><div class="card-title">기간별 클릭 추이</div></div>
-                                                    <div class="card-body d-flex justify-content-center">
-                                                        <canvas id="dailyChart" style="max-height: 200px;"></canvas>
+                                                    <div class="card-body pt-0">
+                                                        <canvas id="dailyChart" style="max-height: 300px;"></canvas>
                                                     </div>
                                                 </div>
                                             </div>
@@ -353,29 +356,14 @@
 
         // --- 통계 차트 스크립트 ---
         function initCharts() {
-            // 서버에서 전달받은 JSON 데이터 (Controller에서 statsJson으로 전달)
-            const stats = ${statsJson}; // gender:[], age:[], daily:[]
+            // 서버에서 전달받은 JSON 데이터
+            const stats = ${statsJson};
+            // stats 구조: { age: [{ageGroup:'20대', cnt:10}, ...], daily: [{clickDate:'2024-02-01', cnt:5}, ...] }
 
-            // 1. 성별 차트 (Doughnut)
-            const genderCtx = document.getElementById('genderChart').getContext('2d');
-            const genderLabels = stats.gender.map(d => d.gender === 'M' ? '남성' : (d.gender === 'F' ? '여성' : '미상'));
-            const genderData = stats.gender.map(d => d.cnt);
-
-            new Chart(genderCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: genderLabels,
-                    datasets: [{
-                        data: genderData,
-                        backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56']
-                    }]
-                }
-            });
-
-            // 2. 연령대별 차트 (Bar)
+            // 1. 연령대별 차트 (Bar Chart)
             const ageCtx = document.getElementById('ageChart').getContext('2d');
-            const ageLabels = stats.age.map(d => d.age_group + '대');
-            const ageData = stats.age.map(d => d.cnt);
+            const ageLabels = stats.age ? stats.age.map(d => d.ageGroup) : [];
+            const ageData = stats.age ? stats.age.map(d => d.cnt) : [];
 
             new Chart(ageCtx, {
                 type: 'bar',
@@ -384,26 +372,47 @@
                     datasets: [{
                         label: '클릭 수',
                         data: ageData,
-                        backgroundColor: '#4BC0C0'
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
                     }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
                 }
             });
 
-            // 3. 일별 차트 (Line)
+            // 2. 일별 추이 차트 (Line Chart)
             const dailyCtx = document.getElementById('dailyChart').getContext('2d');
-            const dailyLabels = stats.daily.map(d => d.clickDate);
-            const dailyData = stats.daily.map(d => d.cnt);
+            const dailyLabels = stats.daily ? stats.daily.map(d => d.clickDate.substring(5)) : []; // MM-dd만 표시
+            const dailyData = stats.daily ? stats.daily.map(d => d.cnt) : [];
 
             new Chart(dailyCtx, {
                 type: 'line',
                 data: {
                     labels: dailyLabels,
                     datasets: [{
-                        label: '일별 클릭',
+                        label: '일별 조회수',
                         data: dailyData,
-                        borderColor: '#9966FF',
-                        fill: false
+                        borderColor: '#50cd89', // 초록색 계열
+                        backgroundColor: 'rgba(80, 205, 137, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3 // 부드러운 곡선
                     }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    },
+                    plugins: {
+                        legend: { display: false } // 범례 숨김 (심플하게)
+                    }
                 }
             });
         }

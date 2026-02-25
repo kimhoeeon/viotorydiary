@@ -258,7 +258,7 @@
             $btn.prop('disabled', true);
 
             $.post('/member/follow/toggle', { targetId: targetId }, function(res) {
-                // [수정] 서버 응답값 매칭 및 클래스 토글링
+                // 서버 응답값 매칭 및 클래스 토글링
                 if (res === 'followed') {
                     $btn.removeClass('follow').addClass('not-follow').text('취소');
                 } else if (res === 'unfollowed') {

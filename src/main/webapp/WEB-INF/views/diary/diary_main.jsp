@@ -249,7 +249,7 @@
                                     <ul class="score_card_item">
                                         <c:forEach var="stadium" items="${stadiumStatus}">
                                             <li>
-                                                <%-- [수정] item 객체의 visited 속성 확인 --%>
+                                                <%-- item 객체의 visited 속성 확인 --%>
                                                 <c:choose>
                                                     <c:when test="${stadium.visited}">
                                                         <img src="/img/score_on.svg" alt="${stadium.name} 방문 완료" title="${stadium.name}">

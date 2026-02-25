@@ -9,7 +9,7 @@ window.alert = function(message, callback) {
     // showPopup 함수가 정의되어 있으면(popup.jsp가 include된 페이지면) 커스텀 팝업 사용
     if (typeof showPopup === 'function') {
 
-        // [수정] 줄바꿈 문자(\n)를 HTML 태그(<br>)로 자동 변환
+        // 줄바꿈 문자(\n)를 HTML 태그(<br>)로 자동 변환
         let msgHtml = message;
         if (typeof message === 'string') {
             msgHtml = message.replace(/\n/g, '<br>');
@@ -27,7 +27,7 @@ window.alert = function(message, callback) {
 window.customConfirm = function(message, callback, cancelCallback) {
     if (typeof showPopup === 'function') {
 
-        // [수정] Confirm 메시지도 줄바꿈 처리
+        // Confirm 메시지도 줄바꿈 처리
         let msgHtml = message;
         if (typeof message === 'string') {
             msgHtml = message.replace(/\n/g, '<br>');

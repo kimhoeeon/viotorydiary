@@ -76,7 +76,7 @@ public class MemberService {
             member.setMyTeamCode("NONE"); // 팀 선택 전
         }
 
-        // [수정] 소셜 제공자가 없는 경우에만 NONE으로 설정 (기존 데이터 보존)
+        // 소셜 제공자가 없는 경우에만 NONE으로 설정 (기존 데이터 보존)
         if (member.getSocialProvider() == null || member.getSocialProvider().isEmpty()) {
             member.setSocialProvider("NONE");
         }

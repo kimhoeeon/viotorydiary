@@ -256,7 +256,7 @@
         }
 
         /**
-         * [수정] 공지사항 저장 (AJAX)
+         * 공지사항 저장 (AJAX)
          */
         function saveNotice() {
             const title = $('#title').val();

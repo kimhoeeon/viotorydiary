@@ -158,7 +158,7 @@
             $btn.prop('disabled', true);
 
             $.post('/member/follow/toggle', { targetId: targetId }, function(res) {
-                // [수정] 서버의 실제 응답값(followed, unfollowed)에 맞춰 분기 처리
+                // 서버의 실제 응답값(followed, unfollowed)에 맞춰 분기 처리
                 if (res === 'followed' || res === 'unfollowed') {
                     if (res === 'followed') {
                         // 팔로우 성공 (회색 배경, 텍스트 '취소')
