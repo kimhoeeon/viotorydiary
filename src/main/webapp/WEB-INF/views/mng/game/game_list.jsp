@@ -384,12 +384,11 @@
                     if (data.status === 'CANCELLED' && data.cancelReason && data.cancelReason.includes('우천')) {
                         statusValue = 'RAIN';
                     }
+                    document.getElementById('status').value = statusValue;
 
                     document.getElementById('scoreAway').value = data.scoreAway;
                     document.getElementById('scoreHome').value = data.scoreHome;
-                    document.getElementById('status').value = statusValue;
                     document.getElementById('etcInfo').value = data.etcInfo;
-
                     document.getElementById('homeStarter').value = data.homeStarter || '';
                     document.getElementById('awayStarter').value = data.awayStarter || '';
                     document.getElementById('mvpPlayer').value = data.mvpPlayer || '';
