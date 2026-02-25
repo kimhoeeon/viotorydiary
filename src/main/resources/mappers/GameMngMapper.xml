@@ -6,9 +6,14 @@
     <select id="selectGameListByMonth" resultType="com.viotory.diary.vo.GameVO">
         SELECT
             g.*,
-            s.name AS stadiumName
+            s.name AS stadiumName,
+            t1.name_kr AS homeTeamName,
+            t2.name_kr AS awayTeamName,
+            (SELECT COUNT(*) FROM diaries d WHERE d.game_id = g.game_id AND d.status = 'COMPLETED') AS diaryCount
         FROM games g
-        LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id -- 구장 테이블 조인
+         LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
+         LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
+         LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
         WHERE DATE_FORMAT(g.game_date, '%Y-%m') = #{yearMonth}
         ORDER BY g.game_date ASC, g.game_time ASC
     </select>
@@ -23,40 +28,27 @@
             stadium_id, home_team_code, away_team_code,
             score_home, score_away, winning_team,
             status, cancel_reason, home_starter, away_starter,
-            etc_info, data_source, created_at
+            etc_info, mvp_player, data_source, created_at
         )
         VALUES (
-                   YEAR(#{gameDate}),      -- 날짜에서 연도 추출
-                   'REGULAR',              -- 기본 정규시즌
-                   #{gameDate},
-                   #{gameTime},
-                   '0',                    -- 기본 더블헤더 아님
-                   #{stadiumId},
-                   #{homeTeamCode},
-                   #{awayTeamCode},
-                   IFNULL(#{scoreHome}, 0),
-                   IFNULL(#{scoreAway}, 0),
-                   -- 승리팀 자동 계산 로직
+                   YEAR(#{gameDate}), 'REGULAR', #{gameDate}, #{gameTime}, '0',
+                   #{stadiumId}, #{homeTeamCode}, #{awayTeamCode},
+                   IFNULL(#{scoreHome}, 0), IFNULL(#{scoreAway}, 0),
                    CASE
                        WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) > IFNULL(#{scoreAway},0) THEN #{homeTeamCode}
                        WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreAway},0) > IFNULL(#{scoreHome},0) THEN #{awayTeamCode}
                        WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) = IFNULL(#{scoreAway},0) THEN 'DRAW'
                        ELSE NULL
                        END,
-                   #{status},
-                   #{cancelReason},
-                   #{homeStarter},
-                   #{awayStarter},
-                   #{etcInfo},
-                   'MANUAL',               -- 수동 등록 명시
-                   NOW()
+                   #{status}, #{cancelReason}, #{homeStarter}, #{awayStarter},
+                   #{etcInfo}, #{mvpPlayer}, 'MANUAL', NOW()
                )
     </insert>
 
     <update id="updateGame" parameterType="com.viotory.diary.vo.GameVO">
         UPDATE games
         SET
-            season         = YEAR(#{gameDate}), -- 날짜 변경 시 시즌도 같이 변경
+            season         = YEAR(#{gameDate}),
             game_date      = #{gameDate},
             game_time      = #{gameTime},
             home_team_code = #{homeTeamCode},
@@ -64,18 +56,17 @@
             stadium_id     = #{stadiumId},
             score_home     = #{scoreHome},
             score_away     = #{scoreAway},
-            -- 승리팀 재계산
             winning_team   = CASE
                                  WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) > IFNULL(#{scoreAway},0) THEN #{homeTeamCode}
                                  WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreAway},0) > IFNULL(#{scoreHome},0) THEN #{awayTeamCode}
                                  WHEN #{status} = 'FINISHED' AND IFNULL(#{scoreHome},0) = IFNULL(#{scoreAway},0) THEN 'DRAW'
-                                 ELSE NULL
-                END,
+                                 ELSE NULL END,
             status         = #{status},
             etc_info       = #{etcInfo},
             home_starter   = #{homeStarter},
             away_starter   = #{awayStarter},
             cancel_reason  = #{cancelReason},
+            mvp_player     = #{mvpPlayer},
             updated_at     = NOW()
         WHERE game_id = #{gameId}
     </update>

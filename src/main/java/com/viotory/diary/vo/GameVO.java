@@ -63,4 +63,5 @@ public class GameVO {
 
     private String dataSource;    // API
 
+    private Integer diaryCount;
 }

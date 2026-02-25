@@ -23,31 +23,33 @@ public class GameMngController {
 
     private final GameDataService gameDataService;
     private final GameMngService gameMngService;
-    private final GameMapper gameMapper;
 
     /**
      * 경기 데이터 관리 페이지 (목록 + 동기화 버튼)
      */
-    @GetMapping("/syncPage")
-    public String syncPage(Model model,
+    @GetMapping({"/list", "/syncPage"})
+    public String gameList(Model model,
+                           @RequestParam(value = "ym", required = false) String ym,
                            @RequestParam(value = "year", required = false) String year,
                            @RequestParam(value = "month", required = false) String month) {
 
-        // 기본값: 현재 날짜
-        LocalDate now = LocalDate.now();
-        if (year == null) year = String.valueOf(now.getYear());
-        if (month == null) month = String.format("%02d", now.getMonthValue());
+        // 1. 파라미터가 없으면 무조건 '현재 연도-월' 세팅
+        if (ym == null || ym.isEmpty()) {
+            if (year != null && month != null) {
+                ym = year + "-" + String.format("%02d", Integer.parseInt(month));
+            } else {
+                ym = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+            }
+        }
 
-        // 목록 조회
-        String yearMonth = year + "-" + month;
-        List<GameVO> games = gameMapper.selectGameListByMonth(yearMonth);
-
+        // 2. 데이터 조회
+        List<GameVO> list = gameMngService.getGameList(ym);
         List<StadiumVO> stadiums = gameMngService.getStadiumList();
-        model.addAttribute("stadiums", stadiums);
 
-        model.addAttribute("games", games);
-        model.addAttribute("curYear", year);
-        model.addAttribute("curMonth", month);
+        // 3. 뷰 전달
+        model.addAttribute("stadiums", stadiums);
+        model.addAttribute("list", list);
+        model.addAttribute("ym", ym);
 
         return "mng/game/game_list";
     }
@@ -81,26 +83,6 @@ public class GameMngController {
             log.error("연간 동기화 실패", e);
             return "fail: " + e.getMessage();
         }
-    }
-
-    // 경기 관리 목록 (동기화 페이지 겸용)
-    // 목록 페이지
-    @GetMapping("/list")
-    public String gameList(Model model, @RequestParam(value = "ym", required = false) String ym) {
-        if (ym == null) {
-            ym = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
-        }
-
-        List<GameVO> list = gameMngService.getGameList(ym);
-
-        // 구장 목록 조회 및 모델 추가
-        List<StadiumVO> stadiums = gameMngService.getStadiumList();
-        model.addAttribute("stadiums", stadiums);
-
-        model.addAttribute("list", list);
-        model.addAttribute("ym", ym);
-
-        return "mng/game/game_list";
     }
 
     // 상세 조회 (AJAX)
