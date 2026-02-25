@@ -412,4 +412,31 @@ public class StringUtil {
         return sb.toString();
     }
 
+    /**
+     * 전화번호 하이픈(-) 추가
+     * @param phone 전화번호 (예: 01012345678)
+     * @return 하이픈이 추가된 번호 (예: 010-1234-5678)
+     */
+    public static String formatPhone(String phone) {
+        if (isEmpty(phone)) return "-";
+
+        // 숫자만 남기기 (특수문자 등 제거)
+        String onlyNum = phone.replaceAll("[^0-9]", "");
+
+        if (onlyNum.length() == 11) {
+            return onlyNum.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
+        } else if (onlyNum.length() == 10) {
+            if (onlyNum.startsWith("02")) {
+                return onlyNum.replaceFirst("(\\d{2})(\\d{4})(\\d{4})", "$1-$2-$3");
+            } else {
+                return onlyNum.replaceFirst("(\\d{3})(\\d{3})(\\d{4})", "$1-$2-$3");
+            }
+        } else if (onlyNum.length() == 9) {
+            return onlyNum.replaceFirst("(\\d{2})(\\d{3})(\\d{4})", "$1-$2-$3");
+        } else if (onlyNum.length() == 8) {
+            return onlyNum.replaceFirst("(\\d{4})(\\d{4})", "$1-$2");
+        }
+        return phone; // 자리수가 맞지 않으면 원본 반환
+    }
+
 }

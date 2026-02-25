@@ -168,10 +168,10 @@
 
                                                                     <td>
                                                                         <div class="d-flex flex-column">
-                                                                            <span class="text-gray-800 fw-bold fs-6">
+                                                                            <span class="d-flex align-items-center text-gray-800 fw-bold fs-6">
                                                                                 ${item.nickname}
                                                                                 <c:if test="${not empty item.socialProvider and item.socialProvider ne 'NONE'}">
-                                                                                    <span class="badge fs-9 ms-1" style="background-color: #f8df00; color: #3c1e1e;">${item.socialProvider}</span>
+                                                                                    <span class="badge fs-9 ms-2" style="background-color: #f8df00; color: #3c1e1e;">${item.socialProvider}</span>
                                                                                 </c:if>
                                                                             </span>
                                                                             <span class="text-gray-400 fw-semibold fs-7">${item.email}</span>
@@ -179,10 +179,7 @@
                                                                     </td>
 
                                                                     <td class="text-center">
-                                                                        <c:choose>
-                                                                            <c:when test="${empty item.phoneNumber}">-</c:when>
-                                                                            <c:otherwise>${item.phoneNumber}</c:otherwise>
-                                                                        </c:choose>
+                                                                        ${item.formattedPhoneNumber}
                                                                     </td>
 
                                                                     <td class="text-center">
@@ -207,7 +204,7 @@
                                                                     <td class="text-center">
                                                                         <div class="d-flex flex-column align-items-center">
                                                                             <span class="fw-bolder text-gray-800"><fmt:formatNumber value="${winRate}" pattern="0.0"/>%</span>
-                                                                            <span class="text-muted fs-8">(${item.winCount}승 ${item.loseCount}패 ${item.drawCount}무)</span>
+                                                                            <span class="text-muted fs-8">(${item.winCount}승 ${item.loseCount}패)</span>
                                                                         </div>
                                                                     </td>
 
@@ -224,7 +221,7 @@
                                                                         </c:choose>
                                                                     </td>
 
-                                                                    <td class="text-end">
+                                                                    <td class="text-center">
                                                                         <a href="/mng/members/detail?memberId=${item.memberId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
                                                                            class="btn btn-sm btn-light btn-active-light-primary">상세</a>
                                                                     </td>

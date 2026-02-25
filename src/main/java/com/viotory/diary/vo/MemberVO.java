@@ -1,5 +1,6 @@
 package com.viotory.diary.vo;
 
+import com.viotory.diary.util.StringUtil;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -52,5 +53,10 @@ public class MemberVO {
     private Integer drawCount;              // 무승부 횟수
 
     private boolean isFollowing;
+
+    // [추가] 화면 및 엑셀 출력 시 하이픈이 추가된 전화번호 반환
+    public String getFormattedPhoneNumber() {
+        return StringUtil.formatPhone(this.phoneNumber);
+    }
 
 }

@@ -107,10 +107,10 @@
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">닉네임</label>
                                             <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">
+                                                <span class="d-flex align-items-center fw-bold fs-6 text-gray-800">
                                                     ${member.nickname}
                                                     <c:if test="${not empty member.socialProvider and member.socialProvider ne 'NONE'}">
-                                                        <span class="badge fs-9 ms-1" style="background-color: #f8df00; color: #3c1e1e;">${member.socialProvider}</span>
+                                                        <span class="badge fs-9 ms-2" style="background-color: #f8df00; color: #3c1e1e;">${member.socialProvider}</span>
                                                     </c:if>
                                                 </span>
                                             </div>
@@ -151,9 +151,9 @@
                                         </div>
 
                                         <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">직관 승률 (전적)</label>
+                                            <label class="col-lg-2 fw-semibold text-muted">예측 승률 (전적)</label>
                                             <div class="col-lg-4">
-                                                <c:set var="totalGames" value="${member.winCount + member.loseCount + member.drawCount}" />
+                                                <c:set var="totalGames" value="${member.winCount + member.loseCount}" />
                                                 <c:set var="winRate" value="0.0" />
                                                 <c:if test="${totalGames > 0}">
                                                     <c:set var="winRate" value="${(member.winCount * 100.0) / totalGames}" />
@@ -161,12 +161,12 @@
 
                                                 <span class="fw-bold fs-6 text-gray-800">
                                                     <fmt:formatNumber value="${winRate}" pattern="0.0"/>%
-                                                    <span class="text-muted fs-7 ms-1">(${member.winCount}승 ${member.loseCount}패 ${member.drawCount}무)</span>
+                                                    <span class="text-muted fs-7 ms-1">(${member.winCount}승 ${member.loseCount}패)</span>
                                                 </span>
                                             </div>
                                             <label class="col-lg-2 fw-semibold text-muted">연락처</label>
                                             <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">${empty member.phoneNumber ? '-' : member.phoneNumber}</span>
+                                                <span class="fw-bold fs-6 text-gray-800">${member.formattedPhoneNumber}</span>
                                             </div>
                                         </div>
 

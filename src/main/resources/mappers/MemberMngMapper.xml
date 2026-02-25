@@ -20,12 +20,12 @@
         m.member_id AS memberId,
         m.email,
         m.nickname,
-        m.phone_number,
+        m.phone_number AS phoneNumber,
         m.my_team_code AS myTeamCode,
         (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
         m.status,
         m.created_at AS createdAt,
-        m.social_provider,
+        m.social_provider AS socialProvider,
 
         -- 1. 직관 횟수 (이번달)
         (SELECT COUNT(d.diary_id)
@@ -42,20 +42,10 @@
         -- 3. 팔로워 수 (나를 팔로우하는 사람)
         (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-        -- 4. 전적 (승/패/무)
-        <![CDATA[
-            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1 ELSE 0 END)
-             FROM diaries d JOIN games g ON d.game_id = g.game_id
-             WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS winCount,
-
-            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home) THEN 1 ELSE 0 END)
-             FROM diaries d JOIN games g ON d.game_id = g.game_id
-             WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS loseCount,
-
-            IFNULL((SELECT SUM(CASE WHEN g.score_home = g.score_away THEN 1 ELSE 0 END)
-             FROM diaries d JOIN games g ON d.game_id = g.game_id
-             WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS drawCount
-            ]]>
+        -- 4. 승률 예측 전적 (맞추면 1승, 틀리면 1패)
+        (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 1) AS winCount,
+        (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 0) AS loseCount,
+        0 AS drawCount
 
         FROM members m
         <include refid="criteria"/>
@@ -103,20 +93,10 @@
             -- 3. 팔로워 수 (나를 팔로우하는 사람)
             (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-            -- 4. 전적 (승/패/무)
-            <![CDATA[
-            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1 ELSE 0 END)
-                    FROM diaries d JOIN games g ON d.game_id = g.game_id
-                    WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS winCount,
-
-            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home) THEN 1 ELSE 0 END)
-                    FROM diaries d JOIN games g ON d.game_id = g.game_id
-                    WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS loseCount,
-
-            IFNULL((SELECT SUM(CASE WHEN g.score_home = g.score_away THEN 1 ELSE 0 END)
-                    FROM diaries d JOIN games g ON d.game_id = g.game_id
-                    WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS drawCount
-            ]]>
+            -- 4. 승률 예측 전적 (맞추면 1승, 틀리면 1패)
+            (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 1) AS winCount,
+            (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 0) AS loseCount,
+            0 AS drawCount
 
         FROM members m
         WHERE m.member_id = #{memberId}
@@ -131,23 +111,24 @@
 
     <select id="selectMemberListForExcel" resultType="com.viotory.diary.vo.MemberVO">
         SELECT
-        m.member_id AS memberId,
-        m.email,
-        m.nickname,
-        m.phone_number AS phoneNumber,
-        m.my_team_code AS myTeamCode,
-        (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
-        m.status,
-        m.created_at AS createdAt,
-        m.social_provider AS socialProvider,
-        (SELECT COUNT(d.diary_id) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
-        (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
-        (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
-        <![CDATA[
-            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1 ELSE 0 END) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS winCount,
-            IFNULL((SELECT SUM(CASE WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away) OR (d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home) THEN 1 ELSE 0 END) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS loseCount,
-            IFNULL((SELECT SUM(CASE WHEN g.score_home = g.score_away THEN 1 ELSE 0 END) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND g.status = 'FINISHED' AND d.status = 'COMPLETED' AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')), 0) AS drawCount
-            ]]>
+            m.member_id AS memberId,
+            m.email,
+            m.nickname,
+            m.phone_number AS phoneNumber,
+            m.my_team_code AS myTeamCode,
+            (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
+            m.status,
+            m.created_at AS createdAt,
+            m.social_provider AS socialProvider,
+            (SELECT COUNT(d.diary_id) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
+            (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
+            (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
+
+            -- 예측 전적
+            (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 1) AS winCount,
+            (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 0) AS loseCount,
+            0 AS drawCount
+
         FROM members m
         ORDER BY m.created_at DESC
     </select>
