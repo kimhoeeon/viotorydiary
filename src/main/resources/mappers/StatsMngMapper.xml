@@ -10,38 +10,30 @@
             m.nickname,
             m.my_team_code,
             t.name_kr AS myTeamName,
-            COUNT(d.diary_id) AS totalGames,
 
-            -- 승리 횟수 집계
-            SUM(CASE
-                    WHEN (g.home_team_code = m.my_team_code AND g.score_home > g.score_away) THEN 1
-                    WHEN (g.away_team_code = m.my_team_code AND g.score_away > g.score_home) THEN 1
-                    ELSE 0
-                END) AS winGames,
+            -- 직관 일기와 연결된 예측 횟수를 총 전적으로 계산
+            COUNT(p.prediction_id) AS totalGames,
 
-            -- 패배 횟수 집계
-            SUM(CASE
-                    WHEN (g.home_team_code = m.my_team_code AND g.score_home < g.score_away) THEN 1
-                    WHEN (g.away_team_code = m.my_team_code AND g.score_away < g.score_home) THEN 1
-                    ELSE 0
-                END) AS loseGames,
+            -- 예측 적중(승)
+            SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) AS winGames,
 
-            -- 무승부/취소 등
-            SUM(CASE
-                    WHEN (g.score_home = g.score_away) OR g.status IN ('CANCELLED', 'RAIN') THEN 1
-                    ELSE 0
-                END) AS drawGames
+            -- 예측 실패(패)
+            SUM(CASE WHEN p.is_correct = 0 THEN 1 ELSE 0 END) AS loseGames,
+
+            -- 예측 승률 시스템에서는 무승부가 없으므로 0으로 고정
+            0 AS drawGames
 
         FROM diaries d
-        JOIN members m ON d.member_id = m.member_id
-        JOIN games g ON d.game_id = g.game_id
-        LEFT JOIN teams t ON m.my_team_code = t.team_code
-        WHERE d.status = 'COMPLETED'  -- 정상 등록된 일기만
-          AND d.is_verified = 1       -- 직관 인증된 일기만 포함
-          AND g.status = 'FINISHED'   -- 종료된 경기만 (END -> FINISHED로 수정됨)
+         JOIN members m ON d.member_id = m.member_id
+         JOIN games g ON d.game_id = g.game_id
+         JOIN predictions p ON p.member_id = d.member_id AND p.game_id = g.game_id
+         LEFT JOIN teams t ON m.my_team_code = t.team_code
+        WHERE d.status = 'COMPLETED'
+          AND d.is_verified = 1
+          AND g.status = 'FINISHED'
         GROUP BY m.member_id
-        ORDER BY winGames DESC, totalGames DESC -- 승리수 > 직관수 순 정렬
-        LIMIT 100 -- 상위 100명만
+        ORDER BY winGames DESC, totalGames DESC
+        LIMIT 100
         ]]>
     </select>
 
