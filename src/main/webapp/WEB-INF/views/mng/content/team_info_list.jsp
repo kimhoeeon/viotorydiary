@@ -84,7 +84,7 @@
                                                     <th class="min-w-100px text-center">로고</th>
                                                     <th class="min-w-100px text-center">코드</th>
                                                     <th class="min-w-150px">구단명 (한글/영문)</th>
-                                                    <th class="min-w-100px text-center">메인 컬러</th>
+                                                    <th class="min-w-100px">메인 컬러</th>
                                                     <th class="min-w-100px text-center">관리</th>
                                                 </tr>
                                                 </thead>
@@ -106,7 +106,7 @@
                                                             <div class="text-gray-800 fw-bold">${item.nameKr}</div>
                                                             <div class="text-gray-400 fs-7">${item.nameEn}</div>
                                                         </td>
-                                                        <td class="text-center">
+                                                        <td>
                                                             <div class="d-flex align-items-center">
                                                                 <span class="w-20px h-20px rounded-circle me-2 border" style="background-color:${item.colorMainHex}"></span>
                                                                 ${item.colorMainHex}

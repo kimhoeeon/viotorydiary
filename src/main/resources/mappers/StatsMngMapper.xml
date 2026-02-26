@@ -4,6 +4,7 @@
 <mapper namespace="com.viotory.diary.mapper.StatsMngMapper">
 
     <select id="selectWinRateRanking" resultType="com.viotory.diary.vo.UserStatsVO">
+        <![CDATA[
         SELECT
             m.member_id,
             m.nickname,
@@ -20,8 +21,8 @@
 
             -- 패배 횟수 집계
             SUM(CASE
-                    WHEN (g.home_team_code = m.my_team_code AND g.score_home &lt; g.score_away) THEN 1
-                    WHEN (g.away_team_code = m.my_team_code AND g.score_away &lt; g.score_home) THEN 1
+                    WHEN (g.home_team_code = m.my_team_code AND g.score_home < g.score_away) THEN 1
+                    WHEN (g.away_team_code = m.my_team_code AND g.score_away < g.score_home) THEN 1
                     ELSE 0
                 END) AS loseGames,
 
@@ -32,14 +33,16 @@
                 END) AS drawGames
 
         FROM diaries d
-                 JOIN members m ON d.member_id = m.member_id
-                 JOIN games g ON d.game_id = g.game_id
-                 LEFT JOIN teams t ON m.my_team_code = t.team_code
+        JOIN members m ON d.member_id = m.member_id
+        JOIN games g ON d.game_id = g.game_id
+        LEFT JOIN teams t ON m.my_team_code = t.team_code
         WHERE d.status = 'COMPLETED'  -- 정상 등록된 일기만
-          AND g.status = 'END'        -- 종료된 경기만
+          AND d.is_verified = 1       -- 직관 인증된 일기만 포함
+          AND g.status = 'FINISHED'   -- 종료된 경기만 (END -> FINISHED로 수정됨)
         GROUP BY m.member_id
         ORDER BY winGames DESC, totalGames DESC -- 승리수 > 직관수 순 정렬
         LIMIT 100 -- 상위 100명만
+        ]]>
     </select>
 
     <select id="selectDau" resultType="int">
@@ -49,12 +52,15 @@
     </select>
 
     <select id="selectMau" resultType="int">
+        <![CDATA[
         SELECT COUNT(DISTINCT member_id)
         FROM access_logs
         WHERE login_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        ]]>
     </select>
 
     <select id="selectTotalAvgWinRate" resultType="double">
+        <![CDATA[
         SELECT
             IFNULL(
                     (SUM(CASE
@@ -69,24 +75,29 @@
           AND g.status = 'FINISHED'
           AND d.status = 'COMPLETED'
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
+        ]]>
     </select>
 
     <select id="selectAvgMonthlyDiaries" resultType="double">
+        <![CDATA[
         SELECT IFNULL(COUNT(d.diary_id) / NULLIF(#{mau}, 0), 0) AS avgMonthlyDiaries
         FROM diaries d
         INNER JOIN games g ON d.game_id = g.game_id
         WHERE d.created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
           AND d.status = 'COMPLETED'
           AND g.status != 'CANCELLED'
+        ]]>
     </select>
 
     <select id="selectWeeklyAccessStats" resultType="map">
+        <![CDATA[
         SELECT DATE_FORMAT(login_date, '%Y-%m-%d') as logDate,
                COUNT(member_id) as cnt
         FROM access_logs
         WHERE login_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
         GROUP BY login_date
         ORDER BY login_date ASC
+        ]]>
     </select>
 
 </mapper>
