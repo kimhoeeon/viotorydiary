@@ -43,72 +43,41 @@ public class GameScheduleTask {
     }
 
     /**
-     * [라이브 업데이트] 매일 13시 ~ 23시 (1분 간격)
-     * - 실시간 점수 업데이트
-     * - 경기 종료(FINISHED) 감지 시 승부예측 결과 처리 및 알림 발송
+     * [통합 라이브 스케줄러] 매일 08시 ~ 익일 02시 59분 (1분 간격)
+     * - 실시간 점수 확인
+     * - 경기 상태 변경(LIVE, FINISHED, CANCELLED) 감지 시 1회 알림 발송 및 DB 변경
+     * - 경기 종료 및 취소 시 승부예측 정산 (1회 보장)
+     * - 아침 일찍 우천취소 및 자정 넘어가는 연장전 완벽 대응
      */
-    @Scheduled(cron = "0 0/1 13-23 * * *")
+    @Scheduled(cron = "0 0/1 8-23,0-2 * * *")
     public void runLiveSync() {
         log.debug(">>> [라이브 스케줄러] 실시간 경기 정보 확인 중...");
 
-        // 1. 오늘 경기 목록 조회
-        List<GameVO> todayGames = gameService.getAllGamesToday();
-        if (todayGames.isEmpty()) return;
+        // 오늘 경기 전체가 아닌, "어제/오늘 중 아직 안 끝난 경기"만 타겟팅
+        List<GameVO> ongoingGames = gameService.getOngoingGames();
 
-        for (GameVO game : todayGames) {
-            // try-catch를 반복문 안으로 이동 (개별 경기 에러 격리)
+        // 안 끝난 경기가 없으면 (월요일 등) 즉시 종료되어 불필요한 API 호출(비용) 완벽 차단!
+        if (ongoingGames.isEmpty()) return;
+
+        for (GameVO game : ongoingGames) {
             try {
-                // 종료(FINISHED)되었거나 취소(CANCELLED)된 경기는 업데이트 건너뛰기
-                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
-                    // (선택) 종료된 경기도 알림 누락 방지 차원에서 호출 가능
-                    playService.processPredictionResult(game);
-                    continue;
-                }
-
-                // 2. 업데이트 수행
+                // 1. API를 통해 최신 점수 및 상태 정보 업데이트
                 GameVO updatedGame = gameDataService.updateLiveGame(game.getApiGameId());
 
                 if (updatedGame != null) {
-                    // 3. (종료 OR 취소 시 결과 처리 시도) 감지 시 승부예측 처리
-                    if ("FINISHED".equals(updatedGame.getStatus()) || "CANCELLED".equals(updatedGame.getStatus())) {
-                        log.info(">>> [경기종료 감지] {} vs {}, 결과 처리 시도 : ({} -> {})",
-                                updatedGame.getHomeTeamName(), updatedGame.getAwayTeamName(), game.getStatus(), updatedGame.getStatus());
-
-                        playService.processPredictionResult(updatedGame);
-                    }
-                }
-            } catch (Exception e) {
-                // 특정 경기 업데이트 실패 시 로그만 남기고 다음 경기로 진행
-                log.error(">>> [라이브 스케줄러] 경기({}) 업데이트 실패: {}", game.getGameId(), e.getMessage());
-            }
-        }
-    }
-
-    @Scheduled(cron = "0 0/5 * * * *") // 5분 주기
-    public void runLiveGameStatusUpdate() {
-        log.info("### [스케줄러] 라이브 경기 상태 변경 감지 시작");
-
-        String today = java.time.LocalDate.now().toString();
-        List<GameVO> todayGames = gameService.getAllGamesToday();
-
-        for (GameVO game : todayGames) {
-            try {
-                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
-                    continue;
-                }
-
-                GameVO updatedGame = gameDataService.fetchSingleGameInfo(game.getApiGameId());
-                if (updatedGame != null) {
+                    // 상태가 변경되는 찰나의 순간을 감지 (중복 실행 방지)
                     if (!game.getStatus().equals(updatedGame.getStatus())) {
                         log.info(">>> [상태 변경 감지] {} vs {}, 상태 : {} -> {}",
                                 updatedGame.getHomeTeamName(), updatedGame.getAwayTeamName(), game.getStatus(), updatedGame.getStatus());
 
-                        // 상태가 변했을 때 알림 데이터 생성
+                        // 2. 사용자에게 상태 변경 알림 발송 (시작/종료/취소)
                         createGameStatusAlarm(updatedGame, updatedGame.getStatus());
 
+                        // 3. DB에 확실하게 변경된 상태 저장
                         gameDataService.updateGameStatus(updatedGame);
 
-                        if ("FINISHED".equals(updatedGame.getStatus())) {
+                        // 4. 경기가 종료되거나 취소되었을 때 승부예측 결과 정산 로직 실행
+                        if ("FINISHED".equals(updatedGame.getStatus()) || "CANCELLED".equals(updatedGame.getStatus())) {
                             playService.processPredictionResult(updatedGame);
                         }
                     }

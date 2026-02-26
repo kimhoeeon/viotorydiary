@@ -58,4 +58,8 @@ public interface GameMapper {
     List<StadiumVO> selectAllStadiums();
 
     int updateGameStatusOnly(GameVO game);
+
+    // 자정 넘어가는 연장전 대비 (어제~오늘 진행/예정 경기 조회)
+    List<GameVO> selectOngoingGames();
+
 }

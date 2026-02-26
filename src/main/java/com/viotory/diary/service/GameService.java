@@ -59,4 +59,9 @@ public class GameService {
         return gameMapper.countTodayGames();
     }
 
+    // 진행 중인 경기 조회
+    public List<GameVO> getOngoingGames() {
+        return gameMapper.selectOngoingGames();
+    }
+
 }

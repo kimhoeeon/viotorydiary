@@ -245,4 +245,11 @@
         WHERE game_id = #{gameId}
     </update>
 
+    <select id="selectOngoingGames" resultType="com.viotory.diary.vo.GameVO">
+        SELECT *
+        FROM games
+        WHERE status IN ('SCHEDULED', 'LIVE')
+          AND game_date >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+    </select>
+
 </mapper>
