@@ -89,7 +89,7 @@
                                                     <th class="min-w-80px text-center text-primary">승</th>
                                                     <th class="min-w-80px text-center text-danger">패</th>
                                                     <th class="min-w-100px text-center">승률</th>
-                                                    <th class="w-80px text-end">관리</th>
+                                                    <th class="w-80px text-center">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
