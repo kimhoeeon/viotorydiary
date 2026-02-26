@@ -123,7 +123,8 @@
                                                         <i class="ki-duotone ki-pencil fs-2">
                                                             <span class="path1"></span>
                                                             <span class="path2"></span>
-                                                        </i> 요청하기</a>
+                                                        </i> 요청하기
+                                                    </a>
                                                 </c:if>
                                             </div>
                                         </form>
