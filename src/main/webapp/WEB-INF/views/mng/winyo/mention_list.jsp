@@ -153,18 +153,18 @@
                                     <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_ecommerce_category_table">
                                         <thead>
                                         <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                            <th class="min-w-100px">분석 기준 (Category)</th>
-                                            <th class="min-w-100px">등급/상태 (Code)</th>
-                                            <th class="min-w-50px">노출순위</th>
+                                            <th class="min-w-100px text-center">분석 기준 (Category)</th>
+                                            <th class="min-w-100px text-center">등급/상태 (Code)</th>
+                                            <th class="min-w-50px text-center">노출순위</th>
                                             <th class="min-w-300px">멘트 내용</th>
                                             <th class="min-w-150px">관리자 설명</th>
-                                            <th class="min-w-100px">관리</th>
+                                            <th class="min-w-100px text-center">관리</th>
                                         </tr>
                                         </thead>
                                         <tbody class="text-gray-600 fw-semibold">
                                         <c:forEach var="item" items="${list}">
                                             <tr>
-                                                <td>
+                                                <td class="text-center">
                                                     <c:choose>
                                                         <c:when test="${item.category eq 'WIN_RATE'}">
                                                             <span class="badge badge-light-success fw-bold">승률 기반</span>
@@ -180,14 +180,14 @@
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                     <span class="fw-bold text-gray-800">${item.conditionCode}</span>
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                     <span class="badge badge-secondary fs-7 fw-bold">${item.priority}</span>
                                                 </td>
                                                 <td class="text-gray-800 text-truncate" style="max-width: 300px;">
-                                                        ${item.message}
+                                                    ${item.message}
                                                 </td>
                                                 <td class="text-gray-500 fs-7">
                                                     <c:choose>
@@ -197,12 +197,14 @@
                                                         <c:otherwise>-</c:otherwise>
                                                     </c:choose>
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                     <a href="#" class="btn btn-light btn-active-light-primary btn-sm"
                                                        data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
-                                                        관리 <i class="ki-duotone ki-down fs-5 m-0">
-                                                        <span class="path1"></span><span class="path2"></span>
-                                                    </i>
+                                                        관리
+                                                        <i class="ki-duotone ki-down fs-5 m-0">
+                                                            <span class="path1"></span>
+                                                            <span class="path2"></span>
+                                                        </i>
                                                     </a>
                                                     <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-semibold fs-7 w-125px py-4"
                                                          data-kt-menu="true">

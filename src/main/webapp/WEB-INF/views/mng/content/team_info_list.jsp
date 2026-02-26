@@ -80,43 +80,44 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">순서</th>
-                                                    <th class="min-w-100px">로고</th>
-                                                    <th class="min-w-100px">코드</th>
+                                                    <th class="min-w-50px text-center">순서</th>
+                                                    <th class="min-w-100px text-center">로고</th>
+                                                    <th class="min-w-100px text-center">코드</th>
                                                     <th class="min-w-150px">구단명 (한글/영문)</th>
-                                                    <th class="min-w-100px">메인 컬러</th>
-                                                    <th class="min-w-100px">관리</th>
+                                                    <th class="min-w-100px text-center">메인 컬러</th>
+                                                    <th class="min-w-100px text-center">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
                                                 <c:forEach var="item" items="${list}">
                                                     <tr>
-                                                        <td><span class="badge badge-light fw-bold">${item.sortOrder}</span>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-light fw-bold">${item.sortOrder}</span>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <div class="symbol symbol-50px">
-                                                                <img src="${item.logoImageUrl}" alt="${item.nameKr}"
-                                                                     onerror="this.src='/img/logo.png'"/>
+                                                                <img src="${item.logoImageUrl}" alt="${item.nameKr}" onerror="this.src='/img/logo.png'"/>
                                                             </div>
                                                         </td>
-                                                        <td><span class="badge badge-light-primary">${item.teamCode}</span>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-light-primary">${item.teamCode}</span>
                                                         </td>
                                                         <td>
                                                             <div class="text-gray-800 fw-bold">${item.nameKr}</div>
                                                             <div class="text-gray-400 fs-7">${item.nameEn}</div>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <div class="d-flex align-items-center">
-                                                                <span class="w-20px h-20px rounded-circle me-2 border"
-                                                                      style="background-color:${item.colorMainHex}"></span>
-                                                                    ${item.colorMainHex}
+                                                                <span class="w-20px h-20px rounded-circle me-2 border" style="background-color:${item.colorMainHex}"></span>
+                                                                ${item.colorMainHex}
                                                             </div>
                                                         </td>
-                                                        <td>
-                                                            <button class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm"
-                                                                    onclick="editTeam('${item.teamCode}')">
-                                                                <i class="ki-duotone ki-pencil fs-2"><span
-                                                                        class="path1"></span><span class="path2"></span></i>
+                                                        <td class="text-center">
+                                                            <button class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm" onclick="editTeam('${item.teamCode}')">
+                                                                <i class="ki-duotone ki-pencil fs-2">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                </i>
                                                             </button>
                                                         </td>
                                                     </tr>

@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -87,31 +88,60 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                     <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                                                        <th class="min-w-50px">No</th>
+                                                        <th class="min-w-50px text-center">No.</th>
                                                         <th class="min-w-200px">제목</th>
                                                         <th class="min-w-100px">기간</th>
-                                                        <th class="min-w-100px">상태</th>
-                                                        <th class="min-w-100px">등록일</th>
-                                                        <th class="min-w-70px">관리</th>
+                                                        <th class="min-w-100px text-center">상태</th>
+                                                        <th class="min-w-100px text-center">등록일</th>
+                                                        <th class="min-w-70px text-center">관리</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${events}">
+                                                <c:forEach var="item" items="${events}" varStatus="status">
                                                     <tr>
-                                                        <td>${item.eventId}</td>
-                                                        <td>
-                                                            <a href="/mng/content/events/detail?eventId=${item.eventId}" class="text-gray-800 text-hover-primary fs-5 fw-bold">
-                                                                ${item.title}
-                                                            </a>
-                                                        </td>
+                                                        <td class="text-center">${events.size() - status.index}</td>
+                                                        <td>${item.title}</td>
                                                         <td>${item.startDate} ~ ${item.endDate}</td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <c:if test="${item.status eq 'ACTIVE'}"><span class="badge badge-light-success">활성</span></c:if>
                                                             <c:if test="${item.status eq 'INACTIVE'}"><span class="badge badge-light-secondary">비활성</span></c:if>
                                                         </td>
-                                                        <td>${item.createdAt.toString().substring(0,10)}</td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-light-danger" onclick="deleteEvent(${item.eventId})">삭제</button>
+                                                        <td class="text-center">
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.createdAt}">
+                                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                    <c:choose>
+                                                                        <c:when test="${fn:length(cDate) > 19}">
+                                                                            ${fn:substring(cDate, 0, 19)}
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            ${cDate}
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:when>
+                                                                <c:otherwise>-</c:otherwise>
+                                                            </c:choose>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <a href="/mng/content/events/detail?eventId=${item.eventId}"
+                                                               class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1" title="수정">
+                                                                <i class="ki-duotone ki-pencil fs-2">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                </i>
+                                                            </a>
+                                                            <button type="button"
+                                                                    onclick="deleteEvent('${item.eventId}')"
+                                                                    class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
+                                                                    title="삭제">
+                                                                <i class="ki-duotone ki-trash fs-2">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                    <span class="path3"></span>
+                                                                    <span class="path4"></span>
+                                                                    <span class="path5"></span>
+                                                                </i>
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>

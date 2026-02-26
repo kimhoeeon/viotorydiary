@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -70,25 +71,23 @@
 
                                 <div class="card mb-7">
                                     <div class="card-body">
-                                        <form id="searchForm" action="/mng/comment/list" method="get"
-                                              class="d-flex align-items-center">
+                                        <form id="searchForm" action="/mng/comment/list" method="get" class="d-flex align-items-center">
                                             <input type="hidden" name="pageNum" value="1">
                                             <input type="hidden" name="amount" value="${pageMaker.cri.amount}">
 
                                             <div class="position-relative w-md-400px me-md-2">
-                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6"><span
-                                                        class="path1"></span><span class="path2"></span></i>
+                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
                                                 <input type="text" class="form-control form-control-solid ps-10"
                                                        name="keyword" value="${pageMaker.cri.keyword}"
                                                        placeholder="내용 또는 작성자 검색"/>
                                             </div>
                                             <select name="status" class="form-select form-select-solid w-150px me-3">
-                                                <option value="" ${empty pageMaker.cri.status ? 'selected' : ''}>전체 상태
-                                                </option>
-                                                <option value="N" ${pageMaker.cri.status eq 'N' ? 'selected' : ''}>정상
-                                                </option>
-                                                <option value="Y" ${pageMaker.cri.status eq 'Y' ? 'selected' : ''}>삭제됨
-                                                </option>
+                                                <option value="" ${empty pageMaker.cri.status ? 'selected' : ''}>전체 상태</option>
+                                                <option value="N" ${pageMaker.cri.status eq 'N' ? 'selected' : ''}>정상</option>
+                                                <option value="Y" ${pageMaker.cri.status eq 'Y' ? 'selected' : ''}>삭제됨</option>
                                             </select>
                                             <button type="button" class="btn btn-primary" onclick="searchInit()">검색</button>
                                         </form>
@@ -100,58 +99,78 @@
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
-                                                <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">No</th>
-                                                    <th class="min-w-300px">댓글 내용</th>
-                                                    <th class="min-w-100px">작성자</th>
-                                                    <th class="min-w-100px">작성일</th>
-                                                    <th class="min-w-50px">상태</th>
-                                                    <th class="min-w-100px">관리</th>
-                                                </tr>
+                                                    <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                                                        <th class="min-w-50px text-center">No.</th>
+                                                        <th class="min-w-300px">댓글 내용</th>
+                                                        <th class="min-w-100px">작성자</th>
+                                                        <th class="min-w-100px text-center">작성일</th>
+                                                        <th class="min-w-50px text-center">상태</th>
+                                                        <th class="min-w-100px text-center">관리</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${list}">
-                                                    <tr>
-                                                        <td>${item.commentId}</td>
-                                                        <td>
-                                                            <span class="text-gray-800 d-block text-truncate" style="max-width: 400px;">${item.content}</span>
-                                                            <a href="/mng/diary/detail?diaryId=${item.diaryId}" target="_blank"
-                                                               class="text-gray-400 fs-8 text-hover-primary">
-                                                                <i class="ki-duotone ki-entrance-right fs-8"></i> 원본 일기 보기
-                                                            </a>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex flex-column">
-                                                                <span class="text-gray-800 fw-bold fs-7">${item.nickname}</span>
-                                                                <span class="text-gray-400 fs-8">${item.email}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td>${item.regDateStr}</td>
-                                                        <td>
-                                                            <c:if test="${item.delYn eq 'N'}"><span
-                                                                    class="badge badge-light-success">게시</span></c:if>
-                                                            <c:if test="${item.delYn eq 'Y'}"><span
-                                                                    class="badge badge-light-danger">삭제</span></c:if>
-                                                        </td>
-                                                        <td>
-                                                            <c:if test="${item.delYn eq 'N'}">
-                                                                <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
-                                                                        onclick="deleteComment('${item.commentId}')">
-                                                                    <i class="ki-duotone ki-trash fs-2"><span
-                                                                            class="path1"></span><span class="path2"></span><span
-                                                                            class="path3"></span><span class="path4"></span><span
-                                                                            class="path5"></span></i>
-                                                                </button>
-                                                            </c:if>
-                                                            <c:if test="${item.delYn eq 'Y'}">-</c:if>
-                                                        </td>
-                                                    </tr>
-                                                </c:forEach>
-                                                <c:if test="${empty list}">
-                                                    <tr>
-                                                        <td colspan="6" class="text-center py-10">작성된 댓글이 없습니다.</td>
-                                                    </tr>
-                                                </c:if>
+                                                    <c:forEach var="item" items="${list}" varStatus="status">
+                                                        <tr>
+                                                            <td class="text-center">${list.size() - status.index}</td>
+                                                            <td>
+                                                                <span class="text-gray-800 d-block text-truncate" style="max-width: 400px;">${item.content}</span>
+                                                                <a href="/mng/diary/detail?diaryId=${item.diaryId}" target="_blank"
+                                                                   class="text-gray-400 fs-8 text-hover-primary">
+                                                                    <i class="ki-duotone ki-entrance-right fs-8"></i> 원본 일기 보기
+                                                                </a>
+                                                            </td>
+                                                            <td>
+                                                                <div class="d-flex flex-column">
+                                                                    <span class="text-gray-800 fw-bold fs-7">${item.nickname}</span>
+                                                                    <span class="text-gray-400 fs-8">${item.email}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <c:choose>
+                                                                    <c:when test="${not empty item.regDateStr}">
+                                                                        <c:set var="cDate" value="${fn:replace(item.regDateStr, 'T', ' ')}" />
+                                                                        <c:choose>
+                                                                            <c:when test="${fn:length(cDate) > 19}">
+                                                                                ${fn:substring(cDate, 0, 19)}
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                ${cDate}
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </c:when>
+                                                                    <c:otherwise>-</c:otherwise>
+                                                                </c:choose>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <c:if test="${item.delYn eq 'N'}">
+                                                                    <span class="badge badge-light-success">게시</span>
+                                                                </c:if>
+                                                                <c:if test="${item.delYn eq 'Y'}">
+                                                                    <span class="badge badge-light-danger">삭제</span>
+                                                                </c:if>
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <c:if test="${item.delYn eq 'N'}">
+                                                                    <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
+                                                                            onclick="deleteComment('${item.commentId}')">
+                                                                        <i class="ki-duotone ki-trash fs-2">
+                                                                            <span class="path1"></span>
+                                                                            <span class="path2"></span>
+                                                                            <span class="path3"></span>
+                                                                            <span class="path4"></span>
+                                                                            <span class="path5"></span>
+                                                                        </i>
+                                                                    </button>
+                                                                </c:if>
+                                                                <c:if test="${item.delYn eq 'Y'}">-</c:if>
+                                                            </td>
+                                                        </tr>
+                                                    </c:forEach>
+                                                    <c:if test="${empty list}">
+                                                        <tr>
+                                                            <td colspan="6" class="text-center py-10">작성된 댓글이 없습니다.</td>
+                                                        </tr>
+                                                    </c:if>
                                                 </tbody>
                                             </table>
                                         </div>

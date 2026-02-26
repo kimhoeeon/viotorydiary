@@ -81,20 +81,20 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">순위</th>
+                                                    <th class="min-w-50px text-center">순위</th>
                                                     <th class="min-w-150px">회원정보</th>
-                                                    <th class="min-w-100px">응원구단</th>
+                                                    <th class="min-w-100px text-center">응원구단</th>
                                                     <th class="min-w-100px text-center">총 직관</th>
                                                     <th class="min-w-100px text-center text-primary">승리</th>
                                                     <th class="min-w-100px text-center text-danger">패배</th>
                                                     <th class="min-w-100px text-center">승률</th>
-                                                    <th class="min-w-100px">관리</th>
+                                                    <th class="min-w-100px text-center">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
                                                 <c:forEach var="item" items="${list}">
                                                     <tr>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <c:choose>
                                                                 <c:when test="${item.ranking <= 3}">
                                                                     <span class="badge badge-circle badge-warning w-30px h-30px fs-6 text-white">${item.ranking}</span>
@@ -107,13 +107,14 @@
                                                         <td>
                                                             <div class="d-flex align-items-center">
                                                                 <div class="d-flex flex-column">
-                                                                    <a href="/mng/members/detail?memberId=${item.memberId}"
-                                                                       class="text-gray-800 text-hover-primary mb-1">${item.nickname}</a>
+                                                                    <a href="/mng/members/detail?memberId=${item.memberId}" class="text-gray-800 text-hover-primary mb-1">
+                                                                        ${item.nickname}
+                                                                    </a>
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td><span
-                                                                class="badge badge-light fw-bold">${item.myTeamName}</span>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-light fw-bold">${item.myTeamName}</span>
                                                         </td>
                                                         <td class="text-center fw-bold">${item.totalGames}</td>
                                                         <td class="text-center fw-bold text-primary">${item.winGames}</td>
@@ -121,11 +122,13 @@
                                                         <td class="text-center">
                                                             <span class="badge badge-light-primary fw-bold fs-7">${item.winRate}%</span>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <a href="/mng/members/detail?memberId=${item.memberId}"
                                                                class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm">
-                                                                <i class="ki-duotone ki-magnifier fs-2"><span
-                                                                        class="path1"></span><span class="path2"></span></i>
+                                                                <i class="ki-duotone ki-magnifier fs-2">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                </i>
                                                             </a>
                                                         </td>
                                                     </tr>

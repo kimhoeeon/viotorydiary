@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -103,39 +104,52 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">No</th>
-                                                    <th class="min-w-100px">유형</th>
+                                                    <th class="min-w-50px text-center">No.</th>
+                                                    <th class="min-w-100px text-center">유형</th>
                                                     <th class="min-w-300px">제목</th>
-                                                    <th class="min-w-100px">작성자</th>
-                                                    <th class="min-w-100px">작성일</th>
-                                                    <th class="min-w-100px">상태</th>
-                                                    <th class="min-w-100px">관리</th>
+                                                    <th class="min-w-100px text-center">작성자</th>
+                                                    <th class="min-w-100px text-center">작성일</th>
+                                                    <th class="min-w-100px text-center">상태</th>
+                                                    <th class="min-w-100px text-center">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${list}">
+                                                <c:forEach var="item" items="${list}" varStatus="status">
                                                     <tr>
-                                                        <td>${item.inquiryId}</td>
-                                                        <td><span class="badge badge-light-primary">${item.typeName}</span>
+                                                        <td class="text-center">${list.size() - status.index}</td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-light-primary">${item.typeName}</span>
                                                         </td>
                                                         <td>
                                                             <a href="/mng/support/inquiry/detail?inquiryId=${item.inquiryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
                                                                class="text-gray-800 text-hover-primary fw-bold">${item.title}</a>
                                                         </td>
-                                                        <td>${item.memberName}</td>
-                                                        <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate"
-                                                                           type="both"/>
-                                                            <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd"/>
+                                                        <td class="text-center">${item.memberName}</td>
+                                                        <td class="text-center">
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.createdAt}">
+                                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                    <c:choose>
+                                                                        <c:when test="${fn:length(cDate) > 19}">
+                                                                            ${fn:substring(cDate, 0, 19)}
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            ${cDate}
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:when>
+                                                                <c:otherwise>-</c:otherwise>
+                                                            </c:choose>
                                                         </td>
-                                                        <td>
-                                                            <c:if test="${item.status eq 'WAITING'}"><span
-                                                                    class="badge badge-light-warning">답변대기</span></c:if>
-                                                            <c:if test="${item.status eq 'COMPLETED'}"><span
-                                                                    class="badge badge-light-success">답변완료</span></c:if>
+                                                        <td class="text-center">
+                                                            <c:if test="${item.status eq 'WAITING'}">
+                                                                <span class="badge badge-light-warning">답변대기</span>
+                                                            </c:if>
+                                                            <c:if test="${item.status eq 'COMPLETED'}">
+                                                                <span class="badge badge-light-success">답변완료</span>
+                                                            </c:if>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <a href="/mng/support/inquiry/detail?inquiryId=${item.inquiryId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&keyword=${pageMaker.cri.keyword}&status=${pageMaker.cri.status}"
                                                                class="btn btn-light btn-active-light-primary btn-sm">상세</a>
                                                         </td>
@@ -154,9 +168,11 @@
                                             <div class="fs-6 fw-semibold text-gray-700"></div>
                                             <ul class="pagination">
                                                 <c:if test="${pageMaker.prev}">
-                                                    <li class="page-item previous"><a href="${pageMaker.startPage - 1}"
-                                                                                      class="page-link"><i
-                                                            class="previous"></i></a></li>
+                                                    <li class="page-item previous">
+                                                        <a href="${pageMaker.startPage - 1}" class="page-link">
+                                                            <i class="previous"></i>
+                                                        </a>
+                                                    </li>
                                                 </c:if>
                                                 <c:forEach var="num" begin="${pageMaker.startPage}"
                                                            end="${pageMaker.endPage}">
@@ -165,8 +181,10 @@
                                                     </li>
                                                 </c:forEach>
                                                 <c:if test="${pageMaker.next}">
-                                                    <li class="page-item next"><a href="${pageMaker.endPage + 1}"
-                                                                                  class="page-link"><i class="next"></i></a>
+                                                    <li class="page-item next">
+                                                        <a href="${pageMaker.endPage + 1}" class="page-link">
+                                                            <i class="next"></i>
+                                                        </a>
                                                     </li>
                                                 </c:if>
                                             </ul>

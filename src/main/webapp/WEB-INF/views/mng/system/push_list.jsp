@@ -117,7 +117,7 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">No</th>
+                                                    <th class="min-w-50px">No.</th>
                                                     <th class="min-w-150px">제목</th>
                                                     <th class="min-w-250px">내용</th>
                                                     <th class="min-w-100px">링크</th>

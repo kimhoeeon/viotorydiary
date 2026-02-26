@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -135,20 +136,20 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                    <th class="min-w-50px">No</th>
-                                                    <th class="min-w-80px">유형</th>
+                                                    <th class="min-w-50px text-center">No.</th>
+                                                    <th class="min-w-80px text-center">유형</th>
                                                     <th class="min-w-300px">제목</th>
-                                                    <th class="min-w-100px">작성자</th>
-                                                    <th class="min-w-100px">등록일</th>
-                                                    <th class="min-w-100px">처리예정일</th>
-                                                    <th class="min-w-80px">상태</th>
+                                                    <th class="min-w-100px text-center">작성자</th>
+                                                    <th class="min-w-100px text-center">등록일</th>
+                                                    <th class="min-w-100px text-center">처리예정일</th>
+                                                    <th class="min-w-80px text-center">상태</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${list}">
+                                                <c:forEach var="item" items="${list}" varStatus="status">
                                                     <tr>
-                                                        <td>${item.reqId}</td>
-                                                        <td>
+                                                        <td class="text-center">${list.size() - status.index}</td>
+                                                        <td class="text-center">
                                                             <c:if test="${item.urgency eq 'Y'}">
                                                                 <span class="badge badge-danger me-1">긴급</span>
                                                             </c:if>
@@ -157,21 +158,33 @@
                                                         <td>
                                                             <a href="/mng/dev/detail?reqId=${item.reqId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&category=${pageMaker.cri.category}&status=${pageMaker.cri.status}&keyword=${pageMaker.cri.keyword}"
                                                                class="text-gray-800 text-hover-primary fw-bold fs-6">
-                                                                    ${item.title}
+                                                                ${item.title}
                                                                 <c:if test="${item.commentCount > 0}">
                                                                     <span class="text-primary ms-1">[${item.commentCount}]</span>
                                                                 </c:if>
                                                             </a>
                                                         </td>
-                                                        <td>${item.writerName}</td>
-                                                        <td>
-                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
-                                                            <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd"/>
+                                                        <td class="text-center">${item.writerName}</td>
+                                                        <td class="text-center">
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.createdAt}">
+                                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                    <c:choose>
+                                                                        <c:when test="${fn:length(cDate) > 19}">
+                                                                            ${fn:substring(cDate, 0, 19)}
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            ${cDate}
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:when>
+                                                                <c:otherwise>-</c:otherwise>
+                                                            </c:choose>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <c:out value="${item.dueDate}" default="-"/>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <span class="badge ${item.statusBadge}">${item.status}</span>
                                                         </td>
                                                     </tr>

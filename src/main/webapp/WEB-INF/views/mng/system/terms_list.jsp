@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -85,10 +86,10 @@
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                                                     <th class="min-w-100px">구분</th>
                                                     <th class="min-w-150px">약관명</th>
-                                                    <th class="min-w-50px">버전</th>
-                                                    <th class="min-w-50px">필수</th>
-                                                    <th class="min-w-100px">등록일</th>
-                                                    <th class="min-w-100px">관리</th>
+                                                    <th class="min-w-50px text-center">버전</th>
+                                                    <th class="min-w-50px text-center">필수</th>
+                                                    <th class="min-w-100px text-center">등록일</th>
+                                                    <th class="min-w-100px text-center">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
@@ -98,33 +99,50 @@
                                                             <span class="badge badge-light-primary fw-bold">${item.typeName}</span>
                                                         </td>
                                                         <td class="text-gray-800 fw-bold">${item.title}</td>
-                                                        <td><span class="badge badge-light fw-bold">${item.version}</span>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-light fw-bold">${item.version}</span>
                                                         </td>
-                                                        <td>
-                                                            <c:if test="${item.isRequired eq 'Y'}"><span
-                                                                    class="text-danger fw-bold">필수</span></c:if>
-                                                            <c:if test="${item.isRequired eq 'N'}"><span
-                                                                    class="text-gray-500">선택</span></c:if>
+                                                        <td class="text-center">
+                                                            <c:if test="${item.isRequired eq 'Y'}">
+                                                                <span class="text-danger fw-bold">필수</span>
+                                                            </c:if>
+                                                            <c:if test="${item.isRequired eq 'N'}">
+                                                                <span class="text-gray-500">선택</span>
+                                                            </c:if>
                                                         </td>
-                                                        <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate"
-                                                                           type="both"/>
-                                                            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
+                                                        <td class="text-center">
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.createdAt}">
+                                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                    <c:choose>
+                                                                        <c:when test="${fn:length(cDate) > 19}">
+                                                                            ${fn:substring(cDate, 0, 19)}
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            ${cDate}
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:when>
+                                                                <c:otherwise>-</c:otherwise>
+                                                            </c:choose>
                                                         </td>
-                                                        <td>
+                                                        <td class="text-center">
                                                             <a href="/mng/system/terms/detail?termId=${item.termId}"
                                                                class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
-                                                                <i class="ki-duotone ki-pencil fs-2"><span
-                                                                        class="path1"></span><span class="path2"></span></i>
+                                                                <i class="ki-duotone ki-pencil fs-2">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                </i>
                                                             </a>
                                                             <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
                                                                     onclick="deleteTerms('${item.termId}')">
-                                                                <i class="ki-duotone ki-trash fs-2"><span
-                                                                        class="path1"></span><span
-                                                                        class="path2"></span><span
-                                                                        class="path3"></span><span
-                                                                        class="path4"></span><span class="path5"></span></i>
+                                                                <i class="ki-duotone ki-trash fs-2">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                    <span class="path3"></span>
+                                                                    <span class="path4"></span>
+                                                                    <span class="path5"></span>
+                                                                </i>
                                                             </button>
                                                         </td>
                                                     </tr>
