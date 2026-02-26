@@ -154,7 +154,7 @@
                                                             </span>
                                                         </td>
 
-                                                        <td class="text-end">
+                                                        <td class="text-center">
                                                             <a href="/mng/members/detail?memberId=${item.memberId}"
                                                                class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm" title="회원 상세조회">
                                                                 <i class="ki-duotone ki-magnifier fs-2">
