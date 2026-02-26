@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <%--
   IntelliJ Variable Definitions
@@ -166,16 +167,21 @@
                                                                             </div>
 
                                                                             <div class="d-flex align-items-center justify-content-center w-100 px-5">
+
                                                                                 <div class="d-flex align-items-center justify-content-end" style="width: 40%;">
-                                                                                    <span class="fs-2x fw-bolder text-gray-800 me-3 text-truncate">${game.homeTeamName}</span>
+                                                                                    <span class="fs-2 fw-bolder text-gray-800 me-3 text-truncate">${game.awayTeamName}</span>
+                                                                                    <div class="symbol symbol-45px symbol-circle border border-1 border-gray-300 bg-white shadow-sm">
+                                                                                        <img src="${game.awayTeamLogo}" class="p-1 object-fit-contain" alt="${game.awayTeamName}"/>
+                                                                                    </div>
                                                                                 </div>
+
                                                                                 <div class="d-flex flex-column align-items-center justify-content-center mx-3" style="width: 20%; min-width: 100px;">
                                                                                     <c:choose>
                                                                                         <c:when test="${game.status eq 'LIVE' or game.status eq 'FINISHED'}">
                                                                                             <div class="d-flex align-items-center justify-content-center">
-                                                                                                <span class="fs-1 fw-bolder text-primary">${game.scoreHome}</span>
-                                                                                                <span class="fs-3 text-gray-400 mx-2">:</span>
                                                                                                 <span class="fs-1 fw-bolder text-primary">${game.scoreAway}</span>
+                                                                                                <span class="fs-3 text-gray-400 mx-2">:</span>
+                                                                                                <span class="fs-1 fw-bolder text-primary">${game.scoreHome}</span>
                                                                                             </div>
                                                                                         </c:when>
                                                                                         <c:when test="${game.status eq 'CANCELLED'}">
@@ -186,9 +192,14 @@
                                                                                         </c:otherwise>
                                                                                     </c:choose>
                                                                                 </div>
+
                                                                                 <div class="d-flex align-items-center justify-content-start" style="width: 40%;">
-                                                                                    <span class="fs-2x fw-bolder text-gray-800 ms-3 text-truncate">${game.awayTeamName}</span>
+                                                                                    <div class="symbol symbol-45px symbol-circle border border-1 border-gray-300 bg-white shadow-sm">
+                                                                                        <img src="${game.homeTeamLogo}" class="p-1 object-fit-contain" alt="${game.homeTeamName}"/>
+                                                                                    </div>
+                                                                                    <span class="fs-2 fw-bolder text-gray-800 ms-3 text-truncate">${game.homeTeamName}</span>
                                                                                 </div>
+
                                                                             </div>
                                                                         </div>
                                                                     </div>
