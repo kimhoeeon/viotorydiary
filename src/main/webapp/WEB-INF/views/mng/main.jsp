@@ -171,7 +171,7 @@
                                                                                 <div class="d-flex align-items-center justify-content-end" style="width: 40%;">
                                                                                     <div class="d-flex flex-column align-items-end me-3">
                                                                                         <span class="badge badge-light-secondary fw-bold fs-8 mb-1 px-2 py-1">원정</span>
-                                                                                        <span class="fs-2x fw-bolder text-gray-800 text-truncate">${game.awayTeamName}</span>
+                                                                                        <span class="fs-2 fw-bolder text-gray-800 text-truncate">${game.awayTeamName}</span>
                                                                                     </div>
                                                                                     <div class="symbol symbol-45px symbol-circle border border-1 border-gray-300 bg-white shadow-sm">
                                                                                         <img src="${game.awayTeamLogo}" class="p-1 object-fit-contain" alt="${game.awayTeamName}"/>
@@ -202,7 +202,7 @@
                                                                                     </div>
                                                                                     <div class="d-flex flex-column align-items-start ms-3">
                                                                                         <span class="badge badge-light-danger fw-bold fs-8 mb-1 px-2 py-1">홈</span>
-                                                                                        <span class="fs-2x fw-bolder text-gray-800 text-truncate">${game.homeTeamName}</span>
+                                                                                        <span class="fs-2 fw-bolder text-gray-800 text-truncate">${game.homeTeamName}</span>
                                                                                     </div>
                                                                                 </div>
 
