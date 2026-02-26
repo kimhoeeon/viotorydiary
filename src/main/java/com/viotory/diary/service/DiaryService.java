@@ -52,7 +52,6 @@ public class DiaryService {
         }
         
         // 2. 작성 당시 응원팀 스냅샷 저장
-        // (Controller에서 세션의 팀코드를 넣어주겠지만, 한번 더 체크)
         if (diary.getSnapshotTeamCode() == null) {
             throw new AlertException("응원팀 정보가 없습니다.");
         }
@@ -86,7 +85,6 @@ public class DiaryService {
         if (diary.getPredScoreHome() != null && diary.getPredScoreAway() != null) {
 
             // 경기 정보 조회 (홈/어웨이 팀 코드를 알아내기 위함)
-            // ※ 만약 GameMapper에 selectGameById가 없다면 사용하는 단건 조회 메서드명으로 맞춰주세요.
             GameVO game = gameMapper.selectGameById(diary.getGameId());
 
             if (game != null) {
@@ -101,8 +99,6 @@ public class DiaryService {
 
                 // 승패가 갈렸을 경우에만 predictions 테이블에 등록 (무승부는 처리 제외)
                 if (predictedTeam != null) {
-                    // ON DUPLICATE KEY UPDATE가 Mapper에 적용되어 있으므로
-                    // 새로 작성하면 INSERT, 기존에 있으면 UPDATE 처리됨
                     predictionMapper.savePrediction(diary.getMemberId(), diary.getGameId(), predictedTeam);
                 }
             }
@@ -229,7 +225,7 @@ public class DiaryService {
             // 나를 팔로우하는 사람들의 일기
             return diaryMapper.selectFollowerDiaries(memberId);
         } else if ("all".equals(tab)) {
-            // [수정됨] 전체 탭: 기존 '전체 공개 일기' -> '나와 관계된(팔로워+팔로잉) 사람의 일기'로 변경
+            // 전체 탭: 기존 '전체 공개 일기' -> '나와 관계된(팔로워+팔로잉) 사람의 일기'로 변경
             return diaryMapper.selectRelatedDiaries(memberId);
         } else {
             // 기본(following): 내가 팔로잉하는 사람들의 일기

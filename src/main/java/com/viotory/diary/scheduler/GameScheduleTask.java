@@ -137,7 +137,7 @@ public class GameScheduleTask {
             List<MemberVO> targetMembers = memberMapper.selectMembersForGameAlarm(game.getHomeTeamCode(), game.getAwayTeamCode());
 
             for (MemberVO member : targetMembers) {
-                // [수정됨] 기존에 구현된 AlarmService의 sendAlarm 메서드 사용 (VO 직접 생성 X)
+                // 기존에 구현된 AlarmService의 sendAlarm 메서드 사용 (VO 직접 생성 X)
                 alarmService.sendAlarm(member.getMemberId(), "GAME", message, "/main");
             }
         } catch (Exception e) {
