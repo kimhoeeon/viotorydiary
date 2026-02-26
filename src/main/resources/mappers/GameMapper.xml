@@ -249,7 +249,7 @@
         SELECT *
         FROM games
         WHERE status IN ('SCHEDULED', 'LIVE')
-          AND game_date >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+          AND game_date BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 DAY) AND CURDATE()
     </select>
 
 </mapper>

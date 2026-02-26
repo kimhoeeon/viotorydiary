@@ -54,13 +54,21 @@ public class GameScheduleTask {
         log.debug(">>> [라이브 스케줄러] 실시간 경기 정보 확인 중...");
 
         // 오늘 경기 전체가 아닌, "어제/오늘 중 아직 안 끝난 경기"만 타겟팅
-        List<GameVO> ongoingGames = gameService.getOngoingGames();
+        List<GameVO> targetGames = gameService.getOngoingGames();
 
         // 안 끝난 경기가 없으면 (월요일 등) 즉시 종료되어 불필요한 API 호출(비용) 완벽 차단!
-        if (ongoingGames.isEmpty()) return;
+        if (targetGames.isEmpty()) return;
 
-        for (GameVO game : ongoingGames) {
+        for (GameVO game : targetGames) {
             try {
+
+                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
+                    continue;
+                }
+
+                // API 서버 차단(429 Too Many Requests) 방지를 위해 1초 대기
+                Thread.sleep(1000);
+
                 // 1. API를 통해 최신 점수 및 상태 정보 업데이트
                 GameVO updatedGame = gameDataService.updateLiveGame(game.getApiGameId());
 
@@ -82,6 +90,9 @@ public class GameScheduleTask {
                         }
                     }
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error(">>> [라이브 스케줄러] 루프 대기 중 인터럽트 발생");
             } catch (Exception e) {
                 log.error(">>> [라이브 스케줄러] 경기({}) 업데이트 실패: {}", game.getGameId(), e.getMessage());
             }
