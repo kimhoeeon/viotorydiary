@@ -5,6 +5,7 @@ import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.mapper.DiaryMapper;
 import com.viotory.diary.mapper.GameMapper;
 import com.viotory.diary.mapper.MemberMapper;
+import com.viotory.diary.mapper.PredictionMapper;
 import com.viotory.diary.vo.DiaryVO;
 import com.viotory.diary.vo.GameVO;
 import com.viotory.diary.vo.MemberVO;
@@ -26,6 +27,7 @@ public class DiaryService {
 
     private final DiaryMapper diaryMapper;
     private final GameMapper gameMapper;
+    private final PredictionMapper predictionMapper;
 
     /**
      * 일기 작성
@@ -58,6 +60,9 @@ public class DiaryService {
         // 3. 저장
         diaryMapper.insertDiary(diary);
 
+        // 일기 작성 시 입력한 스코어를 predictions 테이블에 자동 연동
+        syncPredictionByScore(diary);
+
         return diary.getDiaryId();
     }
 
@@ -69,6 +74,38 @@ public class DiaryService {
         int result = diaryMapper.updateDiary(diary);
         if (result == 0) {
             throw new AlertException("일기 수정에 실패했습니다. (본인 일기가 아니거나 존재하지 않음)");
+        }
+
+        // 일기 수정 시 스코어가 변경되었을 수 있으므로 연동 업데이트
+        syncPredictionByScore(diary);
+    }
+
+    // 스코어 기반 승부 예측 동기화 메서드
+    private void syncPredictionByScore(DiaryVO diary) {
+        // 스코어 예측을 입력한 경우에만 실행
+        if (diary.getPredScoreHome() != null && diary.getPredScoreAway() != null) {
+
+            // 경기 정보 조회 (홈/어웨이 팀 코드를 알아내기 위함)
+            // ※ 만약 GameMapper에 selectGameById가 없다면 사용하는 단건 조회 메서드명으로 맞춰주세요.
+            GameVO game = gameMapper.selectGameById(diary.getGameId());
+
+            if (game != null) {
+                String predictedTeam = null;
+
+                // 스코어 비교를 통해 승리 예상 팀 도출
+                if (diary.getPredScoreHome() > diary.getPredScoreAway()) {
+                    predictedTeam = game.getHomeTeamCode();
+                } else if (diary.getPredScoreAway() > diary.getPredScoreHome()) {
+                    predictedTeam = game.getAwayTeamCode();
+                }
+
+                // 승패가 갈렸을 경우에만 predictions 테이블에 등록 (무승부는 처리 제외)
+                if (predictedTeam != null) {
+                    // ON DUPLICATE KEY UPDATE가 Mapper에 적용되어 있으므로
+                    // 새로 작성하면 INSERT, 기존에 있으면 UPDATE 처리됨
+                    predictionMapper.savePrediction(diary.getMemberId(), diary.getGameId(), predictedTeam);
+                }
+            }
         }
     }
 

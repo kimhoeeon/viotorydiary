@@ -210,7 +210,7 @@ public class ContentMngService {
         contentMngMapper.increaseClickCount(contentId);
     }
 
-    // ⭐️ [추가] 사용자 콘텐츠 클릭 시 로그 기록 + 조회수 증가 처리
+    // 사용자 콘텐츠 클릭 시 로그 기록 + 조회수 증가 처리
     @Transactional
     public void logContentClick(Long contentId, MemberVO member) {
         // 1. 조회수 1 증가
