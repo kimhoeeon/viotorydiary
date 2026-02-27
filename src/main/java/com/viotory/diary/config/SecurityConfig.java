@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -34,5 +36,12 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    // 외부 봇이나 스캐너가 PROPFIND 등 허용되지 않은 HTTP 메서드를 보냈을 때 (방화벽 거부 시)
+    // 에러 로그(스택 트레이스)를 남기지 않고 조용히 HTTP 상태 코드 400(Bad Request)만 반환하도록 처리합니다.
+    @Bean
+    public RequestRejectedHandler requestRejectedHandler() {
+        return new HttpStatusRequestRejectedHandler();
     }
 }
