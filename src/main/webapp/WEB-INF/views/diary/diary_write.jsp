@@ -137,12 +137,12 @@
 
                               <div class="diary_write_list">
                                   <div class="tit">오늘의 경기를 한 마디로 평가한다면?!</div>
-                                  <input type="text" name="oneLineComment" id="oneLine" maxlength="100" placeholder="오늘의 경기는 어떠셨나요? (최대 100자)">
+                                  <input type="text" name="oneLineComment" id="oneLine" maxlength="100" placeholder="최대 100자까지 입력하실 수 있습니다.">
                               </div>
 
                               <div class="diary_write_list">
                                   <div class="tit">오늘의 경기를 기록해 보세요</div>
-                                  <textarea name="content" placeholder="최대 100자까지 입력하실 수 있습니다."></textarea>
+                                  <textarea name="content" maxlength="1000" placeholder="최대 1,000자까지 입력하실 수 있습니다."></textarea>
                               </div>
 
                               <div class="diary_write_list">
