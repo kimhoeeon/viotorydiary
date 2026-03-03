@@ -289,7 +289,7 @@
                                                     <div class="score_txt">
                                                         <div class="txt_box">
                                                             <div class="tit">
-                                                                ${diary.homeTeamName} ${diary.scoreHome} vs ${diary.scoreAway} ${diary.awayTeamName}
+                                                                ${diary.scoreAway} ${diary.awayTeamName} vs ${diary.homeTeamName} ${diary.scoreHome}
                                                             </div>
                                                             <div class="date">${diary.gameDate}</div>
                                                         </div>

@@ -67,11 +67,11 @@ public class GameMngService {
             String awayName = getTeamNameKr(game.getAwayTeamCode());
 
             if ("LIVE".equals(game.getStatus())) {
-                message = homeName + " vs " + awayName + " 경기가 시작되었습니다!";
+                message = awayName + " vs " + homeName + " 경기가 시작되었습니다!";
             } else if ("FINISHED".equals(game.getStatus())) {
-                message = homeName + " vs " + awayName + " 경기가 종료되었습니다.";
+                message = awayName + " vs " + homeName + " 경기가 종료되었습니다.";
             } else if ("CANCELLED".equals(game.getStatus())) {
-                message = homeName + " vs " + awayName + " 경기가 취소되었습니다.";
+                message = awayName + " vs " + homeName + " 경기가 취소되었습니다.";
             }
 
             if (message.isEmpty()) return;

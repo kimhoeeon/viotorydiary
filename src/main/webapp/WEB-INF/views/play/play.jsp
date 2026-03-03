@@ -389,7 +389,7 @@
                     if (data && data.length > 0) {
                         let html = '';
                         data.forEach(game => {
-                            html += `<div class="month-match_item" style="margin-bottom:4px;">\${game.homeTeamName} vs \${game.awayTeamName}</div>`;
+                            html += `<div class="month-match_item" style="margin-bottom:4px;">\${game.awayTeamName} vs \${game.homeTeamName}</div>`;
                         });
                         monthMatchText.innerHTML = html;
                     } else {

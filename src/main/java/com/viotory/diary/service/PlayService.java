@@ -84,7 +84,7 @@ public class PlayService {
             // (Boolean 타입이므로 null 체크 또는 Boolean.TRUE.equals 사용 권장)
             if (isCorrect && !Boolean.TRUE.equals(pred.getIsAlarmSent())) {
 
-                String content = "[적중] " + game.getHomeTeamName() + " vs " + game.getAwayTeamName() + " 승부예측 성공! 승요력이 상승했습니다.";
+                String content = "[적중] " + game.getAwayTeamName() + " vs " + game.getHomeTeamName() + " 승부예측 성공! 승요력이 상승했습니다.";
 
                 // 알림 발송
                 alarmService.sendAlarm(pred.getMemberId(), "GAME", content, "/play");

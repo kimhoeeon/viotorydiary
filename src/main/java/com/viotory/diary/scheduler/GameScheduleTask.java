@@ -104,11 +104,11 @@ public class GameScheduleTask {
         try {
             String message = "";
             if ("LIVE".equals(newStatus)) {
-                message = game.getHomeTeamName() + " vs " + game.getAwayTeamName() + " 경기가 시작되었습니다!";
+                message = game.getAwayTeamName() + " vs " + game.getHomeTeamName() + " 경기가 시작되었습니다!";
             } else if ("FINISHED".equals(newStatus)) {
-                message = game.getHomeTeamName() + " vs " + game.getAwayTeamName() + " 경기가 종료되었습니다.";
+                message = game.getAwayTeamName() + " vs " + game.getHomeTeamName() + " 경기가 종료되었습니다.";
             } else if ("CANCELLED".equals(newStatus)) {
-                message = game.getHomeTeamName() + " vs " + game.getAwayTeamName() + " 경기가 취소되었습니다.";
+                message = game.getAwayTeamName() + " vs " + game.getHomeTeamName() + " 경기가 취소되었습니다.";
             }
 
             if (message.isEmpty()) return;
