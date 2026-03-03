@@ -213,8 +213,13 @@
                                                 <div class="col-lg-10">
                                                     <div class="p-5 border border-gray-300 rounded bg-white text-gray-800 fs-6" style="min-height: 200px;">
                                                         <c:if test="${not empty diary.imageUrl}">
-                                                            <div class="mb-5 text-center">
-                                                                <img src="${diary.imageUrl}" alt="일기 첨부 사진" class="mw-100 rounded" style="max-height: 400px; object-fit: contain;">
+                                                            <div class="mb-5 d-flex flex-wrap gap-4 justify-content-center">
+                                                                <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
+                                                                <c:forEach var="imgSrc" items="${imgArr}">
+                                                                    <c:if test="${not empty imgSrc}">
+                                                                        <img src="${imgSrc}" alt="일기 첨부 사진" class="mw-100 rounded border border-gray-200 shadow-sm" style="max-height: 300px; object-fit: contain;">
+                                                                    </c:if>
+                                                                </c:forEach>
                                                             </div>
                                                         </c:if>
 
