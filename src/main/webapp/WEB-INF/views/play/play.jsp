@@ -177,8 +177,8 @@
             <div class="popup-body">
                 <p class="txt-center mb-16" style="color:#666; font-size:14px;">승리할 팀을 선택해주세요!</p>
                 <div class="row gap-10">
-                    <button type="button" class="team-select-btn" id="btnHome" onclick="selectTeam('HOME')">HOME</button>
                     <button type="button" class="team-select-btn" id="btnAway" onclick="selectTeam('AWAY')">AWAY</button>
+                    <button type="button" class="team-select-btn" id="btnHome" onclick="selectTeam('HOME')">HOME</button>
                 </div>
                 <input type="hidden" id="popGameId">
             </div>
@@ -198,7 +198,7 @@
             const localPath = `/img/logo/logo_\${teamCode}.svg`;
             if (img.getAttribute('data-tried') === 'local') {
                 img.onerror = null;
-                img.src = '/img/logo/default.png';
+                img.src = '/img/team_default.svg';
             } else {
                 img.setAttribute('data-tried', 'local');
                 img.src = localPath;
