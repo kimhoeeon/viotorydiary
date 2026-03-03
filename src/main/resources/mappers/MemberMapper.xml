@@ -40,6 +40,12 @@
         SELECT COUNT(*) FROM members WHERE nickname = #{nickname}
     </select>
 
+    <select id="countByPhoneNumber" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM members
+        WHERE phone_number = #{phoneNumber}
+          AND status != 'WITHDRAWN'
+    </select>
+
     <select id="selectMemberById" parameterType="long" resultType="com.viotory.diary.vo.MemberVO">
         SELECT
             m.*,

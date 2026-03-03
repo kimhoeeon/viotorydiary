@@ -78,7 +78,7 @@
                                             </c:when>
                                         </c:choose>--%>
 
-                                        [${diary.stadiumName}] ${diary.homeTeamName} vs ${diary.awayTeamName}
+                                        [${diary.stadiumName}] ${diary.awayTeamName} vs ${diary.homeTeamName}
                                         <span style="font-weight:400; font-size:13px; margin-left:4px;">
                                             (${fn:substring(diary.gameDate, 5, 7)}.${fn:substring(diary.gameDate, 8, 10)})
                                         </span>
@@ -91,15 +91,14 @@
                                 <div class="card_item">
                                     <div class="game-board">
                                         <div class="row row-center gap-6">
+
                                             <div class="team">
                                                 <div class="team-logo mb-8">
-                                                    <img src="/img/logo/logo_${fn:toLowerCase(diary.homeTeamCode)}.svg"
-                                                        alt="${diary.homeTeamName}"
-                                                        style="height: 48px; width: auto; object-fit: contain;">
+                                                    <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" style="height: 48px; width: auto; object-fit: contain;">
                                                 </div>
 
-                                                <div class="team-name">${diary.homeTeamName}</div>
-                                                <div class="starting mt-4">${diary.homeStarter}</div>
+                                                <div class="team-name">${diary.awayTeamName}</div>
+                                                <div class="starting mt-4">${diary.awayStarter}</div>
                                             </div>
 
                                             <div class="game-score schedule">
@@ -114,13 +113,11 @@
 
                                             <div class="team">
                                                 <div class="team-logo mb-8">
-                                                    <img src="/img/logo/logo_${fn:toLowerCase(diary.awayTeamCode)}.svg"
-                                                         alt="${diary.awayTeamName}"
-                                                         style="height: 48px; width: auto; object-fit: contain;">
+                                                    <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" style="height: 48px; width: auto; object-fit: contain;">
                                                 </div>
 
-                                                <div class="team-name">${diary.awayTeamName}</div>
-                                                <div class="starting mt-4">${diary.awayStarter}</div>
+                                                <div class="team-name">${diary.homeTeamName}</div>
+                                                <div class="starting mt-4">${diary.homeStarter}</div>
                                             </div>
                                         </div>
                                     </div>

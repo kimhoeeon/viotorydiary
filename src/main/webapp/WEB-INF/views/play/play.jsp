@@ -585,14 +585,15 @@
                         <div class="card_item game-item" data-home="\${game.homeTeamCode}" data-away="\${game.awayTeamCode}">
                             <div class="game-board">
                                 <div class="row row-center gap-6">
-                                    <div class="team \${winClassHome}">
-                                        \${myTeamBadgeHome}
-                                        <img src="\${homeSrc}" alt="\${game.homeTeamName}" onerror="handleLogoError(this, '\${homeCodeLower}')">
-                                        <div class="team-name mt-4">\${game.homeTeamName}</div>
-                                        \${homeStarterHtml}
+                                    <div class="team \${winClassAway}">
+                                        \${myTeamBadgeAway}
+                                        <img src="\${awaySrc}" alt="\${game.awayTeamName}" onerror="handleLogoError(this, '\${awayCodeLower}')">
+                                        <div class="team-name mt-4">\${game.awayTeamName}</div>
+                                        \${awayStarterHtml}
                                     </div>
+
                                     <div class="game-score \${statusClass}">
-                                        <div class="left-team-score \${game.scoreHome > game.scoreAway ? 'high' : ''}">\${scoreHome}</div>
+                                        <div class="left-team-score \${game.scoreAway > game.scoreHome ? 'high' : ''}">\${scoreAway}</div>
                                         <div class="game-info-wrap">
                                             <div class="badge">\${statusText}</div>
                                             \${cancelReasonHtml}
@@ -601,13 +602,14 @@
                                                 <div class="place">\${game.stadiumName}</div>
                                             </div>
                                         </div>
-                                        <div class="right-team-score \${game.scoreAway > game.scoreHome ? 'high' : ''}">\${scoreAway}</div>
+                                        <div class="right-team-score \${game.scoreHome > game.scoreAway ? 'high' : ''}">\${scoreHome}</div>
                                     </div>
-                                    <div class="team \${winClassAway}">
-                                        \${myTeamBadgeAway}
-                                        <img src="\${awaySrc}" alt="\${game.awayTeamName}" onerror="handleLogoError(this, '\${awayCodeLower}')">
-                                        <div class="team-name mt-4">\${game.awayTeamName}</div>
-                                        \${awayStarterHtml}
+
+                                    <div class="team \${winClassHome}">
+                                        \${myTeamBadgeHome}
+                                        <img src="\${homeSrc}" alt="\${game.homeTeamName}" onerror="handleLogoError(this, '\${homeCodeLower}')">
+                                        <div class="team-name mt-4">\${game.homeTeamName}</div>
+                                        \${homeStarterHtml}
                                     </div>
                                 </div>
                             </div>

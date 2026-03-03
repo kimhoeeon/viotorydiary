@@ -85,7 +85,7 @@
                                       <c:choose>
                                           <c:when test="${not empty selectedGame}">
                                               <span class="select-field_value" style="color:#000; font-weight:bold;">
-                                                  ${selectedGame.homeTeamName} vs ${selectedGame.awayTeamName}
+                                                  ${selectedGame.awayTeamName} vs ${selectedGame.homeTeamName}
                                               </span>
                                           </c:when>
                                           <c:otherwise>
@@ -267,7 +267,7 @@
               }
 
               data.forEach(game => {
-                  const title = game.homeTeamName + ' vs ' + game.awayTeamName;
+                  const title = game.awayTeamName + ' vs ' + game.homeTeamName;
                   // 데이터 속성에 필요한 정보 담기
                   const itemHtml = `
                           <li>
@@ -326,7 +326,7 @@
           $('#gameId').val(g.id);
 
           // 2. 상단 텍스트는 혼동 방지를 위해 원래 대진표(Home vs Away)대로 표기 (선택 사항)
-          $('#gameSelectText').text(g.homeName + ' vs ' + g.awayName)
+          $('#gameSelectText').text(g.awayName + ' vs ' + g.homeName)
               .css('color', '#000').css('font-weight', 'bold');
 
           // 3. 점수 입력칸 요소 찾기 (DOM 순서상 첫번째가 왼쪽, 두번째가 오른쪽)

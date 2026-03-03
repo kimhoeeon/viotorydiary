@@ -65,6 +65,15 @@ public class MemberService {
             throw new AlertException("이미 사용 중인 닉네임입니다.");
         }
 
+        // 연락처 중복 체크 (이메일 / 카카오 공통 적용)
+        if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
+            String cleanPhone = member.getPhoneNumber().replaceAll("-", "");
+            if (memberMapper.countByPhoneNumber(cleanPhone) > 0) {
+                throw new AlertException("이미 가입된 연락처입니다. 다른 연락처를 사용해 주세요.");
+            }
+            member.setPhoneNumber(cleanPhone); // DB 저장 시 하이픈(-) 제거하여 깔끔하게 저장
+        }
+
         // 3. 비밀번호 암호화
         if (member.getPassword() != null && !member.getPassword().isEmpty()) {
             String encryptedPassword = sha512.hash(member.getPassword());
@@ -151,6 +160,19 @@ public class MemberService {
             if (memberMapper.countByNickname(member.getNickname()) > 0) {
                 throw new AlertException("이미 사용 중인 닉네임입니다.");
             }
+        }
+
+        // 연락처 변경 시 중복 체크 방어 로직
+        if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
+            String cleanPhone = member.getPhoneNumber().replaceAll("-", "");
+
+            // 현재 내 연락처와 다르게 변경하려는 경우에만 중복 체크
+            if (currentMember.getPhoneNumber() != null && !cleanPhone.equals(currentMember.getPhoneNumber().replaceAll("-", ""))) {
+                if (memberMapper.countByPhoneNumber(cleanPhone) > 0) {
+                    throw new AlertException("이미 다른 계정에서 사용 중인 연락처입니다.");
+                }
+            }
+            member.setPhoneNumber(cleanPhone); // 통일성을 위해 하이픈 제거 저장
         }
 
         // 2. 정보 수정 실행

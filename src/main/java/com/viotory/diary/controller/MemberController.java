@@ -560,7 +560,9 @@ public class MemberController {
             session.setAttribute("loginMember", loginMember);
 
             return "ok";
-
+        } catch (AlertException ae) {
+            log.info("프로필 수정 알럿: {}", ae.getMessage());
+            return ae.getMessage();
         } catch (Exception e) {
             log.error("프로필 수정 실패", e);
             return "프로필 수정 중 오류가 발생했습니다."; // 실패 시 에러 메시지 반환

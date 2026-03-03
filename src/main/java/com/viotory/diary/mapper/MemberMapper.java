@@ -20,6 +20,9 @@ public interface MemberMapper {
     // 3. 닉네임 중복 체크
     int countByNickname(String nickname);
 
+    // 연락처 중복 체크
+    int countByPhoneNumber(@Param("phoneNumber") String phoneNumber);
+
     // 4. 회원 정보 상세 조회 (PK 기준)
     MemberVO selectMemberById(Long memberId);
 
