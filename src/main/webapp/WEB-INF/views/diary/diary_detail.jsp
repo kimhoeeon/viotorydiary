@@ -47,9 +47,9 @@
             </div>
 
             <c:if test="${isOwner}">
-                <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button type="button" class="btn sub-btn w-auto" style="background:#f1f1f1; border:none;" onclick="deleteDiary(${diary.diaryId})">삭제</button>
-                    <a href="/diary/update?diaryId=${diary.diaryId}" class="btn btn-primary w-auto">수정</a>
+                <div class="mt-16 flex-end">
+                    <button type="button" class="btn sub-btn w-auto small" onclick="deleteDiary(${diary.diaryId})">삭제</button>
+                    <a href="/diary/update?diaryId=${diary.diaryId}" class="btn btn-primary w-auto small">수정</a>
                 </div>
             </c:if>
 

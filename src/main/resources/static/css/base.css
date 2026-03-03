@@ -330,3 +330,7 @@ input[type='number'] {
 }
 
 .gap-6{gap: 6px !important;}
+
+.flex-end{display: flex;justify-content: flex-end; gap: 8px;}
+
+.btn.small{font-size: 14px; height: 32px;}
