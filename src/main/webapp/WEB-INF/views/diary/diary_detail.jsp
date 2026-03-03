@@ -142,14 +142,21 @@
                             <c:if test="${not empty diary.imageUrl}">
                                 <div class="diary_write_list">
                                     <div class="tit">오늘 경기 사진</div>
-                                    <div class="upload" style="display:block; width:100%; height:auto;">
-                                        <img src="${diary.imageUrl}" alt="직관 사진" onclick="viewImage(this.src)"
-                                             style="width:100%; border-radius:12px; display:block;">
+                                    <div class="upload" style="display:flex; flex-direction:column; gap:16px; width:100%;">
+                                        <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
+                                        <c:forEach var="imgSrc" items="${imgArr}">
+                                            <c:if test="${not empty imgSrc}">
+                                                <div>
+                                                    <img src="${imgSrc}" alt="직관 사진" onclick="viewImage(this.src)"
+                                                         style="width:100%; border-radius:12px; display:block; object-fit:cover;">
 
-                                        <button type="button" onclick="downloadImage('${diary.imageUrl}')"
-                                                style="margin-top:8px; padding:8px 12px; border-radius:8px; background:#fff; border:1px solid #ddd; font-size:13px; display:inline-flex; align-items:center; gap:6px; color:#555;">
-                                            <span>📥 사진 저장하기</span>
-                                        </button>
+                                                    <button type="button" onclick="downloadImage('${imgSrc}')"
+                                                            style="margin-top:8px; padding:8px 12px; border-radius:8px; background:#fff; border:1px solid #ddd; font-size:13px; display:inline-flex; align-items:center; gap:6px; color:#555;">
+                                                        <span>📥 사진 저장하기</span>
+                                                    </button>
+                                                </div>
+                                            </c:if>
+                                        </c:forEach>
                                     </div>
                                 </div>
                             </c:if>

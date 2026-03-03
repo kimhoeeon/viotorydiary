@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!doctype html>
 <html lang="ko">
@@ -60,17 +61,24 @@
                                      onclick="location.href='/diary/detail?diaryId=${item.diaryId}'"
                                      style="cursor:pointer;">
 
+                                    <c:set var="firstImage" value="" />
+                                    <c:if test="${not empty item.imageUrl}">
+                                        <c:set var="imgArr" value="${fn:split(item.imageUrl, ',')}" />
+                                        <c:set var="firstImage" value="${imgArr[0]}" />
+                                    </c:if>
+
                                     <div class="img">
-                                        <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}"
+                                        <img src="${not empty firstImage ? firstImage : '/img/card_defalut.svg'}"
                                              alt="스코어카드 이미지"
-                                             onerror="this.src='/img/card_defalut.svg'">
+                                             onerror="this.src='/img/card_defalut.svg'"
+                                             style="width:100%; height:100%; object-fit:cover;">
                                     </div>
 
                                     <div class="column gap-16">
                                         <div class="score_txt">
                                             <div class="txt_box">
                                                 <div class="tit">
-                                                    ${item.homeTeamName} ${item.scoreHome} vs ${item.scoreAway} ${item.awayTeamName}
+                                                    ${item.awayTeamName} ${item.scoreAway} vs ${item.scoreHome} ${item.homeTeamName}
                                                 </div>
                                                 <div class="date">
                                                     <fmt:parseDate value="${item.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>

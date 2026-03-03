@@ -109,7 +109,7 @@
                                 <div class="tit">직관할 경기</div>
                                 <button class="select-field" disabled>
                                     <span class="select-field_value">
-                                        [${diary.stadiumName}] ${diary.homeTeamName} vs ${diary.awayTeamName}
+                                        [${diary.stadiumName}] ${diary.awayTeamName} vs ${diary.homeTeamName}
                                         <c:if test="${not empty diary.gameDate}">
                                             <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
                                             <span style="font-weight:400; color:#666; font-size:13px; margin-left:4px;">
@@ -126,29 +126,29 @@
                                     <div class="game-board">
                                         <div class="row row-center gap-6">
                                             <div class="team">
-                                                <c:if test="${diary.homeTeamCode eq writer.myTeamCode}">
-                                                    <div class="my-team">MY</div>
-                                                </c:if>
-                                                <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
-                                                <div class="team-name mt-4">${diary.homeTeamName}</div>
-                                            </div>
-
-                                            <div class="game-score schedule">
-                                                <div class="left-team-score">
-                                                    <div class="score-data">${diary.predScoreHome}</div>
-                                                </div>
-                                                <div class="game-info-wrap" style="color:#ccc; font-weight:700;">VS</div>
-                                                <div class="right-team-score">
-                                                    <div class="score-data">${diary.predScoreAway}</div>
-                                                </div>
-                                            </div>
-
-                                            <div class="team">
                                                 <c:if test="${diary.awayTeamCode eq writer.myTeamCode}">
                                                     <div class="my-team">MY</div>
                                                 </c:if>
                                                 <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
                                                 <div class="team-name mt-4">${diary.awayTeamName}</div>
+                                            </div>
+
+                                            <div class="game-score schedule">
+                                                <div class="left-team-score">
+                                                    <div class="score-data">${diary.predScoreAway}</div>
+                                                </div>
+                                                <div class="game-info-wrap" style="color:#ccc; font-weight:700;">VS</div>
+                                                <div class="right-team-score">
+                                                    <div class="score-data">${diary.predScoreHome}</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="team">
+                                                <c:if test="${diary.homeTeamCode eq writer.myTeamCode}">
+                                                    <div class="my-team">MY</div>
+                                                </c:if>
+                                                <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                                <div class="team-name mt-4">${diary.homeTeamName}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -174,8 +174,15 @@
                                 <div class="tit">오늘 경기 사진</div>
                                 <c:choose>
                                     <c:when test="${not empty diary.imageUrl}">
-                                        <div style="border-radius:8px; overflow:hidden; border:1px solid #eee;">
-                                            <img src="${diary.imageUrl}" alt="업로드 이미지" style="width:100%; display:block;">
+                                        <div style="display:flex; flex-direction:column; gap:16px; width:100%;">
+                                            <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
+                                            <c:forEach var="imgSrc" items="${imgArr}">
+                                                <c:if test="${not empty imgSrc}">
+                                                    <div style="border-radius:8px; overflow:hidden; border:1px solid #eee;">
+                                                        <img src="${imgSrc}" alt="업로드 이미지" style="width:100%; display:block; object-fit:cover;">
+                                                    </div>
+                                                </c:if>
+                                            </c:forEach>
                                         </div>
                                     </c:when>
                                     <c:otherwise>

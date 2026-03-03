@@ -49,7 +49,6 @@
             <form id="diaryForm" action="/diary/update" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="diaryId" value="${diary.diaryId}">
                 <input type="hidden" name="gameId" value="${diary.gameId}">
-                <input type="hidden" name="imageUrl" value="${diary.imageUrl}">
 
                 <div class="page-main_wrap">
                     <div class="history">
@@ -92,10 +91,10 @@
                                                     <div class="left-team-score">
                                                         <c:choose>
                                                             <c:when test="${isScoreEditable}">
-                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" placeholder="0">
+                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                             </c:when>
                                                             <c:otherwise>
-                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" placeholder="0">
+                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                             </c:otherwise>
                                                         </c:choose>
                                                     </div>
@@ -103,10 +102,10 @@
                                                     <div class="right-team-score">
                                                         <c:choose>
                                                             <c:when test="${isScoreEditable}">
-                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" placeholder="0">
+                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                             </c:when>
                                                             <c:otherwise>
-                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" placeholder="0">
+                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                             </c:otherwise>
                                                         </c:choose>
                                                     </div>
@@ -127,7 +126,7 @@
 
                                 <div class="diary_write_list">
                                     <div class="tit">오늘의 히어로는 누구일까?</div>
-                                    <input type="text" name="heroName" id="heroName" value="${diary.heroName}" placeholder="오늘의 히어로 선수는?">
+                                    <input type="text" name="heroName" id="heroName" value="${diary.heroName}" maxlength="100" placeholder="최대 100자까지 입력하실 수 있습니다.">
                                 </div>
 
                                 <div class="diary_write_list">
@@ -143,17 +142,12 @@
                                 <div class="diary_write_list">
                                     <div class="tit">오늘 경기 사진을 올려보세요</div>
                                     <button type="button" class="btn btn-primary gap-4" onclick="document.getElementById('fileUpload').click();">
-                                        사진 변경하기
+                                        사진 변경하기 (최대 4장)
                                         <span><img src="/img/ico_plus.svg" alt="플러스 아이콘"></span>
                                     </button>
-                                    <input type="file" id="fileUpload" name="file" style="display:none;" accept="image/*" onchange="previewImage(this)">
+                                    <input type="file" id="fileUpload" name="files" style="display:none;" accept="image/*" multiple onchange="handleFileSelect(this)">
 
-                                    <div class="upload" id="imagePreviewBox" style="${not empty diary.imageUrl ? 'display:block;' : 'display:none;'}">
-                                        <img id="imagePreview" src="${not empty diary.imageUrl ? diary.imageUrl : ''}" alt="미리보기">
-                                        <button class="del" type="button" onclick="deleteImage()">
-                                            <img src="/img/ico_del.svg" alt="삭제">
-                                        </button>
-                                    </div>
+                                    <div class="upload" id="imagePreviewBox" style="display:none; margin-top:12px; white-space: nowrap; overflow-x: auto; padding-bottom: 8px;"></div>
                                 </div>
 
                                 <div class="diary_write_list">
@@ -200,25 +194,87 @@
     <script src="/js/app_interface.js"></script>
 
     <script>
-        // 이미지 미리보기
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('imagePreview').src = e.target.result;
-                    document.getElementById('imagePreviewBox').style.display = 'block';
-                }
-                reader.readAsDataURL(input.files[0]);
+        let existingImages = [];
+        // 서버에서 받아온 콤마 구분자 이미지를 배열에 초기 세팅
+        <c:if test="${not empty diary.imageUrl}">
+            <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
+            <c:forEach var="imgSrc" items="${imgArr}">
+                existingImages.push('${imgSrc}');
+            </c:forEach>
+        </c:if>
+
+        let selectedFiles = [];
+        const MAX_FILES = 4;
+
+        $(document).ready(function() {
+            renderPreviews(); // 진입 시 기존 이미지 렌더링
+        });
+
+        function handleFileSelect(input) {
+            const files = input.files;
+            if (!files || files.length === 0) return;
+
+            let total = existingImages.length + selectedFiles.length + files.length;
+            if (total > MAX_FILES) {
+                alert('사진은 최대 4장까지 업로드 가능합니다.');
             }
+
+            for (let i = 0; i < files.length; i++) {
+                if (existingImages.length + selectedFiles.length < MAX_FILES) {
+                    selectedFiles.push(files[i]);
+                }
+            }
+            renderPreviews();
+            input.value = '';
         }
 
-        // 이미지 삭제
-        function deleteImage() {
-            document.getElementById('fileUpload').value = '';
-            document.getElementById('imagePreview').src = '';
-            document.getElementById('imagePreviewBox').style.display = 'none';
-            // 기존 이미지 삭제 플래그 처리 필요 시 추가 (여기서는 빈값 처리)
-            document.getElementsByName('imageUrl')[0].value = '';
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderPreviews();
+        }
+
+        function removeExistingImage(index) {
+            existingImages.splice(index, 1); // 기존 이미지 삭제 시 배열에서 제거
+            renderPreviews();
+        }
+
+        function renderPreviews() {
+            const box = $('#imagePreviewBox');
+            box.empty();
+            if (selectedFiles.length === 0 && existingImages.length === 0) {
+                box.hide(); return;
+            }
+            box.show();
+
+            // 1. 기존 이미지 노출 (hidden 폼 전송 포함)
+            existingImages.forEach((url, index) => {
+                const html = `<div style="position:relative; display:inline-block; margin-right:8px; width:80px; height:80px;">
+                                <img src="\${url}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+                                <button type="button" onclick="removeExistingImage(\${index})" style="position:absolute; top:-6px; right:-6px; background:#fff; border-radius:50%; padding:2px; border:1px solid #ddd; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">
+                                    <img src="/img/ico_del.svg" style="width:14px;">
+                                </button>
+                                <input type="hidden" name="existingImages" value="\${url}">
+                              </div>`;
+                box.append(html);
+            });
+
+            // 2. 신규 추가 파일 노출
+            selectedFiles.forEach((file, index) => {
+                const divId = 'preview_new_' + index;
+                const html = `<div id="\${divId}" style="position:relative; display:inline-block; margin-right:8px; width:80px; height:80px;">
+                                <img src="" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+                                <button type="button" onclick="removeFile(\${index})" style="position:absolute; top:-6px; right:-6px; background:#fff; border-radius:50%; padding:2px; border:1px solid #ddd; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">
+                                    <img src="/img/ico_del.svg" style="width:14px;">
+                                </button>
+                              </div>`;
+                box.append(html);
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#' + divId + ' img').first().attr('src', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         // 제출

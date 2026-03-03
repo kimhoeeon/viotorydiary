@@ -74,15 +74,23 @@ public class DiaryController {
     // 2. 일기 저장 처리
     @PostMapping("/write")
     public String writeAction(DiaryVO diary,
-                              @RequestParam(value = "file", required = false) MultipartFile file,
+                              @RequestParam(value = "files", required = false) List<MultipartFile> files,
                               HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
         try {
-            // 파일 업로드
-            if (file != null && !file.isEmpty()) {
-                diary.setImageUrl(FileUtil.uploadFile(file, "diary")); // DB에는 웹 접근 경로 저장
+            // 파일 다중 업로드 처리
+            if (files != null && !files.isEmpty()) {
+                List<String> urls = new java.util.ArrayList<>();
+                for (MultipartFile f : files) {
+                    if (f != null && !f.isEmpty()) {
+                        urls.add(FileUtil.uploadFile(f, "diary"));
+                    }
+                }
+                if (!urls.isEmpty()) {
+                    diary.setImageUrl(String.join(",", urls)); // DB에 콤마로 연결하여 저장
+                }
             }
 
             diary.setMemberId(loginMember.getMemberId());
@@ -158,7 +166,8 @@ public class DiaryController {
     @PostMapping("/update")
     @ResponseBody
     public String updateAction(@ModelAttribute DiaryVO diary,
-                               @RequestParam(value = "file", required = false) MultipartFile file,
+                               @RequestParam(value = "files", required = false) List<MultipartFile> files, // 다중 파일
+                               @RequestParam(value = "existingImages", required = false) List<String> existingImages, // 유지된 기존 사진들
                                HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) {
@@ -206,11 +215,22 @@ public class DiaryController {
                 diary.setPredScoreAway(originalDiary.getPredScoreAway());
             }
 
-            // [이미지 처리 로직]
-            if (file != null && !file.isEmpty()) {
-                // 1. 새 파일이 업로드된 경우 -> 저장 후 경로 교체
-                diary.setImageUrl(FileUtil.uploadFile(file, "diary"));
+            // [다중 이미지 처리 로직]
+            List<String> finalUrls = new java.util.ArrayList<>();
+            // 1. 삭제하지 않고 유지한 기존 이미지 삽입
+            if (existingImages != null && !existingImages.isEmpty()) {
+                finalUrls.addAll(existingImages);
             }
+            // 2. 새롭게 추가 업로드된 이미지 삽입
+            if (files != null && !files.isEmpty()) {
+                for (MultipartFile f : files) {
+                    if (f != null && !f.isEmpty()) {
+                        finalUrls.add(FileUtil.uploadFile(f, "diary"));
+                    }
+                }
+            }
+            // 3. 콤마로 연결하여 저장 (없으면 null)
+            diary.setImageUrl(finalUrls.isEmpty() ? null : String.join(",", finalUrls));
 
             // 작성자 ID 세팅 (보안)
             diary.setMemberId(loginMember.getMemberId());

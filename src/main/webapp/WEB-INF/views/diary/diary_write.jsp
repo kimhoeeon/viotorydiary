@@ -110,11 +110,11 @@
 
                                               <div class="game-score schedule">
                                                   <div class="left-team-score">
-                                                      <input type="number" name="predScoreHome" min="0" placeholder="0">
+                                                      <input type="number" name="predScoreHome" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                   </div>
                                                   <div class="game-info-wrap">VS</div>
                                                   <div class="right-team-score">
-                                                      <input type="number" name="predScoreAway" min="0" placeholder="0">
+                                                      <input type="number" name="predScoreAway" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                   </div>
                                               </div>
 
@@ -132,7 +132,7 @@
 
                               <div class="diary_write_list">
                                   <div class="tit">오늘의 히어로는 누구일까?</div>
-                                  <input type="text" name="heroName" id="heroName" placeholder="오늘의 히어로 선수는?">
+                                  <input type="text" name="heroName" id="heroName" maxlength="100" placeholder="최대 100자까지 입력하실 수 있습니다.">
                               </div>
 
                               <div class="diary_write_list">
@@ -147,20 +147,13 @@
 
                               <div class="diary_write_list">
                                   <div class="tit">오늘 경기 사진을 올려보세요</div>
-                                  <button type="button" class="btn btn-primary gap-4"
-                                          onclick="document.getElementById('fileUpload').click();">
-                                      사진 올리기
+                                  <button type="button" class="btn btn-primary gap-4" onclick="document.getElementById('fileUpload').click();">
+                                      사진 올리기 (최대 4장)
                                       <span><img src="/img/ico_plus.svg" alt="플러스 아이콘"></span>
                                   </button>
-                                  <input type="file" id="fileUpload" name="file" style="display:none;" accept="image/*"
-                                         onchange="previewImage(this)">
+                                  <input type="file" id="fileUpload" name="files" style="display:none;" accept="image/*" multiple onchange="handleFileSelect(this)">
 
-                                  <div class="upload" id="imagePreviewBox" style="display:none;">
-                                      <img id="imagePreview" src="" alt="미리보기">
-                                      <button class="del" type="button" onclick="deleteImage()">
-                                          <img src="/img/ico_del.svg" alt="삭제">
-                                      </button>
-                                  </div>
+                                  <div class="upload" id="imagePreviewBox" style="display:none; margin-top:12px; white-space: nowrap; overflow-x: auto; padding-bottom: 8px;"></div>
                               </div>
 
                               <ul class="disClose">
@@ -488,20 +481,57 @@
       }
 
       // 3. 이미지 미리보기
-      function previewImage(input) {
-          if (input.files && input.files[0]) {
-              const reader = new FileReader();
-              reader.onload = function (e) {
-                  $('#imagePreview').attr('src', e.target.result);
-                  $('#imagePreviewBox').show();
-              }
-              reader.readAsDataURL(input.files[0]);
+      // 사진 다중 업로드 관리 로직
+      let selectedFiles = [];
+      const MAX_FILES = 4;
+
+      function handleFileSelect(input) {
+          const files = input.files;
+          if (!files || files.length === 0) return;
+
+          let total = selectedFiles.length + files.length;
+          if (total > MAX_FILES) {
+              alert('사진은 최대 4장까지 업로드 가능합니다.');
           }
+
+          for (let i = 0; i < files.length; i++) {
+              if (selectedFiles.length < MAX_FILES) {
+                  selectedFiles.push(files[i]);
+              }
+          }
+          renderPreviews();
+          input.value = ''; // 재선택 가능하도록 초기화
       }
 
-      function deleteImage() {
-          $('#fileUpload').val('');
-          $('#imagePreviewBox').hide();
+      function removeFile(index) {
+          selectedFiles.splice(index, 1);
+          renderPreviews();
+      }
+
+      function renderPreviews() {
+          const box = $('#imagePreviewBox');
+          box.empty();
+          if (selectedFiles.length === 0) {
+              box.hide(); return;
+          }
+          box.show();
+
+          selectedFiles.forEach((file, index) => {
+              const divId = 'preview_new_' + index;
+              const html = `<div id="\${divId}" style="position:relative; display:inline-block; margin-right:8px; width:80px; height:80px;">
+                                <img src="" style="width:100%; height:100%; object-fit:cover; border-radius:8px;">
+                                <button type="button" onclick="removeFile(\${index})" style="position:absolute; top:-6px; right:-6px; background:#fff; border-radius:50%; padding:2px; border:1px solid #ddd; width:24px; height:24px; display:flex; align-items:center; justify-content:center;">
+                                    <img src="/img/ico_del.svg" style="width:14px;">
+                                </button>
+                              </div>`;
+              box.append(html);
+
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                  $('#' + divId + ' img').first().attr('src', e.target.result);
+              };
+              reader.readAsDataURL(file);
+          });
       }
 
       // 4. 제출
