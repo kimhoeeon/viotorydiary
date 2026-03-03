@@ -126,17 +126,17 @@
 
                             <div class="diary_write_list">
                                 <div class="tit">오늘의 히어로는 누구일까?</div>
-                                <input type="text" value="${diary.heroName}" readonly>
+                                <input type="text" value="${diary.heroName}" placeholder="최대 100자까지 입력하실 수 있습니다." readonly>
                             </div>
 
                             <div class="diary_write_list">
                                 <div class="tit">오늘의 경기를 한 마디로 평가한다면?!</div>
-                                <input type="text" value="${diary.oneLineComment}" readonly>
+                                <input type="text" value="${diary.oneLineComment}" placeholder="오늘의 경기는 어떠셨나요?" readonly>
                             </div>
 
                             <div class="diary_write_list">
                                 <div class="tit">오늘의 경기를 기록해 보세요</div>
-                                <textarea readonly style="height: auto; min-height: 120px; background-color: #f9f9f9;">${diary.content}</textarea>
+                                <textarea placeholder="최대 100자까지 입력하실 수 있습니다." readonly style="height: auto; min-height: 120px; background-color: #f9f9f9;">${diary.content}</textarea>
                             </div>
 
                             <c:if test="${not empty diary.imageUrl}">
