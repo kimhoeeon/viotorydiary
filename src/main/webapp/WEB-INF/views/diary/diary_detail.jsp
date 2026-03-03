@@ -103,11 +103,11 @@
 
                                             <div class="game-score schedule">
                                                 <div class="left-team-score">
-                                                    <input type="text" value="${diary.predScoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
+                                                    <input type="text" value="${diary.predScoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
                                                 </div>
                                                 <div class="game-info-wrap">VS</div>
                                                 <div class="right-team-score">
-                                                    <input type="text" value="${diary.predScoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
+                                                    <input type="text" value="${diary.predScoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
                                                 </div>
                                             </div>
 

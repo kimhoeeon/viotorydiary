@@ -176,7 +176,9 @@
             g.*,
             s.name AS stadiumName,
             t1.name_kr AS homeTeamName,
-            t2.name_kr AS awayTeamName
+            t2.name_kr AS awayTeamName,
+            t1.logo_image_url AS homeTeamLogo,
+            t2.logo_image_url AS awayTeamLogo
         FROM games g
                  LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
                  LEFT JOIN teams t1 ON g.home_team_code = t1.team_code

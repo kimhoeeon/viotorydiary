@@ -91,10 +91,10 @@
                                                     <div class="left-team-score">
                                                         <c:choose>
                                                             <c:when test="${isScoreEditable}">
-                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
+                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                             </c:when>
                                                             <c:otherwise>
-                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
+                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                             </c:otherwise>
                                                         </c:choose>
                                                     </div>
@@ -102,10 +102,10 @@
                                                     <div class="right-team-score">
                                                         <c:choose>
                                                             <c:when test="${isScoreEditable}">
-                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
+                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                             </c:when>
                                                             <c:otherwise>
-                                                                <input type="number" name="predScoreAway" value="${diary.predScoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
+                                                                <input type="number" name="predScoreHome" value="${diary.predScoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
                                                             </c:otherwise>
                                                         </c:choose>
                                                     </div>

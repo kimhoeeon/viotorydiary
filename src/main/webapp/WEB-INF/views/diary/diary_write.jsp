@@ -100,30 +100,30 @@
                                   <div class="card_item">
                                       <div class="game-board">
                                           <div class="row row-center gap-6">
-                                              <div class="team" id="homeTeamBox">
-                                                  <div class="my-team" id="homeMyTeam" style="display:none;">MY</div>
-                                                  <div class="team-logo mb-4">
-                                                      <img id="homeTeamLogo" src="/img/team_default.svg" alt="홈팀" style="width: 48px; height: 48px; object-fit: contain;">
-                                                  </div>
-                                                  <div class="team-name" id="homeTeamName">HOME</div>
-                                              </div>
-
-                                              <div class="game-score schedule">
-                                                  <div class="left-team-score">
-                                                      <input type="number" name="predScoreHome" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
-                                                  </div>
-                                                  <div class="game-info-wrap">VS</div>
-                                                  <div class="right-team-score">
-                                                      <input type="number" name="predScoreAway" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
-                                                  </div>
-                                              </div>
-
                                               <div class="team" id="awayTeamBox">
                                                   <div class="my-team" id="awayMyTeam" style="display:none;">MY</div>
                                                   <div class="team-logo mb-4">
                                                       <img id="awayTeamLogo" src="/img/team_default.svg" alt="원정팀" style="width: 48px; height: 48px; object-fit: contain;">
                                                   </div>
                                                   <div class="team-name" id="awayTeamName">AWAY</div>
+                                              </div>
+
+                                              <div class="game-score schedule">
+                                                  <div class="left-team-score">
+                                                      <input type="number" name="predScoreAway" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
+                                                  </div>
+                                                  <div class="game-info-wrap">VS</div>
+                                                  <div class="right-team-score">
+                                                      <input type="number" name="predScoreHome" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
+                                                  </div>
+                                              </div>
+
+                                              <div class="team" id="homeTeamBox">
+                                                  <div class="my-team" id="homeMyTeam" style="display:none;">MY</div>
+                                                  <div class="team-logo mb-4">
+                                                      <img id="homeTeamLogo" src="/img/team_default.svg" alt="홈팀" style="width: 48px; height: 48px; object-fit: contain;">
+                                                  </div>
+                                                  <div class="team-name" id="homeTeamName">HOME</div>
                                               </div>
                                           </div>
                                       </div>
@@ -223,21 +223,21 @@
       $(document).ready(function () {
           // 초기 로드 시 선택된 경기 UI 세팅
           if ('${targetGameId}' !== '') {
-              $('#homeTeamName').text('${selectedGame.homeTeamName}');
+              // 원정 무조건 왼쪽, 홈 무조건 오른쪽
               $('#awayTeamName').text('${selectedGame.awayTeamName}');
+              $('#homeTeamName').text('${selectedGame.homeTeamName}');
 
-              // 로고 세팅 (JSTL lowerCase 함수 필요 또는 JS 처리)
-              // 여기서는 간단히 JS로 처리
-              const hCode = '${selectedGame.homeTeamCode}';
               const aCode = '${selectedGame.awayTeamCode}';
+              const hCode = '${selectedGame.homeTeamCode}';
 
-              $('#homeTeamLogo').attr('src', '/img/logo/logo_' + hCode.toLowerCase() + '.svg');
-              $('#awayTeamLogo').attr('src', '/img/logo/logo_' + aCode.toLowerCase() + '.svg');
+              // DB에서 가져온 로고 이미지 URL 직접 할당 (없을 경우 기본 이미지)
+              $('#awayTeamLogo').attr('src', '${selectedGame.awayTeamLogo}' || '/img/team_default.svg');
+              $('#homeTeamLogo').attr('src', '${selectedGame.homeTeamLogo}' || '/img/team_default.svg');
 
               // MY 팀 배지 처리
               const myTeam = '${sessionScope.loginMember.myTeamCode}';
-              if ('${selectedGame.homeTeamCode}' === myTeam) $('#homeMyTeam').show();
-              if ('${selectedGame.awayTeamCode}' === myTeam) $('#awayMyTeam').show();
+              if (aCode === myTeam) $('#awayMyTeam').show();
+              if (hCode === myTeam) $('#homeMyTeam').show();
 
               $('#btnNext').prop('disabled', false);
           }
@@ -270,6 +270,8 @@
                                   data-away-name="\${game.awayTeamName}"
                                   data-home-code="\${game.homeTeamCode}"
                                   data-away-code="\${game.awayTeamCode}"
+                                  data-home-logo="\${game.homeTeamLogo}"
+                                  data-away-logo="\${game.awayTeamLogo}"
                                   onclick="selectGameItem(this)">
                                   <span class="match">\${title}</span>
                                   <span class="place">(\${game.stadiumName})</span>
@@ -297,7 +299,9 @@
               homeName: $(btn).data('home-name'),
               awayName: $(btn).data('away-name'),
               homeCode: $(btn).data('home-code'),
-              awayCode: $(btn).data('away-code')
+              awayCode: $(btn).data('away-code'),
+              homeLogo: $(btn).data('home-logo'),
+              awayLogo: $(btn).data('away-logo')
           };
 
           // 저장 버튼 활성화
@@ -311,79 +315,29 @@
        */
       function applyGameSelection() {
           if (!tempSelectedGame) return;
-
           const g = tempSelectedGame;
-          const myTeamCode = '${sessionScope.loginMember.myTeamCode}'; // 세션에서 내 팀 코드 가져오기
+          const myTeamCode = '${sessionScope.loginMember.myTeamCode}';
 
           // 1. 게임 ID 설정
           $('#gameId').val(g.id);
 
-          // 2. 상단 텍스트는 혼동 방지를 위해 원래 대진표(Home vs Away)대로 표기 (선택 사항)
+          // 2. 상단 텍스트 표기
           $('#gameSelectText').text(g.awayName + ' vs ' + g.homeName)
               .css('color', '#000').css('font-weight', 'bold');
 
-          // 3. 점수 입력칸 요소 찾기 (DOM 순서상 첫번째가 왼쪽, 두번째가 오른쪽)
-          const $leftInput = $('input[name^="predScore"]').eq(0); // 왼쪽 입력칸
-          const $rightInput = $('input[name^="predScore"]').eq(1); // 오른쪽 입력칸
+          // 3. 화면 업데이트 (원정은 무조건 왼쪽, 홈은 무조건 오른쪽)
+          $('#awayTeamName').text(g.awayName);
+          $('#homeTeamName').text(g.homeName);
 
-          let leftName, rightName;
-          let leftLogo, rightLogo;
-          let showLeftBadge = false;
-          let showRightBadge = false;
+          // DB에 저장된 로고 경로를 바로 적용 (없을 경우 기본 이미지 매핑)
+          $('#awayTeamLogo').attr('src', g.awayLogo || '/img/team_default.svg');
+          $('#homeTeamLogo').attr('src', g.homeLogo || '/img/team_default.svg');
 
-          // [로고 경로 생성 도우미]
-          // 파일명이 소문자라고 가정 (예: logo_kia.svg)
-          const getLogoPath = (code) => '/img/logo/logo_' + (code ? code.toLowerCase() : 'default') + '.svg';
+          // 4. MY 뱃지 표시 제어
+          if (g.awayCode === myTeamCode) $('#awayMyTeam').show(); else $('#awayMyTeam').hide();
+          if (g.homeCode === myTeamCode) $('#homeMyTeam').show(); else $('#homeMyTeam').hide();
 
-          // 4. 로직 분기: 내 팀 위치에 따라 UI와 데이터 속성(name) 스왑
-          if (g.awayCode === myTeamCode) {
-              // [CASE 1] 내가 원정팀인 경우 -> UI와 데이터를 뒤집음
-
-              // 4-1. UI 배치: 왼쪽(내팀=Away), 오른쪽(상대=Home)
-              leftName = g.awayName;
-              rightName = g.homeName;
-
-              leftLogo = getLogoPath(g.awayCode);
-              rightLogo = getLogoPath(g.homeCode);
-
-              showLeftBadge = true; // 왼쪽에 'MY' 뱃지
-
-              // 4-2. 데이터 매핑: 왼쪽 입력값 -> predScoreAway, 오른쪽 입력값 -> predScoreHome
-              $leftInput.attr('name', 'predScoreAway');
-              $rightInput.attr('name', 'predScoreHome');
-
-          } else {
-              // [CASE 2] 내가 홈팀이거나 제3자 경기인 경우 -> 정배치 (원래대로)
-
-              // 4-1. UI 배치: 왼쪽(Home), 오른쪽(Away)
-              leftName = g.homeName;
-              rightName = g.awayName;
-
-              leftLogo = getLogoPath(g.homeCode);
-              rightLogo = getLogoPath(g.awayCode);
-
-              if (g.homeCode === myTeamCode) {
-                  showLeftBadge = true; // 왼쪽에 'MY' 뱃지
-              }
-
-              // 4-2. 데이터 매핑: 왼쪽 입력값 -> predScoreHome, 오른쪽 입력값 -> predScoreAway
-              $leftInput.attr('name', 'predScoreHome');
-              $rightInput.attr('name', 'predScoreAway');
-          }
-
-          // 5. 화면 업데이트 적용
-          $('#homeTeamName').text(leftName); // 왼쪽 팀 이름 영역
-          $('#awayTeamName').text(rightName); // 오른쪽 팀 이름 영역
-
-          // 로고 이미지 변경
-          $('#homeTeamLogo').attr('src', leftLogo);
-          $('#awayTeamLogo').attr('src', rightLogo);
-
-          // 뱃지 표시 제어
-          if (showLeftBadge) $('#homeMyTeam').show(); else $('#homeMyTeam').hide();
-          if (showRightBadge) $('#awayMyTeam').show(); else $('#awayMyTeam').hide();
-
-          // 6. 버튼 활성화 및 팝업 닫기
+          // 5. 버튼 활성화 및 팝업 닫기
           $('#btnNext').prop('disabled', false);
           closeGameSheet();
       }
