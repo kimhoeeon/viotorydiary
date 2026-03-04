@@ -22,6 +22,18 @@
     <link href="/css/mngStyle.css" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+
+    <style>
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 20px;}
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .og-card { display: flex; flex-direction: column; border: 1px solid #e1e1e1; border-radius: 12px; overflow: hidden; text-decoration: none !important; color: #333; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: transform 0.2s;}
+        .og-card:hover { transform: translateY(-2px); }
+        .og-card img { width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid #f0f0f0; }
+        .og-card-info { padding: 16px; }
+        .og-card-title { font-weight: bold; font-size: 15px; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; color: #111;}
+        .og-card-desc { font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; line-height: 1.4; }
+        .og-card-domain { font-size: 11px; color: #999; text-transform: lowercase; }
+    </style>
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -222,70 +234,71 @@
                     <input type="hidden" name="contentId" id="contentId">
                     <div class="modal-body py-10 px-lg-17">
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">상태</label>
-                            <div class="d-flex align-items-center mt-3">
-                                <div class="form-check form-check-custom form-check-solid me-5">
-                                    <input class="form-check-input" type="radio" value="ACTIVE" name="status" id="st_active" checked/>
-                                    <label class="form-check-label" for="st_active">활성</label>
-                                </div>
-                                <div class="form-check form-check-custom form-check-solid">
-                                    <input class="form-check-input" type="radio" value="INACTIVE" name="status" id="st_inactive"/>
-                                    <label class="form-check-label" for="st_inactive">비활성</label>
+                            <div class="col-md-6">
+                                <label class="required fs-6 fw-semibold mb-2">구단 선택</label>
+                                <select class="form-select form-select-solid" name="teamCode" id="teamCode">
+                                    <option value="KIA">KIA</option>
+                                    <option value="SAMSUNG">삼성</option>
+                                    <option value="LG">LG</option>
+                                    <option value="DOOSAN">두산</option>
+                                    <option value="KT">KT</option>
+                                    <option value="SSG">SSG</option>
+                                    <option value="LOTTE">롯데</option>
+                                    <option value="HANWHA">한화</option>
+                                    <option value="NC">NC</option>
+                                    <option value="KIWOOM">키움</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="required fs-6 fw-semibold mb-2">상태</label>
+                                <div class="d-flex align-items-center mt-3">
+                                    <div class="form-check form-check-custom form-check-solid me-5">
+                                        <input class="form-check-input" type="radio" value="ACTIVE" name="status" id="st_active" checked/>
+                                        <label class="form-check-label" for="st_active">활성</label>
+                                    </div>
+                                    <div class="form-check form-check-custom form-check-solid">
+                                        <input class="form-check-input" type="radio" value="INACTIVE" name="status" id="st_inactive"/>
+                                        <label class="form-check-label" for="st_inactive">비활성</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">구단 선택</label>
-                            <select class="form-select form-select-solid" name="teamCode" id="teamCode">
-                                <option value="KIA">KIA</option>
-                                <option value="SAMSUNG">삼성</option>
-                                <option value="LG">LG</option>
-                                <option value="DOOSAN">두산</option>
-                                <option value="KT">KT</option>
-                                <option value="SSG">SSG</option>
-                                <option value="LOTTE">롯데</option>
-                                <option value="HANWHA">한화</option>
-                                <option value="NC">NC</option>
-                                <option value="KIWOOM">키움</option>
-                            </select>
-                        </div>
+
                         <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">제목</label>
                             <input type="text" class="form-control form-control-solid" name="title" id="title" required />
                         </div>
-                        <div class="fv-row mb-7">
-                            <label class="fs-6 fw-bold mb-2">썸네일 미리보기</label>
-                            <div class="d-flex justify-content-center align-items-center bg-light rounded position-relative"
-                                 style="min-height: 200px; border: 1px dashed #ccc; overflow: hidden;">
 
-                                <img id="previewImg" src="/assets/media/svg/files/blank-image.svg"
-                                     style="max-width: 100%; max-height: 250px; object-fit: contain;" alt="미리보기" />
-
-                                <div id="previewLoader" class="position-absolute w-100 h-100 justify-content-center align-items-center bg-white bg-opacity-75" style="display: none;">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-text text-muted">
-                                jpg, png, jpeg 파일만 등록 가능합니다.<br>
-                                파일 등록시, 콘텐츠 URL의 썸네일보다 우선 적용됩니다.
-                            </div>
-                            <input type="hidden" id="hiddenImageUrl" name="imageUrl" />
-                        </div>
-                        <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">썸네일 이미지</label>
-                            <input type="file" class="form-control form-control-solid" name="file" id="fileInput" accept="image/jpeg, image/png, image/jpg"/>
-                            <div class="form-text text-muted">
-                                jpg, png, jpeg 파일만 등록 가능합니다.<br>
-                                파일 등록시, 콘텐츠 URL의 썸네일보다 우선 적용됩니다.
-                            </div>
-                        </div>
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
-                            <input type="text" class="form-control form-control-solid" name="contentUrl" id="contentUrl" placeholder="https://..." />
-                            <div class="form-text text-muted">"https://"로 시작하는 URL을 입력해주세요. 썸네일 미등록 시 URL에서 자동 추출을 시도합니다.</div>
+                            <input type="text" class="form-control form-control-solid mb-2" name="contentUrl" id="contentUrl" placeholder="https://..." />
+                            <div class="form-text text-muted mb-3">"https://"로 시작하는 링크를 입력하시면 하단에 썸네일과 공유 카드가 자동 생성됩니다.</div>
+                            <div id="popupUrlPreviewBox" data-url="" style="max-width: 400px;"></div>
                         </div>
+
+                        <div class="row mb-7">
+                            <div class="col-md-4">
+                                <label class="fs-6 fw-bold mb-2">썸네일 미리보기</label>
+                                <div class="d-flex flex-center bg-light rounded position-relative overflow-hidden" style="width: 200px; height: 150px; border: 1px dashed #ccc;">
+                                    <img id="previewImg" src="/assets/media/svg/files/blank-image.svg" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="미리보기" />
+                                    <div id="previewLoader" class="position-absolute w-100 h-100 justify-content-center align-items-center bg-white bg-opacity-75" style="display: none;">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="hiddenImageUrl" name="imageUrl" />
+                            </div>
+                            <div class="col-md-8">
+                                <label class="fs-6 fw-semibold mb-2">썸네일 이미지 변경</label>
+                                <input type="file" class="form-control form-control-solid mb-2" name="file" id="fileInput" accept="image/jpeg, image/png, image/jpg"/>
+                                <div class="form-text text-muted">
+                                    - jpg, png, jpeg 파일만 등록 가능합니다.<br>
+                                    - 파일 등록 시, 콘텐츠 URL에서 자동 추출된 썸네일보다 우선 적용됩니다.
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">내용</label>
                             <textarea name="content" id="content"></textarea>
@@ -307,10 +320,38 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
     <script src="/js/summernote.js"></script>
     <script>
+        function renderUrlPreview(url, targetElementId) {
+            var targetBox = $('#' + targetElementId);
+            if (!url) { targetBox.empty(); return; }
+
+            var singleYtRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            var match = url.match(singleYtRegex);
+
+            if (match && match[1]) {
+                targetBox.html('<div class="video-container"><iframe src="https://www.youtube.com/embed/' + match[1] + '" frameborder="0" allowfullscreen></iframe></div>');
+            } else {
+                $.get('/locker/extract-og', { url: url }, function(res) {
+                    if (!res.error && res.title) {
+                        var cardHtml = `
+                            <a href="\${url}" target="_blank" class="og-card">
+                                \${res.image ? '<img src="' + res.image + '" alt="링크 썸네일">' : ''}
+                                <div class="og-card-info">
+                                    <div class="og-card-title">\${res.title}</div>
+                                    <div class="og-card-desc">\${res.description}</div>
+                                    <div class="og-card-domain">\${res.domain}</div>
+                                </div>
+                            </a>
+                        `;
+                        targetBox.html(cardHtml);
+                    } else {
+                        targetBox.html('<a href="' + url + '" target="_blank" style="display:block; text-align:center; padding:14px; background:#f8f9fa; border-radius:8px; color:#333; text-decoration:none; font-weight:bold;">🔗 외부 관련 콘텐츠 보러가기</a>');
+                    }
+                });
+            }
+        }
 
         // 전역 변수로 마지막 URL 저장 (중복 호출 방지)
         let lastExtractedUrl = '';
-
         $(document).ready(function() {
             // 1. 파일 선택 시 미리보기 (로컬 파일)
             $('#fileInput').on('change', function(e) {
@@ -329,84 +370,98 @@
                 }
             });
 
-            // 2. 링크 URL 입력 시 썸네일 추출 (포커스 아웃 or 붙여넣기 시)
-            $('#contentUrl').on('blur paste', function() {
+            // 2. URL 변경 감지
+            $('#contentUrl').on('blur paste keyup', function() {
                 setTimeout(() => {
-                    const url = $('#contentUrl').val();
+                    const url = $(this).val();
                     const fileVal = $('#fileInput').val();
 
-                    // 파일이 없고, URL이 있고, URL이 변경되었을 때만 수행
-                    if (!fileVal && url && url.length > 10 && url !== lastExtractedUrl) {
-                        extractMeta(url);
+                    if (url !== lastExtractedUrl) {
+                        lastExtractedUrl = url;
+                        renderUrlPreview(url, 'popupUrlPreviewBox');
+
+                        if (!fileVal && url.length > 10) {
+                            $('#previewLoader').addClass('d-flex').show();
+                            $('#previewImg').css('opacity', 0.5);
+
+                            $.get('/mng/content/teams/meta', { url: url }, function(res) {
+                                if (res) {
+                                    $('#previewImg').attr('src', res);
+                                    $('#hiddenImageUrl').val(res);
+                                }
+                            }).always(function() {
+                                $('#previewLoader').removeClass('d-flex').hide();
+                                $('#previewImg').css('opacity', 1);
+                            });
+                        }
                     }
                 }, 100);
             });
 
-            if(typeof initSummernote === 'function') {
-                initSummernote('#content', 400);
-            } else {
-                $('#content').summernote({ height: 400, lang: 'ko-KR' });
-            }
-        });
-
-        function extractMeta(url) {
-            // 로딩 시작
-            $('#previewLoader').addClass('d-flex').show(); // 스피너 노출
-            $('#previewImg').css('opacity', 0.3); // 이미지 흐리게
-
-            $.get('/mng/content/teams/meta', { url: url }, function(res) {
-                if (res) {
-                    $('#previewImg').attr('src', res);
-                    $('#hiddenImageUrl').val(res);
-                    lastExtractedUrl = url; // 마지막 URL 갱신
+            // 3. 에디터 초기화
+            $('#content').summernote({
+                height: 400,
+                lang: 'ko-KR',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['picture', 'video', 'link']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        for (var i = 0; i < files.length; i++) {
+                            var data = new FormData();
+                            data.append("file", files[i]);
+                            $.ajax({
+                                url: '/api/common/upload/editor',
+                                type: 'POST',
+                                data: data,
+                                cache: false, contentType: false, processData: false,
+                                success: function(url) { $('#content').summernote('insertImage', url); },
+                                error: function() { alert("이미지 업로드에 실패했습니다."); }
+                            });
+                        }
+                    }
                 }
-            }).always(function() {
-                // 로딩 종료 (성공/실패 무관)
-                $('#previewLoader').removeClass('d-flex').hide();
-                $('#previewImg').css('opacity', 1);
             });
-        }
+        });
 
         const modal = new bootstrap.Modal(document.getElementById('teamModal'));
 
-        // 모달 열기 함수 (초기화 로직 포함)
         function openModal(contentId) {
-            // 초기화
             document.getElementById('teamForm').reset();
             $('#previewImg').attr('src', '/assets/media/svg/files/blank-image.svg');
             $('#hiddenImageUrl').val('');
             $('#contentId').val('');
+            $('#contentUrl').val('');
+            $('#popupUrlPreviewBox').empty();
             $('#content').summernote('reset');
-
             lastExtractedUrl = '';
             $('#previewLoader').removeClass('d-flex').hide();
             $('#previewImg').css('opacity', 1);
 
             if (contentId) {
-                // 수정 모드: 상세 정보 조회
                 $.get('/mng/content/teams/detail', { contentId: contentId }, function(data) {
                     $('#contentId').val(data.contentId);
-                    $('#linkUrl').val(data.linkUrl);
+                    $('#contentUrl').val(data.contentUrl); // ⭐️ 버그 수정 (linkUrl -> contentUrl)
                     $('#teamCode').val(data.teamCode);
                     $('#title').val(data.title);
                     $('#content').summernote('code', data.content);
 
-                    // 기존 썸네일 세팅
                     if(data.imageUrl) {
                         $('#previewImg').attr('src', data.imageUrl);
                         $('#hiddenImageUrl').val(data.imageUrl);
                     }
-
-                    // 팝업 열자마자 불필요한 재추출 방지를 위해 현재 URL 저장
-                    if(data.linkUrl) {
-                        lastExtractedUrl = data.linkUrl;
+                    if(data.contentUrl) {
+                        lastExtractedUrl = data.contentUrl;
+                        renderUrlPreview(data.contentUrl, 'popupUrlPreviewBox');
                     }
-
                     $('#modalTitle').text('콘텐츠 수정');
                     if(modal) modal.show();
                 });
             } else {
-                // 등록 모드
                 $('#modalTitle').text('콘텐츠 등록');
                 if(modal) modal.show();
             }

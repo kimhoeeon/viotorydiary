@@ -89,31 +89,52 @@
                                         <div class="card-title m-0"><h3 class="fw-bold m-0">구단 콘텐츠 상세</h3></div>
                                     </div>
                                     <div class="card-body p-9">
+
                                         <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">제목</label>
-                                            <div class="col-lg-10"><span class="fw-bold fs-6 text-gray-800">${content.title}</span></div>
-                                        </div>
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">구단</label>
-                                            <div class="col-lg-10 d-flex align-items-center">
-                                                <c:if test="${not empty content.logoImageUrl}">
-                                                    <img src="${content.logoImageUrl}" alt="${content.teamCode}" class="w-30px h-30px object-fit-contain me-2"/>
-                                                </c:if>
-                                                <span class="badge badge-light fw-bold fs-6">${empty content.teamNameKr ? content.teamCode : content.teamNameKr}</span>
+                                            <div class="col-lg-6 d-flex align-items-center">
+                                                <label class="col-lg-4 fw-semibold text-muted">구단</label>
+                                                <div class="col-lg-8 d-flex align-items-center">
+                                                    <c:if test="${not empty content.logoImageUrl}">
+                                                        <img src="${content.logoImageUrl}" alt="${content.teamCode}" class="w-30px h-30px object-fit-contain me-2"/>
+                                                    </c:if>
+                                                    <span class="badge badge-light fw-bold fs-6">${empty content.teamNameKr ? content.teamCode : content.teamNameKr}</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 d-flex align-items-center">
+                                                <label class="col-lg-4 fw-semibold text-muted">상태</label>
+                                                <div class="col-lg-8">
+                                                    <c:if test="${content.status eq 'ACTIVE'}"><span class="badge badge-light-success fs-6">활성</span></c:if>
+                                                    <c:if test="${content.status eq 'INACTIVE'}"><span class="badge badge-light-secondary fs-6">비활성</span></c:if>
+                                                </div>
                                             </div>
                                         </div>
+
                                         <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">상태</label>
+                                            <label class="col-lg-2 fw-semibold text-muted">제목</label>
                                             <div class="col-lg-10">
-                                                <span class="badge badge-light-${content.status eq 'ACTIVE' ? 'success' : 'secondary'}">${content.status}</span>
+                                                <span class="fw-bold fs-6 text-gray-800">${content.title}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-7">
+                                            <label class="col-lg-2 fw-semibold text-muted">콘텐츠 URL</label>
+                                            <div class="col-lg-10">
+                                                <c:choose>
+                                                    <c:when test="${not empty content.contentUrl}">
+                                                        <a href="${content.contentUrl}" target="_blank" class="text-primary d-block mb-3">${content.contentUrl}</a>
+                                                        <div id="urlPreviewBox" data-url="${content.contentUrl}" style="max-width: 400px;"></div>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="text-muted">등록된 외부 링크가 없습니다.</span>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                         </div>
 
                                         <div class="row mb-7">
                                             <div class="col-lg-2 fw-semibold text-muted">썸네일 미리보기</div>
                                             <div class="col-lg-10">
-                                                <div class="d-flex flex-center bg-light rounded overflow-hidden"
-                                                     style="width: 200px; height: 150px; border: 1px dashed #ccc;">
+                                                <div class="d-flex flex-center bg-light rounded overflow-hidden" style="width: 200px; height: 150px; border: 1px dashed #ccc;">
                                                     <img src="${not empty content.imageUrl ? content.imageUrl : '/assets/media/svg/files/blank-image.svg'}"
                                                          alt="썸네일" class="mw-100 mh-100 object-fit-contain"
                                                          onclick="window.open(this.src)" style="cursor: pointer;">
@@ -122,20 +143,25 @@
                                         </div>
 
                                         <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">콘텐츠 URL</label>
-                                            <div class="col-lg-10">
-                                                <a href="${content.contentUrl}" target="_blank" class="text-primary d-block mb-3">${content.contentUrl}</a>
-                                                <c:if test="${not empty content.contentUrl}">
-                                                    <div id="urlPreviewBox" data-url="${content.contentUrl}" style="max-width: 400px;"></div>
-                                                </c:if>
-                                            </div>
-                                        </div>
-
-                                        <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">내용</label>
                                             <div class="col-lg-10">
                                                 <div class="border rounded p-5 bg-light text-dark fs-6" style="min-height: 150px;">
                                                     ${content.content}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-7">
+                                            <div class="col-lg-6 d-flex align-items-center">
+                                                <label class="col-lg-4 fw-semibold text-muted">조회수</label>
+                                                <div class="col-lg-8">
+                                                    <span class="fw-bold fs-6 text-gray-800"><fmt:formatNumber value="${content.clickCount}" pattern="#,###"/> 회</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 d-flex align-items-center">
+                                                <label class="col-lg-4 fw-semibold text-muted">등록일시</label>
+                                                <div class="col-lg-8">
+                                                    <span class="fw-bold fs-6 text-gray-800">${fn:replace(content.createdAt, 'T', ' ')}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -199,66 +225,72 @@
                     <input type="hidden" name="contentId" value="${content.contentId}">
 
                     <div class="modal-body py-10 px-lg-17">
-                        <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">상태</label>
-                            <div class="d-flex align-items-center mt-3">
-                                <div class="form-check form-check-custom form-check-solid me-5">
-                                    <input class="form-check-input" type="radio" value="ACTIVE" name="status" ${content.status eq 'ACTIVE' ? 'checked' : ''}/>
-                                    <label class="form-check-label">활성</label>
-                                </div>
-                                <div class="form-check form-check-custom form-check-solid">
-                                    <input class="form-check-input" type="radio" value="INACTIVE" name="status" ${content.status eq 'INACTIVE' ? 'checked' : ''}/>
-                                    <label class="form-check-label">비활성</label>
+                        <div class="row mb-7">
+                            <div class="col-md-6">
+                                <label class="required fs-6 fw-semibold mb-2">구단 선택</label>
+                                <select class="form-select form-select-solid" name="teamCode" id="detailTeamCode">
+                                    <option value="KIA" ${content.teamCode eq 'KIA' ? 'selected' : ''}>KIA</option>
+                                    <option value="SAMSUNG" ${content.teamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성</option>
+                                    <option value="LG" ${content.teamCode eq 'LG' ? 'selected' : ''}>LG</option>
+                                    <option value="DOOSAN" ${content.teamCode eq 'DOOSAN' ? 'selected' : ''}>두산</option>
+                                    <option value="KT" ${content.teamCode eq 'KT' ? 'selected' : ''}>KT</option>
+                                    <option value="SSG" ${content.teamCode eq 'SSG' ? 'selected' : ''}>SSG</option>
+                                    <option value="LOTTE" ${content.teamCode eq 'LOTTE' ? 'selected' : ''}>롯데</option>
+                                    <option value="HANWHA" ${content.teamCode eq 'HANWHA' ? 'selected' : ''}>한화</option>
+                                    <option value="NC" ${content.teamCode eq 'NC' ? 'selected' : ''}>NC</option>
+                                    <option value="KIWOOM" ${content.teamCode eq 'KIWOOM' ? 'selected' : ''}>키움</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="required fs-6 fw-semibold mb-2">상태</label>
+                                <div class="d-flex align-items-center mt-3">
+                                    <div class="form-check form-check-custom form-check-solid me-5">
+                                        <input class="form-check-input" type="radio" value="ACTIVE" name="status" id="detail_st_active" ${content.status == 'ACTIVE' ? 'checked' : ''}/>
+                                        <label class="form-check-label" for="detail_st_active">활성</label>
+                                    </div>
+                                    <div class="form-check form-check-custom form-check-solid">
+                                        <input class="form-check-input" type="radio" value="INACTIVE" name="status" id="detail_st_inactive" ${content.status == 'INACTIVE' ? 'checked' : ''}/>
+                                        <label class="form-check-label" for="detail_st_inactive">비활성</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">구단 선택</label>
-                            <select class="form-select form-select-solid" name="teamCode">
-                                <option value="KIA" ${content.teamCode eq 'KIA' ? 'selected' : ''}>KIA</option>
-                                <option value="SAMSUNG" ${content.teamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성</option>
-                                <option value="LG" ${content.teamCode eq 'LG' ? 'selected' : ''}>LG</option>
-                                <option value="DOOSAN" ${content.teamCode eq 'DOOSAN' ? 'selected' : ''}>두산</option>
-                                <option value="KT" ${content.teamCode eq 'KT' ? 'selected' : ''}>KT</option>
-                                <option value="SSG" ${content.teamCode eq 'SSG' ? 'selected' : ''}>SSG</option>
-                                <option value="LOTTE" ${content.teamCode eq 'LOTTE' ? 'selected' : ''}>롯데</option>
-                                <option value="HANWHA" ${content.teamCode eq 'HANWHA' ? 'selected' : ''}>한화</option>
-                                <option value="NC" ${content.teamCode eq 'NC' ? 'selected' : ''}>NC</option>
-                                <option value="KIWOOM" ${content.teamCode eq 'KIWOOM' ? 'selected' : ''}>키움</option>
-                            </select>
-                        </div>
+
                         <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">제목</label>
-                            <input type="text" class="form-control form-control-solid" name="title" value="${content.title}" required />
+                            <input type="text" class="form-control form-control-solid" name="title" id="detailTitle" value="${content.title}" required placeholder="콘텐츠 제목을 입력하세요."/>
                         </div>
+
                         <div class="fv-row mb-7">
-                            <label class="fs-6 fw-bold mb-2">썸네일 미리보기</label>
-                            <div>
-                                <div class="d-flex flex-center bg-light rounded position-relative overflow-hidden"
-                                     style="width: 200px; height: 150px; border: 1px dashed #ccc;">
+                            <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
+                            <input type="text" class="form-control form-control-solid mb-2" name="contentUrl" id="detailContentUrl" value="${content.contentUrl}" placeholder="https://..." />
+                            <div class="form-text text-muted mb-3">"https://"로 시작하는 링크를 입력하시면 하단에 썸네일과 공유 카드가 자동 생성됩니다.</div>
+                            <div id="popupUrlPreviewBox" data-url="${content.contentUrl}" style="max-width: 400px;"></div>
+                        </div>
 
-                                    <img id="detailPreviewImg"
-                                         src="${not empty content.imageUrl ? content.imageUrl : '/assets/media/svg/files/blank-image.svg'}"
-                                         style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-
+                        <div class="row mb-7">
+                            <div class="col-md-4">
+                                <label class="fs-6 fw-bold mb-2">썸네일 미리보기</label>
+                                <div class="d-flex flex-center bg-light rounded position-relative overflow-hidden" style="width: 200px; height: 150px; border: 1px dashed #ccc;">
+                                    <img id="detailPreviewImg" src="${not empty content.imageUrl ? content.imageUrl : '/assets/media/svg/files/blank-image.svg'}" style="max-width: 100%; max-height: 100%; object-fit: contain;" alt="미리보기" />
                                     <div id="detailLoader" class="position-absolute w-100 h-100 justify-content-center align-items-center bg-white bg-opacity-75" style="display: none;">
                                         <div class="spinner-border text-primary" role="status">
                                             <span class="visually-hidden">Loading...</span>
                                         </div>
                                     </div>
                                 </div>
+                                <input type="hidden" id="detailHiddenImageUrl" name="imageUrl" value="${content.imageUrl}" />
                             </div>
-                            <input type="hidden" id="detailHiddenImageUrl" name="imageUrl" value="${content.imageUrl}" />
+                            <div class="col-md-8">
+                                <label class="fs-6 fw-semibold mb-2">썸네일 이미지 변경</label>
+                                <input type="file" class="form-control form-control-solid mb-2" name="file" id="detailFileInput" accept="image/jpeg, image/png, image/jpg"/>
+                                <div class="form-text text-muted">
+                                    - jpg, png, jpeg 파일만 등록 가능합니다.<br>
+                                    - 파일 등록 시, 콘텐츠 URL에서 자동 추출된 썸네일보다 우선 적용됩니다.
+                                </div>
+                            </div>
                         </div>
-                        <div class="fv-row mb-7">
-                            <label class="fs-6 fw-bold mb-2">이미지 변경</label>
-                            <input type="file" class="form-control form-control-solid" name="file" id="detailFileInput" accept="image/jpeg, image/png, image/jpg"/>
-                        </div>
-                        <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
-                            <input type="text" class="form-control form-control-solid mb-3" name="contentUrl" id="detailContentUrl" value="${content.contentUrl}" placeholder="콘텐츠 관련 링크를 입력하세요." />
-                            <div id="popupUrlPreviewBox" data-url="${content.contentUrl}" style="max-width: 400px;"></div>
-                        </div>
+
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">내용</label>
                             <textarea name="content" id="summernote_edit">${content.content}</textarea>
