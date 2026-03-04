@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -113,6 +114,13 @@ public class GlobalController {
     public String handleMethodNotSupported(HttpRequestMethodNotSupportedException e, HttpServletRequest request) {
         log.warn("잘못된 요청 감지 (405): {} {}", request.getMethod(), request.getRequestURI());
         return "redirect:/"; // 메인 페이지로 이동
+    }
+
+    // 업로드 도중 연결이 끊겼을 때 긴 스택 트레이스 없이 한 줄 로그만 남김
+    @ExceptionHandler(MultipartException.class)
+    public void handleMultipartException(MultipartException e) {
+        log.warn(">>> [비정상 접근] Multipart 요청 처리 중 연결이 끊겼습니다: {}", e.getMessage());
+        // 특별히 클라이언트에게 뭘 리턴할 필요 없이 무시하면 됩니다. (어차피 클라이언트가 먼저 도망간 상태임)
     }
 
     /**
