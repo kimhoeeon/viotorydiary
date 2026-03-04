@@ -375,7 +375,7 @@
 
                     if (url !== lastDetailUrl) {
                         lastDetailUrl = url;
-                        // ⭐️ 모달 하단에 콘텐츠 미리보기 카드 실시간 렌더링
+                        // 모달 하단에 콘텐츠 미리보기 카드 실시간 렌더링
                         renderUrlPreview(url, 'popupUrlPreviewBox');
 
                         // 썸네일 이미지 자동 추출 (파일이 없을 때만)
@@ -397,7 +397,7 @@
                 }, 100);
             });
 
-            // 3. ⭐️ 페이지 로드 시 렌더링 (상세 뷰 & 팝업 뷰 둘 다 적용)
+            // 3. 페이지 로드 시 렌더링 (상세 뷰 & 팝업 뷰 둘 다 적용)
             renderUrlPreview($('#urlPreviewBox').data('url'), 'urlPreviewBox');
             renderUrlPreview($('#popupUrlPreviewBox').data('url'), 'popupUrlPreviewBox');
 
@@ -450,6 +450,9 @@
          * 콘텐츠 수정 (AJAX)
          */
         function updateContent() {
+            // FormData 생성 직전에 Summernote 에디터 내용을 textarea에 동기화
+            $('#summernote_edit').val($('#summernote_edit').summernote('code'));
+
             // 폼 데이터 생성
             const form = document.getElementById('modifyForm');
             const formData = new FormData(form);

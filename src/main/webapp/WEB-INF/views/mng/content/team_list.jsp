@@ -445,7 +445,7 @@
             if (contentId) {
                 $.get('/mng/content/teams/detail', { contentId: contentId }, function(data) {
                     $('#contentId').val(data.contentId);
-                    $('#contentUrl').val(data.contentUrl); // ⭐️ 버그 수정 (linkUrl -> contentUrl)
+                    $('#contentUrl').val(data.contentUrl);
                     $('#teamCode').val(data.teamCode);
                     $('#title').val(data.title);
                     $('#content').summernote('code', data.content);
