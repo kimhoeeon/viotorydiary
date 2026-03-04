@@ -322,7 +322,7 @@
                 }, 100);
             });
 
-            // ⭐️ 1. URL 썸네일 미리보기 렌더링 로직 (상세 뷰 용)
+            // 1. URL 썸네일 미리보기 렌더링 로직 (상세 뷰 용)
             var previewUrl = $('#urlPreviewBox').data('url');
             if (previewUrl) {
                 var singleYtRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -349,7 +349,7 @@
                 }
             }
 
-            // ⭐️ 2. 방해되는 조건문을 지우고 우리가 선언한 Summernote 환경설정을 무조건 적용
+            // 2. 방해되는 조건문을 지우고 우리가 선언한 Summernote 환경설정을 무조건 적용
             $('#summernote_edit').summernote({
                 height: 400,
                 lang: 'ko-KR',
@@ -410,7 +410,7 @@
                 processData: false,
                 success: function(res) {
                     if (res === 'ok') {
-                        // [수정 1] 팝업 닫기 (안전한 탐색 로직)
+                        // 팝업 닫기 (안전한 탐색 로직)
                         // 1순위: 전역변수 modal 확인
                         if (typeof modal !== 'undefined') {
                             modal.hide();
@@ -424,7 +424,7 @@
                             }
                         }
 
-                        // [수정 2] 알림창 확인 후 새로고침
+                        // 알림창 확인 후 새로고침
                         // 커스텀 alert 호출
                         alert('콘텐츠가 수정되었습니다.', function() {
                             location.reload(); // 확인 클릭 시 새로고침

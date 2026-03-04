@@ -24,7 +24,7 @@
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
 
     <style>
-        /* [수정 2] 배경 이미지 대신 CSS 그라데이션 적용 */
+        /* 배경 이미지 대신 CSS 그라데이션 적용 */
         body {
             /* 기본 다크 배경 */
             /* 중앙에서 퍼지는 은은한 조명 효과 (Dark Blue 톤) */

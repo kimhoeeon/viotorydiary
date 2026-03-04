@@ -117,11 +117,11 @@
                     url: '/member/login',
                     type: 'POST',
                     data: $(this).serialize(),
-                    // [수정 1] async 키워드 추가
+                    // async 키워드 추가
                     success: async function(res) {
                         if (res.status === 'ok') {
 
-                            // [수정 2] Appify 앱 환경일 경우 기기 정보 수집
+                            // Appify 앱 환경일 경우 기기 정보 수집
                             if (typeof appify !== 'undefined' && appify.isWebview) {
                                 try {
                                     // 기기 정보 가져오기 (문서 10.txt 참고)

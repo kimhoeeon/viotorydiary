@@ -449,7 +449,7 @@
                 success: function(res) {
                     if (res === 'ok') {
 
-                        // [수정 1] 팝업(모달) 먼저 닫기
+                        // 팝업(모달) 먼저 닫기
                         if (modal) {
                             modal.hide();
                         }

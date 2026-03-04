@@ -153,7 +153,7 @@
             }, function(res) {
                 const result = res.trim();
 
-                // ⭐️ 백엔드 검증 결과에 따른 세밀한 분기 처리
+                // 백엔드 검증 결과에 따른 세밀한 분기 처리
                 if(result === 'not_found') {
                     alert('가입된 아이디(이메일)와 일치하는 연락처가 아닙니다.');
                     $('#sendBtn').text('인증하기').prop('disabled', false);
