@@ -94,7 +94,7 @@
                                                 <div class="row row-center gap-6">
                                                     <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
                                                         <img src="${todayGame.homeTeamLogo}" alt="${todayGame.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
-                                                        </div>
+                                                    </div>
 
                                                     <c:set var="statusClass" value="schedule" />
                                                     <c:if test="${todayGame.status == 'LIVE'}"><c:set var="statusClass" value="during" /></c:if>
@@ -280,11 +280,7 @@
                                             <c:forEach var="diary" items="${diaries}">
                                                 <div class="score_list" onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'">
                                                     <div class="img">
-                                                        <c:choose>
-                                                            <c:when test="${diary.gameResult == 'WIN'}"><img src="/img/ico_diary_comp.svg" alt="승리"></c:when>
-                                                            <c:when test="${diary.gameResult == 'LOSE'}"><img src="/img/ico_diary_fail.svg" alt="패배"></c:when>
-                                                            <c:otherwise><img src="/img/card_defalut.svg" alt="기본"></c:otherwise>
-                                                        </c:choose>
+                                                        <img src="/img/card_defalut.svg" alt="썸네일">
                                                     </div>
                                                     <div class="score_txt">
                                                         <div class="txt_box">

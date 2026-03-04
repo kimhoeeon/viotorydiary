@@ -166,7 +166,7 @@
                                                             </c:when>
                                                         </c:choose>--%>
 
-                                                        ${diary.homeTeamName} ${diary.scoreHome} vs ${diary.scoreAway} ${diary.awayTeamName}
+                                                        ${diary.scoreAway} ${diary.awayTeamName} vs ${diary.homeTeamName} ${diary.scoreHome}
                                                     </div>
                                                     <div class="date">
                                                         <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
@@ -226,7 +226,7 @@
                                             <div class="score_txt">
                                                 <div class="txt_box">
                                                     <div class="tit">
-                                                        ${item.homeTeamName} ${item.scoreHome} vs ${item.scoreAway} ${item.awayTeamName}
+                                                        ${item.scoreAway} ${item.awayTeamName} vs ${item.homeTeamName} ${item.scoreHome}
                                                     </div>
                                                     <div class="date">
                                                         ${item.nickname}
