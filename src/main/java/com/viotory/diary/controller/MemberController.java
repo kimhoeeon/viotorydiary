@@ -256,13 +256,42 @@ public class MemberController {
 
     @PostMapping("/send-sms")
     @ResponseBody
-    public String sendSms(@RequestParam("phoneNumber") String phoneNumber) {
+    public String sendSms(@RequestParam("phoneNumber") String phoneNumber,
+                          @RequestParam(value = "memberId", required = false) String memberId,
+                          @RequestParam(value = "type", required = false) String type) {
         try {
             String cleanNumber = phoneNumber.replaceAll("-", "");
+
+            // 비밀번호 찾기 시 아이디(이메일)와 연락처 검증 로직 추가
+            if ("FIND_PW".equals(type)) {
+                if (memberId == null || memberId.trim().isEmpty()) {
+                    return "not_found";
+                }
+
+                MemberVO member = memberService.getMemberByEmail(memberId);
+
+                // 1. 일치하는 아이디(이메일)가 없거나 등록된 전화번호가 다를 경우 발송 차단
+                if (member == null || member.getPhoneNumber() == null || !member.getPhoneNumber().equals(cleanNumber)) {
+                    return "not_found";
+                }
+
+                // 2. 카카오 등 소셜 로그인 가입자인 경우 비밀번호 초기화 차단
+                if ("KAKAO".equals(member.getSocialProvider())) {
+                    return "is_kakao";
+                }
+            }
+            // 2. 회원가입 시 검증 로직 추가 (이미 가입된 번호면 SMS 발송 즉시 차단)
+            else if ("JOIN".equals(type)) {
+                if (memberService.checkDuplicatePhone(cleanNumber)) {
+                    return "duplicate_phone";
+                }
+            }
+
+            // 위 검증을 모두 무사히 통과했을 때만 최종 SMS 발송
             return smsService.sendVerificationCode(cleanNumber);
         } catch (Exception e) {
             log.error("SMS 발송 오류", e);
-            return "fail: " + e.getMessage();
+            return "fail";
         }
     }
 

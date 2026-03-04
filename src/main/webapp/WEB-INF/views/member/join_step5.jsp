@@ -139,15 +139,20 @@
                 return;
             }
 
-            $.post('/member/send-sms', { phoneNumber: phone }, function(res) {
+            $.post('/member/send-sms', {
+                phoneNumber: phone,
+                type: 'JOIN'
+            }, function(res) {
                 if(res === 'ok') {
                     alert('인증번호가 발송되었습니다.');
                     $('#authBox').show();
                     $('#sendBtn').text('재전송');
                     $('#number_cert').focus();
+                } else if(res === 'duplicate_phone') {
+                    // 중복 연락처인 경우 알럿 띄우고 발송 중단
+                    alert('이미 가입된 연락처입니다. 로그인이나 비밀번호 찾기를 이용해 주세요.');
                 } else {
                     // 실패 시 페이지 이동
-                    // 에러 메시지를 URL 파라미터로 전달 (한글은 인코딩)
                     location.href = '/member/sms/fail?msg=' + encodeURIComponent(res);
                 }
             }).fail(function() {

@@ -146,6 +146,14 @@ public class MemberService {
     }
 
     /**
+     * 연락처 중복 여부 확인 (회원가입 SMS 발송 전 선제 차단용)
+     */
+    public boolean checkDuplicatePhone(String phoneNumber) {
+        // 이미 가입된 번호가 있으면 true 반환
+        return memberMapper.countByPhoneNumber(phoneNumber) > 0;
+    }
+
+    /**
      * 회원 정보 수정 (닉네임, 연락처 등)
      */
     @Transactional

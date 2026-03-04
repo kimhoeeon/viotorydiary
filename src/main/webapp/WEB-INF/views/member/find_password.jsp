@@ -151,7 +151,19 @@
                 phoneNumber: phone,
                 type: 'FIND_PW'
             }, function(res) {
-                if(res.trim() !== 'fail') {
+                const result = res.trim();
+
+                // ⭐️ 백엔드 검증 결과에 따른 세밀한 분기 처리
+                if(result === 'not_found') {
+                    alert('가입된 아이디(이메일)와 일치하는 연락처가 아닙니다.');
+                    $('#sendBtn').text('인증하기').prop('disabled', false);
+                } else if(result === 'is_kakao') {
+                    alert('카카오로 가입된 계정입니다. 카카오 로그인을 이용해 주세요.');
+                    $('#sendBtn').text('인증하기').prop('disabled', false);
+                } else if(result.startsWith('fail')) {
+                    alert('SMS 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+                    $('#sendBtn').text('인증하기').prop('disabled', false);
+                } else {
                     alert('인증번호가 발송되었습니다.');
 
                     // 재전송 시 입력칸 초기화
@@ -161,12 +173,9 @@
                     $('#authBox').slideDown();
                     $('#sendBtn').text('재전송').prop('disabled', false);
                     $('#authCode').focus();
-                } else {
-                    alert('일치하는 회원 정보가 없거나 발송에 실패했습니다.');
-                    $('#sendBtn').text('인증하기').prop('disabled', false);
                 }
             }).fail(function() {
-                alert('서버 통신 오류가 발생했습니다.');
+                alert('서버 통신 중 오류가 발생했습니다.');
                 $('#sendBtn').text('인증하기').prop('disabled', false);
             });
         }
