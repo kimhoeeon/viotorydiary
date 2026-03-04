@@ -22,6 +22,19 @@
     <link href="/css/mngStyle.css" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+
+    <style>
+        /* 미리보기 카드 & 비디오 반응형 CSS */
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 20px;}
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .og-card { display: flex; flex-direction: column; border: 1px solid #e1e1e1; border-radius: 12px; overflow: hidden; text-decoration: none !important; color: #333; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: transform 0.2s;}
+        .og-card:hover { transform: translateY(-2px); }
+        .og-card img { width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid #f0f0f0; }
+        .og-card-info { padding: 16px; }
+        .og-card-title { font-weight: bold; font-size: 15px; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; color: #111;}
+        .og-card-desc { font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; line-height: 1.4; }
+        .og-card-domain { font-size: 11px; color: #999; text-transform: lowercase; }
+    </style>
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -90,21 +103,35 @@
                                                 <span class="badge badge-light-${content.status eq 'ACTIVE' ? 'success' : 'secondary'}">${content.status}</span>
                                             </div>
                                         </div>
+
                                         <div class="row mb-7">
                                             <div class="col-lg-2 fw-semibold text-muted">썸네일 미리보기</div>
                                             <div class="col-lg-10">
                                                 <div class="d-flex flex-center bg-light rounded overflow-hidden"
-                                                     style="height: 250px; border: 1px dashed #ccc;">
+                                                     style="width: 200px; height: 150px; border: 1px dashed #ccc;">
                                                     <img src="${not empty content.imageUrl ? content.imageUrl : '/assets/media/svg/files/blank-image.svg'}"
                                                          alt="썸네일" class="mw-100 mh-100 object-fit-contain"
                                                          onclick="window.open(this.src)" style="cursor: pointer;">
                                                 </div>
                                             </div>
                                         </div>
+
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">콘텐츠 URL</label>
                                             <div class="col-lg-10">
-                                                <a href="${content.contentUrl}" target="_blank" class="text-primary">${content.contentUrl}</a>
+                                                <a href="${content.contentUrl}" target="_blank" class="text-primary d-block mb-3">${content.contentUrl}</a>
+                                                <c:if test="${not empty content.contentUrl}">
+                                                    <div id="urlPreviewBox" data-url="${content.contentUrl}" style="max-width: 400px;"></div>
+                                                </c:if>
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-7">
+                                            <label class="col-lg-2 fw-semibold text-muted">내용</label>
+                                            <div class="col-lg-10">
+                                                <div class="border rounded p-5 bg-light text-dark fs-6" style="min-height: 150px;">
+                                                    ${content.content}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -295,44 +322,68 @@
                 }, 100);
             });
 
-            if(typeof initSummernote === 'function') {
-                initSummernote('#summernote_edit', 400);
-            } else {
-                $('#summernote_edit').summernote({
-                    height: 400,
-                    lang: 'ko-KR',
-                    toolbar: [
-                        ['style', ['style']],
-                        ['font', ['bold', 'underline', 'clear']],
-                        ['color', ['color']],
-                        ['para', ['ul', 'ol', 'paragraph']],
-                        ['insert', ['picture', 'video', 'link']] // 사진, 동영상 버튼 추가
-                    ],
-                    callbacks: {
-                        // ⭐️ 사진 첨부 시 GlobalController의 공통 API 호출
-                        onImageUpload: function(files) {
-                            for (var i = 0; i < files.length; i++) {
-                                var data = new FormData();
-                                data.append("file", files[i]);
-                                $.ajax({
-                                    url: '/api/common/upload/editor',
-                                    type: 'POST',
-                                    data: data,
-                                    cache: false,
-                                    contentType: false,
-                                    processData: false,
-                                    success: function(url) {
-                                        $('#summernote_edit').summernote('insertImage', url);
-                                    },
-                                    error: function() {
-                                        alert("이미지 업로드 중 오류가 발생했습니다.");
-                                    }
-                                });
-                            }
+            // ⭐️ 1. URL 썸네일 미리보기 렌더링 로직 (상세 뷰 용)
+            var previewUrl = $('#urlPreviewBox').data('url');
+            if (previewUrl) {
+                var singleYtRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+                var match = previewUrl.match(singleYtRegex);
+
+                if (match && match[1]) {
+                    $('#urlPreviewBox').html('<div class="video-container"><iframe src="https://www.youtube.com/embed/' + match[1] + '" frameborder="0" allowfullscreen></iframe></div>');
+                } else {
+                    $.get('/locker/extract-og', { url: previewUrl }, function(res) {
+                        if (!res.error && res.title) {
+                            var cardHtml = `
+                                <a href="\${previewUrl}" target="_blank" class="og-card">
+                                    \${res.image ? \`<img src="\${res.image}" alt="링크 썸네일">\` : ''}
+                                    <div class="og-card-info">
+                                        <div class="og-card-title">\${res.title}</div>
+                                        <div class="og-card-desc">\${res.description}</div>
+                                        <div class="og-card-domain">\${res.domain}</div>
+                                    </div>
+                                </a>
+                            `;
+                            $('#urlPreviewBox').html(cardHtml);
+                        }
+                    });
+                }
+            }
+
+            // ⭐️ 2. 방해되는 조건문을 지우고 우리가 선언한 Summernote 환경설정을 무조건 적용
+            $('#summernote_edit').summernote({
+                height: 400,
+                lang: 'ko-KR',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['picture', 'video', 'link']]
+                ],
+                callbacks: {
+                    // 실제 파일 업로드를 수행하는 콜백 정상 작동!
+                    onImageUpload: function(files) {
+                        for (var i = 0; i < files.length; i++) {
+                            var data = new FormData();
+                            data.append("file", files[i]);
+                            $.ajax({
+                                url: '/api/common/upload/editor',
+                                type: 'POST',
+                                data: data,
+                                cache: false,
+                                contentType: false,
+                                processData: false,
+                                success: function(url) {
+                                    $('#summernote_edit').summernote('insertImage', url);
+                                },
+                                error: function() {
+                                    alert("이미지 업로드 중 오류가 발생했습니다.");
+                                }
+                            });
                         }
                     }
-                });
-            }
+                }
+            });
 
             // 차트 초기화
             initCharts();
