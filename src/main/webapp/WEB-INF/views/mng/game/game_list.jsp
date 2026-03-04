@@ -181,7 +181,7 @@
                                                                     </td>
 
                                                                     <td class="text-center fw-bold text-gray-800">
-                                                                            ${empty item.mvpPlayer ? '-' : item.mvpPlayer}
+                                                                        ${empty item.mvpPlayer ? '-' : item.mvpPlayer}
                                                                     </td>
 
                                                                     <td class="text-center">
@@ -475,6 +475,20 @@
                 return;
             }
 
+            // 우천취소 선택 시 'cancelReason' 데이터 자동 가공
+            const statusVal = $('#status').val();
+            let reasonVal = $('#cancelReason').val().trim();
+
+            if (statusVal === 'RAIN') {
+                if (reasonVal === '') {
+                    // 사유를 안 적었을 경우 기본 텍스트 삽입
+                    $('#cancelReason').val('우천취소');
+                } else if (!reasonVal.includes('우천')) {
+                    // 사유를 적었으나 '우천'이라는 단어가 없을 경우 꼬리말 추가
+                    $('#cancelReason').val(reasonVal + ' (우천)');
+                }
+            }
+
             // 2. 폼 데이터 생성
             const form = document.getElementById('gameForm');
             const formData = new FormData(form);
@@ -488,8 +502,7 @@
                 processData: false, // FormData 사용 시 필수
                 success: function(res) {
                     if (res === 'ok') {
-                        // [중요] 1. 팝업(모달) 먼저 닫기
-                        // (modal 변수가 상단에 선언되어 있다고 가정. 만약 안된다면 $('#gameModal').modal('hide'); 사용)
+                        // 1. 팝업(모달) 먼저 닫기
                         if (typeof modal !== 'undefined') {
                             modal.hide();
                         } else {
@@ -499,7 +512,7 @@
                             if (myModal) myModal.hide();
                         }
 
-                        // [중요] 2. 커스텀 알림창 띄우고 확인 클릭 시 새로고침
+                        // 2. 커스텀 알림창 띄우고 확인 클릭 시 새로고침
                         alert('저장되었습니다.');
                         location.reload();
                     } else {
