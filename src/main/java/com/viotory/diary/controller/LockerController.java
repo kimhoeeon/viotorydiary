@@ -6,14 +6,22 @@ import com.viotory.diary.service.SystemMngService;
 import com.viotory.diary.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.jsoup.Jsoup.connect;
 
 @Slf4j
 @Controller
@@ -133,5 +141,32 @@ public class LockerController {
         return "locker/event_detail";
     }
 
+    @GetMapping("/extract-og")
+    @ResponseBody
+    public Map<String, String> extractOgMeta(@RequestParam("url") String url) {
+        Map<String, String> result = new HashMap<>();
+        try {
+            // Jsoup 라이브러리를 사용해 해당 URL의 HTML 메타태그를 스크래핑합니다.
+            Document doc = connect(url)
+                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                    .timeout(5000)
+                    .get();
+
+            result.put("title", getMetaContent(doc, "og:title", doc.title()));
+            result.put("image", getMetaContent(doc, "og:image", ""));
+            result.put("description", getMetaContent(doc, "og:description", ""));
+            result.put("domain", new URL(url).getHost());
+        } catch (Exception e) {
+            log.error("OG Meta 추출 실패: {}", url, e);
+            result.put("error", "true");
+        }
+        return result;
+    }
+
+    private String getMetaContent(Document doc, String property, String defaultValue) {
+        Element el = doc.selectFirst("meta[property=" + property + "]");
+        if (el == null) el = doc.selectFirst("meta[name=" + property + "]");
+        return el != null ? el.attr("content") : defaultValue;
+    }
 
 }

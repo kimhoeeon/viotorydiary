@@ -23,6 +23,46 @@
     <title>콘텐츠 상세 | 승요일기</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
+
+    <style>
+        /* Summernote 에디터 스타일 강제 복원 */
+        .notice_view_body .txt { font-size: 14px; line-height: 1.6; color: #333; }
+        .notice_view_body .txt b, .notice_view_body .txt strong { font-weight: bold !important; }
+        .notice_view_body .txt i, .notice_view_body .txt em { font-style: italic !important; }
+        .notice_view_body .txt u { text-decoration: underline !important; }
+        .notice_view_body .txt a { color: #0d6efd !important; text-decoration: underline !important; cursor: pointer; }
+        .notice_view_body .txt ul { list-style-type: disc !important; padding-left: 20px !important; margin: 10px 0 !important; }
+        .notice_view_body .txt ol { list-style-type: decimal !important; padding-left: 20px !important; margin: 10px 0 !important; }
+        .notice_view_body .txt li { margin-bottom: 5px !important; display: list-item !important; }
+        .notice_view_body .txt p { margin-bottom: 10px !important; }
+        .notice_view_body .txt img { max-width: 100% !important; height: auto !important; }
+
+        /* 유튜브/인스타 iframe 반응형 래퍼 */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 비율 */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .video-container iframe, .video-container object, .video-container embed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 카카오톡 스타일 외부 링크 썸네일 카드 */
+        .og-card { display: flex; flex-direction: column; border: 1px solid #e1e1e1; border-radius: 12px; overflow: hidden; text-decoration: none !important; color: #333; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: transform 0.2s;}
+        .og-card:hover { transform: translateY(-2px); }
+        .og-card img { width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid #f0f0f0; }
+        .og-card-info { padding: 16px; }
+        .og-card-title { font-weight: bold; font-size: 15px; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; color: #111;}
+        .og-card-desc { font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; line-height: 1.4; }
+        .og-card-domain { font-size: 11px; color: #999; text-transform: lowercase; }
+    </style>
 </head>
 
 <body>
@@ -57,9 +97,14 @@
                             </div>
                         </c:if>
 
-                        <div class="txt">
-                            <c:out value="${post.content}" escapeXml="false"/>
+                        <div class="txt" id="contentBody">
+                            ${post.content}
                         </div>
+
+                        <c:if test="${not empty post.contentUrl}">
+                            <div id="urlPreviewBox" data-url="${post.contentUrl}" style="margin-top: 24px; padding-top: 24px; border-top: 1px dashed #eee;">
+                            </div>
+                        </c:if>
                     </div>
 
                 </div>
@@ -74,5 +119,59 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 1. 본문 내 단순 텍스트 유튜브 링크 변환 로직 (유지)
+            var contentBody = $('#contentBody');
+            var html = contentBody.html();
+            var ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+
+            html = html.replace(ytRegex, function(match, p1) {
+                return '<div class="video-container"><iframe src="https://www.youtube.com/embed/' + p1 + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+            });
+            contentBody.html(html);
+
+            $('#contentBody a').on('click', function(e) {
+                var href = $(this).attr('href');
+                if(href && href.startsWith('http')) {
+                    e.preventDefault();
+                    window.open(href, '_blank');
+                }
+            });
+
+            // 2. '콘텐츠 URL' 항목 스마트 렌더링 (유튜브 vs 썸네일 카드)
+            var contentUrl = $('#urlPreviewBox').data('url');
+            if (contentUrl) {
+                var singleYtRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+                var match = contentUrl.match(singleYtRegex);
+
+                if (match && match[1]) {
+                    // [유튜브 링크인 경우] 즉시 플레이어로 렌더링
+                    $('#urlPreviewBox').html('<div class="video-container"><iframe src="https://www.youtube.com/embed/' + match[1] + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>');
+                } else {
+                    // [인스타/블로그 등 일반 링크인 경우] 백엔드 API를 호출해 카카오톡 스타일 카드 렌더링
+                    $.get('/locker/extract-og', { url: contentUrl }, function(res) {
+                        if (!res.error && res.title) {
+                            var cardHtml = `
+                                <a href="\${contentUrl}" target="_blank" class="og-card">
+                                    \${res.image ? \`<img src="\${res.image}" alt="링크 썸네일">\` : ''}
+                                    <div class="og-card-info">
+                                        <div class="og-card-title">\${res.title}</div>
+                                        <div class="og-card-desc">\${res.description}</div>
+                                        <div class="og-card-domain">\${res.domain}</div>
+                                    </div>
+                                </a>
+                            `;
+                            $('#urlPreviewBox').html(cardHtml);
+                        } else {
+                            // 메타태그가 없는 사이트의 경우 기본 버튼형 링크 제공
+                            $('#urlPreviewBox').html('<a href="' + contentUrl + '" target="_blank" style="display:block; text-align:center; padding:14px; background:#f8f9fa; border-radius:8px; color:#333; text-decoration:none; font-weight:bold;">🔗 외부 관련 콘텐츠 보러가기</a>');
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 </html>

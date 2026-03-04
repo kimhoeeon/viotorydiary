@@ -298,7 +298,40 @@
             if(typeof initSummernote === 'function') {
                 initSummernote('#summernote_edit', 400);
             } else {
-                $('#summernote_edit').summernote({ height: 400, lang: 'ko-KR' });
+                $('#summernote_edit').summernote({
+                    height: 400,
+                    lang: 'ko-KR',
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['picture', 'video', 'link']] // 사진, 동영상 버튼 추가
+                    ],
+                    callbacks: {
+                        // ⭐️ 사진 첨부 시 GlobalController의 공통 API 호출
+                        onImageUpload: function(files) {
+                            for (var i = 0; i < files.length; i++) {
+                                var data = new FormData();
+                                data.append("file", files[i]);
+                                $.ajax({
+                                    url: '/api/common/upload/editor',
+                                    type: 'POST',
+                                    data: data,
+                                    cache: false,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function(url) {
+                                        $('#summernote_edit').summernote('insertImage', url);
+                                    },
+                                    error: function() {
+                                        alert("이미지 업로드 중 오류가 발생했습니다.");
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
             }
 
             // 차트 초기화

@@ -178,7 +178,7 @@
                                 <select class="form-select form-select-solid" name="type">
                                     <option value="SERVICE">이용약관</option>
                                     <option value="PRIVACY">개인정보처리방침</option>
-                                    <option value="MARKETING">마케팅 정보 수신 동의</option>
+                                    <option value="LOCATION">위치정보 이용약관</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
