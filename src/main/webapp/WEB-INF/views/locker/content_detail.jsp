@@ -38,23 +38,9 @@
         .notice_view_body .txt img { max-width: 100% !important; height: auto !important; }
 
         /* 유튜브/인스타 iframe 반응형 래퍼 */
-        .video-container {
-            position: relative;
-            padding-bottom: 56.25%; /* 16:9 비율 */
-            height: 0;
-            overflow: hidden;
-            margin-bottom: 20px;
-            border-radius: 8px;
-        }
-        .video-container iframe, .video-container object, .video-container embed {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 20px;}
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
-        /* 카카오톡 스타일 외부 링크 썸네일 카드 */
         .og-card { display: flex; flex-direction: column; border: 1px solid #e1e1e1; border-radius: 12px; overflow: hidden; text-decoration: none !important; color: #333; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: transform 0.2s;}
         .og-card:hover { transform: translateY(-2px); }
         .og-card img { width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid #f0f0f0; }
@@ -62,6 +48,27 @@
         .og-card-title { font-weight: bold; font-size: 15px; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; color: #111;}
         .og-card-desc { font-size: 13px; color: #666; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; line-height: 1.4; }
         .og-card-domain { font-size: 11px; color: #999; text-transform: lowercase; }
+
+        /* Summernote 에디터 본문 전용 스타일 복원 (reset.css 무효화) */
+        #contentBody { line-height: 1.6; word-break: keep-all; }
+        #contentBody h1 { font-size: 2em; font-weight: bold; margin: 0.67em 0; }
+        #contentBody h2 { font-size: 1.5em; font-weight: bold; margin: 0.83em 0; }
+        #contentBody h3 { font-size: 1.17em; font-weight: bold; margin: 1em 0; }
+        #contentBody h4 { font-size: 1em; font-weight: bold; margin: 1.33em 0; }
+        #contentBody h5 { font-size: 0.83em; font-weight: bold; margin: 1.67em 0; }
+        #contentBody h6 { font-size: 0.67em; font-weight: bold; margin: 2.33em 0; }
+        #contentBody p { margin: 1em 0; }
+        #contentBody b, #contentBody strong { font-weight: bold; }
+        #contentBody i, #contentBody em { font-style: italic; }
+        #contentBody u { text-decoration: underline; }
+        #contentBody s, #contentBody strike { text-decoration: line-through; }
+        #contentBody ul { list-style-type: disc; padding-left: 40px; margin: 1em 0; }
+        #contentBody ol { list-style-type: decimal; padding-left: 40px; margin: 1em 0; }
+        #contentBody li { display: list-item; margin-bottom: 4px; }
+        #contentBody a { color: #007bff; text-decoration: underline; cursor: pointer; }
+        #contentBody a:hover { color: #0056b3; }
+        #contentBody blockquote { margin: 1em 40px; border-left: 4px solid #ccc; padding-left: 16px; color: #666; }
+        #contentBody img { max-width: 100%; height: auto; } /* 이미지 반응형 처리 */
     </style>
 </head>
 
@@ -154,8 +161,8 @@
                     $.get('/locker/extract-og', { url: contentUrl }, function(res) {
                         if (!res.error && res.title) {
                             var cardHtml = `
-                                <a href="\${contentUrl}" target="_blank" class="og-card">
-                                    \${res.image ? \`<img src="\${res.image}" alt="링크 썸네일">\` : ''}
+                                <a href="\${previewUrl}" target="_blank" class="og-card">
+                                    \${res.image ? '<img src="' + res.image + '" alt="링크 썸네일">' : ''}
                                     <div class="og-card-info">
                                         <div class="og-card-title">\${res.title}</div>
                                         <div class="og-card-desc">\${res.description}</div>

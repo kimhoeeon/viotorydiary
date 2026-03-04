@@ -335,7 +335,7 @@
                         if (!res.error && res.title) {
                             var cardHtml = `
                                 <a href="\${previewUrl}" target="_blank" class="og-card">
-                                    \${res.image ? \`<img src="\${res.image}" alt="링크 썸네일">\` : ''}
+                                    \${res.image ? '<img src="' + res.image + '" alt="링크 썸네일">' : ''}
                                     <div class="og-card-info">
                                         <div class="og-card-title">\${res.title}</div>
                                         <div class="og-card-desc">\${res.description}</div>
@@ -442,7 +442,7 @@
         // --- 통계 차트 스크립트 ---
         function initCharts() {
             // 서버에서 전달받은 JSON 데이터
-            const stats = ${statsJson};
+            const stats = ${empty statsJson ? '{}' : statsJson};
             // stats 구조: { age: [{ageGroup:'20대', cnt:10}, ...], daily: [{clickDate:'2024-02-01', cnt:5}, ...] }
 
             // 1. 연령대별 차트 (Bar Chart)
