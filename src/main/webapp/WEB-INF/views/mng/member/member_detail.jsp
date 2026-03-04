@@ -274,16 +274,27 @@
             else if (status === 'WITHDRAWN') msg = '강제 탈퇴 처리하시겠습니까? (복구 불가)';
             else if (status === 'ACTIVE') msg = '정지를 해제하시겠습니까?';
 
+            var memberId = $('#memberId').val();
+
             if (confirm(msg)) {
-                $.post('/mng/members/updateStatus', {
-                    memberId: '${member.memberId}',
-                    status: status
-                }, function (res) {
-                    if (res === 'ok') {
-                        alert('처리되었습니다.');
-                        location.reload();
-                    } else {
-                        alert('오류가 발생했습니다.');
+                $.ajax({
+                    url: '/mng/members/updateStatus',
+                    type: 'POST',
+                    data: {
+                        memberId: memberId,
+                        status: status
+                    },
+                    success: function (res) {
+                        // 공백이 포함될 경우를 대비해 trim 처리
+                        if ($.trim(res) === 'ok') {
+                            alert('처리되었습니다.');
+                            location.reload();
+                        } else {
+                            alert('상태 변경 처리에 실패했습니다.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('서버 통신 중 오류가 발생했습니다.');
                     }
                 });
             }
@@ -322,7 +333,7 @@
         function resetPassword() {
             var memberId = $('#memberId').val();
 
-            if(confirm("해당 회원의 비밀번호를 초기화하시겠습니까?\\n임시 비밀번호가 회원의 연락처로 문자로 발송됩니다.")) {
+            if(confirm("해당 회원의 비밀번호를 초기화하시겠습니까?\n임시 비밀번호가 회원의 연락처로 문자로 발송됩니다.")) {
                 $.ajax({
                     url: '/mng/members/resetPassword',
                     type: 'POST',

@@ -187,7 +187,7 @@
                                                 </div>
                                                 <label class="col-lg-2 fw-semibold text-info">예상 히어로</label>
                                                 <div class="col-lg-4">
-                                                    <span class="fw-bold fs-6 text-gray-800">${empty diary.predHero ? '<span class="text-muted fs-7">없음</span>' : diary.predHero}</span>
+                                                    <span class="fw-bold fs-6 text-gray-800">${empty diary.heroName ? '<span class="text-muted fs-7">없음</span>' : diary.heroName}</span>
                                                 </div>
                                             </div>
                                         </div>

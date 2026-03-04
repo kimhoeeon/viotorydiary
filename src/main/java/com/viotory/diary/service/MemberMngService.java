@@ -2,6 +2,7 @@ package com.viotory.diary.service;
 
 import com.viotory.diary.dto.SmsDTO;
 import com.viotory.diary.mapper.MemberMngMapper;
+import com.viotory.diary.util.SHA512;
 import com.viotory.diary.util.StringUtil;
 import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.MemberVO;
@@ -21,7 +22,7 @@ import java.util.List;
 public class MemberMngService {
 
     private final MemberMngMapper memberMngMapper;
-    private final PasswordEncoder passwordEncoder; // SecurityConfig에서 주입
+    private final SHA512 sha512;
     private final SmsService smsService; // SMS 발송 서비스
 
     public List<MemberVO> getMemberList(Criteria cri) {
@@ -46,28 +47,32 @@ public class MemberMngService {
         MemberVO member = memberMngMapper.selectMemberById(memberId);
         if (member == null) return "not_found";
 
-        // 1. 임시 비밀번호 생성 (8자리 랜덤)
-        String tempPw = StringUtil.getRandomString(8); // StringUtil 활용
+        try {
+            // 1. 임시 비밀번호 생성 (8자리 랜덤)
+            String tempPw = StringUtil.getRandomString(8);
 
-        // 2. 비밀번호 암호화 및 DB 업데이트
-        String encPw = passwordEncoder.encode(tempPw);
-        member.setPassword(encPw);
-        memberMngMapper.updatePassword(member);
+            // 2. 비밀번호 암호화 및 DB 업데이트 (사용자단과 똑같이 SHA512 사용)
+            String encPw = sha512.hash(tempPw);
+            member.setPassword(encPw);
+            memberMngMapper.updatePassword(member);
 
-        // 3. SMS 발송
-        if (member.getPhoneNumber() != null) {
-            String msg = "[승요일기] 임시 비밀번호는 [" + tempPw + "] 입니다. 로그인 후 변경해주세요.";
-            SmsDTO smsDTO = SmsDTO.builder()
-                    .receiver(member.getPhoneNumber())
-                    .sender("07080953937") // 실제 운영시 등록된 발신번호 필수
-                    .message(msg)
-                    .testmode_yn("N")
-                    .build();
+            // 3. SMS 발송
+            if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
+                String msg = "[승요일기] 임시 비밀번호는 [" + tempPw + "] 입니다. 로그인 후 변경해주세요.";
+                SmsDTO smsDTO = SmsDTO.builder()
+                        .receiver(member.getPhoneNumber())
+                        .sender("07080953937") // 실제 운영시 등록된 발신번호 필수
+                        .message(msg)
+                        .testmode_yn("N")
+                        .build();
 
-            smsService.smsSend(smsDTO);
-            return "ok";
-        } else {
-            return "no_phone";
+                smsService.smsSend(smsDTO);
+                return "ok";
+            } else {
+                return "no_phone";
+            }
+        } catch (Exception e) {
+            return "fail";
         }
     }
 

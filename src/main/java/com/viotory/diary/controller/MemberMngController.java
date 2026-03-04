@@ -59,6 +59,7 @@ public class MemberMngController {
             memberMngService.updateStatus(memberId, status);
             return "ok";
         } catch (Exception e) {
+            log.error(">>> 회원 상태 변경 중 시스템 오류 발생 (memberId={})", memberId, e);
             return "fail";
         }
     }
