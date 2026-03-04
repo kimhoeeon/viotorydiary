@@ -15,4 +15,8 @@ public class TeamContentVO {
     private String status; // ACTIVE, INACTIVE
     private String imageUrl;
     private LocalDateTime createdAt;
+
+    // 구단 로고 및 정보 매핑용 변수 추가
+    private String logoImageUrl;
+    private String teamNameKr;
 }

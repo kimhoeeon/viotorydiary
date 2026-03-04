@@ -95,7 +95,12 @@
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">구단</label>
-                                            <div class="col-lg-10"><span class="badge badge-light fw-bold">${content.teamCode}</span></div>
+                                            <div class="col-lg-10 d-flex align-items-center">
+                                                <c:if test="${not empty content.logoImageUrl}">
+                                                    <img src="${content.logoImageUrl}" alt="${content.teamCode}" class="w-30px h-30px object-fit-contain me-2"/>
+                                                </c:if>
+                                                <span class="badge badge-light fw-bold fs-6">${empty content.teamNameKr ? content.teamCode : content.teamNameKr}</span>
+                                            </div>
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">상태</label>
@@ -228,16 +233,18 @@
                         </div>
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-bold mb-2">썸네일 미리보기</label>
-                            <div class="d-flex justify-content-center align-items-center bg-light rounded position-relative"
-                                 style="min-height: 200px; border: 1px dashed #ccc; overflow: hidden;">
+                            <div>
+                                <div class="d-flex flex-center bg-light rounded position-relative overflow-hidden"
+                                     style="width: 200px; height: 150px; border: 1px dashed #ccc;">
 
-                                <img id="detailPreviewImg"
-                                     src="${not empty content.imageUrl ? content.imageUrl : '/assets/media/svg/files/blank-image.svg'}"
-                                     style="max-width: 100%; max-height: 400px; object-fit: contain;" />
+                                    <img id="detailPreviewImg"
+                                         src="${not empty content.imageUrl ? content.imageUrl : '/assets/media/svg/files/blank-image.svg'}"
+                                         style="max-width: 100%; max-height: 100%; object-fit: contain;" />
 
-                                <div id="detailLoader" class="position-absolute w-100 h-100 justify-content-center align-items-center bg-white bg-opacity-75" style="display: none;">
-                                    <div class="spinner-border text-primary" role="status">
-                                        <span class="visually-hidden">Loading...</span>
+                                    <div id="detailLoader" class="position-absolute w-100 h-100 justify-content-center align-items-center bg-white bg-opacity-75" style="display: none;">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -249,7 +256,8 @@
                         </div>
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
-                            <input type="text" class="form-control form-control-solid" name="contentUrl" id="detailContentUrl" value="${content.contentUrl}" />
+                            <input type="text" class="form-control form-control-solid mb-3" name="contentUrl" id="detailContentUrl" value="${content.contentUrl}" placeholder="콘텐츠 관련 링크를 입력하세요." />
+                            <div id="popupUrlPreviewBox" data-url="${content.contentUrl}" style="max-width: 400px;"></div>
                         </div>
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">내용</label>
@@ -272,7 +280,39 @@
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
     <script src="/js/summernote.js"></script>
     <script>
-        const modifyModal = new bootstrap.Modal(document.getElementById('modifyModal'));
+        // URL 썸네일 미리보기를 그리는 공통 함수
+        function renderUrlPreview(url, targetElementId) {
+            var targetBox = $('#' + targetElementId);
+            if (!url) {
+                targetBox.empty();
+                return;
+            }
+
+            var singleYtRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            var match = url.match(singleYtRegex);
+
+            if (match && match[1]) {
+                targetBox.html('<div class="video-container"><iframe src="https://www.youtube.com/embed/' + match[1] + '" frameborder="0" allowfullscreen></iframe></div>');
+            } else {
+                $.get('/locker/extract-og', { url: url }, function(res) {
+                    if (!res.error && res.title) {
+                        var cardHtml = `
+                            <a href="\${url}" target="_blank" class="og-card">
+                                \${res.image ? '<img src="' + res.image + '" alt="링크 썸네일">' : ''}
+                                <div class="og-card-info">
+                                    <div class="og-card-title">\${res.title}</div>
+                                    <div class="og-card-desc">\${res.description}</div>
+                                    <div class="og-card-domain">\${res.domain}</div>
+                                </div>
+                            </a>
+                        `;
+                        targetBox.html(cardHtml);
+                    } else {
+                        targetBox.html('<a href="' + url + '" target="_blank" style="display:block; text-align:center; padding:14px; background:#f8f9fa; border-radius:8px; color:#333; text-decoration:none; font-weight:bold;">🔗 외부 관련 콘텐츠 보러가기</a>');
+                    }
+                });
+            }
+        }
 
         $(document).ready(function() {
 
@@ -295,59 +335,39 @@
                 }
             });
 
-            // [상세페이지] 링크 변경 시 (파일 없을 때만 추출)
-            $('#detailContentUrl').on('blur paste', function() {
+            // 2. [상세페이지] 링크 변경 및 붙여넣기 시 실시간 감지
+            $('#detailContentUrl').on('blur paste keyup', function() {
                 setTimeout(() => {
                     const url = $(this).val();
                     const fileInput = $('input[name="file"]').val();
 
-                    // 파일이 없고, URL이 유효하며, 변경되었을 때만 실행
-                    if (!fileInput && url && url.length > 10 && url !== lastDetailUrl) {
+                    if (url !== lastDetailUrl) {
+                        lastDetailUrl = url;
+                        // ⭐️ 모달 하단에 콘텐츠 미리보기 카드 실시간 렌더링
+                        renderUrlPreview(url, 'popupUrlPreviewBox');
 
-                        // 로딩 표시
-                        $('#detailLoader').addClass('d-flex').show();
-                        $('#detailPreviewImg').css('opacity', 0.5);
+                        // 썸네일 이미지 자동 추출 (파일이 없을 때만)
+                        if (!fileInput && url.length > 10) {
+                            $('#detailLoader').addClass('d-flex').show();
+                            $('#detailPreviewImg').css('opacity', 0.5);
 
-                        $.get('/mng/content/teams/meta', { url: url }, function(res) {
-                            if (res) {
-                                $('#detailPreviewImg').attr('src', res);
-                                $('#detailHiddenImageUrl').val(res);
-                                lastDetailUrl = url;
-                            }
-                        }).always(function() {
-                            $('#detailLoader').removeClass('d-flex').hide();
-                            $('#detailPreviewImg').css('opacity', 1);
-                        });
+                            $.get('/mng/content/teams/meta', { url: url }, function(res) {
+                                if (res) {
+                                    $('#detailPreviewImg').attr('src', res);
+                                    $('#detailHiddenImageUrl').val(res);
+                                }
+                            }).always(function() {
+                                $('#detailLoader').removeClass('d-flex').hide();
+                                $('#detailPreviewImg').css('opacity', 1);
+                            });
+                        }
                     }
                 }, 100);
             });
 
-            // 1. URL 썸네일 미리보기 렌더링 로직 (상세 뷰 용)
-            var previewUrl = $('#urlPreviewBox').data('url');
-            if (previewUrl) {
-                var singleYtRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-                var match = previewUrl.match(singleYtRegex);
-
-                if (match && match[1]) {
-                    $('#urlPreviewBox').html('<div class="video-container"><iframe src="https://www.youtube.com/embed/' + match[1] + '" frameborder="0" allowfullscreen></iframe></div>');
-                } else {
-                    $.get('/locker/extract-og', { url: previewUrl }, function(res) {
-                        if (!res.error && res.title) {
-                            var cardHtml = `
-                                <a href="\${previewUrl}" target="_blank" class="og-card">
-                                    \${res.image ? '<img src="' + res.image + '" alt="링크 썸네일">' : ''}
-                                    <div class="og-card-info">
-                                        <div class="og-card-title">\${res.title}</div>
-                                        <div class="og-card-desc">\${res.description}</div>
-                                        <div class="og-card-domain">\${res.domain}</div>
-                                    </div>
-                                </a>
-                            `;
-                            $('#urlPreviewBox').html(cardHtml);
-                        }
-                    });
-                }
-            }
+            // 3. ⭐️ 페이지 로드 시 렌더링 (상세 뷰 & 팝업 뷰 둘 다 적용)
+            renderUrlPreview($('#urlPreviewBox').data('url'), 'urlPreviewBox');
+            renderUrlPreview($('#popupUrlPreviewBox').data('url'), 'popupUrlPreviewBox');
 
             // 2. 방해되는 조건문을 지우고 우리가 선언한 Summernote 환경설정을 무조건 적용
             $('#summernote_edit').summernote({
@@ -390,6 +410,7 @@
         });
 
         function openEditModal() {
+            const modifyModal = new bootstrap.Modal(document.getElementById('modifyModal'));
             modifyModal.show();
         }
 
@@ -425,10 +446,9 @@
                         }
 
                         // 알림창 확인 후 새로고침
-                        // 커스텀 alert 호출
-                        alert('콘텐츠가 수정되었습니다.', function() {
+                        if(confirm('콘텐츠가 수정되었습니다.')){
                             location.reload(); // 확인 클릭 시 새로고침
-                        });
+                        }
                     } else {
                         alert('수정에 실패했습니다.');
                     }

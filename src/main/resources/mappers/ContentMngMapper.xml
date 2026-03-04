@@ -67,7 +67,12 @@
     </select>
 
     <select id="selectTeamContentById" resultType="com.viotory.diary.vo.TeamContentVO">
-        SELECT * FROM team_contents WHERE content_id = #{contentId}
+        SELECT tc.*,
+               t.logo_image_url AS logoImageUrl,
+               t.name_kr AS teamNameKr
+        FROM team_contents tc
+        LEFT JOIN teams t ON tc.team_code = t.team_code
+        WHERE tc.content_id = #{contentId}
     </select>
 
     <insert id="insertTeamContent" parameterType="com.viotory.diary.vo.TeamContentVO">
