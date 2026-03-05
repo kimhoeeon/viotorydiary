@@ -517,69 +517,48 @@
                 let scoreHome = (game.status === 'SCHEDULED') ? '0' : game.scoreHome;
                 let scoreAway = (game.status === 'SCHEDULED') ? '0' : game.scoreAway;
 
-                // 버튼 로직 분기 처리
+                // 버튼 로직 분기 처리 (작성 여부에 따른 직관일기 버튼 통일 및 취소경기 노출 허용)
                 let btnHtml = '';
+                let predictionBtnHtml = '';
+                let diaryBtnHtml = '';
+                const isWritten = (game.diaryId && game.diaryId > 0);
 
-                // 1. 경기 취소됨 -> 버튼 없음
-                if (game.status === 'CANCELLED') {
-                    btnHtml = '';
-                }
-                else {
-                    let predictionBtnHtml = '';
-                    let diaryBtnHtml = '';
-                    const isWritten = (game.diaryId && game.diaryId > 0);
+                // 1. 승부 예측 버튼 로직 (예정된 경기만 노출)
+                if (game.status === 'SCHEDULED') {
+                    if (game.myPredictedTeam) {
+                        predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>예측 완료 (\${game.myPredictedTeam})</button>`;
+                    } else {
+                        // 시간 계산 (D-Day 등)
+                        const gameDateTime = new Date(`\${game.gameDate}T\${game.gameTime}`);
+                        const diffMs = gameDateTime - now;
+                        const diffHours = diffMs / (1000 * 60 * 60);
 
-                    if (game.status === 'SCHEDULED') {
-                        if (game.myPredictedTeam) {
-                            predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>예측 완료 (\${game.myPredictedTeam})</button>`;
+                        if (diffHours > 24) {
+                            predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>오픈 예정 (D-\${Math.floor(diffHours/24)})</button>`;
+                        } else if (diffHours > 0) {
+                            predictionBtnHtml = `<button type="button" class="btn btn-primary mt-8 btn-predict"
+                                       data-game-id="\${game.gameId}"
+                                       data-home-name="\${game.homeTeamName}"
+                                       data-away-name="\${game.awayTeamName}"
+                                       data-home-code="\${game.homeTeamCode}"
+                                       data-away-code="\${game.awayTeamCode}">
+                                   승부예측 하기</button>`;
                         } else {
-                            // 시간 계산 (D-Day 등)
-                            const gameDateTime = new Date(`\${game.gameDate}T\${game.gameTime}`);
-                            const diffMs = gameDateTime - now;
-                            const diffHours = diffMs / (1000 * 60 * 60);
-
-                            if (diffHours > 24) {
-                                predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>오픈 예정 (D-\${Math.floor(diffHours/24)})</button>`;
-                            } else if (diffHours > 0) {
-                                predictionBtnHtml = `<button type="button" class="btn btn-primary mt-8 btn-predict"
-                                           data-game-id="\${game.gameId}"
-                                           data-home-name="\${game.homeTeamName}"
-                                           data-away-name="\${game.awayTeamName}"
-                                           data-home-code="\${game.homeTeamCode}"
-                                           data-away-code="\${game.awayTeamCode}">
-                                       승부예측 하기</button>`;
-                            } else {
-                                predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>경기 준비중</button>`;
-                            }
+                            predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>경기 준비중</button>`;
                         }
                     }
-
-                    // --- [직관일기/인증 버튼 영역] (모든 활성 상태에서 노출) ---
-                    if (game.status === 'SCHEDULED') {
-                        if (isWritten) {
-                            // 조건 2: 경기 시작 전 & 직관일기 작성 후
-                            diaryBtnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn sub-btn cls-1 mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">오늘 경기 기록하기 (경기 후 작성)
-                                       <svg viewBox="0 0 5.5 9.5" style="stroke:#1A7CFF;"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
-                        } else {
-                            // 조건 1: 경기 시작 전 & 직관일기 작성 전
-                            diaryBtnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn cls-1 mt-8">오늘의 직관 인증
-                                       <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
-                        }
-                    } else if (game.status === 'LIVE' || game.status === 'FINISHED') {
-                        if (isWritten) {
-                            // 경기 후 & 직관일기 작성 후 (기존 텍스트 유지)
-                            diaryBtnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn sub-btn cls-1 mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">직관일기 바로가기
-                                       <svg viewBox="0 0 5.5 9.5" style="stroke:#1A7CFF;"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
-                        } else {
-                            // 조건 3: 경기 후 & 직관일기 작성 전
-                            diaryBtnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn cls-1 mt-8">오늘 경기 기록하기
-                                       <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
-                        }
-                    }
-
-                    // 승부예측 버튼과 직관일기 버튼을 렌더링
-                    btnHtml = predictionBtnHtml + diaryBtnHtml;
                 }
+
+                // 2. 직관일기/인증 버튼 (모든 상태 및 취소된 경기에서도 표시)
+                if (isWritten) {
+                    diaryBtnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn sub-btn cls-1 mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">일기 보기
+                               <svg viewBox="0 0 5.5 9.5" style="stroke:#1A7CFF;"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
+                } else {
+                    diaryBtnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn cls-1 mt-8">직관 인증하기
+                               <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
+                }
+
+                btnHtml = predictionBtnHtml + diaryBtnHtml;
 
                 let html = `
                         <div class="card_item game-item" data-home="\${game.homeTeamCode}" data-away="\${game.awayTeamCode}">

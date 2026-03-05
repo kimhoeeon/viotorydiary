@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -88,6 +89,43 @@ public class DiaryService {
             GameVO game = gameMapper.selectGameById(diary.getGameId());
 
             if (game != null) {
+                // 정책 1: 경기 종료/취소 상태면 승률 미반영
+                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
+                    return;
+                }
+
+                // 정책 2: 경기 시작 후 1시간을 초과했다면 승률(예측 데이터) 반영 안함
+                try {
+                    String timeStr = game.getGameTime();
+                    if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
+                    String dateTimeStr = game.getGameDate() + " " + timeStr;
+                    LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                    if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
+                        return; // 시작 후 1시간 초과 시 튕겨냄
+                    }
+                } catch (Exception e) {
+                    log.error("승부 예측 연동 중 경기 시작시간 파싱 오류", e);
+                }
+
+                // 정책 3: 직관 위치 인증 시에만 승률 반영
+                boolean isVerified = false;
+                // 최초 작성 혹은 화면에서 넘어온 인증 데이터 확인
+                if (diary.getVerifiedAt() != null || diary.isVerified()) {
+                    isVerified = true;
+                } else if (diary.getDiaryId() != null) {
+                    // 수정을 통해 진입한 경우 기존 DB 일기의 인증 여부 체크
+                    DiaryVO org = diaryMapper.selectDiaryById(diary.getDiaryId());
+                    if (org != null && org.getVerifiedAt() != null) {
+                        isVerified = true;
+                    }
+                }
+
+                if (!isVerified) {
+                    return; // 직관 인증되지 않았으면 승률 미반영 (저장 안함)
+                }
+
+                // --- 검문소(정책 1,2,3) 모두 통과! 이제 팀 코드 도출 후 저장 ---
                 String predictedTeam = null;
 
                 // 스코어 비교를 통해 승리 예상 팀 도출
