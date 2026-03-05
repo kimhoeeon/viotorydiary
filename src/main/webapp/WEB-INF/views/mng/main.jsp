@@ -317,9 +317,9 @@
                                                 </div>
                                             </div>
 
-                                            <div class="card-body pt-5">
+                                            <div class="card-body pt-4">
 
-                                                <div class="d-flex flex-stack bg-light-danger rounded p-4 mb-7">
+                                                <div class="d-flex flex-stack bg-light-danger rounded p-4 mb-4">
                                                     <div class="d-flex flex-column flex-grow-1 me-2">
                                                         <span class="fw-bold text-gray-800 fs-6 mb-1">사이트 점검 모드</span>
                                                         <span class="text-muted fw-semibold fs-7">사용자 접근 차단 (백도어 예외)</span>
@@ -329,7 +329,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="d-flex align-items-center bg-light-primary rounded p-4 mb-7">
+                                                <div class="d-flex align-items-center bg-light-primary rounded p-4 mb-4">
                                                     <span class="svg-icon svg-icon-1 svg-icon-primary me-4">
                                                         <i class="ki-duotone ki-time fs-2x text-primary">
                                                             <span class="path1"></span>
@@ -348,7 +348,7 @@
                                                     </span>
                                                 </div>
 
-                                                <div class="d-flex align-items-center mb-8">
+                                                <div class="d-flex align-items-center mb-5">
                                                     <div class="symbol symbol-50px me-5">
                                                         <span class="symbol-label bg-light-success">
                                                             <i class="ki-duotone ki-cloud fs-2x text-success"></i>
@@ -370,7 +370,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="d-flex flex-stack mb-8">
+                                                <div class="d-flex flex-stack mb-5">
                                                     <div class="d-flex align-items-center me-5">
                                                         <div class="symbol symbol-50px me-5">
                                                             <span class="symbol-label bg-light-warning">
@@ -393,7 +393,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="mb-6">
+                                                <div class="mb-4">
                                                     <div class="d-flex flex-stack mb-2">
                                                         <span class="text-gray-800 fw-bold fs-6">Memory (JVM)</span>
                                                         <span class="text-gray-500 fw-bold fs-7">${sysMemoryUsage}%</span>
@@ -409,7 +409,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="mb-6">
+                                                <div class="mb-3">
                                                     <div class="d-flex flex-stack mb-2">
                                                         <span class="text-gray-800 fw-bold fs-6">Disk Space</span>
                                                         <span class="text-gray-500 fw-bold fs-7">${sysDiskUsage}%</span>
@@ -424,7 +424,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="separator my-4"></div>
+                                                <div class="separator my-3"></div>
 
                                                 <div class="d-flex flex-stack fs-7 text-gray-500">
                                                     <span>OS: ${sysOsName}</span>
