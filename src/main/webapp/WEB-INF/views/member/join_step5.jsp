@@ -43,11 +43,11 @@
 </head>
 <body class="page-login">
 
-    <%--<header class="app-header">
+    <header class="app-header">
         <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
             <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
         </button>
-    </header>--%>
+    </header>
 
     <div class="page-login_wrap">
         <div class="login-card">
@@ -150,7 +150,7 @@
                     $('#number_cert').focus();
                 } else if(res === 'duplicate_phone') {
                     // 중복 연락처인 경우 알럿 띄우고 발송 중단
-                    alert('이미 가입된 연락처입니다. 로그인이나 비밀번호 찾기를 이용해 주세요.');
+                    alert('이미 가입된 연락처입니다.\n로그인이나 비밀번호 찾기를 이용해 주세요.');
                 } else {
                     // 실패 시 페이지 이동
                     location.href = '/member/sms/fail?msg=' + encodeURIComponent(res);

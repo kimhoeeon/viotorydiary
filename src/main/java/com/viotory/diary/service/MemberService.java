@@ -69,7 +69,7 @@ public class MemberService {
         if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
             String cleanPhone = member.getPhoneNumber().replaceAll("-", "");
             if (memberMapper.countByPhoneNumber(cleanPhone) > 0) {
-                throw new AlertException("이미 가입된 연락처입니다. 다른 연락처를 사용해 주세요.");
+                throw new AlertException("이미 가입된 연락처입니다.\n다른 연락처를 사용해 주세요.");
             }
             member.setPhoneNumber(cleanPhone); // DB 저장 시 하이픈(-) 제거하여 깔끔하게 저장
         }
