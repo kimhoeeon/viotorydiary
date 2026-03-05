@@ -43,9 +43,44 @@
         (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
         -- 4. 승률 예측 전적 (맞추면 1승, 틀리면 1패)
-        (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 1) AS winCount,
-        (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 0) AS loseCount,
-        0 AS drawCount
+        -- 승요 정보 (승패 전적 실시간 계산)
+        (SELECT COUNT(*)
+        FROM diaries d
+        JOIN games g ON d.game_id = g.game_id
+        WHERE d.member_id = m.member_id
+        AND d.is_verified = 1
+        AND g.status = 'FINISHED'
+        AND g.winning_team IS NOT NULL
+        AND g.winning_team != 'DRAW'
+        -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 일치하면 승리(1)
+        AND (
+        (d.pred_score_home > d.pred_score_away AND g.winning_team = g.home_team_code) OR
+        (d.pred_score_away > d.pred_score_home AND g.winning_team = g.away_team_code)
+        )) AS winCount,
+
+        (SELECT COUNT(*)
+        FROM diaries d
+        JOIN games g ON d.game_id = g.game_id
+        WHERE d.member_id = m.member_id
+        AND d.is_verified = 1
+        AND g.status = 'FINISHED'
+        AND g.winning_team IS NOT NULL
+        AND g.winning_team != 'DRAW'
+        -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 다르면 패배(0)
+        AND (
+        (d.pred_score_home > d.pred_score_away AND g.winning_team != g.home_team_code) OR
+        (d.pred_score_away > d.pred_score_home AND g.winning_team != g.away_team_code)
+        )) AS loseCount,
+
+        -- 무승부 예측(스코어 동점)인 경우 또는 실제 경기가 무승부로 끝난 경우의 처리 (옵션)
+        (SELECT COUNT(*)
+        FROM diaries d
+        JOIN games g ON d.game_id = g.game_id
+        WHERE d.member_id = m.member_id
+        AND d.is_verified = 1
+        AND g.status = 'FINISHED'
+        AND (g.winning_team = 'DRAW' OR d.pred_score_home = d.pred_score_away)
+        ) AS drawCount,
 
         FROM members m
         <include refid="criteria"/>
@@ -89,10 +124,44 @@
             (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
             (SELECT COUNT(f1.follow_id) FROM follows f1 JOIN follows f2 ON f1.follower_id = f2.following_id AND f1.following_id = f2.follower_id WHERE f1.follower_id = m.member_id) AS mutualFollowCount,
 
-            -- 승요 정보 (승패 전적)
-            (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 1) AS winCount,
-            (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 0) AS loseCount,
-            0 AS drawCount,
+            -- 승요 정보 (승패 전적 실시간 계산)
+            (SELECT COUNT(*)
+             FROM diaries d
+                      JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id
+               AND d.is_verified = 1
+               AND g.status = 'FINISHED'
+               AND g.winning_team IS NOT NULL
+               AND g.winning_team != 'DRAW'
+               -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 일치하면 승리(1)
+               AND (
+                 (d.pred_score_home > d.pred_score_away AND g.winning_team = g.home_team_code) OR
+                 (d.pred_score_away > d.pred_score_home AND g.winning_team = g.away_team_code)
+                 )) AS winCount,
+
+            (SELECT COUNT(*)
+             FROM diaries d
+                      JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id
+               AND d.is_verified = 1
+               AND g.status = 'FINISHED'
+               AND g.winning_team IS NOT NULL
+               AND g.winning_team != 'DRAW'
+               -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 다르면 패배(0)
+               AND (
+                 (d.pred_score_home > d.pred_score_away AND g.winning_team != g.home_team_code) OR
+                 (d.pred_score_away > d.pred_score_home AND g.winning_team != g.away_team_code)
+                 )) AS loseCount,
+
+            -- 무승부 예측(스코어 동점)인 경우 또는 실제 경기가 무승부로 끝난 경우의 처리 (옵션)
+            (SELECT COUNT(*)
+             FROM diaries d
+                      JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id
+               AND d.is_verified = 1
+               AND g.status = 'FINISHED'
+               AND (g.winning_team = 'DRAW' OR d.pred_score_home = d.pred_score_away)
+            ) AS drawCount,
 
             -- 승요 정보 (최다 방문 구장)
             (SELECT s.name
@@ -136,10 +205,44 @@
             (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
             (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-            -- 예측 전적
-            (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 1) AS winCount,
-            (SELECT COUNT(prediction_id) FROM predictions WHERE member_id = m.member_id AND is_correct = 0) AS loseCount,
-            0 AS drawCount
+            -- 승요 정보 (승패 전적 실시간 계산)
+            (SELECT COUNT(*)
+             FROM diaries d
+                      JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id
+               AND d.is_verified = 1
+               AND g.status = 'FINISHED'
+               AND g.winning_team IS NOT NULL
+               AND g.winning_team != 'DRAW'
+               -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 일치하면 승리(1)
+               AND (
+                 (d.pred_score_home > d.pred_score_away AND g.winning_team = g.home_team_code) OR
+                 (d.pred_score_away > d.pred_score_home AND g.winning_team = g.away_team_code)
+                 )) AS winCount,
+
+            (SELECT COUNT(*)
+             FROM diaries d
+                      JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id
+               AND d.is_verified = 1
+               AND g.status = 'FINISHED'
+               AND g.winning_team IS NOT NULL
+               AND g.winning_team != 'DRAW'
+               -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 다르면 패배(0)
+               AND (
+                 (d.pred_score_home > d.pred_score_away AND g.winning_team != g.home_team_code) OR
+                 (d.pred_score_away > d.pred_score_home AND g.winning_team != g.away_team_code)
+                 )) AS loseCount,
+
+            -- 무승부 예측(스코어 동점)인 경우 또는 실제 경기가 무승부로 끝난 경우의 처리 (옵션)
+            (SELECT COUNT(*)
+             FROM diaries d
+                      JOIN games g ON d.game_id = g.game_id
+             WHERE d.member_id = m.member_id
+               AND d.is_verified = 1
+               AND g.status = 'FINISHED'
+               AND (g.winning_team = 'DRAW' OR d.pred_score_home = d.pred_score_away)
+            ) AS drawCount
 
         FROM members m
         ORDER BY m.created_at DESC
