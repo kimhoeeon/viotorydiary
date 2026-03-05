@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -118,8 +119,7 @@
                                         <div class="mb-5 border-bottom pb-5">
                                             <div class="d-flex justify-content-between mb-3 text-muted fs-7">
                                                 <span>작성자: ${vo.writerName}</span>
-                                                <span>작성일: <fmt:parseDate value="${vo.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
-                                                    <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd HH:mm"/></span>
+                                                <span>작성일: ${fn:replace(fn:substring(vo.createdAt, 0, 16), 'T', ' ')}</span>
                                             </div>
                                             <div class="fs-6 text-gray-800 min-h-100px p-3 border rounded bg-light">
                                                 <c:out value="${vo.content}" escapeXml="false"/>
@@ -165,8 +165,7 @@
                                                             <span class="badge ${badgeClass} me-2">${roleName}</span>
                                                             <span class="fw-bold text-gray-800 me-2">${co.writerName}</span>
                                                             <span class="text-muted fs-8">
-                                                                <fmt:parseDate value="${co.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="coDate" type="both"/>
-                                                                <fmt:formatDate value="${coDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                                                ${fn:replace(fn:substring(co.createdAt, 0, 16), 'T', ' ')}
                                                             </span>
                                                         </div>
 

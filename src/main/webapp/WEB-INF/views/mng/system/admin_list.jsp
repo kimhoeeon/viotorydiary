@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -78,16 +79,19 @@
                                                 </option>
                                             </select>
                                             <div class="position-relative w-md-250px me-3">
-                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6"><span
-                                                        class="path1"></span><span class="path2"></span></i>
+                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
                                                 <input type="text" class="form-control form-control-solid ps-10"
                                                        name="keyword" value="${cri.keyword}" placeholder="이름/ID 검색"/>
                                             </div>
                                             <button type="submit" class="btn btn-primary">검색</button>
                                         </form>
                                         <div>
-                                            <a href="/mng/system/admin/form" class="btn btn-success"><i
-                                                    class="ki-duotone ki-plus fs-2"></i> 계정 등록</a>
+                                            <a href="/mng/system/admin/form" class="btn btn-success">
+                                                <i class="ki-duotone ki-plus fs-2"></i> 계정 등록
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -102,7 +106,7 @@
                                                     <th class="min-w-100px">로그인 ID</th>
                                                     <th class="min-w-100px">이름</th>
                                                     <th class="min-w-100px">권한</th>
-                                                    <th class="min-w-100px">등록일</th>
+                                                    <th class="min-w-100px">등록일시</th>
                                                     <th class="min-w-100px">관리</th>
                                                 </tr>
                                                 </thead>
@@ -114,31 +118,37 @@
                                                         <td>${item.name}</td>
                                                         <td>
                                                             <c:choose>
-                                                                <c:when test="${item.role eq 'SUPER'}"><span
-                                                                        class="badge badge-light-danger">최고관리자</span></c:when>
-                                                                <c:when test="${item.role eq 'CLIENT'}"><span
-                                                                        class="badge badge-light-warning">발주사</span></c:when>
-                                                                <c:otherwise><span
-                                                                        class="badge badge-light-primary">운영자</span></c:otherwise>
+                                                                <c:when test="${item.role eq 'SUPER'}">
+                                                                    <span class="badge badge-light-danger">최고관리자</span>
+                                                                </c:when>
+                                                                <c:when test="${item.role eq 'CLIENT'}">
+                                                                    <span class="badge badge-light-warning">발주사</span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="badge badge-light-primary">운영자</span>
+                                                                </c:otherwise>
                                                             </c:choose>
                                                         </td>
                                                         <td>
-                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
-                                                            <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd"/>
+                                                            ${fn:replace(fn:substring(item.createdAt, 0, 16), 'T', ' ')}
                                                         </td>
                                                         <td>
                                                             <a href="/mng/system/admin/form?id=${item.adminId}"
                                                                class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
-                                                                <i class="ki-duotone ki-pencil fs-2"><span
-                                                                        class="path1"></span><span class="path2"></span></i>
+                                                                <i class="ki-duotone ki-pencil fs-2">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                </i>
                                                             </a>
                                                             <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
                                                                     onclick="deleteAdmin('${item.adminId}')">
-                                                                <i class="ki-duotone ki-trash fs-2"><span
-                                                                        class="path1"></span><span
-                                                                        class="path2"></span><span
-                                                                        class="path3"></span><span
-                                                                        class="path4"></span><span class="path5"></span></i>
+                                                                <i class="ki-duotone ki-trash fs-2">
+                                                                    <span class="path1"></span>
+                                                                    <span class="path2"></span>
+                                                                    <span class="path3"></span>
+                                                                    <span class="path4"></span>
+                                                                    <span class="path5"></span>
+                                                                </i>
                                                             </button>
                                                         </td>
                                                     </tr>

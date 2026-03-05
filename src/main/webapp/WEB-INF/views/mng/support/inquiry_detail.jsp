@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -87,10 +88,7 @@
                                             <label class="col-lg-2 fw-semibold text-muted">작성일</label>
                                             <div class="col-lg-4">
                                                 <span class="fw-bold fs-6 text-gray-800">
-                                                    <fmt:parseDate value="${inquiry.createdAt}"
-                                                                   pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate"
-                                                                   type="both"/>
-                                                    <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                                    ${fn:replace(fn:substring(inquiry.createdAt, 0, 16), 'T', ' ')}
                                                 </span>
                                             </div>
                                         </div>
@@ -121,10 +119,7 @@
                                         <c:if test="${not empty inquiry.answeredAt}">
                                             <div class="card-toolbar">
                                                 <span class="text-gray-400 fs-7">답변일:
-                                                    <fmt:parseDate value="${inquiry.answeredAt}"
-                                                                   pattern="yyyy-MM-dd'T'HH:mm:ss" var="ansDate"
-                                                                   type="both"/>
-                                                    <fmt:formatDate value="${ansDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                                    ${fn:replace(fn:substring(inquiry.answeredAt, 0, 16), 'T', ' ')}
                                                 </span>
                                             </div>
                                         </c:if>

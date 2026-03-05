@@ -101,8 +101,7 @@
                                                 <label class="col-lg-2 fw-semibold text-muted">작성일시</label>
                                                 <div class="col-lg-4">
                                                     <span class="fw-bold fs-6 text-gray-800">
-                                                        <fmt:parseDate value="${diary.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
-                                                        <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                                        ${fn:replace(fn:substring(diary.createdAt, 0, 16), 'T', ' ')}
                                                     </span>
                                                 </div>
                                             </div>
