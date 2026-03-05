@@ -39,8 +39,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // 소셜 가입으로 진입한 경우(provider가 있음)에는 초기화 하지 않음
-        if (!sessionStorage.getItem('join_provider')) {
+        // 이전 페이지가 '로그인 화면'인 경우에만 (즉, 일반 회원가입 버튼을 갓 눌렀을 때) 기존 데이터를 초기화합니다.
+        // (카카오 소셜 가입 브릿지나, 다음 단계에서 '뒤로가기'로 넘어온 경우는 초기화하지 않음)
+        if (document.referrer.indexOf('/login') > -1) {
             sessionStorage.clear();
         }
     </script>
@@ -48,7 +49,7 @@
 <body class="page-login">
 
     <header class="app-header">
-        <button class="app-header_btn app-header_back" type="button" onclick="history.back()">
+        <button class="app-header_btn app-header_back" type="button" onclick="location.href='/member/login'">
             <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
         </button>
     </header>
