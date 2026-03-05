@@ -95,9 +95,11 @@
     </select>
 
     <select id="selectRecentDiaries" resultType="com.viotory.diary.vo.DiaryVO">
+        <![CDATA[
         SELECT
             d.diary_id,
             d.game_id,
+            d.image_url,
             d.one_line_comment, /* 메인화면 표시용 */
             g.game_date,
             g.game_type,
@@ -116,9 +118,9 @@
             /* 승패 판별 로직 */
             CASE
                 WHEN d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away THEN 'WIN'
-                WHEN d.snapshot_team_code = g.home_team_code AND g.score_home &lt; g.score_away THEN 'LOSE'
+                WHEN d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away THEN 'LOSE'
                 WHEN d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home THEN 'WIN'
-                WHEN d.snapshot_team_code = g.away_team_code AND g.score_away &lt; g.score_home THEN 'LOSE'
+                WHEN d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home THEN 'LOSE'
                 WHEN g.score_home = g.score_away THEN 'DRAW'
                 ELSE 'NONE'
                 END AS gameResult
@@ -131,6 +133,7 @@
           AND d.status = 'COMPLETED' /* [중요] 삭제된 글 제외 */
         ORDER BY g.game_date DESC
         LIMIT 3
+        ]]>
     </select>
 
     <insert id="insertDiary" parameterType="com.viotory.diary.vo.DiaryVO" useGeneratedKeys="true" keyProperty="diaryId">
@@ -187,6 +190,7 @@
     <select id="selectDiaryList" resultType="com.viotory.diary.vo.DiaryVO">
         SELECT d.diary_id,
                d.member_id,
+               d.image_url,
                d.one_line_comment,
                d.rating,
                d.game_id,
@@ -226,6 +230,7 @@
     <select id="selectFriendDiaryList" resultType="com.viotory.diary.vo.DiaryVO">
         SELECT d.diary_id,
                d.member_id,
+               d.image_url,
                d.one_line_comment,
                d.rating,
                g.game_date,

@@ -282,6 +282,7 @@
                                         <c:when test="${not empty diaries}">
                                             <c:forEach var="diary" items="${diaries}">
                                                 <div class="score_list" onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'">
+
                                                     <c:set var="firstImage" value="" />
                                                     <c:if test="${not empty diary.imageUrl}">
                                                         <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
@@ -292,6 +293,7 @@
                                                              alt="썸네일"
                                                              onerror="this.src='/img/card_defalut.svg'">
                                                     </div>
+
                                                     <div class="score_txt">
                                                         <div class="txt_box">
                                                             <div class="tit">

@@ -146,6 +146,7 @@
                                 <div class="score_wrap">
                                     <c:forEach var="diary" items="${myDiaries}">
                                         <div class="score_list" onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'">
+
                                             <c:set var="firstImage" value="" />
                                             <c:if test="${not empty diary.imageUrl}">
                                                 <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
@@ -157,6 +158,7 @@
                                                      onerror="this.src='/img/card_defalut.svg'"
                                                      style="width:100%; height:100%; object-fit:cover;">
                                             </div>
+
                                             <div class="score_txt">
                                                 <div class="txt_box">
                                                     <div class="tit">

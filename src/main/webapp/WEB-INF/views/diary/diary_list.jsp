@@ -66,7 +66,6 @@
                                         <c:set var="imgArr" value="${fn:split(item.imageUrl, ',')}" />
                                         <c:set var="firstImage" value="${imgArr[0]}" />
                                     </c:if>
-
                                     <div class="img">
                                         <img src="${not empty firstImage ? firstImage : '/img/card_defalut.svg'}"
                                              alt="스코어카드 이미지"
