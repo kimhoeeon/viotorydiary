@@ -1,5 +1,6 @@
 package com.viotory.diary.controller;
 
+import com.viotory.diary.config.MaintenanceInterceptor;
 import com.viotory.diary.service.AdminMngService;
 import com.viotory.diary.vo.AdminVO;
 import com.viotory.diary.vo.Criteria;
@@ -8,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/mng/system/admin")
@@ -54,4 +58,26 @@ public class AdminMngController {
     public boolean checkId(@RequestParam("loginId") String loginId) {
         return adminMngService.isIdDuplicate(loginId);
     }
+
+    /**
+     * 점검 모드 ON/OFF 제어 API
+     * URL: /mng/system/admin/maintenance/toggle
+     */
+    @PostMapping("/maintenance/toggle")
+    @ResponseBody
+    public Map<String, Object> toggleMaintenance(@RequestParam("mode") boolean mode,
+                                                 @RequestParam(value="message", required=false) String message) {
+
+        // Static 변수 값 변경 (즉시 전역 적용됨)
+        MaintenanceInterceptor.isMaintenanceMode = mode;
+        if (message != null && !message.isEmpty()) {
+            MaintenanceInterceptor.maintenanceMessage = message;
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("isMaintenanceMode", MaintenanceInterceptor.isMaintenanceMode);
+        return result;
+    }
+
 }

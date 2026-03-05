@@ -1,6 +1,6 @@
 package com.viotory.diary.controller;
 
-import com.viotory.diary.dto.MenuItem;
+import com.viotory.diary.config.MaintenanceInterceptor;
 import com.viotory.diary.mapper.AdminMngMapper;
 import com.viotory.diary.service.*;
 import com.viotory.diary.vo.AdminVO;
@@ -119,6 +119,9 @@ public class AdminController {
 
         // 시스템 상태 정보 수집
         addSystemStatus(model);
+
+        // 현재 시스템 점검 모드 여부를 JSP에 전달
+        model.addAttribute("isMaintenanceMode", MaintenanceInterceptor.isMaintenanceMode);
 
         // 회원 전체 통계 영역
         int dau = statsMngService.getDau();

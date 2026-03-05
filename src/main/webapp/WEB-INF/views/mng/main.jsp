@@ -318,6 +318,17 @@
                                             </div>
 
                                             <div class="card-body pt-5">
+
+                                                <div class="d-flex flex-stack bg-light-danger rounded p-4 mb-7">
+                                                    <div class="d-flex flex-column flex-grow-1 me-2">
+                                                        <span class="fw-bold text-gray-800 fs-6 mb-1">사이트 점검 모드</span>
+                                                        <span class="text-muted fw-semibold fs-7">사용자 접근 차단 (백도어 예외)</span>
+                                                    </div>
+                                                    <div class="form-check form-switch form-check-custom form-check-solid form-check-danger">
+                                                        <input class="form-check-input h-30px w-50px cursor-pointer" type="checkbox" id="maintenanceSwitch" ${isMaintenanceMode ? 'checked' : ''}/>
+                                                    </div>
+                                                </div>
+
                                                 <div class="d-flex align-items-center bg-light-primary rounded p-4 mb-7">
                                                     <span class="svg-icon svg-icon-1 svg-icon-primary me-4">
                                                         <i class="ki-duotone ki-time fs-2x text-primary">
@@ -632,6 +643,41 @@
         if (typeof KTChartsWidget1 !== 'undefined') {
             KTChartsWidget1.init();
         }
+
+        // 사이트 점검 모드 토글 제어 이벤트
+        $('#maintenanceSwitch').on('change', function() {
+            var isChecked = $(this).is(':checked');
+            var modeText = isChecked ? "활성화" : "비활성화";
+            var message = isChecked ? "현재 서버 점검 중입니다. 이용에 불편을 드려 죄송합니다." : "";
+
+            if (confirm("사이트 점검 모드를 " + modeText + " 하시겠습니까?\n\n" +
+                (isChecked ? "🚨 [주의] 활성화 시 일반 사용자의 웹/앱 접근이 전면 차단됩니다." : "✅ 비활성화 시 서비스가 즉시 오픈됩니다."))) {
+
+                $.ajax({
+                    url: '/mng/system/admin/maintenance/toggle',
+                    type: 'POST',
+                    data: {
+                        mode: isChecked,
+                        message: message
+                    },
+                    success: function(res) {
+                        if(res.success) {
+                            alert("점검 모드가 " + modeText + " 되었습니다.");
+                        } else {
+                            alert("처리에 실패했습니다.");
+                            $('#maintenanceSwitch').prop('checked', !isChecked); // 원복
+                        }
+                    },
+                    error: function() {
+                        alert("서버 통신 오류가 발생했습니다.");
+                        $('#maintenanceSwitch').prop('checked', !isChecked); // 원복
+                    }
+                });
+            } else {
+                // 취소 시 스위치 UI 상태 원래대로 되돌림
+                $(this).prop('checked', !isChecked);
+            }
+        });
     </script>
 </body>
 </html>

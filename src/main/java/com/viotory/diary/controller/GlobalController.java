@@ -1,9 +1,12 @@
 package com.viotory.diary.controller;
 
+import com.viotory.diary.config.MaintenanceInterceptor;
 import com.viotory.diary.dto.MenuItem;
 import com.viotory.diary.service.AlarmService;
 import com.viotory.diary.service.MenuService;
+import com.viotory.diary.service.SystemMngService;
 import com.viotory.diary.util.FileUtil;
+import com.viotory.diary.vo.AppVersionVO;
 import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
@@ -27,6 +32,7 @@ public class GlobalController {
 
     private final MenuService menuService;
     private final AlarmService alarmService;
+    private final SystemMngService systemMngService;
 
     /**
      * 모든 요청 시 모델에 'menuItems'를 자동으로 담아줌
@@ -145,6 +151,45 @@ public class GlobalController {
             log.error("에디터 이미지 업로드 실패", e);
             return ResponseEntity.internalServerError().body("업로드 중 오류가 발생했습니다.");
         }
+    }
+
+    /**
+     * 앱(App) 런칭 시 상태 체크 (점검 및 강제 업데이트 확인)
+     * URL: /api/v1/system/init
+     */
+    @GetMapping("/api/v1/system/init")
+    @ResponseBody
+    public Map<String, Object> getAppInitStatus(@RequestParam("osType") String osType,
+                                                @RequestParam("versionCode") int currentVersionCode) {
+        Map<String, Object> response = new HashMap<>();
+
+        // 1. 점검 상태 세팅 (Interceptor의 변수 활용)
+        response.put("isMaintenance", MaintenanceInterceptor.isMaintenanceMode);
+        response.put("maintenanceMessage", MaintenanceInterceptor.maintenanceMessage);
+
+        // 2. 앱 강제 업데이트 상태 세팅
+        AppVersionVO latestVersion = systemMngService.getLatestVersion(osType);
+
+        boolean isUpdateRequired = false;
+        boolean isForceUpdate = false;
+        String updateMessage = "";
+
+        if (latestVersion != null) {
+            // 내 폰에 깔린 버전코드보다 DB의 최신 버전코드가 더 높으면 업데이트 필요!
+            if (currentVersionCode < latestVersion.getVersionCode()) {
+                isUpdateRequired = true;
+                if ("Y".equals(latestVersion.getForceUpdateYn())) {
+                    isForceUpdate = true; // "Y"면 무조건 마켓으로 강제 이동
+                }
+                updateMessage = latestVersion.getMessage(); // "새로운 기능이 추가되었어요!" 등
+            }
+        }
+
+        response.put("isUpdateRequired", isUpdateRequired);
+        response.put("isForceUpdate", isForceUpdate);
+        response.put("updateMessage", updateMessage);
+
+        return response;
     }
 
 }
