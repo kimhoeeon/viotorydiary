@@ -92,8 +92,9 @@
                                         <c:forEach var="todayGame" items="${todayGames}">
                                             <div class="game-board" onclick="location.href='/play'">
                                                 <div class="row row-center gap-6">
-                                                    <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
-                                                        <img src="${todayGame.homeTeamLogo}" alt="${todayGame.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
+
+                                                    <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreAway > todayGame.scoreHome ? 'win' : ''}">
+                                                        <img src="${todayGame.awayTeamLogo}" alt="${todayGame.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
                                                     </div>
 
                                                     <c:set var="statusClass" value="schedule" />
@@ -102,8 +103,9 @@
                                                     <c:if test="${todayGame.status == 'CANCELLED'}"><c:set var="statusClass" value="cancel" /></c:if>
 
                                                     <div class="game-score ${statusClass}">
-                                                        <div class="left-team-score ${todayGame.scoreHome > todayGame.scoreAway ? 'high' : ''}">
-                                                            ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreHome}
+
+                                                        <div class="left-team-score ${todayGame.scoreAway > todayGame.scoreHome ? 'high' : ''}">
+                                                            ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreAway}
                                                         </div>
 
                                                         <div class="game-info-wrap">
@@ -123,14 +125,15 @@
                                                             </div>
                                                         </div>
 
-                                                        <div class="right-team-score ${todayGame.scoreAway > todayGame.scoreHome ? 'high' : ''}">
-                                                            ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreAway}
+                                                        <div class="right-team-score ${todayGame.scoreHome > todayGame.scoreAway ? 'high' : ''}">
+                                                            ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreHome}
                                                         </div>
                                                     </div>
 
-                                                    <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreAway > todayGame.scoreHome ? 'win' : ''}">
-                                                        <img src="${todayGame.awayTeamLogo}" alt="${todayGame.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                                    <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
+                                                        <img src="${todayGame.homeTeamLogo}" alt="${todayGame.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
                                                     </div>
+
                                                 </div>
                                             </div>
                                             <c:if test="${todayGame.status ne 'CANCELLED'}">
