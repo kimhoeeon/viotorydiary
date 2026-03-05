@@ -1,6 +1,6 @@
 /**
  * splash.js
- * 앱 초기 실행 및 버전 체크 로직
+ * 앱 초기 실행 및 버전/점검 체크 로직
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -8,101 +8,104 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.body.classList.add('no-scroll');
 
     // Appify가 로드되었는지 확인 (앱 환경 체크)
-    if (typeof appify !== 'undefined') {
+    if (typeof appify !== 'undefined' && appify.system && appify.system.os) {
         try {
-            await checkAppVersion();
+            await checkAppStatus();
         } catch (error) {
-            console.error("Version Check Error:", error);
+            console.error("Status Check Error:", error);
             startSplashAnimation(); // 에러 시에도 앱 진입은 허용
         }
     } else {
         // 웹 브라우저 환경: 바로 스플래시 애니메이션 진행
-        console.log("Web Environment: Skip version check");
+        console.log("Web Environment: Skip app status check");
         startSplashAnimation();
     }
 });
 
-
 /**
- * 앱 버전 체크 및 업데이트 분기 처리
+ * 앱 점검 및 업데이트 상태 체크 API 호출 및 분기 처리
  */
-async function checkAppVersion() {
-    // 1. 현재 앱 정보 가져오기
-    const currentOs = appify.system.os; // 'android' or 'ios'
+async function checkAppStatus() {
+    // 1. 현재 앱 정보 가져오기 (Appify SDK 활용)
+    // 서버는 'AOS', 'IOS'를 기대하므로 매핑 처리
+    const currentOs = appify.system.os === 'ios' ? 'IOS' : 'AOS';
     const currentBuild = appify.system.build || 0; // 빌드 번호 (int)
 
     console.log(`[App Info] OS: ${currentOs}, Build: ${currentBuild}`);
 
-    if (!currentOs) {
-        startSplashAnimation();
-        return;
-    }
-
-    // 2. 서버에 최신 버전 요청
+    // 2. 서버에 최신 상태(점검 여부, 버전 정보) 통합 요청
     try {
         const response = await $.ajax({
-            url: '/api/app/version',
+            url: '/api/v1/system/init',
             type: 'GET',
-            data: { os: currentOs },
+            data: { osType: currentOs, versionCode: currentBuild },
             dataType: 'json'
         });
 
-        if (response.code === 'OK' && response.data) {
-            const serverData = response.data;
-            const latestBuild = serverData.versionCode; // DB: version_code
-            const forceYn = serverData.forceUpdateYn;   // DB: force_update_yn
-            const msg = serverData.message || "더 나은 서비스를 위해 업데이트가 필요합니다.";
+        if (response) {
+            // [1순위] 점검 모드 확인
+            if (response.isMaintenance) {
+                // 점검 시 경고창 띄우고 앱 강제 종료
+                alert(response.maintenanceMessage || "현재 서버 점검 중입니다.\n이용에 불편을 드려 죄송합니다.");
 
-            console.log(`[Server Info] Latest: ${latestBuild}, Force: ${forceYn}`);
-
-            // 3. 버전 비교 (서버 버전이 현재 버전보다 크면 업데이트 필요)
-            if (latestBuild > currentBuild) {
-                if (forceYn === 'Y') {
-                    // [A] 강제 업데이트: 취소 불가
-                    // showPopup은 script.js 또는 popup.jsp에 정의된 커스텀 팝업 함수 사용
-                    showPopup({
-                        title: '업데이트 안내',
-                        msg: msg,
-                        btn: '업데이트 하러가기',
-                        cancel: false // 취소 버튼 숨김 (닫기 불가)
-                    }, function() {
-                        moveToStore(currentOs);
-                    });
-                } else {
-                    // [B] 선택 업데이트: 취소 가능
-                    showPopup({
-                        title: '업데이트 안내',
-                        msg: msg,
-                        btn: '업데이트',
-                        cancel: true,
-                        cancelBtn: '다음에 하기'
-                    }, function() {
-                        // 확인 클릭 시
-                        moveToStore(currentOs);
-                    }, function() {
-                        // 취소 클릭 시 -> 앱 진입
-                        startSplashAnimation();
-                    });
+                // Appify SDK 앱 종료 명령어
+                if(typeof appify.app !== 'undefined' && appify.app.exit) {
+                    appify.app.exit();
                 }
-            } else {
-                // 최신 버전임 -> 앱 진입
-                startSplashAnimation();
+                return; // 진입 차단 (함수 종료)
             }
+
+            // [2순위] 앱 강제 업데이트 확인
+            if (response.isForceUpdate) {
+                // 커스텀 팝업(showPopup)으로 취소 불가능한 스토어 이동 유도
+                showPopup({
+                    title: '업데이트 안내',
+                    msg: response.updateMessage || "더 나은 서비스를 위해 앱 업데이트가 필요합니다.",
+                    btn: '업데이트 하러가기',
+                    cancel: false // 취소 버튼 숨김 (닫기 불가)
+                }, function() {
+                    moveToStore(currentOs);
+                });
+                return; // 진입 차단
+            }
+
+            // [3순위] 선택 업데이트 확인
+            if (response.isUpdateRequired) {
+                showPopup({
+                    title: '업데이트 안내',
+                    msg: response.updateMessage || "새로운 버전이 출시되었습니다.",
+                    btn: '업데이트',
+                    cancel: true,
+                    cancelBtn: '다음에 하기'
+                }, function() {
+                    // 확인 클릭 시 스토어 이동
+                    moveToStore(currentOs);
+                }, function() {
+                    // 취소 클릭 시 -> 정상적으로 앱 진입
+                    startSplashAnimation();
+                });
+                return;
+            }
+
+            // [4순위] 점검도 없고 최신 버전일 경우 -> 정상 진입
+            startSplashAnimation();
+
         } else {
-            // 서버 응답 없음 -> 앱 진입
+            // 서버 응답이 비정상일 경우 -> 앱 진입 허용
             startSplashAnimation();
         }
     } catch (e) {
-        console.error("API Call Failed", e);
+        console.error("Init API Call Failed", e);
         startSplashAnimation();
     }
 }
 
 /**
- * 기존 스플래시 애니메이션 및 페이지 이동 로직
+ * 스플래시 애니메이션 및 로그인/메인 페이지 이동 로직
  */
 function startSplashAnimation() {
     const splash = document.getElementById('splash');
+    if (!splash) return;
 
     // 2.5초 후 페이드 아웃
     setTimeout(() => {
@@ -113,24 +116,21 @@ function startSplashAnimation() {
             splash.style.display = 'none';
             document.body.classList.remove('no-scroll');
 
-            // 로그인 여부 체크가 필요하다면 여기서 분기 처리
-            // 예: 자동 로그인 토큰이 있다면 /main, 없다면 /member/login
+            // 애니메이션이 끝나면 로그인 페이지로 이동
             location.replace('/member/login');
         }, 300);
     }, 2500);
 }
 
-
 /**
  * 스토어 이동 함수
  */
 function moveToStore(os) {
-    if (os === 'android') {
-        // TODO: 실제 안드로이드 패키지명 입력
+    if (os === 'AOS') {
         const packageId = 'com.viotory.diary';
         location.href = `market://details?id=${packageId}`;
-    } else if (os === 'ios') {
-        // TODO: 실제 iOS 앱스토어 ID 입력
+    } else if (os === 'IOS') {
+        // 실제 iOS 앱스토어 ID 입력 필요
         const appId = '123456789';
         location.href = `itms-apps://itunes.apple.com/app/id${appId}`;
     }

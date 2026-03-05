@@ -123,9 +123,7 @@
                                                             </c:choose>
                                                         </td>
                                                         <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate"
-                                                                           type="both"/>
+                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
                                                             <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd"/>
                                                         </td>
                                                         <td>

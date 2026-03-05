@@ -118,10 +118,8 @@
                                         <div class="mb-5 border-bottom pb-5">
                                             <div class="d-flex justify-content-between mb-3 text-muted fs-7">
                                                 <span>작성자: ${vo.writerName}</span>
-                                                <span>작성일: <fmt:parseDate value="${vo.createdAt}"
-                                                                          pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate"
-                                                                          type="both"/><fmt:formatDate value="${regDate}"
-                                                                                                       pattern="yyyy-MM-dd HH:mm"/></span>
+                                                <span>작성일: <fmt:parseDate value="${vo.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
+                                                    <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd HH:mm"/></span>
                                             </div>
                                             <div class="fs-6 text-gray-800 min-h-100px p-3 border rounded bg-light">
                                                 <c:out value="${vo.content}" escapeXml="false"/>

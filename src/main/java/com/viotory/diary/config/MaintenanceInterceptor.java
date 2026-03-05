@@ -8,7 +8,7 @@ import javax.servlet.http.HttpSession;
 public class MaintenanceInterceptor implements HandlerInterceptor {
 
     // 관리자가 제어할 수 있는 전역(Static) 변수 (기본값: false - 오픈 상태)
-    public static boolean isMaintenanceMode = false;
+    public static boolean isMaintenanceMode = true; //기본값 : 잠금
     public static String maintenanceMessage = "현재 서버 점검 중입니다. 이용에 불편을 드려 죄송합니다.";
 
     // [설정] 백도어 비밀번호 (원하는 값으로 변경하세요)

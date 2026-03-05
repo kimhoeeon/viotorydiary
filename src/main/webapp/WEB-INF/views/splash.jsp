@@ -30,30 +30,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const splash = document.getElementById('splash');
-            document.body.classList.add('no-scroll');
 
-            setTimeout(() => {
-                splash.style.opacity = '0';
-
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    document.body.classList.remove('no-scroll');
-
-                    // 애니메이션이 끝나면 로그인 페이지로 이동
-                    location.href = '/member/login';
-                }, 300);
-            }, 2500); // 2.5초 후 실행
-        });
-
-        document.addEventListener('touchmove', function(e) {
-            if (document.body.classList.contains('no-scroll')) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-    </script>
+    <script src="/js/splash.js"></script>
 
 </body>
 </html>

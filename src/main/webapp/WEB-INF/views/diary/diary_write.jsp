@@ -496,8 +496,13 @@
 
       // 4. 제출
       function submitDiary() {
+
+          // 터치 시 짧은 진동 피드백
+          if (typeof vibrateSuccess === 'function') vibrateSuccess();
+
           // 1) 필수값 체크: 경기 선택 (req 클래스 항목)
           if (!$('#gameId').val()) {
+              if (typeof vibrateError === 'function') vibrateError(); // 에러 진동
               alert('경기를 선택해주세요.', function() {
                   openGameSheet();
               });

@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         // [초기화] 디버그 모드 활성화 (개발 중: true, 배포 시: false 권장)
         await appify.initialize({
             debug: false,
-            enableRefresh: true
+            enableRefresh: true,
+            hideScrollbar: true, // 스크롤바 숨김 처리로 네이티브 앱 느낌 부여
+            bounces: false       // iOS 오버스크롤 바운스 방지
         });
 
         // 2. 앱 환경인지 확인
@@ -21,11 +23,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (isAllowed) {
                 const token = await appify.notification.getToken();
                 if (token) {
-                    console.log("FCM Token:", token);
                     updateServerToken(token); // 서버 전송
                 }
-            } else {
-                console.warn("알림 권한이 없습니다.");
             }
         }
     } catch (e) {
@@ -40,7 +39,6 @@ function updateServerToken(token) {
 
     $.post('/member/updateToken', { token: token }, function(res) {
         if(res === 'ok') {
-            console.log("서버에 토큰 저장 완료 ✅");
             localStorage.setItem("fcm_token", token);
         }
     });
@@ -59,7 +57,7 @@ $(document).on('click', 'a', function(e) {
         if (!isMyDomain) {
             e.preventDefault();
             if (typeof appify !== 'undefined' && appify.isWebview) {
-                appify.linking.externalBrowser(url);
+                appify.linking.inappBrowser(url);
             } else {
                 window.open(url, '_blank');
             }

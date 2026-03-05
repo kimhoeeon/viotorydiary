@@ -83,7 +83,7 @@
                                         <c:forEach var="event" items="${events}">
                                             <c:choose>
                                                 <c:when test="${event.linkType eq 'EXTERNAL'}">
-                                                    <div class="img" onclick="window.open('${event.linkUrl}')" style="cursor:pointer;">
+                                                    <div class="img" onclick="if(typeof appify !== 'undefined' && appify.isWebview) { appify.linking.inappBrowser('${event.linkUrl}'); } else { window.open('${event.linkUrl}'); }" style="cursor:pointer;">
                                                 </c:when>
                                                 <c:otherwise>
                                                     <div class="img" onclick="location.href='/locker/event/detail?eventId=${event.eventId}'" style="cursor:pointer;">

@@ -212,8 +212,7 @@
                                                                     </td>
 
                                                                     <td class="text-center fs-7 text-muted">
-                                                                        <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="regDate" type="both"/>
-                                                                        <fmt:formatDate value="${regDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                                                        ${fn:substring(fn:replace(item.createdAt, 'T', ' '), 0, 16)}
                                                                     </td>
 
                                                                     <td class="text-center">
