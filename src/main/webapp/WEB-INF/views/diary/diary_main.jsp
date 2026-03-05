@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!doctype html>
 <html lang="ko">
@@ -145,8 +146,16 @@
                                 <div class="score_wrap">
                                     <c:forEach var="diary" items="${myDiaries}">
                                         <div class="score_list" onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'">
+                                            <c:set var="firstImage" value="" />
+                                            <c:if test="${not empty diary.imageUrl}">
+                                                <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
+                                                <c:set var="firstImage" value="${imgArr[0]}" />
+                                            </c:if>
                                             <div class="img">
-                                                <img src="/img/card_defalut.svg" alt="스코어카드 이미지">
+                                                <img src="${not empty firstImage ? firstImage : '/img/card_defalut.svg'}"
+                                                     alt="스코어카드 이미지"
+                                                     onerror="this.src='/img/card_defalut.svg'"
+                                                     style="width:100%; height:100%; object-fit:cover;">
                                             </div>
                                             <div class="score_txt">
                                                 <div class="txt_box">
@@ -220,8 +229,16 @@
                                 <div class="score_wrap">
                                     <c:forEach var="item" items="${friendDiaries}">
                                         <div class="score_list" onclick="location.href='/diary/detail?diaryId=${item.diaryId}'">
+                                            <c:set var="firstImage" value="" />
+                                            <c:if test="${not empty item.imageUrl}">
+                                                <c:set var="imgArr" value="${fn:split(item.imageUrl, ',')}" />
+                                                <c:set var="firstImage" value="${imgArr[0]}" />
+                                            </c:if>
                                             <div class="img">
-                                                <img src="/img/card_defalut.svg" alt="썸네일">
+                                                <img src="${not empty firstImage ? firstImage : '/img/card_defalut.svg'}"
+                                                     alt="썸네일"
+                                                     onerror="this.src='/img/card_defalut.svg'"
+                                                     style="width:100%; height:100%; object-fit:cover;">
                                             </div>
                                             <div class="score_txt">
                                                 <div class="txt_box">
