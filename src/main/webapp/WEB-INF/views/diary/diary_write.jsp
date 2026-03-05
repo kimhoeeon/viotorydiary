@@ -519,6 +519,13 @@
               }
           }
 
+          // 폼 전송 직전, 배열에 모아둔 파일들을 실제 input에 옮겨 담기
+          const dataTransfer = new DataTransfer();
+          selectedFiles.forEach(file => {
+              dataTransfer.items.add(file);
+          });
+          document.getElementById('fileUpload').files = dataTransfer.files;
+
           // 3) 직관 인증 여부 확인 (미인증 시 컨펌)
           const isVerified = $('#isVerified').val();
           if (isVerified !== 'true') {

@@ -291,32 +291,14 @@
                 return;
             }
 
-            // 2) 히어로(MVP) 필수 입력 체크
-            /*var heroInput = document.getElementById('heroName');
-            if (!heroInput || !heroInput.value.trim()) {
-                alert('오늘의 히어로(MVP)를 입력해주세요!', function() {
-                    if(heroInput) heroInput.focus();
-                });
-                return;
-            }*/
+            // 폼 전송 직전, 배열에 새로 추가한 파일들을 실제 input에 옮겨 담기
+            const dataTransfer = new DataTransfer();
+            selectedFiles.forEach(file => {
+                dataTransfer.items.add(file);
+            });
+            document.getElementById('fileUpload').files = dataTransfer.files;
 
-            // 3) 한줄평 체크
-            /*var oneLineInput = document.getElementById('oneLine');
-            if (!oneLineInput || !oneLineInput.value.trim()) {
-                alert('한줄평을 입력해주세요.', function() {
-                    if(oneLineInput) oneLineInput.focus();
-                });
-                return;
-            }*/
-
-            /*
-            if (!$('#fileUpload').val() && $('#imagePreview').attr('src') === "") {
-                alert('직관 인증샷을 등록해주세요! 📸');
-                return;
-            }
-            */
-
-            // vibrateSuccess(); // 햅틱 진동 (함수가 script.js 등에 있다면 주석 해제)
+            // 폼 전송
             document.getElementById('diaryForm').submit();
         }
     </script>
