@@ -81,7 +81,9 @@
 
                               <div class="diary_write_list req diary_character">
                                   <div class="tit">오늘, 직관 가세요?</div>
-                                  <button type="button" class="select-field" onclick="openGameSheet()">
+                                  <button type="button" class="select-field"
+                                          <c:if test="${not isScoreEditable}">disabled style="background-color:#f5f5f5; cursor:not-allowed;"</c:if>
+                                          <c:if test="${isScoreEditable}">onclick="openGameSheet()"</c:if> >
                                       <c:choose>
                                           <c:when test="${not empty selectedGame}">
                                               <span class="select-field_value" style="color:#000; font-weight:bold;">
@@ -110,11 +112,15 @@
 
                                               <div class="game-score schedule">
                                                   <div class="left-team-score">
-                                                      <input type="number" name="predScoreAway" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
+                                                      <input type="number" name="predScoreAway" min="0" max="99"
+                                                             <c:if test="${not isScoreEditable}">readonly placeholder="-" style="background-color:transparent; color:#999;"</c:if>
+                                                             <c:if test="${isScoreEditable}">oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0"</c:if> >
                                                   </div>
                                                   <div class="game-info-wrap">VS</div>
                                                   <div class="right-team-score">
-                                                      <input type="number" name="predScoreHome" min="0" max="99" oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0">
+                                                      <input type="number" name="predScoreHome" min="0" max="99"
+                                                             <c:if test="${not isScoreEditable}">readonly placeholder="-" style="background-color:transparent; color:#999;"</c:if>
+                                                             <c:if test="${isScoreEditable}">oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0"</c:if> >
                                                   </div>
                                               </div>
 
@@ -498,44 +504,24 @@
               return;
           }
 
-          // 2) 필수값 체크: 스코어 (req 클래스 항목)
-          // name 속성이 동적으로 변경되므로 name으로 조회
-          var scoreHome = $('input[name="predScoreHome"]');
-          var scoreAway = $('input[name="predScoreAway"]');
+          // 2) 필수값 체크: 스코어 (작성 가능 기간일 때만 필수 검사)
+          const isScoreEditable = ${isScoreEditable};
+          if (isScoreEditable) {
+              var scoreHome = $('input[name="predScoreHome"]');
+              var scoreAway = $('input[name="predScoreAway"]');
 
-          if (scoreHome.val() === '' || scoreAway.val() === '') {
-              alert('예상 스코어를 입력해주세요!', function() {
-                  if(scoreHome.val() === '') scoreHome.focus();
-                  else scoreAway.focus();
-              });
-              return;
+              if (scoreHome.val() === '' || scoreAway.val() === '') {
+                  alert('예상 스코어를 입력해주세요!', function() {
+                      if(scoreHome.val() === '') scoreHome.focus();
+                      else scoreAway.focus();
+                  });
+                  return;
+              }
           }
 
-          // 3) 필수값 체크: 히어로
-          /*if (!$.trim($('#heroName').val())) {
-              alert('오늘의 히어로(MVP)를 입력해주세요!', function() {
-                  $('#heroName').focus();
-              });
-              return;
-          }*/
-
-          // 4) 필수값 체크: 한줄평
-          /*if (!$.trim($('#oneLine').val())) {
-              alert('오늘 경기에 대한 한줄평을 남겨주세요!', function() {
-                  $('#oneLine').focus();
-              });
-              return;
-          }*/
-
-          /*if (!$('#fileUpload').val() && $('#imagePreview').attr('src') === "") {
-              alert('직관 인증샷을 등록해주세요! 📸');
-              return;
-          }*/
-
-          // 4) 직관 인증 여부 확인 (미인증 시 컨펌)
+          // 3) 직관 인증 여부 확인 (미인증 시 컨펌)
           const isVerified = $('#isVerified').val();
           if (isVerified !== 'true') {
-              // 커스텀 confirm 또는 기본 confirm 사용
               customConfirm("정말로 직관 인증을 하지 않고 저장하시겠어요?\n인증 시, 승률 계산에 반영돼요!",
                   function() {
                       // [확인] 제출 진행
@@ -548,7 +534,6 @@
               );
           } else {
               // 인증된 상태면 바로 제출
-              // vibrateSuccess(); // 햅틱 진동
               $('#diaryForm').submit();
           }
       }

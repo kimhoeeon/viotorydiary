@@ -57,16 +57,38 @@ public class DiaryController {
             return null; // 뷰를 렌더링하지 않고 스크립트만 실행 후 종료
         }
 
+        boolean isScoreEditable = true; // 기본적으로 스코어 작성 가능 상태
+
         // 메인에서 '오늘의 경기 기록하기'로 넘어온 경우, 해당 경기 정보를 미리 세팅
         if (gameId != null) {
             GameVO game = gameService.getGameById(gameId);
 
-            // 경기 정보가 유효하다면 모델에 추가
             if (game != null) {
                 model.addAttribute("selectedGame", game);
                 model.addAttribute("targetGameId", gameId);
+
+                // 신규 작성 시에도 경기 종료/취소 또는 시작 1시간 이후면 스코어 입력 차단
+                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
+                    isScoreEditable = false;
+                } else {
+                    try {
+                        String timeStr = game.getGameTime();
+                        if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
+                        String dateTimeStr = game.getGameDate() + " " + timeStr;
+                        LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                        // 경기 시작 후 1시간 초과 시 입력 불가
+                        if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
+                            isScoreEditable = false;
+                        }
+                    } catch (Exception e) {
+                        log.error("경기 시작시간 파싱 오류", e);
+                    }
+                }
             }
         }
+
+        model.addAttribute("isScoreEditable", isScoreEditable);
 
         return "diary/diary_write"; // views/diary/diary_write.jsp
     }
@@ -211,6 +233,7 @@ public class DiaryController {
 
             // 스코어 수정 불가능 시간이면 원본 데이터(기존 스코어) 유지
             if (!isScoreEditable) {
+                diary.setGameId(originalDiary.getGameId());
                 diary.setPredScoreHome(originalDiary.getPredScoreHome());
                 diary.setPredScoreAway(originalDiary.getPredScoreAway());
             }
