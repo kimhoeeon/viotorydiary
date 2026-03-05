@@ -60,7 +60,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/mng/js/**",
                         "/mng/img/**",
                         "/mng/login",
-                        "/mng/loginAction"
+                        "/mng/loginAction",
+                        "/mng/index",
+                        "/mng/index.do"
                 );
 
         // 4. 자동 로그인 체크 (모든 경로)
