@@ -80,7 +80,7 @@
         AND d.is_verified = 1
         AND g.status = 'FINISHED'
         AND (g.winning_team = 'DRAW' OR d.pred_score_home = d.pred_score_away)
-        ) AS drawCount,
+        ) AS drawCount
 
         FROM members m
         <include refid="criteria"/>
@@ -191,58 +191,62 @@
     </update>
 
     <select id="selectMemberListForExcel" resultType="com.viotory.diary.vo.MemberVO">
-        SELECT
-            m.member_id AS memberId,
-            m.email,
-            m.nickname,
-            m.phone_number AS phoneNumber,
-            m.my_team_code AS myTeamCode,
-            (SELECT name_kr FROM teams WHERE team_code = m.my_team_code) AS myTeamName,
-            m.status,
-            m.created_at AS createdAt,
-            m.social_provider AS socialProvider,
-            (SELECT COUNT(d.diary_id) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
-            (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
-            (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
+        SELECT m.member_id                                                                   AS memberId,
+               m.email,
+               m.nickname,
+               m.phone_number                                                                AS phoneNumber,
+               m.my_team_code                                                                AS myTeamCode,
+               (SELECT name_kr FROM teams WHERE team_code = m.my_team_code)                  AS myTeamName,
+               m.status,
+               m.created_at                                                                  AS createdAt,
+               m.social_provider                                                             AS socialProvider,
+               (SELECT COUNT(d.diary_id)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND d.is_verified = 1
+                  AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
+                  AND d.status = 'COMPLETED')                                                AS monthlyAttendanceCount,
+               (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id)  AS followingCount,
+               (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-            -- 승요 정보 (승패 전적 실시간 계산)
-            (SELECT COUNT(*)
-             FROM diaries d
-                      JOIN games g ON d.game_id = g.game_id
-             WHERE d.member_id = m.member_id
-               AND d.is_verified = 1
-               AND g.status = 'FINISHED'
-               AND g.winning_team IS NOT NULL
-               AND g.winning_team != 'DRAW'
-               -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 일치하면 승리(1)
-               AND (
-                 (d.pred_score_home > d.pred_score_away AND g.winning_team = g.home_team_code) OR
-                 (d.pred_score_away > d.pred_score_home AND g.winning_team = g.away_team_code)
-                 )) AS winCount,
+               -- 승요 정보 (승패 전적 실시간 계산)
+               (SELECT COUNT(*)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND d.is_verified = 1
+                  AND g.status = 'FINISHED'
+                  AND g.winning_team IS NOT NULL
+                  AND g.winning_team != 'DRAW'
+                  -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 일치하면 승리(1)
+                  AND (
+                    (d.pred_score_home > d.pred_score_away AND g.winning_team = g.home_team_code) OR
+                    (d.pred_score_away > d.pred_score_home AND g.winning_team = g.away_team_code)
+                    ))                                                                       AS winCount,
 
-            (SELECT COUNT(*)
-             FROM diaries d
-                      JOIN games g ON d.game_id = g.game_id
-             WHERE d.member_id = m.member_id
-               AND d.is_verified = 1
-               AND g.status = 'FINISHED'
-               AND g.winning_team IS NOT NULL
-               AND g.winning_team != 'DRAW'
-               -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 다르면 패배(0)
-               AND (
-                 (d.pred_score_home > d.pred_score_away AND g.winning_team != g.home_team_code) OR
-                 (d.pred_score_away > d.pred_score_home AND g.winning_team != g.away_team_code)
-                 )) AS loseCount,
+               (SELECT COUNT(*)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND d.is_verified = 1
+                  AND g.status = 'FINISHED'
+                  AND g.winning_team IS NOT NULL
+                  AND g.winning_team != 'DRAW'
+                  -- 내가 예상한 스코어로 도출한 승리팀과 실제 승리팀이 다르면 패배(0)
+                  AND (
+                    (d.pred_score_home > d.pred_score_away AND g.winning_team != g.home_team_code) OR
+                    (d.pred_score_away > d.pred_score_home AND g.winning_team != g.away_team_code)
+                    ))                                                                       AS loseCount,
 
-            -- 무승부 예측(스코어 동점)인 경우 또는 실제 경기가 무승부로 끝난 경우의 처리 (옵션)
-            (SELECT COUNT(*)
-             FROM diaries d
-                      JOIN games g ON d.game_id = g.game_id
-             WHERE d.member_id = m.member_id
-               AND d.is_verified = 1
-               AND g.status = 'FINISHED'
-               AND (g.winning_team = 'DRAW' OR d.pred_score_home = d.pred_score_away)
-            ) AS drawCount
+               -- 무승부 예측(스코어 동점)인 경우 또는 실제 경기가 무승부로 끝난 경우의 처리 (옵션)
+               (SELECT COUNT(*)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND d.is_verified = 1
+                  AND g.status = 'FINISHED'
+                  AND (g.winning_team = 'DRAW' OR d.pred_score_home = d.pred_score_away))    AS drawCount
 
         FROM members m
         ORDER BY m.created_at DESC
