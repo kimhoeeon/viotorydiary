@@ -244,10 +244,10 @@ public class MemberController {
             return "ok"; // 성공 시 "ok" 문자열 반환 (AJAX에서 확인)
         } catch (AlertException ae) {
             log.info("회원가입 알럿: {}", ae.getMessage());
-            return "가입 처리에 실패했습니다: " + ae.getMessage();
+            return "가입 처리에 실패했습니다.\n" + ae.getMessage();
         } catch (Exception e) {
             log.error("회원가입 중 치명적 오류", e);
-            return "가입 처리에 실패했습니다: 시스템 오류가 발생했습니다.";
+            return "가입 처리에 실패했습니다.\n시스템 오류가 발생했습니다.";
         }
     }
 
