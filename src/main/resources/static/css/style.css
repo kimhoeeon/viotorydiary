@@ -127,8 +127,9 @@
 
 .game-score{display: flex; gap: 10px; align-items: center;}
 .game-score .game-info-wrap{text-align: center; min-width: 50px;max-width: 50px;}
-.game-score .game-info-wrap .place{ word-break: keep-all;}
+.game-score .game-info-wrap .place{ word-break: break-word;}
 .game-score .game-info{font-size: var(--fs-12); margin-top: 8px; line-height: 1.4;}
+.game-score .game-info .place{ word-break: break-word;}
 .game-score .left-team-score{font-size: var(--fs-24); font-weight: 700; min-width: 30px; text-align: center; color: #AAAAAA;}
 .game-score .right-team-score{font-size: var(--fs-24); font-weight: 700;min-width: 30px; text-align: center; color: #AAAAAA;}
 .game-score .left-team-score.high{color:var(--seconColor);}

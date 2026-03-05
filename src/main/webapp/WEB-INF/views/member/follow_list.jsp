@@ -43,16 +43,16 @@
             <div class="stack mt-24">
 
                 <ul class="tab_menu">
-                    <li class="${param.tab eq 'following' ? 'on' : ''}" onclick="location.href='/member/follow/list?tab=following'">
+                    <li class="${tab eq 'following' ? 'on' : ''}" onclick="location.href='/member/follow/list?tab=following'">
                         팔로잉
                     </li>
-                    <li class="${empty param.tab or param.tab eq 'follower' ? 'on' : ''}" onclick="location.href='/member/follow/list?tab=follower'">
+                    <li class="${tab eq 'follower' ? 'on' : ''}" onclick="location.href='/member/follow/list?tab=follower'">
                         팔로워
                     </li>
                 </ul>
 
-                <div class="tab_cont ${param.tab eq 'following' ? 'on' : ''}">
-                    <c:if test="${param.tab eq 'following'}">
+                <div class="tab_cont ${tab eq 'following' ? 'on' : ''}">
+                    <c:if test="${tab eq 'following'}">
                         <c:choose>
                             <c:when test="${empty list}">
                                 <div class="score_list nodt_list pd-24">
@@ -93,8 +93,8 @@
                     </c:if>
                 </div>
 
-                <div class="tab_cont ${empty param.tab or param.tab eq 'follower' ? 'on' : ''}">
-                    <c:if test="${empty param.tab or param.tab eq 'follower'}">
+                <div class="tab_cont ${tab eq 'follower' ? 'on' : ''}">
+                    <c:if test="${tab eq 'follower'}">
                         <c:choose>
                             <c:when test="${empty list}">
                                 <div class="score_list nodt_list pd-24">
@@ -166,7 +166,7 @@
                         $btn.attr('onclick', "toggleFollow(" + targetId + ", 'unfollow', this)");
                     } else if (res === 'unfollowed') {
                         // 언팔로우 성공
-                        if ('${param.tab}' === 'following') {
+                        if ('${tab}' === 'following') {
                             // 내가 팔로잉하는 목록(Following)에서는 취소 시 리스트에서 즉시 삭제
                             $btn.closest('li').fadeOut(300, function() { $(this).remove(); });
                         } else {

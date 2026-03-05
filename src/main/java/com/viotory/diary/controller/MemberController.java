@@ -1,6 +1,7 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.CommentDTO;
+import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.service.CommentService;
 import com.viotory.diary.service.MemberService;
@@ -665,7 +666,7 @@ public class MemberController {
 
     // 팔로우/팔로잉 목록 페이지
     @GetMapping("/follow/list")
-    public String followListPage(@RequestParam(value = "type", defaultValue = "following") String type,
+    public String followListPage(@RequestParam(value = "tab", defaultValue = "following") String tab,
                                  @RequestParam(value = "memberId", required = false) Long memberId,
                                  HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
@@ -674,8 +675,8 @@ public class MemberController {
         // memberId 파라미터가 없으면 내 목록 조회
         Long targetId = (memberId != null) ? memberId : loginMember.getMemberId();
 
-        List<com.viotory.diary.dto.FollowDTO> list;
-        if ("follower".equals(type)) {
+        List<FollowDTO> list;
+        if ("follower".equals(tab)) {
             // 팔로워 목록 조회 (맞팔 확인을 위해 내 ID도 전달)
             list = memberService.getFollowerList(targetId, loginMember.getMemberId());
         } else {
@@ -684,7 +685,7 @@ public class MemberController {
         }
 
         model.addAttribute("list", list);
-        model.addAttribute("type", type);
+        model.addAttribute("tab", tab);
         model.addAttribute("targetId", targetId);
 
         // 상단 타이틀용 (내 목록인지 남의 목록인지 확인)
