@@ -524,7 +524,7 @@
                 const isWritten = (game.diaryId && game.diaryId > 0);
 
                 // 1. 승부 예측 버튼 로직 (예정된 경기만 노출)
-                if (game.status === 'SCHEDULED') {
+                /*if (game.status === 'SCHEDULED') {
                     if (game.myPredictedTeam) {
                         predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>예측 완료 (\${game.myPredictedTeam})</button>`;
                     } else {
@@ -547,18 +547,18 @@
                             predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>경기 준비중</button>`;
                         }
                     }
-                }
+                }*/
 
                 // 2. 직관일기/인증 버튼 (모든 상태 및 취소된 경기에서도 표시)
                 if (isWritten) {
-                    diaryBtnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn sub-btn cls-1 mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">일기 보기
-                               <svg viewBox="0 0 5.5 9.5" style="stroke:#1A7CFF;"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
+                    // main.jsp와 동일한 btn-primary 스타일 적용 및 SVG 화살표 제거
+                    diaryBtnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn btn-primary mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">일기 보기</a>`;
                 } else {
-                    diaryBtnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn sub-btn cls-1 mt-8">직관 인증하기
-                               <svg viewBox="0 0 5.5 9.5"><path d="M.75.75l4,4L.75,8.75"/></svg></a>`;
+                    // main.jsp와 동일한 btn-primary 스타일 적용 및 img 화살표 사용
+                    diaryBtnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn btn-primary mt-8">직관 인증하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>`;
                 }
 
-                btnHtml = predictionBtnHtml + diaryBtnHtml;
+                btnHtml = /*predictionBtnHtml + */diaryBtnHtml;
 
                 let html = `
                         <div class="card_item game-item" data-home="\${game.homeTeamCode}" data-away="\${game.awayTeamCode}">
