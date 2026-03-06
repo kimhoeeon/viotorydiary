@@ -37,14 +37,21 @@ public class DiaryService {
     public Long writeDiary(DiaryVO diary) throws Exception {
         // 1. 필수값 체크
         if (diary.getGameId() == null) throw new AlertException("경기를 선택해주세요.");
-        /*if (diary.getOneLineComment() == null || diary.getOneLineComment().isEmpty()) {
-            throw new AlertException("한줄평을 입력해주세요.");
-        }*/
 
-        // 1-1. 중복 작성 체크
+        // 1-1. 중복 작성 체크 (동일 경기)
         DiaryVO existingDiary = diaryMapper.selectDiaryByMemberAndGame(diary.getMemberId(), diary.getGameId());
         if (existingDiary != null) {
             throw new AlertException("이미 이 경기에 대한 일기를 작성하셨습니다.");
+        }
+
+        // 1-2. 하루 최대 1개 작성 제한 체크
+        // 방금 선택한 경기의 날짜 정보를 가져옵니다.
+        GameVO targetGame = gameMapper.selectGameById(diary.getGameId());
+        if (targetGame != null && targetGame.getGameDate() != null) {
+            int dailyCount = diaryMapper.countDiaryByDate(diary.getMemberId(), targetGame.getGameDate());
+            if (dailyCount >= 1) { // 1개 이상이면 차단
+                throw new AlertException("직관 일기는 하루에 1개 경기만 작성할 수 있어요!");
+            }
         }
 
         // 직관 인증 시, 인증 시간 저장
@@ -279,6 +286,11 @@ public class DiaryService {
     // 특정 경기와 멤버의 직관일기 단건 조회 (작성 여부 체크용)
     public DiaryVO getDiaryByMemberAndGame(Long memberId, Long gameId) {
         return diaryMapper.selectDiaryByMemberAndGame(memberId, gameId);
+    }
+
+    //화면 진입 단계에서 하루 1개 제한 체크
+    public int countDiaryByDate(Long memberId, String gameDate) {
+        return diaryMapper.countDiaryByDate(memberId, gameDate);
     }
 
 }

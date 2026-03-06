@@ -64,6 +64,17 @@ public class DiaryController {
             GameVO game = gameService.getGameById(gameId);
 
             if (game != null) {
+
+                // 화면 진입 단계에서 하루 1개 제한 체크
+                int dailyCount = diaryService.countDiaryByDate(loginMember.getMemberId(), game.getGameDate());
+                if (dailyCount >= 1) {
+                    response.setContentType("text/html; charset=UTF-8");
+                    PrintWriter out = response.getWriter();
+                    out.println("<script>alert('직관 일기는 하루에 1개 경기만 작성할 수 있어요!'); history.back();</script>");
+                    out.flush();
+                    return null;
+                }
+
                 model.addAttribute("selectedGame", game);
                 model.addAttribute("targetGameId", gameId);
 

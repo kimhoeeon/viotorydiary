@@ -475,4 +475,13 @@
         SELECT COUNT(*) FROM diaries WHERE status = 'COMPLETED' AND DATE(created_at) = CURDATE()
     </select>
 
+    <select id="countDiaryByDate" resultType="int">
+        SELECT COUNT(*)
+        FROM diaries d
+                 JOIN games g ON d.game_id = g.game_id
+        WHERE d.member_id = #{memberId}
+          AND g.game_date = #{gameDate}
+          AND d.status != 'INVALID'
+    </select>
+
 </mapper>

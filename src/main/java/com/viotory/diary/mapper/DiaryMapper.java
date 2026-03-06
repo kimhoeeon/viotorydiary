@@ -65,4 +65,7 @@ public interface DiaryMapper {
     // 조회수 1 증가
     void updateViewCount(Long diaryId);
 
+    // 사용자가 해당 날짜에 작성한 일기 개수 조회
+    int countDiaryByDate(@Param("memberId") Long memberId, @Param("gameDate") String gameDate);
+
 }
