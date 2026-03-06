@@ -218,7 +218,10 @@
                 <div class="modal-header">
                     <h2 class="fw-bold">콘텐츠 수정</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                        <i class="ki-duotone ki-cross fs-1">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                        </i>
                     </div>
                 </div>
                 <form id="modifyForm" method="post" enctype="multipart/form-data">
@@ -264,7 +267,7 @@
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
                             <input type="text" class="form-control form-control-solid mb-2" name="contentUrl" id="detailContentUrl" value="${content.contentUrl}" placeholder="https://..." />
-                            <div class="form-text text-muted mb-3">"https://"로 시작하는 링크를 입력하시면 하단에 썸네일과 공유 카드가 자동 생성됩니다.</div>
+                            <div class="form-text text-muted mb-3">- "https://"로 시작하는 링크를 입력하시면 하단에 썸네일과 공유 카드가 자동 생성됩니다.</div>
                             <div id="popupUrlPreviewBox" data-url="${content.contentUrl}" style="max-width: 400px;"></div>
                         </div>
 

@@ -272,7 +272,7 @@
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">콘텐츠 URL</label>
                             <input type="text" class="form-control form-control-solid mb-2" name="contentUrl" id="contentUrl" placeholder="https://..." />
-                            <div class="form-text text-muted mb-3">"https://"로 시작하는 링크를 입력하시면 하단에 썸네일과 공유 카드가 자동 생성됩니다.</div>
+                            <div class="form-text text-muted mb-3">- "https://"로 시작하는 링크를 입력하시면 하단에 썸네일과 공유 카드가 자동 생성됩니다.</div>
                             <div id="popupUrlPreviewBox" data-url="" style="max-width: 400px;"></div>
                         </div>
 

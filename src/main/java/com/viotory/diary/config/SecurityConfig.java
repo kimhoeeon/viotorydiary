@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 // [핵심] 정적 리소스와 manifest 파일은 누구나 접근 가능하게 허용
                 .antMatchers("/css/**", "/js/**", "/img/**", "/assets/**", "/favicon.ico", "/site.webmanifest").permitAll()
+                .antMatchers("/api/common/**", "/api/v1/system/init").permitAll()
                 .anyRequest().permitAll(); // 나머지 요청도 일단 허용 (보안은 Interceptor에서 처리하므로)
 
         return http.build();

@@ -175,7 +175,9 @@
                                     <li>
                                         <div>
                                             <p>나의 직관 승률</p>
-                                            <div class="data">${winYo.winRate}%</div>
+                                            <div class="data">
+                                                <fmt:formatNumber value="${winYo.winRate}" pattern="#,##0"/>%
+                                            </div>
                                         </div>
                                         <c:choose>
                                             <c:when test="${winYo.winRate < 50}">

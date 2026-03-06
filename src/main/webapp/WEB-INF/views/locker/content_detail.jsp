@@ -161,7 +161,7 @@
                     $.get('/locker/extract-og', { url: contentUrl }, function(res) {
                         if (!res.error && res.title) {
                             var cardHtml = `
-                                <a href="\${previewUrl}" target="_blank" class="og-card">
+                                <a href="\${contentUrl}" target="_blank" class="og-card">
                                     \${res.image ? '<img src="' + res.image + '" alt="링크 썸네일">' : ''}
                                     <div class="og-card-info">
                                         <div class="og-card-title">\${res.title}</div>
