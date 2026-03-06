@@ -110,6 +110,7 @@
                                                     <th class="min-w-200px text-center">관람 경기 정보</th>
                                                     <th class="min-w-100px text-center">직관 인증 / 공개</th>
                                                     <th class="min-w-125px text-center">작성일시</th>
+                                                    <th class="min-w-100px text-center">상태</th>
                                                     <th class="min-w-100px text-center">관리</th>
                                                 </tr>
                                                 </thead>
@@ -117,7 +118,7 @@
                                                     <c:choose>
                                                         <c:when test="${empty list}">
                                                             <tr>
-                                                                <td colspan="7" class="text-center p-10">조회된 일기가 없습니다.</td>
+                                                                <td colspan="8" class="text-center p-10">조회된 일기가 없습니다.</td>
                                                             </tr>
                                                         </c:when>
                                                         <c:otherwise>
@@ -213,6 +214,20 @@
 
                                                                     <td class="text-center fs-7 text-muted">
                                                                         ${fn:substring(fn:replace(item.createdAt, 'T', ' '), 0, 16)}
+                                                                    </td>
+
+                                                                    <td class="text-center">
+                                                                        <c:choose>
+                                                                            <c:when test="${item.status eq 'COMPLETED'}">
+                                                                                <span class="badge badge-light-success fs-8">등록</span>
+                                                                            </c:when>
+                                                                            <c:when test="${item.status eq 'DELETED'}">
+                                                                                <span class="badge badge-light-danger fs-8">삭제됨</span>
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                <span class="badge badge-light-secondary fs-8">${item.status}</span>
+                                                                            </c:otherwise>
+                                                                        </c:choose>
                                                                     </td>
 
                                                                     <td class="text-center">
