@@ -267,7 +267,6 @@
 
               data.forEach(game => {
                   const title = game.awayTeamName + ' vs ' + game.homeTeamName;
-                  // 데이터 속성에 필요한 정보 담기
                   const itemHtml = `
                           <li>
                               <button type="button"
@@ -278,6 +277,9 @@
                                   data-away-code="\${game.awayTeamCode}"
                                   data-home-logo="\${game.homeTeamLogo}"
                                   data-away-logo="\${game.awayTeamLogo}"
+                                  data-status="\${game.status}"
+                                  data-date="\${game.gameDate}"
+                                  data-time="\${game.gameTime}"
                                   onclick="selectGameItem(this)">
                                   <span class="match">\${title}</span>
                                   <span class="place">(\${game.stadiumName})</span>
@@ -307,7 +309,10 @@
               homeCode: $(btn).data('home-code'),
               awayCode: $(btn).data('away-code'),
               homeLogo: $(btn).data('home-logo'),
-              awayLogo: $(btn).data('away-logo')
+              awayLogo: $(btn).data('away-logo'),
+              status: $(btn).data('status'),
+              date: $(btn).data('date'),
+              time: $(btn).data('time')
           };
 
           // 저장 버튼 활성화
@@ -343,7 +348,32 @@
           if (g.awayCode === myTeamCode) $('#awayMyTeam').show(); else $('#awayMyTeam').hide();
           if (g.homeCode === myTeamCode) $('#homeMyTeam').show(); else $('#homeMyTeam').hide();
 
-          // 5. 버튼 활성화 및 팝업 닫기
+          // 경기 상태에 따른 스코어 입력창 활성/비활성 처리
+          let isEditable = true;
+          if (g.status === 'FINISHED' || g.status === 'CANCELLED') {
+              isEditable = false;
+          } else {
+              if (g.date && g.time) {
+                  let t = g.time.length === 5 ? g.time + ':00' : g.time;
+                  let start = new Date(g.date + 'T' + t);
+                  start.setHours(start.getHours() - 1); // 경기 시작 1시간 전
+                  if (new Date() > start) isEditable = false;
+              }
+          }
+
+          window.isScoreEditableDynamic = isEditable; // 전역 플래그 업데이트
+
+          const $scoreAway = $('input[name="predScoreAway"]');
+          const $scoreHome = $('input[name="predScoreHome"]');
+
+          if (!isEditable) {
+              $scoreAway.prop('readonly', true).css({'background-color':'transparent', 'color':'#999'}).val('').attr('placeholder', '-');
+              $scoreHome.prop('readonly', true).css({'background-color':'transparent', 'color':'#999'}).val('').attr('placeholder', '-');
+          } else {
+              $scoreAway.prop('readonly', false).css({'background-color':'', 'color':'#000'}).val('').attr('placeholder', '0');
+              $scoreHome.prop('readonly', false).css({'background-color':'', 'color':'#000'}).val('').attr('placeholder', '0');
+          }
+
           $('#btnNext').prop('disabled', false);
           closeGameSheet();
       }
@@ -510,7 +540,7 @@
           }
 
           // 2) 필수값 체크: 스코어 (작성 가능 기간일 때만 필수 검사)
-          const isScoreEditable = ${isScoreEditable};
+          const isScoreEditable = window.isScoreEditableDynamic !== undefined ? window.isScoreEditableDynamic : ${isScoreEditable};
           if (isScoreEditable) {
               var scoreHome = $('input[name="predScoreHome"]');
               var scoreAway = $('input[name="predScoreAway"]');

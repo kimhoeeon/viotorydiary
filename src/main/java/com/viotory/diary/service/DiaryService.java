@@ -52,6 +52,33 @@ public class DiaryService {
             if (dailyCount >= 1) { // 1개 이상이면 차단
                 throw new AlertException("직관 일기는 하루에 1개 경기만 작성할 수 있어요!");
             }
+
+            // 스코어 입력 가능 시간 백엔드 2중 검증
+            boolean isScoreEditable = true;
+            if ("FINISHED".equals(targetGame.getStatus()) || "CANCELLED".equals(targetGame.getStatus())) {
+                isScoreEditable = false;
+            } else {
+                try {
+                    String timeStr = targetGame.getGameTime();
+                    if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
+                    String dateTimeStr = targetGame.getGameDate() + " " + timeStr;
+                    LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                    // 경기 시작 1시간 전이 지났으면 스코어 수정 불가
+                    if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                        isScoreEditable = false;
+                    }
+                } catch (Exception e) {
+                    log.error("경기 시작시간 파싱 오류", e);
+                }
+            }
+
+            // 만약 종료된 경기거나 1시간 지났다면 강제로 스코어 초기화
+            // 1시간 전이 지나서 작성 불가 상태라면, 넘어온 스코어 값을 강제로 Null 처리
+            if (!isScoreEditable) {
+                diary.setPredScoreHome(null);
+                diary.setPredScoreAway(null);
+            }
         }
 
         // 직관 인증 시, 인증 시간 저장
@@ -108,8 +135,8 @@ public class DiaryService {
                     String dateTimeStr = game.getGameDate() + " " + timeStr;
                     LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-                    if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
-                        return; // 시작 후 1시간 초과 시 튕겨냄
+                    if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                        return; // 경기 시작 1시간 전이 지났으면 승률 데이터 반영 안함
                     }
                 } catch (Exception e) {
                     log.error("승부 예측 연동 중 경기 시작시간 파싱 오류", e);

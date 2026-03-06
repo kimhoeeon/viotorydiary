@@ -279,16 +279,20 @@
 
         // 제출
         function submitDiary() {
-            // 1) 필수값 체크: 스코어 (req 클래스 항목)
-            var scoreHome = $('input[name="predScoreHome"]');
-            var scoreAway = $('input[name="predScoreAway"]');
+            // 1) 필수값 체크: 스코어 (수정 가능 상태일 때만 검사)
+            const isScoreEditable = ${isScoreEditable};
 
-            if (scoreHome.val() === '' || scoreAway.val() === '') {
-                alert('스코어를 입력해주세요!', function() {
-                    if(scoreHome.val() === '') scoreHome.focus();
-                    else scoreAway.focus();
-                });
-                return;
+            if (isScoreEditable) {
+                var scoreHome = $('input[name="predScoreHome"]');
+                var scoreAway = $('input[name="predScoreAway"]');
+
+                if (scoreHome.val() === '' || scoreAway.val() === '') {
+                    alert('스코어를 입력해주세요!', function() {
+                        if(scoreHome.val() === '') scoreHome.focus();
+                        else scoreAway.focus();
+                    });
+                    return;
+                }
             }
 
             // 폼 전송 직전, 배열에 새로 추가한 파일들을 실제 input에 옮겨 담기

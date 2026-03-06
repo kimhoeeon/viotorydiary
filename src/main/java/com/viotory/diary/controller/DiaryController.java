@@ -88,8 +88,8 @@ public class DiaryController {
                         String dateTimeStr = game.getGameDate() + " " + timeStr;
                         LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-                        // 경기 시작 후 1시간 초과 시 입력 불가
-                        if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
+                        // 경기 시작 1시간 전이 지났으면 스코어 입력 불가
+                        if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
                             isScoreEditable = false;
                         }
                     } catch (Exception e) {
@@ -106,11 +106,12 @@ public class DiaryController {
 
     // 2. 일기 저장 처리
     @PostMapping("/write")
+    @ResponseBody
     public String writeAction(DiaryVO diary,
                               @RequestParam(value = "files", required = false) List<MultipartFile> files,
-                              HttpSession session, Model model) {
+                              HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "redirect:/member/login";
+        if (loginMember == null) return "<script>alert('로그인이 필요합니다.'); location.href='/member/login';</script>";
 
         try {
             // 파일 다중 업로드 처리
@@ -135,17 +136,15 @@ public class DiaryController {
             }
 
             Long diaryId = diaryService.writeDiary(diary);
-            return "redirect:/diary/complete?diaryId=" + diaryId;
+            // 성공 시 완료 페이지로 이동
+            return "<script>location.replace('/diary/complete?diaryId=" + diaryId + "');</script>";
         } catch (AlertException ae) {
             log.info("일기 작성 알럿: {}", ae.getMessage());
-            model.addAttribute("error", ae.getMessage());
-            model.addAttribute("diary", diary);
-            return "diary/diary_write";
+            // 실패 시 팝업을 띄우고 원래 화면으로 복귀
+            return "<script>alert('" + ae.getMessage() + "'); history.back();</script>";
         } catch (Exception e) {
             log.error("일기 작성 중 치명적 오류", e);
-            model.addAttribute("error", "시스템 오류가 발생했습니다.");
-            model.addAttribute("diary", diary);
-            return "diary/diary_write";
+            return "<script>alert('시스템 오류가 발생했습니다.'); history.back();</script>";
         }
     }
 
