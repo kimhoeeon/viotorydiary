@@ -4,11 +4,13 @@ import com.viotory.diary.service.TeamInfoMngService;
 import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.TeamVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Controller
 @RequestMapping("/mng/content/team-info")
 @RequiredArgsConstructor
