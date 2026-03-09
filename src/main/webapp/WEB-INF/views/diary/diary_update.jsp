@@ -67,7 +67,7 @@
                                     </button>
                                 </div>
 
-                                <div class="diary_write_list req diary_character yellow">
+                                <div class="diary_write_list req diary_character yellow ${isScoreEditable ? 'active-line' : ''}">
                                     <div class="tit">
                                         <c:choose>
                                             <c:when test="${isScoreEditable}">스코어를 수정하시겠어요?</c:when>
@@ -124,22 +124,22 @@
                                     </div>
                                 </div>
 
-                                <div class="diary_write_list">
+                                <div class="diary_write_list active-line">
                                     <div class="tit">오늘의 히어로는 누구일까?</div>
                                     <input type="text" name="heroName" id="heroName" value="${diary.heroName}" maxlength="100" placeholder="최대 100자까지 입력하실 수 있습니다.">
                                 </div>
 
-                                <div class="diary_write_list">
+                                <div class="diary_write_list active-line">
                                     <div class="tit">오늘의 경기를 한 마디로 평가한다면?!</div>
                                     <input type="text" name="oneLineComment" id="oneLine" value="${diary.oneLineComment}" maxlength="100" placeholder="최대 100자까지 입력하실 수 있습니다.">
                                 </div>
 
-                                <div class="diary_write_list">
+                                <div class="diary_write_list active-line">
                                     <div class="tit">오늘의 경기를 기록해 보세요</div>
                                     <textarea name="content" maxlength="1000" placeholder="최대 1,000자까지 입력하실 수 있습니다.">${diary.content}</textarea>
                                 </div>
 
-                                <div class="diary_write_list">
+                                <div class="diary_write_list active-line">
                                     <div class="tit">오늘 경기 사진을 올려보세요</div>
                                     <button type="button" class="btn btn-primary gap-4" onclick="document.getElementById('fileUpload').click();">
                                         사진 변경하기 (최대 4장)
