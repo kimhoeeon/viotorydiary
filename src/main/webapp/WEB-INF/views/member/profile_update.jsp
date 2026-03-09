@@ -69,6 +69,10 @@
                         <button type="button" class="btn btn-xs btn-secondary mt-12" onclick="document.getElementById('profileFile').click()">
                             사진 변경
                         </button>
+
+                        <div class="horizon-mes">
+                            * 닉네임 변경은 월 1회 가능합니다.
+                        </div>
                     </div>
 
                     <div class="profile_info">

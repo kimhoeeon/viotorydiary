@@ -1,11 +1,13 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.service.TeamInfoMngService;
+import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.TeamVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/mng/content/team-info")
@@ -30,8 +32,17 @@ public class TeamInfoMngController {
 
     // 수정 처리
     @PostMapping("/save")
-    public String saveAction(TeamVO team) {
-        teamInfoMngService.updateTeam(team);
+    public String saveAction(TeamVO team, @RequestParam(value = "uploadFile", required = false) MultipartFile uploadFile) {
+        try {
+            // 파일이 첨부된 경우 서버에 업로드 후, 그 경로를 객체에 세팅
+            if (uploadFile != null && !uploadFile.isEmpty()) {
+                String savedUrl = FileUtil.uploadFile(uploadFile, "logo");
+                team.setLogoImageUrl(savedUrl);
+            }
+            teamInfoMngService.updateTeam(team);
+        } catch (Exception e) {
+            log.error("구단 정보 저장 중 오류 발생", e);
+        }
         return "redirect:/mng/content/team-info/list";
     }
 }

@@ -139,7 +139,7 @@
     <div class="modal fade" id="teamModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mw-650px">
             <div class="modal-content">
-                <form id="teamForm" action="/mng/content/team-info/save" method="post">
+                <form id="teamForm" action="/mng/content/team-info/save" method="post" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h2 class="fw-bold">구단 정보 수정</h2>
                         <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal"><i
@@ -182,9 +182,12 @@
                             </div>
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">로고 이미지 URL</label>
-                            <input type="text" class="form-control form-control-solid" name="logoImageUrl" id="logoImageUrl"
-                                   required/>
+                            <label class="fs-6 fw-semibold mb-2">로고 파일 업로드 (변경 시 첨부)</label>
+                            <input type="file" class="form-control form-control-solid mb-3" name="uploadFile" id="uploadFile" accept="image/*"/>
+
+                            <label class="required fs-6 fw-semibold mb-2">현재 로고 이미지 URL</label>
+                            <input type="text" class="form-control form-control-solid" name="logoImageUrl" id="logoImageUrl" required/>
+                            <div class="text-muted fs-8 mt-2">※ 새 이미지를 업로드하면 위 URL이 새로운 파일 경로로 자동 교체됩니다.</div>
                         </div>
                         <div class="fv-row mb-7">
                             <label class="fs-6 fw-semibold mb-2">홈페이지 URL</label>

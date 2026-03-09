@@ -112,6 +112,7 @@
                             <div id="urlPreviewBox" data-url="${post.contentUrl}" style="margin-top: 24px; padding-top: 24px; border-top: 1px dashed #eee;">
                             </div>
                         </c:if>
+
                     </div>
 
                 </div>

@@ -79,7 +79,7 @@
                       <div class="history-list mt-24">
                           <div class="diary_write_form">
 
-                              <div class="diary_write_list req active-line diary_character">
+                              <div class="diary_write_list req clr diary_character">
                                   <div class="tit">오늘, 직관 가세요?</div>
                                   <button type="button" class="select-field"
                                           <c:if test="${not isScoreEditable}">disabled style="background-color:#f5f5f5; cursor:not-allowed;"</c:if>
@@ -97,7 +97,7 @@
                                   </button>
                               </div>
 
-                              <div class="diary_write_list req active-line diary_character yellow" id="scoreInputWrap">
+                              <div class="diary_write_list req clr diary_character yellow" id="scoreInputWrap">
                                   <div class="tit">오늘의 스코어 예상해 본다면?</div>
                                   <div class="card_item">
                                       <div class="game-board">
@@ -160,6 +160,7 @@
                                   <input type="file" id="fileUpload" name="files" style="display:none;" accept="image/*" multiple onchange="handleFileSelect(this)">
 
                                   <div class="upload" id="imagePreviewBox" style="display:none; margin-top:12px; white-space: nowrap; overflow-x: auto; padding-bottom: 8px;"></div>
+                                  <div class=“file-mes">[!] 최대 10MB 의 JPG, PNG만 등록 가능합니다.</div>
                               </div>
 
                               <ul class="disClose">
@@ -370,12 +371,12 @@
               $scoreAway.prop('readonly', true).css({'background-color':'transparent', 'color':'#999'}).val('').attr('placeholder', '-');
               $scoreHome.prop('readonly', true).css({'background-color':'transparent', 'color':'#999'}).val('').attr('placeholder', '-');
               // 스코어 수정 불가 시 띠를 회색으로 변경
-              $('#scoreInputWrap').removeClass('active-line');
+              $('#scoreInputWrap').removeClass('clr');
           } else {
               $scoreAway.prop('readonly', false).css({'background-color':'', 'color':'#000'}).val('').attr('placeholder', '0');
               $scoreHome.prop('readonly', false).css({'background-color':'', 'color':'#000'}).val('').attr('placeholder', '0');
               // 스코어 수정 가능 시 띠를 초록색으로 복구
-              $('#scoreInputWrap').addClass('active-line');
+              $('#scoreInputWrap').addClass('clr');
           }
 
           $('#btnNext').prop('disabled', false);
