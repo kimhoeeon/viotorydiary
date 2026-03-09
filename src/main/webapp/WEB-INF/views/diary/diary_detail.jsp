@@ -28,6 +28,7 @@
 
 <body>
     <div class="app">
+
         <header class="app-header">
             <button class="app-header_btn app-header_back" type="button" onclick="location.href='/diary/winyo'">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
@@ -151,10 +152,12 @@
                                                     <img src="${imgSrc}" alt="직관 사진" onclick="viewImage(this.src)"
                                                          style="width:100%; border-radius:12px; display:block; object-fit:cover;">
 
-                                                    <button type="button" onclick="downloadImage('${imgSrc}')"
-                                                            style="margin-top:8px; padding:8px 12px; border-radius:8px; background:#fff; border:1px solid #ddd; font-size:13px; display:inline-flex; align-items:center; gap:6px; color:#555;">
-                                                        <span>📥 사진 저장하기</span>
-                                                    </button>
+                                                    <c:if test="${isOwner}">
+                                                        <button type="button" onclick="downloadImage('${imgSrc}')"
+                                                                style="margin-top:8px; padding:8px 12px; border-radius:8px; background:#fff; border:1px solid #ddd; font-size:13px; display:inline-flex; align-items:center; gap:6px; color:#555;">
+                                                            <span>📥 사진 저장하기</span>
+                                                        </button>
+                                                    </c:if>
                                                 </div>
                                             </c:if>
                                         </c:forEach>
@@ -193,7 +196,8 @@
                                                 </div>
                                                 <div class="nae">${cmt.content}</div>
 
-                                                <c:if test="${cmt.memberId eq sessionScope.loginMember.memberId}">
+                                                <%-- 댓글 작성자 본인이거나, 일기 원글 작성자(isOwner)인 경우에만 삭제 버튼 노출 --%>
+                                                <c:if test="${cmt.memberId eq sessionScope.loginMember.memberId or isOwner}">
                                                     <button class="del-btn" style="float:right;" onclick="deleteComment(${cmt.commentId}, this)">
                                                         <img src="/img/ico_del.svg" alt="삭제" style="width:16px; opacity:0.5;">
                                                     </button>

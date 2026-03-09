@@ -145,7 +145,7 @@
                                         사진 변경하기 (최대 4장)
                                         <span><img src="/img/ico_plus.svg" alt="플러스 아이콘"></span>
                                     </button>
-                                    <input type="file" id="fileUpload" name="files" style="display:none;" accept="image/*" multiple onchange="handleFileSelect(this)">
+                                    <input type="file" id="fileUpload" name="files" style="display:none;" accept="image/jpeg, image/png" multiple onchange="handleFileSelect(this)">
 
                                     <div class="upload" id="imagePreviewBox" style="display:none; margin-top:12px; white-space: nowrap; overflow-x: auto; padding-bottom: 8px;"></div>
                                     <div class=“file-mes">[!] 최대 10MB 의 JPG, PNG만 등록 가능합니다.</div>
@@ -220,9 +220,28 @@
                 alert('사진은 최대 4장까지 업로드 가능합니다.');
             }
 
+            // 용량 및 확장자 체크 기준 설정
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const validTypes = ['image/jpeg', 'image/png'];
+
             for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+
+                // 1. 용량 검사
+                if (file.size > maxSize) {
+                    alert('[' + file.name + '] 파일 용량이 10MB를 초과합니다.');
+                    continue;
+                }
+
+                // 2. 확장자 검사
+                if (!validTypes.includes(file.type)) {
+                    alert('[' + file.name + '] JPG, PNG 파일만 업로드 가능합니다.');
+                    continue;
+                }
+
+                // 조건 통과 & (기존 이미지 + 새로 선택한 이미지)가 최대 4장 이내일 때 추가
                 if (existingImages.length + selectedFiles.length < MAX_FILES) {
-                    selectedFiles.push(files[i]);
+                    selectedFiles.push(file);
                 }
             }
             renderPreviews();
