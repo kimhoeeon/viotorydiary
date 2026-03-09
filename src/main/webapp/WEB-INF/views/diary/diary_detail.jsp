@@ -48,7 +48,8 @@
 
             <c:if test="${isOwner}">
                 <div class="mt-16 flex-end">
-                    <button type="button" class="btn sub-btn w-auto small" onclick="deleteDiary(${diary.diaryId})">삭제</button>
+                    <%-- 삭제 불가 요청으로 임시 주석 처리 --%>
+                    <%--<button type="button" class="btn sub-btn w-auto small" onclick="deleteDiary(${diary.diaryId})">삭제</button>--%>
                     <a href="/diary/update?diaryId=${diary.diaryId}" class="btn btn-primary w-auto small">수정</a>
                 </div>
             </c:if>
@@ -254,9 +255,10 @@
 
         <c:if test="${isOwner}">
             <div class="bottom-action">
-                <button type="button" class="btn border" onclick="deleteDiary()">
+                <%-- 삭제 불가 요청으로 임시 주석 처리 --%>
+                <%--<button type="button" class="btn border" onclick="deleteDiary()">
                     삭제
-                </button>
+                </button>--%>
 
                 <c:choose>
                     <c:when test="${isEditable}">
