@@ -51,7 +51,7 @@
                     <div class="login-field">
                         <div class="login-inputwrap">
                             <div class="auth_number mt-8">
-                                <input class="login-input" id="nickname" name="nickname" type="text" autocomplete="nickname" placeholder="닉네임 (2~6자 한글 또는 영문)" required>
+                                <input class="login-input" id="nickname" name="nickname" type="text" autocomplete="nickname" placeholder="닉네임 (2~6자 한글, 영문, 숫자)" required>
 
                                 <div class="login-message" id="loginMessage" role="status" aria-live="polite"></div>
 
@@ -113,9 +113,8 @@
             const errorMsg = $('#loginMessage'); // 변경된 ID
             const failIcon = $('#certFailIcon'); // 변경된 ID
 
-            // 닉네임 정규식 검사 (한글, 영문 대소문자 2~6자리)
-            const nickRegex = /^[가-힣a-zA-Z]{2,6}$/;
-
+            // 닉네임 정규식 검사 (한글, 영문 대소문자, 숫자 허용 2~6자리)
+            const nickRegex = /^[가-힣a-zA-Z0-9]{2,6}$/;
             if (!nickname) {
                 errorMsg.text('닉네임을 입력해주세요.').addClass('is-show is-error');
                 failIcon.show();
@@ -123,7 +122,7 @@
             }
 
             if (!nickRegex.test(nickname)) {
-                errorMsg.text('2~6자리의 한글 또는 영문만 가능합니다.').addClass('is-show is-error');
+                errorMsg.text('2~6자리의 한글 또는 영문, 숫자 중 2개 이상 조합하여 가능합니다.').addClass('is-show is-error');
                 failIcon.show();
                 return;
             } else {

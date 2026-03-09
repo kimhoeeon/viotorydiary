@@ -308,6 +308,14 @@
 
             if(!nickname) { alert('닉네임을 입력해주세요.'); return; }
 
+            // 사용자 화면과 동일한 닉네임 유효성 검사 적용
+            const nickRegex = /^[가-힣a-zA-Z0-9]{2,6}$/;
+            if (!nickRegex.test(nickname)) {
+                alert('2~6자리의 한글 또는 영문, 숫자 중 2개 이상 조합하여 가능합니다.');
+                $('#nickname').focus();
+                return;
+            }
+
             if(confirm("회원 정보를 수정하시겠습니까?")) {
                 $.ajax({
                     url: '/mng/members/updateInfo',

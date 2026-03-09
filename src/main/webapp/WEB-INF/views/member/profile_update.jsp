@@ -112,9 +112,8 @@
         const validMsg = document.getElementById('validMsg');
         const serverMsg = document.getElementById('serverMsg');
 
-        // 닉네임 정규식 (한글, 영문 대소문자 2~6자리)
-        // 주의: 자음/모음만 있는 경우 등 상세 제어가 필요하면 정규식 수정 필요
-        const nickRegex = /^[가-힣a-zA-Z]{2,6}$/;
+        // 닉네임 정규식 (한글, 영문 대소문자, 숫자 허용 2~6자리)
+        const nickRegex = /^[가-힣a-zA-Z0-9]{2,6}$/;
 
         input.addEventListener('input', function() {
             // 1. 입력값 있으면 삭제 버튼 표시
@@ -133,7 +132,7 @@
                 submitBtn.disabled = false;
             } else {
                 if (this.value.length > 0) {
-                    validMsg.innerText = '2~6자리의 한글 또는 영문만 가능합니다.';
+                    validMsg.innerText = '2~6자리의 한글 또는 영문, 숫자 중 2개 이상 조합하여 가능합니다.';
                     validMsg.className = 'login-message is-show is-error';
                     validMsg.style.display = 'block';
                 } else {
