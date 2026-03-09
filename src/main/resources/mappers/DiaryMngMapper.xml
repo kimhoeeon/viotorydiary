@@ -57,7 +57,7 @@
             m.email AS memberEmail,
             g.game_date,
             g.game_time,
-            s.name AS stadiumName,
+            IFNULL(s.short_name, s.name) AS stadiumName,
             t1.name_kr AS homeTeamName,
             t2.name_kr AS awayTeamName
         FROM diaries d

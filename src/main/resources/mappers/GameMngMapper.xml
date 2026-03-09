@@ -6,7 +6,7 @@
     <select id="selectGameListByMonth" resultType="com.viotory.diary.vo.GameVO">
         SELECT
             g.*,
-            s.name AS stadiumName,
+            IFNULL(s.short_name, s.name) AS stadiumName,
             t1.name_kr AS homeTeamName,
             t2.name_kr AS awayTeamName,
             (SELECT COUNT(*) FROM diaries d WHERE d.game_id = g.game_id AND d.status = 'COMPLETED') AS diaryCount
