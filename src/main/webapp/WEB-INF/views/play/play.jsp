@@ -149,7 +149,7 @@
 
                     <div class="history-list">
                         <label class="check myTeam_check">
-                            <input type="checkbox" name="myTeam" id="myTeam" checked onchange="filterMyTeam()" />
+                            <input type="checkbox" name="myTeam" id="myTeam" onchange="filterMyTeam()" />
                             우리팀만 보기
                         </label>
 
@@ -458,7 +458,14 @@
                 renderGameList();
             });
         }
-        function filterMyTeam() { renderGameList(); }
+
+        function filterMyTeam() {
+            // 체크박스 상태가 변경될 때마다 브라우저 로컬 스토리지에 저장
+            const isChecked = $('#myTeam').is(':checked');
+            localStorage.setItem('myTeamOnly', isChecked);
+
+            renderGameList();
+        }
 
         function renderGameList() {
             const list = $('#gameListArea');
@@ -623,6 +630,14 @@
 
         // 초기 로딩 시 데이터 조회
         $(document).ready(function() {
+            // 로컬 스토리지에서 '우리팀만 보기' 설정 불러오기
+            const savedState = localStorage.getItem('myTeamOnly');
+            if (savedState === 'true') {
+                $('#myTeam').prop('checked', true);
+            } else {
+                $('#myTeam').prop('checked', false); // 디폴트 해제 상태
+            }
+
             const initDate = $('#selectedDate').val();
             if (initDate) {
                 loadGames(initDate);

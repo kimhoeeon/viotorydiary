@@ -83,14 +83,14 @@
             g.cancel_reason,
 
             -- [홈팀 정보]
-            ht.name_kr AS homeTeamName,
+            ht.short_name AS homeTeamName,
             ht.logo_image_url AS homeTeamLogo,
 
             -- [원정팀 정보]
-            at.name_kr AS awayTeamName,
+            at.short_name AS awayTeamName,
             at.logo_image_url AS awayTeamLogo,
 
-            s.name AS stadiumName,
+            IFNULL(s.short_name, s.name) AS stadiumName,
 
             -- 내 일기 ID (작성 여부 확인용)
             d.diary_id AS diaryId,
@@ -157,9 +157,9 @@
 
     <select id="selectTodayGame" resultType="com.viotory.diary.vo.GameVO">
         SELECT g.*,
-               t1.name_kr        AS homeTeamName,
-               t2.name_kr        AS awayTeamName,
-               s.name            AS stadiumName,
+               t1.short_name        AS homeTeamName,
+               t2.short_name        AS awayTeamName,
+               IFNULL(s.short_name, s.name) AS stadiumName,
                t1.logo_image_url AS homeTeamLogo,
                t2.logo_image_url AS awayTeamLogo
         FROM games g
@@ -174,9 +174,9 @@
     <select id="selectGameById" resultType="com.viotory.diary.vo.GameVO">
         SELECT
             g.*,
-            s.name AS stadiumName,
-            t1.name_kr AS homeTeamName,
-            t2.name_kr AS awayTeamName,
+            IFNULL(s.short_name, s.name) AS stadiumName,
+            t1.short_name AS homeTeamName,
+            t2.short_name AS awayTeamName,
             t1.logo_image_url AS homeTeamLogo,
             t2.logo_image_url AS awayTeamLogo
         FROM games g
@@ -213,9 +213,9 @@
     <select id="selectGameListByMonth" resultType="com.viotory.diary.vo.GameVO">
         SELECT
             g.*,
-            s.name AS stadiumName,
-            t1.name_kr AS homeTeamName,
-            t2.name_kr AS awayTeamName
+            IFNULL(s.short_name, s.name) AS stadiumName,
+            t1.short_name AS homeTeamName,
+            t2.short_name AS awayTeamName
         FROM games g
                  LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
                  LEFT JOIN teams t1 ON g.home_team_code = t1.team_code

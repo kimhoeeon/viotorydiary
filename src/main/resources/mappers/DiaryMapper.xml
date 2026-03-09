@@ -13,7 +13,7 @@
                d.verified_at,
                g.game_date,
                g.game_type,
-               s.name  AS stadiumName,
+               IFNULL(s.short_name, s.name) AS stadiumName,
             /* 승패 판별 로직 */
                CASE
                    WHEN d.snapshot_team_code = g.home_team_code THEN
@@ -111,9 +111,9 @@
             g.status AS gameStatus,
             g.cancel_reason AS cancelReason,
 
-            t1.name_kr AS homeTeamName, /* 팀 이름 추가 */
-            t2.name_kr AS awayTeamName, /* 팀 이름 추가 */
-            s.name AS stadiumName,      /* 구장 이름 추가 */
+            t1.short_name AS homeTeamName, /* 팀 이름 추가 */
+            t2.short_name AS awayTeamName, /* 팀 이름 추가 */
+            IFNULL(s.short_name, s.name) AS stadiumName,      /* 구장 이름 추가 */
 
             /* 승패 판별 로직 */
             CASE
@@ -159,7 +159,7 @@
             /* 경기 정보 및 팀명 */
             g.game_date,
             g.game_time,
-            s.name AS stadiumName,
+            IFNULL(s.short_name, s.name) AS stadiumName,
             t1.name_kr AS homeTeamName,
             t2.name_kr AS awayTeamName,
 
@@ -207,7 +207,7 @@
 
                t1.name_kr AS homeTeamName,
                t2.name_kr AS awayTeamName,
-               s.name     AS stadiumName,
+               IFNULL(s.short_name, s.name) AS stadiumName,
 
                -- 승패 판별 (승요 서비스 로직과 동일)
                CASE
@@ -445,7 +445,7 @@
                g.score_away,
                t1.name_kr AS homeTeamName,
                t2.name_kr AS awayTeamName,
-               s.name AS stadiumName,
+               IFNULL(s.short_name, s.name) AS stadiumName,
                m.nickname,
                m.profile_image,
             /* 승패 판별 */
