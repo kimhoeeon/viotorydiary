@@ -582,6 +582,20 @@
             });
         }
 
+        // 콘텐츠 댓글 강제 삭제 (관리자)
+        function deleteComment(commentId) {
+            if(confirm('해당 댓글을 강제 삭제하시겠습니까?')) {
+                $.post('/mng/content/teams/comment/delete', { commentId: commentId }, function(res) {
+                    if(res === 'ok') {
+                        alert('댓글이 삭제되었습니다.');
+                        location.reload();
+                    } else {
+                        alert('삭제 처리 중 오류가 발생했습니다.');
+                    }
+                });
+            }
+        }
+
         // --- 통계 차트 스크립트 ---
         function initCharts() {
             // 서버에서 전달받은 JSON 데이터

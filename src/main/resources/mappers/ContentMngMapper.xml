@@ -161,4 +161,8 @@
         ORDER BY clickDate ASC
     </select>
 
+    <update id="deleteContentCommentByAdmin">
+        UPDATE content_comments SET del_yn = 'Y' WHERE comment_id = #{commentId}
+    </update>
+
 </mapper>

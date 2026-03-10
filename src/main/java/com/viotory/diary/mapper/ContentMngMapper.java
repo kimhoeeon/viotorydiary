@@ -1,5 +1,6 @@
 package com.viotory.diary.mapper;
 
+import com.viotory.diary.vo.ContentClickLogVO;
 import com.viotory.diary.vo.EventVO;
 import com.viotory.diary.vo.TeamContentVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -44,6 +45,8 @@ public interface ContentMngMapper {
     Integer selectMaxSortOrder();
 
     // 콘텐츠 클릭 로그 저장
-    void insertClickLog(com.viotory.diary.vo.ContentClickLogVO log);
+    void insertClickLog(ContentClickLogVO log);
+
+    void deleteContentCommentByAdmin(Long commentId);
 
 }

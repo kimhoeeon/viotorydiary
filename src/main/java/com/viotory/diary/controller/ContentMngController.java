@@ -3,6 +3,7 @@ package com.viotory.diary.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.viotory.diary.service.ContentMngService;
+import com.viotory.diary.service.LockerService;
 import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.EventVO;
 import com.viotory.diary.vo.TeamContentVO;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class ContentMngController {
 
     private final ContentMngService contentService;
+    private final LockerService lockerService;
 
     // ==========================================
     // 1. 이벤트 관리
@@ -110,6 +112,9 @@ public class ContentMngController {
         TeamContentVO content = contentService.getTeamContent(contentId);
         model.addAttribute("content", content);
 
+        // 관리자 화면에 노출할 댓글 목록 가져오기
+        model.addAttribute("comments", lockerService.getContentComments(contentId));
+
         // 통계 데이터 조회 및 JSON 변환
         Map<String, Object> stats = contentService.getStats(contentId);
         try {
@@ -120,6 +125,19 @@ public class ContentMngController {
         }
 
         return "mng/content/team_detail";
+    }
+
+    // 관리자 전용 콘텐츠 댓글 삭제 기능
+    @PostMapping("/teams/comment/delete")
+    @ResponseBody
+    public String deleteTeamContentComment(@RequestParam("commentId") Long commentId) {
+        try {
+            contentService.deleteContentCommentByAdmin(commentId);
+            return "ok";
+        } catch (Exception e) {
+            log.error("관리자 콘텐츠 댓글 삭제 실패", e);
+            return "fail";
+        }
     }
 
     // URL 메타데이터(썸네일) 추출 API

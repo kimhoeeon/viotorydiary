@@ -251,4 +251,8 @@ public class ContentMngService {
         contentMngMapper.insertClickLog(logVO);
     }
 
+    public void deleteContentCommentByAdmin(Long commentId) {
+        contentMngMapper.deleteContentCommentByAdmin(commentId);
+    }
+
 }
