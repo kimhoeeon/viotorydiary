@@ -227,21 +227,20 @@
 
     <script>
         $(document).ready(function() {
-            // 1. 본문 내 단순 텍스트 유튜브 링크 변환 로직 (유지)
-            var contentBody = $('#contentBody');
-            var html = contentBody.html();
-            var ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
 
-            html = html.replace(ytRegex, function(match, p1) {
-                return '<div class="video-container"><iframe src="https://www.youtube.com/embed/' + p1 + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+            // 본문 내 썸머노트 첨부 유튜브(iframe) 반응형 처리 (안전한 방식)
+            $('#contentBody iframe').each(function() {
+                if (!$(this).parent().hasClass('video-container')) {
+                    $(this).wrap('<div class="video-container"></div>');
+                    $(this).removeAttr('width').removeAttr('height');
+                }
             });
-            contentBody.html(html);
 
+            // 본문 내부의 새창 열기 링크 안전 처리
             $('#contentBody a').on('click', function(e) {
                 var href = $(this).attr('href');
                 if(href && href.startsWith('http')) {
-                    e.preventDefault();
-                    window.open(href, '_blank');
+                    e.preventDefault(); window.open(href, '_blank');
                 }
             });
 

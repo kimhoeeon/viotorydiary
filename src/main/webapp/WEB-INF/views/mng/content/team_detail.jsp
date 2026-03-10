@@ -145,7 +145,7 @@
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">내용</label>
                                             <div class="col-lg-10">
-                                                <div class="border rounded p-5 bg-light text-dark fs-6" style="min-height: 150px;">
+                                                <div class="border rounded p-5 bg-light text-dark fs-6" id="adminContentBody" style="min-height: 150px; width: 100%; overflow: hidden;">
                                                     ${content.content}
                                                 </div>
                                             </div>
@@ -489,6 +489,15 @@
             // 3. 페이지 로드 시 렌더링 (상세 뷰 & 팝업 뷰 둘 다 적용)
             renderUrlPreview($('#urlPreviewBox').data('url'), 'urlPreviewBox');
             renderUrlPreview($('#popupUrlPreviewBox').data('url'), 'popupUrlPreviewBox');
+
+            // 썸머노트 본문 내의 고정크기 iframe을 반응형으로 교체
+            $('#adminContentBody iframe').each(function() {
+                if (!$(this).parent().hasClass('video-container')) {
+                    $(this).wrap('<div class="video-container"></div>');
+                    // 고정된 가로/세로 크기를 지워 CSS의 100% 비율이 적용되게 함
+                    $(this).removeAttr('width').removeAttr('height');
+                }
+            });
 
             // 2. 방해되는 조건문을 지우고 우리가 선언한 Summernote 환경설정을 무조건 적용
             $('#summernote_edit').summernote({
