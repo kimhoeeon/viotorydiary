@@ -1,5 +1,6 @@
 package com.viotory.diary.controller;
 
+import com.viotory.diary.dto.ResponseDTO;
 import com.viotory.diary.service.ContentMngService;
 import com.viotory.diary.service.LockerService;
 import com.viotory.diary.service.SystemMngService;
@@ -10,10 +11,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.net.URL;
@@ -120,10 +118,50 @@ public class LockerController {
 
         // 콘텐츠를 클릭했으므로 로그 기록 및 조회수 증가 처리
         contentMngService.logContentClick(contentId, loginMember);
-
         TeamContentVO content = contentMngService.getTeamContent(contentId);
         model.addAttribute("post", content);
+
+        // 댓글 목록 및 유저 반응 상태 전달
+        model.addAttribute("comments", lockerService.getContentComments(contentId));
+        model.addAttribute("userReaction", lockerService.getUserReaction(contentId, loginMember.getMemberId()));
+
         return "locker/content_detail";
+    }
+
+    // 반응, 댓글추가, 댓글삭제)
+    @PostMapping("/content/reaction")
+    @ResponseBody
+    public ResponseDTO toggleReaction(@RequestParam("contentId") Long contentId, @RequestParam("reactionType") String reactionType, HttpSession session) {
+        ResponseDTO res = new ResponseDTO();
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) {
+            res.setResultCode("FAIL"); res.setResultMessage("로그인이 필요합니다."); return res;
+        }
+        lockerService.toggleReaction(contentId, loginMember.getMemberId(), reactionType);
+        res.setResultCode("SUCCESS");
+        return res;
+    }
+
+    @PostMapping("/content/comment/add")
+    @ResponseBody
+    public ResponseDTO addComment(@RequestParam("contentId") Long contentId, @RequestParam("content") String content, HttpSession session) {
+        ResponseDTO res = new ResponseDTO();
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) { res.setResultCode("FAIL"); return res; }
+        lockerService.addContentComment(contentId, loginMember.getMemberId(), content);
+        res.setResultCode("SUCCESS");
+        return res;
+    }
+
+    @PostMapping("/content/comment/delete")
+    @ResponseBody
+    public ResponseDTO deleteComment(@RequestParam("commentId") Long commentId, HttpSession session) {
+        ResponseDTO res = new ResponseDTO();
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) { res.setResultCode("FAIL"); return res; }
+        lockerService.deleteContentComment(commentId, loginMember.getMemberId());
+        res.setResultCode("SUCCESS");
+        return res;
     }
 
     // ==========================================

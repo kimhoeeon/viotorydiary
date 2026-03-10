@@ -25,6 +25,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 
     <style>
+        .d-none { display: none !important; }
         /* Summernote 에디터 스타일 강제 복원 */
         .notice_view_body .txt { font-size: 14px; line-height: 1.6; color: #333; }
         .notice_view_body .txt b, .notice_view_body .txt strong { font-weight: bold !important; }
@@ -112,10 +113,106 @@
                             <div id="urlPreviewBox" data-url="${post.contentUrl}" style="margin-top: 24px; padding-top: 24px; border-top: 1px dashed #eee;">
                             </div>
                         </c:if>
-
                     </div>
 
                 </div>
+
+                <div class="card_wrap">
+                    <div class="card_item">
+                        <div class="like_wrap">
+                            <ul>
+                                <li>
+                                    <button type="button" class="like_btn good ${userReaction eq 'LIKE' ? 'active' : ''}" onclick="toggleReaction('LIKE')">
+                                        <div class="icon">
+                                            <img src="/img/${userReaction eq 'LIKE' ? 'good_icon-active.svg' : 'good_icon.svg'}" alt="좋아요">
+                                        </div>
+                                        <div>
+                                            <div class="tit">좋아요</div>
+                                            <div class="num">${post.likeCount}</div>
+                                        </div>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="like_btn sad ${userReaction eq 'SAD' ? 'active' : ''}" onclick="toggleReaction('SAD')">
+                                        <div class="icon">
+                                            <img src="/img/${userReaction eq 'SAD' ? 'sad_icon-active.svg' : 'sad_icon.svg'}" alt="슬퍼요">
+                                        </div>
+                                        <div>
+                                            <div class="tit">슬퍼요</div>
+                                            <div class="num">${post.sadCount}</div>
+                                        </div>
+                                    </button>
+                                </li>
+                                <li>
+                                    <button type="button" class="like_btn sad ${userReaction eq 'ANGRY' ? 'active' : ''}" onclick="toggleReaction('ANGRY')">
+                                        <div class="icon">
+                                            <img src="/img/${userReaction eq 'ANGRY' ? 'angry_icon-active.svg' : 'angry_icon.svg'}" alt="화나요">
+                                        </div>
+                                        <div>
+                                            <div class="tit">화나요</div>
+                                            <div class="num">${post.angryCount}</div>
+                                        </div>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card_wrap play_wrap gap-16">
+                    <div class="card_item pt-24 pb-24">
+                        <div class="review_wrap">
+                            <ul class="review_list" id="commentList">
+                                <c:forEach var="cmt" items="${comments}" varStatus="status">
+                                    <li class="${status.index >= 5 ? 'hidden-cmt d-none' : ''}">
+                                        <div class="name" style="display: flex; align-items: center;">
+                                            <c:choose>
+                                                <c:when test="${not empty cmt.profileImage}">
+                                                    <img src="${cmt.profileImage}" alt="프로필" style="width:24px; height:24px; border-radius:50%; object-fit:cover; margin-right:6px;">
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <img src="/img/ico_user.svg" alt="기본 프로필" style="width:24px; height:24px; border-radius:50%; background:#f5f5f5; padding:2px; margin-right:6px;">
+                                                </c:otherwise>
+                                            </c:choose>
+                                            <c:if test="${not empty cmt.memberTeamCode}">
+                                                <span>${cmt.memberTeamCode}</span>
+                                            </c:if>
+                                            &nbsp;${cmt.nickname}
+                                        </div>
+                                        <div class="nae">${cmt.content}</div>
+
+                                        <c:if test="${cmt.memberId eq sessionScope.loginMember.memberId}">
+                                            <button class="del-btn" onclick="deleteContentComment(${cmt.commentId})">
+                                                <span><img src="/img/ico_del.svg" alt="삭제 아이콘"></span>
+                                            </button>
+                                        </c:if>
+                                    </li>
+                                </c:forEach>
+                                <c:if test="${empty comments}">
+                                    <li style="text-align:center; padding:30px 0; color:#999; border:none;">등록된 댓글이 없습니다.</li>
+                                </c:if>
+                            </ul>
+
+                            <c:if test="${fn:length(comments) > 5}">
+                                <div class="more-btn" id="commentMoreBtn" onclick="loadMoreComments()">
+                                    <div class="btn">더 보기</div>
+                                </div>
+                            </c:if>
+
+                            <div class="review_write">
+                                <div class="tit">댓글 작성하기</div>
+                                <div class="write_input">
+                                    <input type="text" id="contentCommentInput" placeholder="댓글을 입력하세요. (30자 이내)" maxlength="30" onkeyup="checkContentCommentInput()">
+                                    <button class="send wpx-80" id="contentCommentSubmitBtn" disabled onclick="submitContentComment()">
+                                        작성
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -180,6 +277,57 @@
                 }
             }
         });
+
+        // 공감 반응 토글 함수
+        function toggleReaction(type) {
+            $.post('/locker/content/reaction', { contentId: ${post.contentId}, reactionType: type }, function(res) {
+                if(res.resultCode === 'SUCCESS') {
+                    location.reload(); // 즉시 화면 갱신
+                } else {
+                    alert(res.resultMessage || '오류가 발생했습니다.');
+                }
+            });
+        }
+
+        // 댓글 입력 버튼 활성화 감지
+        function checkContentCommentInput() {
+            var val = $('#contentCommentInput').val().trim();
+            if(val.length > 0) {
+                $('#contentCommentSubmitBtn').prop('disabled', false).css('opacity', '1');
+            } else {
+                $('#contentCommentSubmitBtn').prop('disabled', true).css('opacity', '0.5');
+            }
+        }
+
+        // 더보기 버튼
+        function loadMoreComments() {
+            $('#commentList li.hidden-cmt').removeClass('d-none');
+            $('#commentMoreBtn').hide();
+        }
+
+        // 댓글 작성
+        function submitContentComment() {
+            var content = $('#contentCommentInput').val().trim();
+            if(!content) return;
+
+            $.post('/locker/content/comment/add', { contentId: ${post.contentId}, content: content }, function(res) {
+                if(res.resultCode === 'SUCCESS') {
+                    location.reload();
+                } else {
+                    alert(res.resultMessage || '댓글 작성에 실패했습니다.');
+                }
+            });
+        }
+
+        // 댓글 삭제
+        function deleteContentComment(commentId) {
+            if(!confirm('댓글을 삭제하시겠습니까?')) return;
+            $.post('/locker/content/comment/delete', { commentId: commentId }, function(res) {
+                if(res.resultCode === 'SUCCESS') {
+                    location.reload();
+                }
+            });
+        }
     </script>
 </body>
 </html>

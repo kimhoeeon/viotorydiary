@@ -43,4 +43,57 @@
         UPDATE locker_posts SET view_count = view_count + 1 WHERE post_id = #{postId}
     </update>
 
+    <select id="selectContentComments" resultType="com.viotory.diary.dto.CommentDTO">
+        SELECT
+            c.comment_id AS commentId,
+            c.content_id AS contentId,
+            c.content,
+            c.created_at AS createdAt,
+            c.member_id AS memberId,
+            m.nickname,
+            m.my_team_code AS memberTeamCode,
+            m.profile_image AS profileImage
+        FROM content_comments c
+                 JOIN members m ON c.member_id = m.member_id
+        WHERE c.content_id = #{contentId} AND c.del_yn = 'N'
+        ORDER BY c.created_at DESC
+    </select>
+
+    <insert id="insertContentComment">
+        INSERT INTO content_comments (content_id, member_id, content, created_at)
+        VALUES (#{contentId}, #{memberId}, #{content}, NOW())
+    </insert>
+
+    <update id="deleteContentComment">
+        UPDATE content_comments SET del_yn = 'Y' WHERE comment_id = #{commentId} AND member_id = #{memberId}
+    </update>
+
+    <select id="selectUserReaction" resultType="string">
+        SELECT reaction_type FROM content_reactions
+        WHERE content_id = #{contentId} AND member_id = #{memberId}
+    </select>
+
+    <insert id="insertReaction">
+        INSERT INTO content_reactions (content_id, member_id, reaction_type, created_at)
+        VALUES (#{contentId}, #{memberId}, #{reactionType}, NOW())
+    </insert>
+
+    <update id="updateReaction">
+        UPDATE content_reactions SET reaction_type = #{reactionType}
+        WHERE content_id = #{contentId} AND member_id = #{memberId}
+    </update>
+
+    <delete id="deleteReaction">
+        DELETE FROM content_reactions WHERE content_id = #{contentId} AND member_id = #{memberId}
+    </delete>
+
+    <update id="updateTeamContentReactionCount">
+        UPDATE team_contents
+        SET
+            like_count = like_count + #{likeInc},
+            sad_count = sad_count + #{sadInc},
+            angry_count = angry_count + #{angryInc}
+        WHERE content_id = #{contentId}
+    </update>
+
 </mapper>

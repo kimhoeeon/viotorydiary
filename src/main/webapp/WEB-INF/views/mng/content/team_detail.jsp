@@ -196,6 +196,91 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div class="separator my-10"></div>
+                                            <h3 class="fw-bold mb-5">💬 공감 및 댓글 현황</h3>
+                                            <div class="row g-5 g-xl-8">
+                                                <div class="col-xl-4">
+                                                    <div class="card card-bordered h-100">
+                                                        <div class="card-header border-0 pt-5">
+                                                            <h3 class="card-title align-items-start flex-column">
+                                                                <span class="card-label fw-bold text-dark">공감 반응 통계</span>
+                                                            </h3>
+                                                        </div>
+                                                        <div class="card-body pt-5 d-flex justify-content-around align-items-center text-center">
+                                                            <div>
+                                                                <img src="/img/good_icon.svg" style="width:45px; height:45px;" class="mb-3 opacity-75"/>
+                                                                <div class="fs-5 fw-bold text-gray-800">좋아요</div>
+                                                                <div class="fs-3 text-primary fw-bolder">${content.likeCount}건</div>
+                                                            </div>
+                                                            <div>
+                                                                <img src="/img/sad_icon.svg" style="width:45px; height:45px;" class="mb-3 opacity-75"/>
+                                                                <div class="fs-5 fw-bold text-gray-800">슬퍼요</div>
+                                                                <div class="fs-3 text-info fw-bolder">${content.sadCount}건</div>
+                                                            </div>
+                                                            <div>
+                                                                <img src="/img/angry_icon.svg" style="width:45px; height:45px;" class="mb-3 opacity-75"/>
+                                                                <div class="fs-5 fw-bold text-gray-800">화나요</div>
+                                                                <div class="fs-3 text-danger fw-bolder">${content.angryCount}건</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-xl-8">
+                                                    <div class="card card-bordered h-100">
+                                                        <div class="card-header border-0 pt-5">
+                                                            <h3 class="card-title align-items-start flex-column">
+                                                                <span class="card-label fw-bold text-dark">댓글 목록</span>
+                                                            </h3>
+                                                        </div>
+                                                        <div class="card-body pt-5" style="max-height: 300px; overflow-y: auto;">
+                                                            <div class="table-responsive">
+                                                                <table class="table align-middle gs-0 gy-4">
+                                                                    <thead class="bg-light">
+                                                                    <tr class="fw-bold text-muted">
+                                                                        <th class="ps-4 min-w-150px rounded-start">작성자</th>
+                                                                        <th class="min-w-200px">내용</th>
+                                                                        <th class="min-w-125px">작성일시</th>
+                                                                        <th class="min-w-50px rounded-end text-end pe-4">관리</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    <c:forEach var="cmt" items="${comments}">
+                                                                        <tr>
+                                                                            <td>
+                                                                                <div class="d-flex align-items-center">
+                                                                                    <div class="symbol symbol-circle symbol-30px me-3">
+                                                                                        <c:choose>
+                                                                                            <c:when test="${not empty cmt.profileImage}"><img src="${cmt.profileImage}" alt="프로필" style="object-fit: cover;"></c:when>
+                                                                                            <c:otherwise><img src="/img/ico_user.svg" alt="기본" style="background-color:#f5f5f5; padding:4px;"></c:otherwise>
+                                                                                        </c:choose>
+                                                                                    </div>
+                                                                                    <div class="d-flex flex-column">
+                                                                                        <span class="text-gray-800 fw-bold fs-7">${cmt.nickname} <c:if test="${not empty cmt.memberTeamCode}"><span class="badge badge-light ms-1">${cmt.memberTeamCode}</span></c:if></span>
+                                                                                        <span class="text-gray-400 fs-8">${cmt.email}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td><span class="text-gray-800 fs-7">${cmt.content}</span></td>
+                                                                            <td><span class="text-gray-600 fs-7">${fn:substring(fn:replace(cmt.createdAt, 'T', ' '), 0, 16)}</span></td>
+                                                                            <td class="text-end pe-4">
+                                                                                <button type="button" class="btn btn-icon btn-light-danger btn-sm" onclick="deleteComment(${cmt.commentId})">
+                                                                                    <i class="ki-duotone ki-trash fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
+                                                                                </button>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </c:forEach>
+                                                                    <c:if test="${empty comments}">
+                                                                        <tr><td colspan="4" class="text-center p-5 text-muted">등록된 댓글이 없습니다.</td></tr>
+                                                                    </c:if>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="card-footer d-flex justify-content-end py-6 px-9">

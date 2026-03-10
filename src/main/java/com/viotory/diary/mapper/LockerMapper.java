@@ -1,5 +1,6 @@
 package com.viotory.diary.mapper;
 
+import com.viotory.diary.dto.CommentDTO;
 import com.viotory.diary.vo.LockerVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -16,5 +17,13 @@ public interface LockerMapper {
 
     int updateViewCount(Long postId);
 
-    List<LockerVO> selectLockerPostList(LockerVO params);
+    // 팀 콘텐츠 공감/댓글 관련
+    List<CommentDTO> selectContentComments(Long contentId);
+    void insertContentComment(@Param("contentId") Long contentId, @Param("memberId") Long memberId, @Param("content") String content);
+    void deleteContentComment(@Param("commentId") Long commentId, @Param("memberId") Long memberId);
+    String selectUserReaction(@Param("contentId") Long contentId, @Param("memberId") Long memberId);
+    void insertReaction(@Param("contentId") Long contentId, @Param("memberId") Long memberId, @Param("reactionType") String reactionType);
+    void updateReaction(@Param("contentId") Long contentId, @Param("memberId") Long memberId, @Param("reactionType") String reactionType);
+    void deleteReaction(@Param("contentId") Long contentId, @Param("memberId") Long memberId);
+    void updateTeamContentReactionCount(@Param("contentId") Long contentId, @Param("likeInc") int likeInc, @Param("sadInc") int sadInc, @Param("angryInc") int angryInc);
 }

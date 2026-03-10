@@ -1,5 +1,6 @@
 package com.viotory.diary.service;
 
+import com.viotory.diary.dto.CommentDTO;
 import com.viotory.diary.mapper.LockerMapper;
 import com.viotory.diary.vo.LockerVO;
 import lombok.RequiredArgsConstructor;
@@ -57,4 +58,52 @@ public class LockerService {
         if (seconds < 86400) return (seconds / 3600) + "시간 전";
         return (seconds / 86400) + "일 전";
     }
+
+    public List<CommentDTO> getContentComments(Long contentId) {
+        return lockerMapper.selectContentComments(contentId);
+    }
+
+    public void addContentComment(Long contentId, Long memberId, String content) {
+        lockerMapper.insertContentComment(contentId, memberId, content);
+    }
+
+    public void deleteContentComment(Long commentId, Long memberId) {
+        lockerMapper.deleteContentComment(commentId, memberId);
+    }
+
+    public String getUserReaction(Long contentId, Long memberId) {
+        return lockerMapper.selectUserReaction(contentId, memberId);
+    }
+
+    @Transactional
+    public void toggleReaction(Long contentId, Long memberId, String reqType) {
+        String currType = lockerMapper.selectUserReaction(contentId, memberId);
+        int likeInc = 0, sadInc = 0, angryInc = 0;
+
+        if (currType == null) {
+            // 새 반응
+            lockerMapper.insertReaction(contentId, memberId, reqType);
+            if ("LIKE".equals(reqType)) likeInc = 1;
+            else if ("SAD".equals(reqType)) sadInc = 1;
+            else if ("ANGRY".equals(reqType)) angryInc = 1;
+        } else if (currType.equals(reqType)) {
+            // 동일 반응 클릭 -> 취소
+            lockerMapper.deleteReaction(contentId, memberId);
+            if ("LIKE".equals(reqType)) likeInc = -1;
+            else if ("SAD".equals(reqType)) sadInc = -1;
+            else if ("ANGRY".equals(reqType)) angryInc = -1;
+        } else {
+            // 다른 반응으로 변경
+            lockerMapper.updateReaction(contentId, memberId, reqType);
+            if ("LIKE".equals(currType)) likeInc = -1;
+            else if ("SAD".equals(currType)) sadInc = -1;
+            else if ("ANGRY".equals(currType)) angryInc = -1;
+
+            if ("LIKE".equals(reqType)) likeInc += 1;
+            else if ("SAD".equals(reqType)) sadInc += 1;
+            else if ("ANGRY".equals(reqType)) angryInc += 1;
+        }
+        lockerMapper.updateTeamContentReactionCount(contentId, likeInc, sadInc, angryInc);
+    }
+
 }

@@ -24,6 +24,8 @@ public class CommentDTO {
     private String memberTeamCode;
     private String profileImage;  // 신규 추가: 프로필 이미지 경로
 
+    private Long contentId;
+
     public String getRegDateStr() {
         if (this.createdAt == null) return "";
         return this.createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));

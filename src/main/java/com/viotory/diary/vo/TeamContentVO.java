@@ -19,4 +19,9 @@ public class TeamContentVO {
     // 구단 로고 및 정보 매핑용 변수 추가
     private String logoImageUrl;
     private String teamNameKr;
+
+    private int likeCount;
+    private int sadCount;
+    private int angryCount;
+
 }
