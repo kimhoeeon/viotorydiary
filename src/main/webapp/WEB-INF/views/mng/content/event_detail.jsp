@@ -239,6 +239,19 @@
             } else {
                 $('#summernote_edit').summernote({ height: 400, lang: 'ko-KR' });
             }
+
+            // 이벤트 수정 폼 제출 시 외부 링크 필수 입력 검증
+            $('#eventEditForm').on('submit', function(e) {
+                var linkType = $('input[name="linkType"]:checked').val();
+                var linkUrl = $('input[name="linkUrl"]').val().trim();
+
+                if (linkType === 'EXTERNAL' && linkUrl === '') {
+                    alert('외부 링크 URL을 입력해주세요.');
+                    $('input[name="linkUrl"]').focus();
+                    e.preventDefault(); // 폼 제출 막기
+                    return false;
+                }
+            });
         });
 
         function openEditModal() {

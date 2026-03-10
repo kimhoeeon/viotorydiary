@@ -187,60 +187,60 @@
 
     <select id="selectMemberListForExcel" resultType="com.viotory.diary.vo.MemberVO">
         SELECT m.member_id                                                                   AS memberId,
-        m.email,
-        m.nickname,
-        m.phone_number                                                                AS phoneNumber,
-        m.my_team_code                                                                AS myTeamCode,
-        (SELECT name_kr FROM teams WHERE team_code = m.my_team_code)                  AS myTeamName,
-        m.status,
-        m.created_at                                                                  AS createdAt,
-        m.social_provider                                                             AS socialProvider,
-        (SELECT COUNT(d.diary_id)
-        FROM diaries d
-        JOIN games g ON d.game_id = g.game_id
-        WHERE d.member_id = m.member_id
-        AND d.is_verified = 1
-        AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
-        AND d.status = 'COMPLETED')                                                AS monthlyAttendanceCount,
-        (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id)  AS followingCount,
-        (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
+               m.email,
+               m.nickname,
+               m.phone_number                                                                AS phoneNumber,
+               m.my_team_code                                                                AS myTeamCode,
+               (SELECT name_kr FROM teams WHERE team_code = m.my_team_code)                  AS myTeamName,
+               m.status,
+               m.created_at                                                                  AS createdAt,
+               m.social_provider                                                             AS socialProvider,
+               (SELECT COUNT(d.diary_id)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND d.is_verified = 1
+                  AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
+                  AND d.status = 'COMPLETED')                                                AS monthlyAttendanceCount,
+               (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id)  AS followingCount,
+               (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-        -- 승요 정보 (승패 전적 실시간 계산 - 직관 응원팀 기준)
-        (SELECT COUNT(*)
-        FROM diaries d
-        JOIN games g ON d.game_id = g.game_id
-        WHERE d.member_id = m.member_id
-        AND d.is_verified = 1
-        AND d.status = 'COMPLETED'
-        AND g.status = 'FINISHED'
-        AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
-        AND (
-        (d.snapshot_team_code = g.home_team_code AND g.score_home <![CDATA[>]]> g.score_away) OR
-        (d.snapshot_team_code = g.away_team_code AND g.score_away <![CDATA[>]]> g.score_home)
-        )) AS winCount,
+               -- 승요 정보 (승패 전적 실시간 계산 - 직관 응원팀 기준)
+               (SELECT COUNT(*)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND d.is_verified = 1
+                  AND d.status = 'COMPLETED'
+                  AND g.status = 'FINISHED'
+                  AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
+                  AND (
+                    (d.snapshot_team_code = g.home_team_code AND g.score_home <![CDATA[>]]> g.score_away) OR
+                    (d.snapshot_team_code = g.away_team_code AND g.score_away <![CDATA[>]]> g.score_home)
+                    ))                                                                       AS winCount,
 
-        (SELECT COUNT(*)
-        FROM diaries d
-        JOIN games g ON d.game_id = g.game_id
-        WHERE d.member_id = m.member_id
-        AND d.is_verified = 1
-        AND d.status = 'COMPLETED'
-        AND g.status = 'FINISHED'
-        AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
-        AND (
-        (d.snapshot_team_code = g.home_team_code AND g.score_home <![CDATA[<]]> g.score_away) OR
-        (d.snapshot_team_code = g.away_team_code AND g.score_away <![CDATA[<]]> g.score_home)
-        )) AS loseCount,
+               (SELECT COUNT(*)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND d.is_verified = 1
+                  AND d.status = 'COMPLETED'
+                  AND g.status = 'FINISHED'
+                  AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
+                  AND (
+                    (d.snapshot_team_code = g.home_team_code AND g.score_home <![CDATA[<]]> g.score_away) OR
+                    (d.snapshot_team_code = g.away_team_code AND g.score_away <![CDATA[<]]> g.score_home)
+                    ))                                                                       AS loseCount,
 
-        (SELECT COUNT(*)
-        FROM diaries d
-        JOIN games g ON d.game_id = g.game_id
-        WHERE d.member_id = m.member_id
-        AND d.is_verified = 1
-        AND d.status = 'COMPLETED'
-        AND g.status = 'FINISHED'
-        AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
-        AND g.score_home = g.score_away) AS drawCount
+               (SELECT COUNT(*)
+                FROM diaries d
+                         JOIN games g ON d.game_id = g.game_id
+                WHERE d.member_id = m.member_id
+                  AND d.is_verified = 1
+                  AND d.status = 'COMPLETED'
+                  AND g.status = 'FINISHED'
+                  AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
+                  AND g.score_home = g.score_away)                                           AS drawCount
 
         FROM members m
         ORDER BY m.created_at DESC
