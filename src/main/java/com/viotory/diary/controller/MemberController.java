@@ -560,30 +560,58 @@ public class MemberController {
     @PostMapping("/update/profile")
     @ResponseBody
     public String updateProfileAction(@RequestParam("nickname") String nickname,
-                                      @RequestParam(value = "file", required = false) MultipartFile file, // 파일 추가
+                                      @RequestParam(value = "file", required = false) MultipartFile file,
                                       HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "로그인이 필요한 서비스입니다.";
 
         try {
-            // 1. 이미지 파일 업로드 처리
+
+            // DB 최신 정보 조회
+            MemberVO currentMember = memberService.getMemberInfo(loginMember.getMemberId());
+
+            // 1. 닉네임이 기존과 다르게 변경되었는지 확인
+            boolean isNicknameChanged = nickname != null && !nickname.equals(currentMember.getNickname());
+
+            // 2. 닉네임이 변경되었을 때만 30일 제한 검사 (프로필 사진만 바꾼 경우 패스)
+            if (isNicknameChanged) {
+                java.time.LocalDateTime lastUpdated = currentMember.getNicknameUpdatedAt();
+                if (lastUpdated != null) {
+                    long daysBetween = java.time.temporal.ChronoUnit.DAYS.between(lastUpdated, java.time.LocalDateTime.now());
+                    if (daysBetween < 30) {
+                        return "닉네임은 월 1회(30일에 1회)만 변경 가능합니다. (남은 기간: " + (30 - daysBetween) + "일)";
+                    }
+                }
+            }
+
+            // 3. 이미지 파일 업로드 처리
             String profileImagePath = null;
             if (file != null && !file.isEmpty()) {
                 profileImagePath = FileUtil.uploadFile(file, "member");
             }
 
-            // 2. 서비스 호출 (닉네임 + 이미지 업데이트)
+            // 4. 업데이트될 내용이 없으면 중복 통신 방지용 완료 처리
+            if (!isNicknameChanged && profileImagePath == null) {
+                return "ok";
+            }
+
+            // 5. 서비스 호출 객체 세팅
             MemberVO updateVO = new MemberVO();
             updateVO.setMemberId(loginMember.getMemberId());
-            updateVO.setNickname(nickname);
+            // 닉네임이 변경된 경우에만 VO에 세팅
+            if (isNicknameChanged) {
+                updateVO.setNickname(nickname);
+            }
             if (profileImagePath != null) {
                 updateVO.setProfileImage(profileImagePath);
             }
 
-            memberService.updateMemberInfo(updateVO); // Mapper 쿼리가 수정되었으므로 이것만 호출하면 됨
+            memberService.updateMemberInfo(updateVO);
 
-            // 3. 세션 정보 최신화
-            loginMember.setNickname(nickname);
+            // 6. 세션 정보 최신화
+            if (isNicknameChanged) {
+                loginMember.setNickname(nickname);
+            }
             if (profileImagePath != null) {
                 loginMember.setProfileImage(profileImagePath);
             }

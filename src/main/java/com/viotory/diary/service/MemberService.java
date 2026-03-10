@@ -164,9 +164,15 @@ public class MemberService {
             throw new AlertException("회원 정보를 찾을 수 없습니다.");
         }
 
-        if (!currentMember.getNickname().equals(member.getNickname())) {
-            if (memberMapper.countByNickname(member.getNickname()) > 0) {
-                throw new AlertException("이미 사용 중인 닉네임입니다.");
+        // 닉네임 정보가 넘어왔고, 기존과 다를 때만 중복 검사
+        if (member.getNickname() != null) {
+            if (!currentMember.getNickname().equals(member.getNickname())) {
+                if (memberMapper.countByNickname(member.getNickname()) > 0) {
+                    throw new AlertException("이미 사용 중인 닉네임입니다.");
+                }
+            } else {
+                // 변경되지 않은 닉네임이 넘어온 경우 null로 만들어 Mapper에서 업데이트(및 30일 제한 리셋) 방지
+                member.setNickname(null);
             }
         }
 

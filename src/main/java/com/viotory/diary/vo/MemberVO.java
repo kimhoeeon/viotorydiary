@@ -33,6 +33,8 @@ public class MemberVO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private LocalDateTime nicknameUpdatedAt; // 닉네임 마지막 변경 일시
+
     // [Appify] 기기 정보 수집 필드
     private String fcmToken;
     private String devicePlatform; // device_platform

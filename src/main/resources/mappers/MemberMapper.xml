@@ -63,12 +63,16 @@
 
     <update id="updateMemberInfo" parameterType="com.viotory.diary.vo.MemberVO">
         UPDATE members
-        SET
-        nickname = #{nickname},
-        updated_at = NOW()
-        <if test="profileImage != null">
-            , profile_image = #{profileImage}
-        </if>
+        <set>
+            updated_at = NOW(),
+            <if test="nickname != null">
+                nickname = #{nickname},
+                nickname_updated_at = NOW(),
+            </if>
+            <if test="profileImage != null">
+                profile_image = #{profileImage},
+            </if>
+        </set>
         WHERE member_id = #{memberId}
     </update>
 
