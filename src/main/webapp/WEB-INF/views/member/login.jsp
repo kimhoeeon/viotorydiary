@@ -70,6 +70,9 @@
                         <a href="https://kauth.kakao.com/oauth/authorize?client_id=68ed5201a09f5e4d4f4bbb3a91e366a1&redirect_uri=https://myseungyo.com/member/kakao/callback&response_type=code" class="login-btn btn-kakao">
                             카카오 로그인
                         </a>
+                        <a class="login-btn btn-apple mt-8">
+                            Apple 로그인
+                        </a>
                     </div>
 
                     <ul class="join mt-16">

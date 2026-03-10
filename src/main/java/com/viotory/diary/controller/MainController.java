@@ -60,6 +60,17 @@ public class MainController {
             // 1. [오늘 경기]
             if (myTeamCode != null && !"NONE".equals(myTeamCode)) {
                 List<GameVO> todayGames = gameService.getTodayGame(myTeamCode);
+
+                // 오늘 경기의 일기 작성 여부를 확인하여 diaryId 세팅
+                if (todayGames != null && !todayGames.isEmpty()) {
+                    for (GameVO game : todayGames) {
+                        DiaryVO myDiary = diaryService.getDiaryByMemberAndGame(loginMember.getMemberId(), game.getGameId());
+                        if (myDiary != null) {
+                            game.setDiaryId(myDiary.getDiaryId());
+                        }
+                    }
+                }
+
                 model.addAttribute("todayGames", todayGames);
             }
 

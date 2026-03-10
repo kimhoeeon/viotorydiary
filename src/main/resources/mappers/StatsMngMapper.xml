@@ -11,26 +11,37 @@
             m.my_team_code,
             t.name_kr AS myTeamName,
 
-            -- 직관 일기와 연결된 예측 횟수를 총 전적으로 계산
-            COUNT(p.prediction_id) AS totalGames,
+            -- 직관 일기(diaries) 기준으로 총 직관 횟수 계산
+            COUNT(d.diary_id) AS totalGames,
 
-            -- 예측 적중(승)
-            SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) AS winGames,
+            -- 실제 경기 점수와 사용자의 일기 작성 당시 응원팀을 비교하여 승리(적중) 집계
+            SUM(CASE
+                    WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) THEN 1
+                    WHEN (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1
+                    ELSE 0
+                END) AS winGames,
 
-            -- 예측 실패(패)
-            SUM(CASE WHEN p.is_correct = 0 THEN 1 ELSE 0 END) AS loseGames,
+            -- 실제 경기 점수와 사용자의 일기 작성 당시 응원팀을 비교하여 패배 집계
+            SUM(CASE
+                    WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away) THEN 1
+                    WHEN (d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home) THEN 1
+                    ELSE 0
+                END) AS loseGames,
 
-            -- 예측 승률 시스템에서는 무승부가 없으므로 0으로 고정
-            0 AS drawGames
+            -- 무승부 집계 (승률 계산 시 분모에는 포함되나, 승리에는 포함 안 됨)
+            SUM(CASE
+                    WHEN g.score_home = g.score_away THEN 1
+                    ELSE 0
+                END) AS drawGames
 
         FROM diaries d
-         JOIN members m ON d.member_id = m.member_id
-         JOIN games g ON d.game_id = g.game_id
-         JOIN predictions p ON p.member_id = d.member_id AND p.game_id = g.game_id
-         LEFT JOIN teams t ON m.my_team_code = t.team_code
+                 JOIN members m ON d.member_id = m.member_id
+                 JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN teams t ON m.my_team_code = t.team_code
         WHERE d.status = 'COMPLETED'
           AND d.is_verified = 1
           AND g.status = 'FINISHED'
+          AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
         GROUP BY m.member_id
         ORDER BY winGames DESC, totalGames DESC
         LIMIT 100

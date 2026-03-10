@@ -62,16 +62,25 @@ public class WinYoController {
 
         // 오늘 경기 존재 여부 확인 (취소된 경기 제외)
         boolean hasTodayGame = false;
+        Long todayDiaryId = null;
+
         List<GameVO> todayGames = gameService.getAllGamesToday(memberId);
         if (todayGames != null && !todayGames.isEmpty()) {
             for (GameVO game : todayGames) {
                 if (!"CANCELLED".equals(game.getStatus())) {
                     hasTodayGame = true;
+                    // 해당 경기에 대해 작성한 일기가 있는지 확인
+                    DiaryVO todayDiary = diaryService.getDiaryByMemberAndGame(memberId, game.getGameId());
+                    if (todayDiary != null) {
+                        todayDiaryId = todayDiary.getDiaryId();
+                        break; // 작성한 일기를 찾았으면 더 이상 찾지 않음
+                    }
                     break;
                 }
             }
         }
         model.addAttribute("hasTodayGame", hasTodayGame);
+        model.addAttribute("todayDiaryId", todayDiaryId);
 
         return "diary/diary_main";
     }

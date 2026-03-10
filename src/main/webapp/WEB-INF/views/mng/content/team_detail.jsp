@@ -267,7 +267,13 @@
                                                                         <td><span class="text-gray-600 fs-7">${fn:substring(fn:replace(cmt.createdAt, 'T', ' '), 0, 16)}</span></td>
                                                                         <td class="text-end pe-4">
                                                                             <button type="button" class="btn btn-icon btn-light-danger btn-sm" onclick="deleteComment(${cmt.commentId})">
-                                                                                <i class="ki-duotone ki-trash fs-3"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span></i>
+                                                                                <i class="ki-duotone ki-trash fs-3">
+                                                                                    <span class="path1"></span>
+                                                                                    <span class="path2"></span>
+                                                                                    <span class="path3"></span>
+                                                                                    <span class="path4"></span>
+                                                                                    <span class="path5"></span>
+                                                                                </i>
                                                                             </button>
                                                                         </td>
                                                                     </tr>
