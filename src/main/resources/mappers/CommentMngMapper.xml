@@ -26,7 +26,8 @@
         c.updated_at AS updatedAt,
         c.del_yn AS delYn,
         m.nickname,
-        m.email
+        m.email,
+        m.profile_image AS profileImage
         FROM comments c
         JOIN members m ON c.member_id = m.member_id
         <include refid="criteria"/>

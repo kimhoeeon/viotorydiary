@@ -22,6 +22,7 @@ public class CommentDTO {
     private String nickname;      // 댓글 작성자 닉네임 (필요 시)
 
     private String memberTeamCode;
+    private String profileImage;  // 신규 추가: 프로필 이미지 경로
 
     public String getRegDateStr() {
         if (this.createdAt == null) return "";

@@ -32,7 +32,8 @@
             c.created_at,
             c.member_id,
             m.nickname,
-            m.my_team_code AS memberTeamCode
+            m.my_team_code AS memberTeamCode,
+            m.profile_image AS profileImage
         FROM comments c
         JOIN members m ON c.member_id = m.member_id
         WHERE c.diary_id = #{diaryId}

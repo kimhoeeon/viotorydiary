@@ -120,9 +120,21 @@
                                                                 </a>
                                                             </td>
                                                             <td>
-                                                                <div class="d-flex flex-column">
-                                                                    <span class="text-gray-800 fw-bold fs-7">${item.nickname}</span>
-                                                                    <span class="text-gray-400 fs-8">${item.email}</span>
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="symbol symbol-circle symbol-35px me-3">
+                                                                        <c:choose>
+                                                                            <c:when test="${not empty item.profileImage}">
+                                                                                <img src="${item.profileImage}" alt="프로필" style="object-fit: cover;">
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                <img src="/img/ico_user.svg" alt="기본 프로필" style="background-color: #f5f5f5; padding: 4px;">
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </div>
+                                                                    <div class="d-flex flex-column">
+                                                                        <span class="text-gray-800 fw-bold fs-7">${item.nickname}</span>
+                                                                        <span class="text-gray-400 fs-8">${item.email}</span>
+                                                                    </div>
                                                                 </div>
                                                             </td>
                                                             <td class="text-center">

@@ -188,10 +188,15 @@
                                     <ul class="review_list" id="reviewList">
                                         <c:forEach var="cmt" items="${comments}" varStatus="status">
                                             <li class="${status.index >= 5 ? 'hidden-cmt' : ''}">
-                                                <div class="name">
-                                                    <c:if test="${not empty cmt.memberTeamCode}">
-                                                        <span>${cmt.memberTeamCode}</span>
-                                                    </c:if>
+                                                <div class="name" style="display: flex; align-items: center; gap: 8px;">
+                                                    <c:choose>
+                                                        <c:when test="${not empty cmt.profileImage}">
+                                                            <img src="${cmt.profileImage}" alt="프로필" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #eee;">
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <img src="/img/ico_user.svg" alt="기본 프로필" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #f5f5f5; padding: 2px;">
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                     ${cmt.nickname}
                                                 </div>
                                                 <div class="nae">${cmt.content}</div>
