@@ -44,15 +44,6 @@ public class GameMngService {
             // 3. 상태가 변경되었을 경우 알림 발송 및 승부예측 결과 처리
             if (oldGame != null && !oldStatus.equals(game.getStatus())) {
                 sendGameStatusAlarm(game);
-
-                // 수동으로 '종료' 처리할 때 해당 경기의 승부예측 결과도 정산
-                if ("FINISHED".equals(game.getStatus())) {
-                    try {
-                        playService.processPredictionResult(game);
-                    } catch (Exception e) {
-                        log.error("수동 경기 종료 시 승부예측 처리 실패", e);
-                    }
-                }
             }
         }
     }
