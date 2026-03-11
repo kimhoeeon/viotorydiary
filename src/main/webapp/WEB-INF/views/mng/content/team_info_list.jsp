@@ -205,8 +205,11 @@
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('teamModal'));
+        <c:if test="${not empty msg}">
+            alert('${msg}');
+        </c:if>
 
+        const modal = new bootstrap.Modal(document.getElementById('teamModal'));
         function editTeam(code) {
             fetch('/mng/content/team-info/get?teamCode=' + code)
                 .then(res => res.json())
