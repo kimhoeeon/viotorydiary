@@ -70,7 +70,7 @@
                         <a href="https://kauth.kakao.com/oauth/authorize?client_id=68ed5201a09f5e4d4f4bbb3a91e366a1&redirect_uri=https://myseungyo.com/member/kakao/callback&response_type=code" class="login-btn btn-kakao">
                             카카오 로그인
                         </a>
-                        <a class="login-btn btn-apple mt-8">
+                        <a href="#" onclick="fn_appleLogin(); return false;" class="login-btn btn-apple mt-8">
                             Apple 로그인
                         </a>
                     </div>
@@ -87,6 +87,14 @@
             </form>
         </div>
     </div>
+
+    <form id="appleLoginForm" action="https://appleid.apple.com/auth/authorize" method="get">
+        <input type="hidden" name="client_id" id="apple_client_id" value="">
+        <input type="hidden" name="redirect_uri" id="apple_redirect_uri" value="">
+        <input type="hidden" name="response_type" value="code id_token">
+        <input type="hidden" name="scope" value="name email">
+        <input type="hidden" name="response_mode" value="form_post">
+    </form>
 
     <%@ include file="../include/popup.jsp" %>
 
@@ -160,6 +168,18 @@
                 });
             });
         });
+
+        // Apple 로그인 연동 함수 추가
+        function fn_appleLogin() {
+            var clientId = "com.viotory.diary.web"; // 개발자 센터에 등록한 Services ID
+            var redirectUri = "https://myseungyo.com/member/appleLoginCallback";
+
+            document.getElementById("apple_client_id").value = clientId;
+            document.getElementById("apple_redirect_uri").value = redirectUri;
+
+            // 폼을 서밋하여 Apple 로그인 서버로 이동
+            document.getElementById("appleLoginForm").submit();
+        }
     </script>
 </body>
 </html>

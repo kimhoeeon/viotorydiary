@@ -171,7 +171,17 @@
                                                                             <span class="d-flex align-items-center text-gray-800 fw-bold fs-6">
                                                                                 ${item.nickname}
                                                                                 <c:if test="${not empty item.socialProvider and item.socialProvider ne 'NONE'}">
-                                                                                    <span class="badge fs-9 ms-2" style="background-color: #f8df00; color: #3c1e1e;">${item.socialProvider}</span>
+                                                                                    <c:choose>
+                                                                                        <c:when test="${item.socialProvider eq 'KAKAO'}">
+                                                                                            <span class="badge fs-9 ms-2" style="background-color: #f8df00; color: #3c1e1e;">${item.socialProvider}</span>
+                                                                                        </c:when>
+                                                                                        <c:when test="${item.socialProvider eq 'APPLE'}">
+                                                                                            <span class="badge fs-9 ms-2" style="background-color: #000000; color: #FFFFFF;">${item.socialProvider}</span>
+                                                                                        </c:when>
+                                                                                        <c:otherwise>
+                                                                                            <span class="badge fs-9 ms-2">${item.socialProvider}</span>
+                                                                                        </c:otherwise>
+                                                                                    </c:choose>
                                                                                 </c:if>
                                                                             </span>
                                                                             <span class="text-gray-400 fw-semibold fs-7">${item.email}</span>

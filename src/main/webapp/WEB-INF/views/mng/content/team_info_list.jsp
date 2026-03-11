@@ -142,28 +142,28 @@
                 <form id="teamForm" action="/mng/content/team-info/save" method="post" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h2 class="fw-bold">구단 정보 수정</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal"><i
-                                class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                            <i class="ki-duotone ki-cross fs-1">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
                         </div>
                     </div>
                     <div class="modal-body py-10 px-lg-17">
                         <div class="row mb-7">
                             <div class="col-md-6">
                                 <label class="fs-6 fw-semibold mb-2">구단 코드</label>
-                                <input type="text" class="form-control form-control-solid" name="teamCode" id="teamCode"
-                                       readonly/>
+                                <input type="text" class="form-control form-control-solid" name="teamCode" id="teamCode" readonly/>
                             </div>
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">정렬 순서</label>
-                                <input type="number" class="form-control form-control-solid" name="sortOrder" id="sortOrder"
-                                       required/>
+                                <input type="number" class="form-control form-control-solid" name="sortOrder" id="sortOrder" required/>
                             </div>
                         </div>
                         <div class="row mb-7">
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">구단명 (한글)</label>
-                                <input type="text" class="form-control form-control-solid" name="nameKr" id="nameKr"
-                                       required/>
+                                <input type="text" class="form-control form-control-solid" name="nameKr" id="nameKr" required/>
                             </div>
                             <div class="col-md-6">
                                 <label class="fs-6 fw-semibold mb-2">구단명 (영문)</label>
@@ -177,8 +177,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="fs-6 fw-semibold mb-2">메인 컬러 (HEX)</label>
-                                <input type="text" class="form-control form-control-solid" name="colorMainHex"
-                                       id="colorMainHex" placeholder="#FFFFFF"/>
+                                <input type="text" class="form-control form-control-solid" name="colorMainHex" id="colorMainHex" placeholder="#FFFFFF"/>
                             </div>
                         </div>
                         <div class="fv-row mb-7">

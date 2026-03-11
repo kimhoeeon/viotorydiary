@@ -1,5 +1,7 @@
 package com.viotory.diary.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.viotory.diary.dto.CommentDTO;
 import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.exception.AlertException;
@@ -23,6 +25,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,6 +162,90 @@ public class MemberController {
         } catch (Exception e) {
             log.error("카카오 로그인 실패", e);
             model.addAttribute("message", "카카오 로그인에 실패했습니다.");
+            return "member/login";
+        }
+    }
+
+    // [Apple 로그인 콜백]
+    @PostMapping("/appleLoginCallback")
+    public String appleLoginCallback(
+            @RequestParam(value = "id_token") String idToken,
+            @RequestParam(value = "user", required = false) String userJson,
+            HttpServletRequest request,
+            HttpSession session,
+            Model model) {
+
+        log.info("Apple Login Callback 진입");
+
+        try {
+            // 1. JWT 형식인 id_token에서 payload(중간 부분)를 분리하여 Base64 URL 디코딩
+            String[] jwtParts = idToken.split("\\.");
+            if (jwtParts.length < 2) {
+                throw new Exception("유효하지 않은 Apple id_token 입니다.");
+            }
+
+            String payloadBase64 = jwtParts[1];
+            String payloadJson = new String(Base64.getUrlDecoder().decode(payloadBase64), StandardCharsets.UTF_8);
+
+            // 2. JSON 파싱
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode payload = mapper.readTree(payloadJson);
+
+            // 3. email, sub(Apple 고유 ID) 추출
+            String email = payload.has("email") ? payload.get("email").asText() : "";
+            String appleUniqueId = payload.get("sub").asText();
+
+            log.info("Apple Login 파싱 완료 - email: {}, sub: {}", email, appleUniqueId);
+
+            // 4. DB에서 고유 식별자(SocialUid)를 기준으로 기존 회원 여부 확인
+            MemberVO existingMember = memberService.getMemberBySocialId("APPLE", appleUniqueId);
+
+            // 5. 소셜 ID로는 없지만, 동일한 이메일로 가입된 계정이 있다면 연동 처리 (계정 통합)
+            if (existingMember == null && !email.isEmpty()) {
+                existingMember = memberService.getMemberByEmail(email);
+                if (existingMember != null) {
+                    existingMember.setSocialProvider("APPLE");
+                    existingMember.setSocialUid(appleUniqueId);
+                    memberService.updateSocialInfo(existingMember);
+                }
+            }
+
+            if (existingMember != null) {
+                // 탈퇴 여부 체크
+                if ("WITHDRAWN".equals(existingMember.getStatus())) {
+                    model.addAttribute("message", "탈퇴한 계정입니다.");
+                    return "member/login";
+                }
+                if ("SUSPENDED".equals(existingMember.getStatus())) {
+                    model.addAttribute("message", "운영정책 위반으로 활동이 정지된 계정입니다.");
+                    return "member/login";
+                }
+
+                // 가입된 회원이면 세션에 저장하고 로그인 처리
+                session.setAttribute("loginMember", existingMember);
+
+                memberService.updateLastLogin(existingMember.getMemberId());
+                memberService.recordAccessLog(existingMember.getMemberId());
+
+                if (existingMember.getMyTeamCode() == null || "NONE".equals(existingMember.getMyTeamCode())) {
+                    return "redirect:/member/team-setting";
+                }
+                return "redirect:/main";
+            } else {
+                // 신규 회원이면 브릿지 페이지로 이동하여 추가 정보 입력 유도
+                MemberVO newMember = new MemberVO();
+                newMember.setEmail(email);
+                newMember.setSocialProvider("APPLE");
+                newMember.setSocialUid(appleUniqueId);
+
+                // 기존 카카오 로직과 호환되게 kakaoInfo 모델 속성을 통해 브릿지 페이지로 전달
+                model.addAttribute("kakaoInfo", newMember);
+                return "member/join_social_bridge";
+            }
+
+        } catch (Exception e) {
+            log.error("Apple 로그인 처리 중 오류 발생", e);
+            model.addAttribute("message", "Apple 로그인 처리 중 오류가 발생했습니다.");
             return "member/login";
         }
     }

@@ -508,6 +508,17 @@ public class MemberService {
         return memberMapper.selectMemberByEmail(userEmail);
     }
 
+    // 소셜 로그인 ID 기준 회원 조회
+    public MemberVO getMemberBySocialId(String provider, String uid) {
+        return memberMapper.selectBySocialId(provider, uid);
+    }
+
+    // 소셜 연동 정보 업데이트
+    @Transactional
+    public void updateSocialInfo(MemberVO member) {
+        memberMapper.updateSocialInfo(member);
+    }
+
     @Transactional
     public void updatePushToken(Long memberId, String token) {
         // 기존 토큰과 동일한지 체크하는 로직이 있으면 좋지만, 여기선 무조건 업데이트 (단순화)
