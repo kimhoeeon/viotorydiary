@@ -120,7 +120,17 @@
                                                 <div class="col-lg-4 d-flex align-items-center">
                                                     <span class="fw-bold fs-6 text-gray-800">${member.email}</span>
                                                     <c:if test="${not empty member.socialProvider and member.socialProvider ne 'NONE'}">
-                                                        <span class="badge fs-9 ms-2" style="background-color: #f8df00; color: #3c1e1e;">${member.socialProvider}</span>
+                                                        <c:choose>
+                                                            <c:when test="${member.socialProvider eq 'KAKAO'}">
+                                                                <span class="badge fs-9 ms-2" style="background-color: #f8df00; color: #3c1e1e;">${member.socialProvider}</span>
+                                                            </c:when>
+                                                            <c:when test="${member.socialProvider eq 'APPLE'}">
+                                                                <span class="badge fs-9 ms-2" style="background-color: #000000; color: #FFFFFF;">${member.socialProvider}</span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="badge fs-9 ms-2">${member.socialProvider}</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </c:if>
                                                 </div>
                                             </div>
