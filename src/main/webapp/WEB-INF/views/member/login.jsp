@@ -70,7 +70,7 @@
                         <a href="https://kauth.kakao.com/oauth/authorize?client_id=68ed5201a09f5e4d4f4bbb3a91e366a1&redirect_uri=https://myseungyo.com/member/kakao/callback&response_type=code" class="login-btn btn-kakao">
                             카카오 로그인
                         </a>
-                        <a href="#" onclick="fn_appleLogin(); return false;" class="login-btn btn-apple mt-8">
+                        <a href="#" id="appleLoginBtn" onclick="fn_appleLogin(); return false;" class="login-btn btn-apple mt-8" style="display: none;">
                             Apple 로그인
                         </a>
                     </div>
@@ -108,6 +108,26 @@
             const pwInput = document.getElementById('loginPw');
             const loginMessage = document.getElementById('loginMessage');
 
+            // Apple 로그인 버튼 Web 및 iOS 노출 로직 (.then 방식 적용)
+            const appleBtn = document.getElementById('appleLoginBtn');
+            if (appleBtn) {
+                // Appify 앱 환경인지 체크
+                if (typeof appify !== 'undefined' && appify.isWebview) {
+                    // Appify SDK를 통해 기기 정보 가져오기 (.then 방식)
+                    appify.device.getInfo().then(function(info) {
+                        // 앱일 경우: 플랫폼이 ios인 경우에만 버튼을 보이게 처리
+                        if (info && info.platform && info.platform.toLowerCase() === 'ios') {
+                            appleBtn.style.display = 'flex'; // 클래스 레이아웃 유지
+                        }
+                    }).catch(function(err) {
+                        console.error("기기 정보 수집 실패 (Apple 버튼 제어):", err);
+                    });
+                } else {
+                    // 웹 브라우저(PC, 모바일 사파리/크롬 등 일반 웹) 환경에서는 무조건 보이게 처리
+                    appleBtn.style.display = 'flex';
+                }
+            }
+
             // 2. 에러 메시지 숨김 처리 함수
             function hideErrorMessage() {
                 if (loginMessage && loginMessage.classList.contains('is-show')) {
@@ -134,28 +154,28 @@
 
                             // Appify 앱 환경일 경우 기기 정보 수집
                             if (typeof appify !== 'undefined' && appify.isWebview) {
-                                try {
-                                    // 기기 정보 가져오기 (문서 10.txt 참고)
-                                    const info = await appify.device.getInfo();
-
+                                appify.device.getInfo().then(function(info) {
                                     console.log("📱 Appify Device Info:", info);
 
-                                    await $.post('/member/device/update', {
+                                    // $.post 완료 후 페이지 이동
+                                    $.post('/member/device/update', {
                                         platform: info.platform,
                                         model: info.model,
                                         osVersion: info.osVersion,
                                         appVersion: info.appVersion,
                                         uuid: info.uniqueId
+                                    }).always(function() {
+                                        location.replace(res.redirect);
                                     });
-
-                                } catch (err) {
+                                }).catch(function(err) {
                                     console.error("기기 정보 수집 실패:", err);
-                                    // 기기 정보 수집 실패해도 로그인은 계속 진행
-                                }
+                                    // 실패해도 로그인은 계속 진행
+                                    location.replace(res.redirect);
+                                });
+                            } else {
+                                // 웹 브라우저 환경
+                                location.replace(res.redirect);
                             }
-
-                            // 로그인 성공 시 페이지 이동
-                            location.replace(res.redirect);
                         } else {
                             // 로그인 실패 시 에러 메시지 노출
                             $('#loginMessage').text(res.message).addClass('is-show is-error');
