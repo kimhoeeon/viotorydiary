@@ -14,7 +14,14 @@
                g.game_date,
                g.game_type,
                IFNULL(s.short_name, s.name) AS stadiumName,
-            /* 승패 판별 로직 */
+
+               -- 자바단에서 스코어 예측 승률을 계산하기 위해 점수 데이터를 함께 조회
+               g.score_home AS scoreHome,
+               g.score_away AS scoreAway,
+               d.pred_score_home AS predScoreHome,
+               d.pred_score_away AS predScoreAway,
+
+            /* 화면 뱃지 노출용: 응원팀(직관 팀) 스코어 기준 승패 판별 유지 */
                CASE
                    WHEN d.snapshot_team_code = g.home_team_code THEN
                        CASE
@@ -70,15 +77,15 @@
         <![CDATA[
         SELECT m.nickname,
                COUNT(d.diary_id) AS totalGames,
-               SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) AS winGames,
-               (SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) / COUNT(d.diary_id)) * 100 AS winRate
+               SUM(CASE WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1 ELSE 0 END) AS winGames,
+               (SUM(CASE WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1 ELSE 0 END) / COUNT(d.diary_id)) * 100 AS winRate
         FROM diaries d
                  JOIN games g ON d.game_id = g.game_id
                  JOIN members m ON d.member_id = m.member_id
-                 LEFT JOIN predictions p ON d.game_id = p.game_id AND d.member_id = p.member_id
         WHERE d.is_verified = 1
           AND g.status = 'FINISHED'
           AND d.status != 'INVALID'
+          AND d.pred_score_home IS NOT NULL
         GROUP BY d.member_id
         HAVING totalGames >= 5
         ORDER BY winGames DESC, winRate DESC
@@ -92,22 +99,21 @@
             d.diary_id,
             d.game_id,
             d.image_url,
-            d.one_line_comment, /* 메인화면 표시용 */
+            d.one_line_comment,
             g.game_date,
             g.game_type,
             g.home_team_code,
             g.away_team_code,
             g.score_home,
             g.score_away,
-
+            d.pred_score_home AS predScoreHome,
+            d.pred_score_away AS predScoreAway,
             g.status AS gameStatus,
             g.cancel_reason AS cancelReason,
+            t1.short_name AS homeTeamName,
+            t2.short_name AS awayTeamName,
+            IFNULL(s.short_name, s.name) AS stadiumName,
 
-            t1.short_name AS homeTeamName, /* 팀 이름 추가 */
-            t2.short_name AS awayTeamName, /* 팀 이름 추가 */
-            IFNULL(s.short_name, s.name) AS stadiumName,      /* 구장 이름 추가 */
-
-            /* 승패 판별 로직 */
             CASE
                 WHEN d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away THEN 'WIN'
                 WHEN d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away THEN 'LOSE'
@@ -122,7 +128,7 @@
                  LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
                  LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
         WHERE d.member_id = #{memberId}
-          AND d.status = 'COMPLETED' /* [중요] 삭제된 글 제외 */
+          AND d.status = 'COMPLETED'
         ORDER BY g.game_date DESC
         LIMIT 3
         ]]>
@@ -147,35 +153,26 @@
             m.nickname,
             m.email as memberEmail,
             m.profile_image,
-
-            /* 경기 정보 및 팀명 */
             g.game_date,
             g.game_time,
             IFNULL(s.short_name, s.name) AS stadiumName,
             t1.name_kr AS homeTeamName,
             t2.name_kr AS awayTeamName,
-
-            /* 팀 로고 조회 */
             t1.logo_image_url AS homeTeamLogo,
             t2.logo_image_url AS awayTeamLogo,
             g.home_starter,
             g.away_starter,
-
             g.score_home,
             g.score_away,
             g.home_team_code,
             g.away_team_code,
             g.cancel_reason
-
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
                  LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
-
-            /* 팀 정보 조인 (로고 조회를 위해 필수) */
                  LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
                  LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
-
         WHERE d.diary_id = #{diaryId}
     </select>
 
@@ -193,21 +190,18 @@
                g.away_team_code,
                g.score_home,
                g.score_away,
-
                g.status                     AS gameStatus,
                g.cancel_reason              AS cancelReason,
-
                t1.name_kr                   AS homeTeamName,
                t2.name_kr                   AS awayTeamName,
                IFNULL(s.short_name, s.name) AS stadiumName,
 
-               -- 승패 판별 (승요 서비스 로직과 동일)
                CASE
                    WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
-                   ELSE 'NONE' -- 경기 전 or 취소
-                   END                      AS gameResult
+                   ELSE 'NONE'
+                   END    AS gameResult
 
         FROM diaries d
                  JOIN games g ON d.game_id = g.game_id
@@ -237,12 +231,14 @@
                m.my_team_code AS snapshotTeamCode,
                t1.logo_image_url AS homeTeamLogo,
                t2.logo_image_url AS awayTeamLogo,
+
                CASE
                    WHEN g.winning_team = m.my_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                    ELSE 'NONE'
                    END        AS gameResult
+
         FROM diaries d
                  JOIN follows f ON d.member_id = f.following_id
                  JOIN members m ON d.member_id = m.member_id
@@ -300,13 +296,14 @@
                m.my_team_code AS snapshotTeamCode,
                t1.logo_image_url AS homeTeamLogo,
                t2.logo_image_url AS awayTeamLogo,
-            /* 승패 판별 */
+
                CASE
                    WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                    ELSE 'NONE'
                    END AS gameResult
+
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
@@ -315,10 +312,8 @@
         WHERE d.status = 'COMPLETED'
           AND d.is_public IN ('PUBLIC', 'FRIENDS')
           AND d.member_id IN (
-            /* 내가 팔로우 하는 사람 (Following) */
             SELECT following_id FROM follows WHERE follower_id = #{memberId}
             UNION
-            /* 나를 팔로우 하는 사람 (Follower) */
             SELECT follower_id FROM follows WHERE following_id = #{memberId}
         )
         ORDER BY g.game_date DESC, d.created_at DESC
@@ -336,22 +331,21 @@
                g.away_team_code,
                g.score_home,
                g.score_away,
-
-            /* 경기 상태 및 취소 사유 조회 */
                g.status AS gameStatus,
                g.cancel_reason AS cancelReason,
-
                t1.name_kr     AS homeTeamName,
                t2.name_kr     AS awayTeamName,
                m.nickname,
                m.profile_image,
                m.my_team_code AS snapshotTeamCode,
+
                CASE
                    WHEN g.winning_team = m.my_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                    ELSE 'NONE'
                    END        AS gameResult
+
         FROM diaries d
                  JOIN follows f ON d.member_id = f.following_id
                  JOIN members m ON d.member_id = m.member_id
@@ -370,16 +364,17 @@
                t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
                m.nickname, m.profile_image,
                g.score_home, g.score_away,
-            /* 승패 판별 (간소화) */
+
                CASE WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                     WHEN g.winning_team IS NOT NULL THEN 'LOSE' ELSE 'NONE' END AS gameResult
+
         FROM diaries d
-                 JOIN follows f ON d.member_id = f.follower_id  /* 여기가 핵심 변경점 */
+                 JOIN follows f ON d.member_id = f.follower_id
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
                  LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
                  LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
-        WHERE f.following_id = #{memberId}  /* 내 ID가 팔로잉 대상인 경우 */
+        WHERE f.following_id = #{memberId}
           AND d.status = 'COMPLETED' AND d.is_public IN ('PUBLIC', 'FRIENDS')
         ORDER BY g.game_date DESC, d.created_at DESC
     </select>
@@ -390,8 +385,10 @@
                t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
                m.nickname, m.profile_image,
                g.score_home, g.score_away,
+
                CASE WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                     WHEN g.winning_team IS NOT NULL THEN 'LOSE' ELSE 'NONE' END AS gameResult
+
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
@@ -399,7 +396,7 @@
                  LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
         WHERE d.member_id = #{targetMemberId}
           AND d.status = 'COMPLETED'
-          AND d.is_public IN ('PUBLIC', 'FRIENDS') /* 비공개 글 제외 */
+          AND d.is_public IN ('PUBLIC', 'FRIENDS')
         ORDER BY g.game_date DESC, d.created_at DESC
     </select>
 
@@ -409,8 +406,10 @@
                t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
                m.nickname, m.profile_image,
                g.score_home, g.score_away,
+
                CASE WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                     WHEN g.winning_team IS NOT NULL THEN 'LOSE' ELSE 'NONE' END AS gameResult
+
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
@@ -440,7 +439,7 @@
                IFNULL(s.short_name, s.name) AS stadiumName,
                m.nickname,
                m.profile_image,
-            /* 승패 판별 */
+
                CASE
                    WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
@@ -455,7 +454,7 @@
                  LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
                  LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
         WHERE d.share_uuid = #{uuid}
-          AND d.status = 'COMPLETED' /* 삭제된 글 노출 방지 */
+          AND d.status = 'COMPLETED'
     </select>
 
     <select id="countTotalDiaries" resultType="int">

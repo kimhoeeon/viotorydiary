@@ -8,21 +8,24 @@
         SELECT m.member_id,
                m.nickname,
                m.my_team_code,
-               t.name_kr                                         AS myTeamName,
-
+               t.name_kr                                                                                              AS myTeamName,
                -- 직관 일기(diaries) 기준으로 총 직관 횟수 계산
-               COUNT(d.diary_id)                                 AS totalGames,
+               COUNT(d.diary_id)                                                                                      AS totalGames,
 
-               -- 승부 예측(predictions) 적중 여부를 기준으로 승/패 집계 (무승부 없음)
-               SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) AS winGames,
-               SUM(CASE WHEN p.is_correct = 0 THEN 1 ELSE 0 END) AS loseGames,
-               0                                                 AS drawGames
+               -- 승부 예측(diaries 스코어) 적중 여부를 기준으로 승/패 집계 (무승부 없음)
+               SUM(CASE
+                       WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1
+                       ELSE 0 END)                                                                                    AS winGames,
+               SUM(CASE
+                       WHEN d.pred_score_home IS NOT NULL AND
+                            (d.pred_score_home != g.score_home OR d.pred_score_away != g.score_away) THEN 1
+                       ELSE 0 END)                                                                                    AS loseGames,
+               0                                                                                                      AS drawGames
 
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
                  LEFT JOIN teams t ON m.my_team_code = t.team_code
-                 LEFT JOIN predictions p ON d.game_id = p.game_id AND d.member_id = p.member_id
         WHERE d.status = 'COMPLETED'
           AND d.is_verified = 1
           AND g.status = 'FINISHED'
@@ -50,11 +53,13 @@
     <select id="selectTotalAvgWinRate" resultType="double">
         <![CDATA[
         SELECT IFNULL(
-                       (SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(d.diary_id), 0))
+                       (SUM(CASE
+                                WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1
+                                ELSE 0 END) * 100.0
+                           / NULLIF(SUM(CASE WHEN d.pred_score_home IS NOT NULL THEN 1 ELSE 0 END), 0))
                    , 0) AS avgWinRate
         FROM diaries d
                  INNER JOIN games g ON d.game_id = g.game_id
-                 LEFT JOIN predictions p ON d.game_id = p.game_id AND d.member_id = p.member_id
         WHERE d.is_verified = 1
           AND g.status = 'FINISHED'
           AND d.status = 'COMPLETED'

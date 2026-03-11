@@ -42,14 +42,15 @@
         -- 3. 팔로워 수 (나를 팔로우하는 사람)
         (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-        -- 4. 승요 정보 (승부 예측 정확도 기준으로 변경 - 적중:승, 미적중:패)
-        (SELECT COUNT(*) FROM predictions p
-        JOIN diaries d ON p.game_id = d.game_id AND p.member_id = d.member_id
-        WHERE p.member_id = m.member_id AND p.is_correct = 1 AND d.status = 'COMPLETED' AND d.is_verified = 1) AS winCount,
+        -- 4. 승요 정보 (스코어 예측 적중 기준 - 적중:승, 미적중:패)
+        (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id
+        WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1
+        AND d2.pred_score_home = g2.score_home AND d2.pred_score_away = g2.score_away) AS winCount,
 
-        (SELECT COUNT(*) FROM predictions p
-        JOIN diaries d ON p.game_id = d.game_id AND p.member_id = d.member_id
-        WHERE p.member_id = m.member_id AND p.is_correct = 0 AND d.status = 'COMPLETED' AND d.is_verified = 1) AS loseCount,
+        (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id
+        WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1
+        AND d2.pred_score_home IS NOT NULL AND d2.pred_score_away IS NOT NULL
+        AND (d2.pred_score_home != g2.score_home OR d2.pred_score_away != g2.score_away)) AS loseCount,
 
         0 AS drawCount
 
@@ -86,55 +87,27 @@
                m.social_provider                                                             AS socialProvider,
 
                -- 이용 정보 (이번달 직관, 누적 직관)
-               (SELECT COUNT(d.diary_id)
-                FROM diaries d
-                         JOIN games g ON d.game_id = g.game_id
-                WHERE d.member_id = m.member_id
-                  AND d.is_verified = 1
-                  AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
-                  AND d.status = 'COMPLETED')                                                AS monthlyAttendanceCount,
-               (SELECT COUNT(d.diary_id)
-                FROM diaries d
-                WHERE d.member_id = m.member_id
-                  AND d.is_verified = 1
-                  AND d.status = 'COMPLETED')                                                AS totalAttendanceCount,
+               (SELECT COUNT(d.diary_id) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
+               (SELECT COUNT(d.diary_id) FROM diaries d WHERE d.member_id = m.member_id AND d.is_verified = 1 AND d.status = 'COMPLETED') AS totalAttendanceCount,
 
                -- 이용 정보 (팔로잉, 팔로워, 맞팔)
-               (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id)  AS followingCount,
+               (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
-               (SELECT COUNT(f1.follow_id)
-                FROM follows f1
-                         JOIN follows f2 ON f1.follower_id = f2.following_id AND f1.following_id = f2.follower_id
-                WHERE f1.follower_id = m.member_id)                                          AS mutualFollowCount,
+               (SELECT COUNT(f1.follow_id) FROM follows f1 JOIN follows f2 ON f1.follower_id = f2.following_id AND f1.following_id = f2.follower_id WHERE f1.follower_id = m.member_id) AS mutualFollowCount,
 
-               -- 승요 정보 (승부 예측 정확도 기준으로 변경 - 적중:승, 미적중:패)
-               (SELECT COUNT(*)
-                FROM predictions p
-                         JOIN diaries d ON p.game_id = d.game_id AND p.member_id = d.member_id
-                WHERE p.member_id = m.member_id
-                  AND p.is_correct = 1
-                  AND d.status = 'COMPLETED'
-                  AND d.is_verified = 1)                                                     AS winCount,
-               (SELECT COUNT(*)
-                FROM predictions p
-                         JOIN diaries d ON p.game_id = d.game_id AND p.member_id = d.member_id
-                WHERE p.member_id = m.member_id
-                  AND p.is_correct = 0
-                  AND d.status = 'COMPLETED'
-                  AND d.is_verified = 1)                                                     AS loseCount,
-               0                                                                             AS drawCount,
+               -- 승요 정보 (스코어 예측 적중 기준 - 적중:승, 미적중:패)
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND d2.pred_score_home = g2.score_home AND d2.pred_score_away = g2.score_away) AS winCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND d2.pred_score_home IS NOT NULL AND d2.pred_score_away IS NOT NULL AND (d2.pred_score_home != g2.score_home OR d2.pred_score_away != g2.score_away)) AS loseCount,
+               0 AS drawCount,
 
                -- 승요 정보 (최다 방문 구장)
                (SELECT s.name
                 FROM diaries d
                          JOIN games g ON d.game_id = g.game_id
                          JOIN stadiums s ON g.stadium_id = s.stadium_id
-                WHERE d.member_id = m.member_id
-                  AND d.is_verified = 1
-                  AND d.status = 'COMPLETED'
+                WHERE d.member_id = m.member_id AND d.is_verified = 1 AND d.status = 'COMPLETED'
                 GROUP BY s.stadium_id, s.name
-                ORDER BY COUNT(*) DESC
-                LIMIT 1)                                                                     AS mostVisitedStadium
+                ORDER BY COUNT(*) DESC LIMIT 1) AS mostVisitedStadium
 
         FROM members m
         WHERE m.member_id = #{memberId}
@@ -155,6 +128,7 @@
     </update>
 
     <select id="selectMemberListForExcel" resultType="com.viotory.diary.vo.MemberVO">
+        <![CDATA[
         SELECT m.member_id                                                                   AS memberId,
                m.email,
                m.nickname,
@@ -174,25 +148,14 @@
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id)  AS followingCount,
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-               -- 승요 정보 (승부 예측 정확도 기준으로 변경 - 적중:승, 미적중:패)
-               (SELECT COUNT(*)
-                FROM predictions p
-                         JOIN diaries d ON p.game_id = d.game_id AND p.member_id = d.member_id
-                WHERE p.member_id = m.member_id
-                  AND p.is_correct = 1
-                  AND d.status = 'COMPLETED'
-                  AND d.is_verified = 1)                                                     AS winCount,
-               (SELECT COUNT(*)
-                FROM predictions p
-                         JOIN diaries d ON p.game_id = d.game_id AND p.member_id = d.member_id
-                WHERE p.member_id = m.member_id
-                  AND p.is_correct = 0
-                  AND d.status = 'COMPLETED'
-                  AND d.is_verified = 1)                                                     AS loseCount,
-               0                                                                             AS drawCount
+               -- 승요 정보 (스코어 예측 적중 기준)
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND d2.pred_score_home = g2.score_home AND d2.pred_score_away = g2.score_away) AS winCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND d2.pred_score_home IS NOT NULL AND d2.pred_score_away IS NOT NULL AND (d2.pred_score_home != g2.score_home OR d2.pred_score_away != g2.score_away)) AS loseCount,
+               0 AS drawCount
 
         FROM members m
         ORDER BY m.created_at DESC
+        ]]>
     </select>
 
 </mapper>
