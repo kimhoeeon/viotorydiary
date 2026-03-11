@@ -52,9 +52,11 @@ public class MemberService {
             }
         }
 
-        // 2. 비밀번호 복잡도 체크 (8~14자, 영문/숫자/특수문자 중 2종 이상)
-        if (!isValidPassword(member.getPassword())) {
-            throw new AlertException("비밀번호는 8~14자이며, 영문/숫자/특수문자 중 2개 이상을 포함해야 합니다.");
+        // 비밀번호 복잡도 체크는 일반 가입일 경우에만 체크
+        if ("NONE".equals(member.getSocialProvider()) || member.getSocialProvider() == null) {
+            if (!isValidPassword(member.getPassword())) {
+                throw new AlertException("비밀번호는 8~14자이며, 영문/숫자/특수문자 중 2개 이상을 포함해야 합니다.");
+            }
         }
 
         // 3. 중복 체크
@@ -74,10 +76,13 @@ public class MemberService {
             member.setPhoneNumber(cleanPhone); // DB 저장 시 하이픈(-) 제거하여 깔끔하게 저장
         }
 
-        // 3. 비밀번호 암호화
+        // ⭐비밀번호 암호화 (소셜은 더미값 부여)
         if (member.getPassword() != null && !member.getPassword().isEmpty()) {
             String encryptedPassword = sha512.hash(member.getPassword());
             member.setPassword(encryptedPassword);
+        } else {
+            // DB 제약조건 오류 방지용 랜덤 텍스트 삽입
+            member.setPassword(UUID.randomUUID().toString());
         }
 
         // 5. 기본값 설정 (DDL 및 스토리보드 반영)

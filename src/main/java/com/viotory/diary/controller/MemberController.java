@@ -323,8 +323,13 @@ public class MemberController {
 
         try {
 
-            // 필수 데이터 서버 측 2차 검증 (Validation)
-            if(member.getEmail() == null || member.getPassword() == null || member.getNickname() == null) {
+            // 필수 데이터 서버 측 2차 검증
+            if(member.getEmail() == null || member.getNickname() == null) {
+                return "fail:missing_data";
+            }
+
+            // 소셜 가입이 아닌 일반 가입자일 경우에만 패스워드 필수 체크
+            if (("NONE".equals(member.getSocialProvider()) || member.getSocialProvider() == null) && member.getPassword() == null) {
                 return "fail:missing_data";
             }
 

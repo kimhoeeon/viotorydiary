@@ -77,12 +77,17 @@
 
         // 카카오 이메일 자동 입력
         const savedEmail = sessionStorage.getItem('join_email');
+        const joinProvider = sessionStorage.getItem('join_provider');
 
-        // 1. 카카오 임시 이메일(@kakao.viotory.com)이 감지되면 -> 바로 Step 3(비밀번호)로 이동
-        if (savedEmail && savedEmail.indexOf('@kakao.viotory.com') > -1) {
-            location.replace('/member/join/step3');
+        // 1. 소셜 가입자(APPLE, KAKAO)가 이미 정상 이메일을 가지고 있다면 Step 4(본인인증)로 자동 스킵
+        if (joinProvider && (joinProvider === 'KAKAO' || joinProvider === 'APPLE') && savedEmail && savedEmail !== 'null' && savedEmail.trim() !== '') {
+            location.replace('/member/join/step4');
         }
-        // 2. 일반 이메일이 저장되어 있는 경우 -> 입력창에 채워주기
+        // 2. 카카오 임시 이메일(@kakao.viotory.com)이 감지되면 -> 바로 Step 3로 이동 (기존 로직 유지)
+        else if (savedEmail && savedEmail.indexOf('@kakao.viotory.com') > -1) {
+            location.replace('/member/join/step4');
+        }
+        // 3. 일반 이메일이 저장되어 있는 경우 -> 화면의 입력창에만 채워주기
         else if(savedEmail && savedEmail !== 'null') {
             emailInput.value = savedEmail;
             // 유효성 검사 트리거
@@ -112,7 +117,12 @@
             $.post('/member/check/email', {email: email}, function(res) {
                 if(res === 'ok') {
                     sessionStorage.setItem('join_email', email);
-                    location.href = '/member/join/step3';
+                    // 이메일 수동 입력에 성공한 소셜 유저도 4단계로 점프
+                    if (joinProvider && (joinProvider === 'KAKAO' || joinProvider === 'APPLE')) {
+                        location.href = '/member/join/step4';
+                    } else {
+                        location.href = '/member/join/step3';
+                    }
                 } else {
                     alert('이미 가입된 이메일입니다.');
                 }

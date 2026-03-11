@@ -22,7 +22,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        if (!sessionStorage.getItem('join_email')) {
+        const joinProvider = sessionStorage.getItem('join_provider');
+
+        // 소셜 사용자 접근 차단
+        if (joinProvider && (joinProvider === 'KAKAO' || joinProvider === 'APPLE')) {
+            location.replace('/member/join/step4');
+        } else if (!sessionStorage.getItem('join_email')) {
             alert('이전 단계가 완료되지 않았습니다.');
             location.replace('/member/join/step2');
         }

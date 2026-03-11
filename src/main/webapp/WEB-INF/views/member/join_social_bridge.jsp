@@ -24,8 +24,16 @@
             // 1. 기존 가입 데이터 초기화
             sessionStorage.clear();
 
-            // 2. 커스텀 컨펌 호출
-            const msg = "가입된 정보가 없습니다.<br>카카오 계정으로 회원가입을 진행하시겠습니까?";
+            // 2. 전달받은 Provider 확인하여 동적 텍스트 생성
+            var provider = '${kakaoInfo.socialProvider}';
+            var providerName = "카카오"; // 기본값
+
+            if (provider === 'APPLE') {
+                providerName = "Apple";
+            }
+
+            // 3. 커스텀 컨펌 호출
+            const msg = "가입된 정보가 없습니다.<br>" + providerName + " 계정으로 회원가입을 진행하시겠습니까?";
 
             // script.js에 정의된 customConfirm 사용
             customConfirm(msg, function() {

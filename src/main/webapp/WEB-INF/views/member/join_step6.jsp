@@ -140,7 +140,7 @@
                 nickname: nickname,
                 gender: 'U',
                 marketingAgree: sessionStorage.getItem('join_marketing') || 'N',
-                // [핵심 추가] 소셜 로그인 정보 전송
+                // 소셜 로그인 정보 전송
                 socialProvider: sessionStorage.getItem('join_provider') || 'NONE',
                 socialUid: sessionStorage.getItem('join_social_uid') || ''
             };
@@ -148,7 +148,8 @@
             console.log("전송 데이터 확인:", data);
 
             // 데이터 누락 확인
-            if (!data.email || !data.password || !data.phoneNumber) {
+            // 일반 유저만 비밀번호 필수, 소셜 유저는 패스
+            if (!data.email || !data.phoneNumber || (data.socialProvider === 'NONE' && !data.password)) {
                 alert('필수 정보가 누락되었습니다.\n처음부터 다시 시도해주세요.', function() {
                     location.replace('/member/join');
                 });

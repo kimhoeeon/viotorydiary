@@ -158,6 +158,18 @@
             sessionStorage.setItem('join_agree', 'Y');
             sessionStorage.setItem('join_marketing', isLocationAgreed ? 'Y' : 'N'); // DB 컬럼명에 맞춰 마케팅으로 저장하되 내용은 위치정보
 
+            const joinProvider = sessionStorage.getItem('join_provider');
+            const savedEmail = sessionStorage.getItem('join_email');
+
+            // 소셜 가입자(APPLE, KAKAO)이고 이메일이 세션에 있다면
+            // Step 2(이메일 입력)를 건너뛰고 Step 3(비밀번호 입력)으로 바로 이동
+            if (joinProvider && (joinProvider === 'KAKAO' || joinProvider === 'APPLE')) {
+                if (savedEmail && savedEmail !== 'null' && savedEmail.trim() !== '') {
+                    location.href = '/member/join/step4';
+                    return;
+                }
+            }
+
             location.href = '/member/join/step2';
         }
 
