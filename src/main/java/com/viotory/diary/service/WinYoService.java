@@ -31,16 +31,17 @@ public class WinYoService {
         int total = diaries.size();
         int wins = 0;
         int loses = 0;
-        int draws = 0;
 
         // 구장별 방문 횟수 카운팅용 맵
         Map<String, Integer> stadiumCountMap = new HashMap<>();
 
         // 2. 승/패/무 카운트
         for (DiaryVO d : diaries) {
-            if ("WIN".equals(d.getGameResult())) wins++;
-            else if ("LOSE".equals(d.getGameResult())) loses++;
-            else draws++;
+            if ("WIN".equals(d.getGameResult())) {
+                wins++;
+            } else if ("LOSE".equals(d.getGameResult())) {
+                loses++;
+            }
 
             // 2. 구장 카운트
             if (d.getStadiumName() != null) {
@@ -66,7 +67,7 @@ public class WinYoService {
                 .totalGames(total)
                 .winGames(wins)
                 .loseGames(loses)
-                .drawGames(draws)
+                .drawGames(0)
                 .winRate(winRate)
                 .topStadium(topStadium)
                 .build();

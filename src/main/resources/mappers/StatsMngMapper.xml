@@ -5,39 +5,24 @@
 
     <select id="selectWinRateRanking" resultType="com.viotory.diary.vo.UserStatsVO">
         <![CDATA[
-        SELECT
-            m.member_id,
-            m.nickname,
-            m.my_team_code,
-            t.name_kr AS myTeamName,
+        SELECT m.member_id,
+               m.nickname,
+               m.my_team_code,
+               t.name_kr                                         AS myTeamName,
 
-            -- 직관 일기(diaries) 기준으로 총 직관 횟수 계산
-            COUNT(d.diary_id) AS totalGames,
+               -- 직관 일기(diaries) 기준으로 총 직관 횟수 계산
+               COUNT(d.diary_id)                                 AS totalGames,
 
-            -- 실제 경기 점수와 사용자의 일기 작성 당시 응원팀을 비교하여 승리(적중) 집계
-            SUM(CASE
-                    WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) THEN 1
-                    WHEN (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1
-                    ELSE 0
-                END) AS winGames,
-
-            -- 실제 경기 점수와 사용자의 일기 작성 당시 응원팀을 비교하여 패배 집계
-            SUM(CASE
-                    WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away) THEN 1
-                    WHEN (d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home) THEN 1
-                    ELSE 0
-                END) AS loseGames,
-
-            -- 무승부 집계 (승률 계산 시 분모에는 포함되나, 승리에는 포함 안 됨)
-            SUM(CASE
-                    WHEN g.score_home = g.score_away THEN 1
-                    ELSE 0
-                END) AS drawGames
+               -- 승부 예측(predictions) 적중 여부를 기준으로 승/패 집계 (무승부 없음)
+               SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) AS winGames,
+               SUM(CASE WHEN p.is_correct = 0 THEN 1 ELSE 0 END) AS loseGames,
+               0                                                 AS drawGames
 
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
                  LEFT JOIN teams t ON m.my_team_code = t.team_code
+                 LEFT JOIN predictions p ON d.game_id = p.game_id AND d.member_id = p.member_id
         WHERE d.status = 'COMPLETED'
           AND d.is_verified = 1
           AND g.status = 'FINISHED'
@@ -64,16 +49,12 @@
 
     <select id="selectTotalAvgWinRate" resultType="double">
         <![CDATA[
-        SELECT
-            IFNULL(
-                    (SUM(CASE
-                             WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) THEN 1
-                             WHEN (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home) THEN 1
-                             ELSE 0
-                        END) * 100.0 / NULLIF(COUNT(d.diary_id), 0))
-                , 0) AS avgWinRate
+        SELECT IFNULL(
+                       (SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(d.diary_id), 0))
+                   , 0) AS avgWinRate
         FROM diaries d
-        INNER JOIN games g ON d.game_id = g.game_id
+                 INNER JOIN games g ON d.game_id = g.game_id
+                 LEFT JOIN predictions p ON d.game_id = p.game_id AND d.member_id = p.member_id
         WHERE d.is_verified = 1
           AND g.status = 'FINISHED'
           AND d.status = 'COMPLETED'
@@ -85,7 +66,7 @@
         <![CDATA[
         SELECT IFNULL(COUNT(d.diary_id) / NULLIF(#{mau}, 0), 0) AS avgMonthlyDiaries
         FROM diaries d
-        INNER JOIN games g ON d.game_id = g.game_id
+                 INNER JOIN games g ON d.game_id = g.game_id
         WHERE d.created_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
           AND d.status = 'COMPLETED'
           AND g.status != 'CANCELLED'
@@ -95,7 +76,7 @@
     <select id="selectWeeklyAccessStats" resultType="map">
         <![CDATA[
         SELECT DATE_FORMAT(login_date, '%Y-%m-%d') as logDate,
-               COUNT(member_id) as cnt
+               COUNT(member_id)                    as cnt
         FROM access_logs
         WHERE login_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
         GROUP BY login_date
