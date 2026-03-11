@@ -178,7 +178,25 @@
                                                     <span class="fw-bold fs-6 text-gray-800">
                                                         <c:choose>
                                                             <c:when test="${not empty diary.predScoreAway and not empty diary.predScoreHome}">
-                                                                예상 스코어 : ${diary.predScoreAway} (어웨이) vs ${diary.predScoreHome} (홈)
+                                                                <span class="me-2">예상 스코어 : ${diary.predScoreAway} (원정) vs ${diary.predScoreHome} (홈)</span>
+
+                                                                <%-- 실제 결과와 예측 결과 비교 로직 추가 --%>
+                                                                <c:choose>
+                                                                    <c:when test="${diary.gameStatus eq 'FINISHED'}">
+                                                                        <c:choose>
+                                                                            <c:when test="${diary.predScoreHome == diary.scoreHome and diary.predScoreAway == diary.scoreAway}">
+                                                                                <span class="badge badge-success">적중 (승요력 +1)</span>
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                <span class="badge badge-danger">미적중</span>
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <span class="badge badge-warning">결과 대기중</span>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+
                                                             </c:when>
                                                             <c:otherwise><span class="text-muted fs-7">스코어 예측 없음</span></c:otherwise>
                                                         </c:choose>

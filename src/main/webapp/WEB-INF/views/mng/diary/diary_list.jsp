@@ -77,8 +77,10 @@
                                             <input type="hidden" name="amount" value="${pageMaker.cri.amount}">
 
                                             <div class="position-relative w-md-400px me-md-2">
-                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6"><span
-                                                        class="path1"></span><span class="path2"></span></i>
+                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
                                                 <input type="text" class="form-control form-control-solid ps-10"
                                                        name="keyword" value="${pageMaker.cri.keyword}"
                                                        placeholder="내용 또는 작성자 검색"/>
@@ -185,6 +187,32 @@
                                                                                 <div class="d-flex flex-column align-items-center">
                                                                                     <span class="badge badge-light fs-8 mb-1">${item.gameDate}</span>
                                                                                     <span class="fw-bold text-gray-800">${item.awayTeamName} vs ${item.homeTeamName}</span>
+
+                                                                                        <%-- 예측 결과 및 실제 결과 표기 (경기 종료시에만 비교) --%>
+                                                                                    <c:if test="${not empty item.predScoreHome and not empty item.predScoreAway}">
+                                                                                        <div class="mt-2 text-muted fs-8">
+                                                                                            예측: [${item.predScoreAway} : ${item.predScoreHome}]
+                                                                                            <c:choose>
+                                                                                                <c:when test="${item.gameStatus eq 'FINISHED'}">
+                                                                                                    <c:choose>
+                                                                                                        <c:when test="${item.predScoreHome == item.scoreHome and item.predScoreAway == item.scoreAway}">
+                                                                                                            <span class="badge badge-light-success fs-9 ms-1 py-1">적중</span>
+                                                                                                        </c:when>
+                                                                                                        <c:otherwise>
+                                                                                                            <span class="badge badge-light-danger fs-9 ms-1 py-1">미적중</span>
+                                                                                                        </c:otherwise>
+                                                                                                    </c:choose>
+                                                                                                </c:when>
+                                                                                                <c:otherwise>
+                                                                                                    <span class="badge badge-light-warning fs-9 ms-1 py-1">진행중</span>
+                                                                                                </c:otherwise>
+                                                                                            </c:choose>
+                                                                                        </div>
+                                                                                    </c:if>
+                                                                                    <c:if test="${empty item.predScoreHome or empty item.predScoreAway}">
+                                                                                        <div class="mt-2 text-muted fs-8">예측: -</div>
+                                                                                    </c:if>
+
                                                                                 </div>
                                                                             </c:when>
                                                                             <c:otherwise>
