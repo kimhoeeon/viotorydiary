@@ -3,17 +3,18 @@ package com.viotory.diary.controller;
 import com.viotory.diary.service.PlayService;
 import com.viotory.diary.vo.GameVO;
 import com.viotory.diary.vo.MemberVO;
-import com.viotory.diary.vo.PredictionVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/play")
@@ -31,11 +32,7 @@ public class PlayController {
         // 1. 오늘 날짜 구하기
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        // 2. 오늘의 경기 목록
-        List<GameVO> todayGames = playService.getGameList(loginMember.getMemberId(), today);
-
         model.addAttribute("today", today);
-        model.addAttribute("todayGames", todayGames);
 
         return "play/play"; // views/play/play.jsp
     }
@@ -57,20 +54,4 @@ public class PlayController {
         return playService.getGameList(loginMember.getMemberId(), date);
     }
 
-    // [AJAX] 승부 예측 제출
-    @PostMapping("/predict")
-    @ResponseBody
-    public String predict(@RequestParam("gameId") Long gameId,
-                          @RequestParam("teamCode") String teamCode,
-                          HttpSession session) {
-        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) return "fail:login";
-
-        try {
-            playService.submitPrediction(loginMember.getMemberId(), gameId, teamCode);
-            return "ok";
-        } catch (Exception e) {
-            return "fail";
-        }
-    }
 }
