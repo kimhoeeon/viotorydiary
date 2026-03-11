@@ -82,9 +82,11 @@
                                                 <button type="button" class="btn btn-sm btn-light-danger me-2" onclick="changeStatus('WITHDRAWN')">
                                                     강제 탈퇴
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-light-primary" onclick="resetPassword()">
-                                                    비밀번호 초기화
-                                                </button>
+                                                <c:if test="${empty member.socialProvider or member.socialProvider eq 'NONE' or member.socialProvider eq 'EMAIL'}">
+                                                    <button type="button" class="btn btn-sm btn-light-primary" onclick="resetPassword()">
+                                                        비밀번호 초기화
+                                                    </button>
+                                                </c:if>
                                             </c:if>
                                             <c:if test="${member.status eq 'SUSPENDED'}">
                                                 <button type="button" class="btn btn-sm btn-light-success me-2" onclick="changeStatus('ACTIVE')">
@@ -155,10 +157,17 @@
                                             <div class="row align-items-center">
                                                 <label class="col-lg-2 fw-semibold text-muted">비밀번호</label>
                                                 <div class="col-lg-4">
-                                                    <div class="d-flex align-items-center">
-                                                        <button type="button" class="btn btn-sm btn-danger text-nowrap me-3" onclick="resetPassword()">비밀번호 초기화</button>
-                                                    </div>
-                                                    <div class="fs-8 text-muted mt-2">(가입된 연락처로 SMS 임시 비밀번호 발송)</div>
+                                                    <c:choose>
+                                                        <c:when test="${empty member.socialProvider or member.socialProvider eq 'NONE' or member.socialProvider eq 'EMAIL'}">
+                                                            <div class="d-flex align-items-center">
+                                                                <button type="button" class="btn btn-sm btn-danger text-nowrap me-3" onclick="resetPassword()">비밀번호 초기화</button>
+                                                            </div>
+                                                            <div class="fs-8 text-muted mt-2">(가입된 연락처로 SMS 임시 비밀번호 발송)</div>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="badge badge-light-secondary fs-7">소셜 로그인 계정 (초기화 불가)</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </div>
                                                 <label class="col-lg-2 fw-semibold text-muted">생년월일</label>
                                                 <div class="col-lg-4">
@@ -361,6 +370,8 @@
                             alert("비밀번호 초기화 완료 및 SMS 문자가 정상 발송되었습니다.");
                         } else if(res === 'no_phone') {
                             alert("등록된 연락처가 없어 SMS를 발송할 수 없습니다.");
+                        } else if(res === 'is_social') {
+                            alert("소셜 가입자는 비밀번호를 초기화할 수 없습니다.");
                         } else {
                             alert("처리 중 오류가 발생했습니다.");
                         }

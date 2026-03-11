@@ -47,6 +47,12 @@ public class MemberMngService {
         MemberVO member = memberMngMapper.selectMemberById(memberId);
         if (member == null) return "not_found";
 
+        // 소셜 가입자인 경우 초기화 요청 차단 로직 추가
+        if (member.getSocialProvider() != null &&
+                ("KAKAO".equals(member.getSocialProvider()) || "APPLE".equals(member.getSocialProvider()))) {
+            return "is_social";
+        }
+
         try {
             // 1. 임시 비밀번호 생성 (8자리 랜덤)
             String tempPw = StringUtil.getRandomString(8);
