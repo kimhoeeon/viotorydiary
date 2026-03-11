@@ -4,8 +4,6 @@ import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.service.AlarmService;
 import com.viotory.diary.service.GameDataService;
 import com.viotory.diary.service.GameService;
-import com.viotory.diary.service.PlayService;
-import com.viotory.diary.vo.AlarmVO;
 import com.viotory.diary.vo.GameVO;
 import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;

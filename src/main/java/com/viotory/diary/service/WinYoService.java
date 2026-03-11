@@ -2,10 +2,8 @@ package com.viotory.diary.service;
 
 import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.mapper.DiaryMapper;
-import com.viotory.diary.mapper.PredictionMapper;
 import com.viotory.diary.mapper.WinYoMentionMapper;
 import com.viotory.diary.vo.DiaryVO;
-import com.viotory.diary.vo.PredictionVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
