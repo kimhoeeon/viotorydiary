@@ -5,22 +5,19 @@
 
     <select id="selectWinRateRanking" resultType="com.viotory.diary.vo.UserStatsVO">
         <![CDATA[
-        SELECT m.member_id,
-               m.nickname,
-               m.my_team_code,
-               t.name_kr                                                                                              AS myTeamName,
-               -- 직관 일기(diaries) 기준으로 총 직관 횟수 계산
-               COUNT(d.diary_id)                                                                                      AS totalGames,
+        SELECT
+            m.member_id,
+            m.nickname,
+            m.my_team_code,
+            t.name_kr AS myTeamName,
 
-               -- 승부 예측(diaries 스코어) 적중 여부를 기준으로 승/패 집계 (무승부 없음)
-               SUM(CASE
-                       WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1
-                       ELSE 0 END)                                                                                    AS winGames,
-               SUM(CASE
-                       WHEN d.pred_score_home IS NOT NULL AND
-                            (d.pred_score_home != g.score_home OR d.pred_score_away != g.score_away) THEN 1
-                       ELSE 0 END)                                                                                    AS loseGames,
-               0                                                                                                      AS drawGames
+            -- 승부 예측(스코어 입력)을 남긴 직관 일기 수만 '총 게임수'로 계산 (분모)
+            SUM(CASE WHEN d.pred_score_home IS NOT NULL AND d.pred_score_away IS NOT NULL THEN 1 ELSE 0 END) AS totalGames,
+
+            -- 스코어 적중 여부를 기준으로 승/패 집계 (무승부 없음)
+            SUM(CASE WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1 ELSE 0 END) AS winGames,
+            SUM(CASE WHEN d.pred_score_home IS NOT NULL AND d.pred_score_away IS NOT NULL AND (d.pred_score_home != g.score_home OR d.pred_score_away != g.score_away) THEN 1 ELSE 0 END) AS loseGames,
+            0 AS drawGames
 
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
@@ -31,6 +28,8 @@
           AND g.status = 'FINISHED'
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
         GROUP BY m.member_id
+        -- 최소 예측 게임 수가 있는 유저만 랭킹 대상
+        HAVING totalGames > 0
         ORDER BY winGames DESC, totalGames DESC
         LIMIT 100
         ]]>
@@ -52,12 +51,11 @@
 
     <select id="selectTotalAvgWinRate" resultType="double">
         <![CDATA[
-        SELECT IFNULL(
-                       (SUM(CASE
-                                WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1
-                                ELSE 0 END) * 100.0
-                           / NULLIF(SUM(CASE WHEN d.pred_score_home IS NOT NULL THEN 1 ELSE 0 END), 0))
-                   , 0) AS avgWinRate
+        SELECT
+            IFNULL(
+                    (SUM(CASE WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1 ELSE 0 END) * 100.0
+                        / NULLIF(SUM(CASE WHEN d.pred_score_home IS NOT NULL AND d.pred_score_away IS NOT NULL THEN 1 ELSE 0 END), 0))
+                , 0) AS avgWinRate
         FROM diaries d
                  INNER JOIN games g ON d.game_id = g.game_id
         WHERE d.is_verified = 1
@@ -81,7 +79,7 @@
     <select id="selectWeeklyAccessStats" resultType="map">
         <![CDATA[
         SELECT DATE_FORMAT(login_date, '%Y-%m-%d') as logDate,
-               COUNT(member_id)                    as cnt
+               COUNT(member_id) as cnt
         FROM access_logs
         WHERE login_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
         GROUP BY login_date

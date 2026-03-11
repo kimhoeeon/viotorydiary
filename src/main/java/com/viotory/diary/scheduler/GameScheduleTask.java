@@ -22,7 +22,6 @@ public class GameScheduleTask {
 
     private final GameDataService gameDataService;
     private final GameService gameService; // DB 조회용
-    private final PlayService playService; // 승부예측 처리용
     private final AlarmService alarmService; // 알림 서비스 주입
     private final MemberMapper memberMapper;
 
@@ -83,11 +82,6 @@ public class GameScheduleTask {
 
                         // 3. DB에 확실하게 변경된 상태 저장
                         gameDataService.updateGameStatus(updatedGame);
-
-                        // 4. 경기가 종료되거나 취소되었을 때 승부예측 결과 정산 로직 실행
-                        if ("FINISHED".equals(updatedGame.getStatus()) || "CANCELLED".equals(updatedGame.getStatus())) {
-                            playService.processPredictionResult(updatedGame);
-                        }
                     }
                 }
             } catch (InterruptedException e) {

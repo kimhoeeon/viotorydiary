@@ -166,28 +166,6 @@
         <%@ include file="../include/tabbar.jsp" %>
     </div>
 
-    <div class="popup-dim" id="predictPopup" style="display:none;">
-        <div class="popup-box">
-            <div class="popup-head">
-                <h3 class="popup-tit">승부 예측</h3>
-                <button type="button" class="popup-close" onclick="$('#predictPopup').hide()">
-                    <img src="/img/ico_close.svg" alt="닫기">
-                </button>
-            </div>
-            <div class="popup-body">
-                <p class="txt-center mb-16" style="color:#666; font-size:14px;">승리할 팀을 선택해주세요!</p>
-                <div class="row gap-10">
-                    <button type="button" class="team-select-btn" id="btnAway" onclick="selectTeam('AWAY')">AWAY</button>
-                    <button type="button" class="team-select-btn" id="btnHome" onclick="selectTeam('HOME')">HOME</button>
-                </div>
-                <input type="hidden" id="popGameId">
-            </div>
-            <div class="popup-foot mt-16">
-                <button type="button" class="btn btn-primary" onclick="submitPrediction()">저장하기</button>
-            </div>
-        </div>
-    </div>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
@@ -205,24 +183,6 @@
             }
         }
 
-        // [이벤트 위임] 버튼 클릭 핸들러
-        $(document).on('click', '.btn-predict', function() {
-            const gameId = $(this).data('gameId');
-            const homeName = $(this).data('homeName');
-            const awayName = $(this).data('awayName');
-            const homeCode = $(this).data('homeCode');
-            const awayCode = $(this).data('awayCode');
-
-            selectedGameId = gameId;
-            selectedTeamCode = null;
-
-            $('#btnHome').text(homeName).data('code', homeCode).removeClass('active');
-            $('#btnAway').text(awayName).data('code', awayCode).removeClass('active');
-            $('#popGameId').val(gameId);
-
-            $('#predictPopup').fadeIn();
-        });
-
         // 캘린더 로직 (IIFE)
         (function() {
             const weekLabelEl = document.getElementById('weekLabel');
@@ -238,7 +198,6 @@
             const monthNextBtn = document.getElementById('monthNext');
             const monthLabelEl = document.getElementById('monthLabel');
             const monthGridEl = document.getElementById('monthGrid');
-
             const monthApplyBtn = document.getElementById('monthApplyBtn');
             const monthMatchBox = document.querySelector('.month-match');
             const monthMatchText = document.getElementById('monthMatchText');
@@ -247,7 +206,6 @@
             let monthCursor = new Date();
             let popupSelectedDateStr = '';
 
-            // 월별 경기 일정 캐시 (Key: "yyyy-MM", Value: ["2024-03-01", ...])
             const monthlyScheduleCache = {};
 
             function formatYMD(date) {
@@ -284,7 +242,6 @@
                 dateGridEl.innerHTML = '';
                 const sunday = getSundayOfWeek(currentWeekDate);
                 const selectedStr = selectedInput.value || formatYMD(new Date());
-
                 for (let i = 0; i < 7; i++) {
                     const d = new Date(sunday);
                     d.setDate(sunday.getDate() + i);
@@ -316,11 +273,7 @@
                 const firstDow = firstDay.getDay();
                 const lastDay = new Date(year, month + 1, 0).getDate();
                 const todayStr = formatYMD(new Date());
-
-                // 빈 칸 채우기
                 for (let i = 0; i < firstDow; i++) monthGridEl.appendChild(document.createElement('div'));
-
-                // 날짜 생성
                 for (let d = 1; d <= lastDay; d++) {
                     const btn = document.createElement('button');
                     btn.type = 'button';
@@ -328,13 +281,9 @@
                     btn.textContent = d;
 
                     const ymd = formatYMD(new Date(year, month, d));
-
-                    // [중요] 나중에 점을 찍기 위해 data-date 속성 추가
                     btn.dataset.date = ymd;
-
                     if (ymd === todayStr) btn.classList.add('is-today');
                     if (ymd === popupSelectedDateStr) btn.classList.add('is-selected');
-
                     btn.addEventListener('click', () => {
                         const prev = monthGridEl.querySelector('.month-day.is-selected');
                         if(prev) prev.classList.remove('is-selected');
@@ -347,34 +296,27 @@
                     monthGridEl.appendChild(btn);
                 }
 
-                // 달력 렌더링 후, 경기가 있는 날짜 불러와서 표시하기
                 loadMonthlyDots(year, month + 1);
             }
 
-            // 월별 경기 일정 조회 및 점(Dot) 표시 함수
             function loadMonthlyDots(year, month) {
-                const cacheKey = `\${year}-\${month}`; // ex: 2024-3
+                const cacheKey = `\${year}-\${month}`;
 
-                // 1. 캐시 확인
                 if (monthlyScheduleCache[cacheKey]) {
                     applyDotsToCalendar(monthlyScheduleCache[cacheKey]);
                     return;
                 }
 
-                // 2. 서버 요청 (없으면)
                 $.get('/play/monthly-schedule', { year: year, month: month }, function(dates) {
                     if (dates) {
-                        monthlyScheduleCache[cacheKey] = dates; // 캐시에 저장
+                        monthlyScheduleCache[cacheKey] = dates;
                         applyDotsToCalendar(dates);
                     }
                 });
             }
 
-            // DOM에 점 표시 적용
             function applyDotsToCalendar(dateList) {
                 dateList.forEach(dateStr => {
-                    // 해당 날짜의 버튼을 찾아 클래스 추가
-                    // 외부 CSS(.month-day.is-mark)가 적용됨
                     const btn = monthGridEl.querySelector(`.month-day[data-date="\${dateStr}"]`);
                     if (btn) {
                         btn.classList.add('is-mark');
@@ -403,6 +345,7 @@
                 monthCursor = new Date(base.getFullYear(), base.getMonth(), 1);
                 popupSelectedDateStr = selectedInput.value;
                 renderMonthView();
+
                 monthSheetBackdrop.classList.add('is-open');
 
                 if (popupSelectedDateStr) {
@@ -410,7 +353,6 @@
                     monthApplyBtn.disabled = false;
                 }
             });
-
             monthCloseBtn.addEventListener('click', () => monthSheetBackdrop.classList.remove('is-open'));
             monthPrevBtn.addEventListener('click', () => { monthCursor.setMonth(monthCursor.getMonth() - 1); renderMonthView(); });
             monthNextBtn.addEventListener('click', () => { monthCursor.setMonth(monthCursor.getMonth() + 1); renderMonthView(); });
@@ -422,26 +364,19 @@
                 loadGames(popupSelectedDateStr);
                 monthSheetBackdrop.classList.remove('is-open');
             });
-
-            // [수정 적용] 주차 이동 시 '월요일' 자동 선택 함수
             function moveWeekAndSelectMonday(direction) {
-                // 1. 주차 이동 (+7일 or -7일)
                 currentWeekDate.setDate(currentWeekDate.getDate() + (direction * 7));
-
-                // 2. 해당 주의 월요일 계산 (일요일 + 1일)
                 const sunday = getSundayOfWeek(currentWeekDate);
                 const monday = new Date(sunday);
                 monday.setDate(sunday.getDate() + 1);
 
-                // 3. 값 업데이트 및 데이터 로드
                 const monStr = formatYMD(monday);
-                selectedInput.value = monStr; // 선택된 날짜(hidden input)를 월요일로 변경
+                selectedInput.value = monStr;
 
-                renderWeekView(); // 달력 다시 그리기 (월요일에 is-selected 적용됨)
-                loadGames(monStr); // 월요일 경기 목록 조회
+                renderWeekView();
+                loadGames(monStr);
             }
 
-            // 이벤트 연결
             prevWeekBtn.addEventListener('click', () => moveWeekAndSelectMonday(-1));
             nextWeekBtn.addEventListener('click', () => moveWeekAndSelectMonday(1));
 
@@ -452,6 +387,7 @@
 
         // AJAX 경기 목록 로드
         let cachedGames = [];
+
         function loadGames(dateStr) {
             $.get('/play/games', { date: dateStr }, function(data) {
                 cachedGames = data || [];
@@ -460,10 +396,8 @@
         }
 
         function filterMyTeam() {
-            // 체크박스 상태가 변경될 때마다 브라우저 로컬 스토리지에 저장
             const isChecked = $('#myTeam').is(':checked');
             localStorage.setItem('myTeamOnly', isChecked);
-
             renderGameList();
         }
 
@@ -471,9 +405,9 @@
             const list = $('#gameListArea');
             list.empty();
 
-            // "우리팀만 보기" 필터링 로직 유지
             const isMyTeamOnly = $('#myTeam').is(':checked');
             let games = cachedGames;
+
             if (isMyTeamOnly) {
                 games = games.filter(g => g.homeTeamCode === MY_TEAM_CODE || g.awayTeamCode === MY_TEAM_CODE);
             }
@@ -483,38 +417,30 @@
                 return;
             }
 
-            const now = new Date();
             games.forEach(game => {
                 const homeCodeLower = (game.homeTeamCode || '').toLowerCase();
                 const awayCodeLower = (game.awayTeamCode || '').toLowerCase();
-                // 이미지 에러 처리를 위한 변수 처리
                 const homeSrc = game.homeTeamLogo ? game.homeTeamLogo : `/img/logo/logo_\${homeCodeLower}.svg`;
                 const awaySrc = game.awayTeamLogo ? game.awayTeamLogo : `/img/logo/logo_\${awayCodeLower}.svg`;
 
-                // 취소 사유 표시
                 let cancelReasonHtml = '';
                 if(game.status === 'CANCELLED' && game.cancelReason) {
                     cancelReasonHtml = `<div class="cancel-reason">(\${game.cancelReason})</div>`;
                 }
 
-                // 선발 투수 정보
                 let homeStarterHtml = '';
                 let awayStarterHtml = '';
-                // 예정이거나 경기중일 때만 투수 표시 (취소 시 표시 안 함)
                 if(game.status !== 'CANCELLED') {
                     if(game.homeStarter) homeStarterHtml = `<div class="pitcher-name">\${game.homeStarter}</div>`;
                     if(game.awayStarter) awayStarterHtml = `<div class="pitcher-name">\${game.awayStarter}</div>`;
                 }
 
-                // 승리 팀 스타일 클래스
                 let winClassHome = (game.status === 'FINISHED' && game.scoreHome > game.scoreAway) ? 'win' : '';
                 let winClassAway = (game.status === 'FINISHED' && game.scoreAway > game.scoreHome) ? 'win' : '';
 
-                // MY팀 뱃지
                 let myTeamBadgeHome = (game.homeTeamCode === MY_TEAM_CODE) ? '<div class="my-team">MY</div>' : '';
                 let myTeamBadgeAway = (game.awayTeamCode === MY_TEAM_CODE) ? '<div class="my-team">MY</div>' : '';
 
-                // 경기 상태 텍스트 및 클래스
                 let statusClass = 'schedule';
                 let statusText = '예정';
                 if(game.status === 'LIVE') { statusClass = 'during'; statusText = '경기중'; }
@@ -524,48 +450,17 @@
                 let scoreHome = (game.status === 'SCHEDULED') ? '0' : game.scoreHome;
                 let scoreAway = (game.status === 'SCHEDULED') ? '0' : game.scoreAway;
 
-                // 버튼 로직 분기 처리 (작성 여부에 따른 직관일기 버튼 통일 및 취소경기 노출 허용)
                 let btnHtml = '';
-                let predictionBtnHtml = '';
                 let diaryBtnHtml = '';
                 const isWritten = (game.diaryId && game.diaryId > 0);
 
-                // 1. 승부 예측 버튼 로직 (예정된 경기만 노출)
-                /*if (game.status === 'SCHEDULED') {
-                    if (game.myPredictedTeam) {
-                        predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>예측 완료 (\${game.myPredictedTeam})</button>`;
-                    } else {
-                        // 시간 계산 (D-Day 등)
-                        const gameDateTime = new Date(`\${game.gameDate}T\${game.gameTime}`);
-                        const diffMs = gameDateTime - now;
-                        const diffHours = diffMs / (1000 * 60 * 60);
-
-                        if (diffHours > 24) {
-                            predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>오픈 예정 (D-\${Math.floor(diffHours/24)})</button>`;
-                        } else if (diffHours > 0) {
-                            predictionBtnHtml = `<button type="button" class="btn btn-primary mt-8 btn-predict"
-                                       data-game-id="\${game.gameId}"
-                                       data-home-name="\${game.homeTeamName}"
-                                       data-away-name="\${game.awayTeamName}"
-                                       data-home-code="\${game.homeTeamCode}"
-                                       data-away-code="\${game.awayTeamCode}">
-                                   승부예측 하기</button>`;
-                        } else {
-                            predictionBtnHtml = `<button type="button" class="btn btn-gray mt-8" disabled>경기 준비중</button>`;
-                        }
-                    }
-                }*/
-
-                // 2. 직관일기/인증 버튼 (모든 상태 및 취소된 경기에서도 표시)
                 if (isWritten) {
-                    // main.jsp와 동일한 btn-primary 스타일 적용 및 SVG 화살표 제거
                     diaryBtnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn btn-primary mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">일기 보기</a>`;
                 } else {
-                    // main.jsp와 동일한 btn-primary 스타일 적용 및 img 화살표 사용
                     diaryBtnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn btn-primary mt-8">직관 인증하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>`;
                 }
 
-                btnHtml = /*predictionBtnHtml + */diaryBtnHtml;
+                btnHtml = diaryBtnHtml;
 
                 let html = `
                         <div class="card_item game-item" data-home="\${game.homeTeamCode}" data-away="\${game.awayTeamCode}">
@@ -606,36 +501,13 @@
             });
         }
 
-        let selectedGameId = null;
-        let selectedTeamCode = null;
-
-        function selectTeam(side) {
-            $('.team-select-btn').removeClass('active');
-            const btn = side === 'HOME' ? $('#btnHome') : $('#btnAway');
-            btn.addClass('active');
-            selectedTeamCode = btn.data('code');
-        }
-
-        function submitPrediction() {
-            if (!selectedTeamCode) {
-                alert('팀을 선택해주세요.');
-                return;
-            }
-            $.post('/play/predict', { gameId: selectedGameId, teamCode: selectedTeamCode }, function(res) {
-                if (res === 'ok') { alert('저장되었습니다.'); location.reload(); }
-                else if (res === 'fail:login') location.href = '/member/login';
-                else alert('오류가 발생했습니다.');
-            });
-        }
-
         // 초기 로딩 시 데이터 조회
         $(document).ready(function() {
-            // 로컬 스토리지에서 '우리팀만 보기' 설정 불러오기
             const savedState = localStorage.getItem('myTeamOnly');
             if (savedState === 'true') {
                 $('#myTeam').prop('checked', true);
             } else {
-                $('#myTeam').prop('checked', false); // 디폴트 해제 상태
+                $('#myTeam').prop('checked', false);
             }
 
             const initDate = $('#selectedDate').val();

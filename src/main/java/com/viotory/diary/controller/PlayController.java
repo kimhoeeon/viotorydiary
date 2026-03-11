@@ -31,17 +31,11 @@ public class PlayController {
         // 1. 오늘 날짜 구하기
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        // 2. 오늘의 경기 목록 (예측 정보 포함)
-        List<GameVO> todayGames = playService.getGameListWithPrediction(loginMember.getMemberId(), today);
-
-        // 3. 예측 히스토리 및 통계
-        List<PredictionVO> history = playService.getPredictionHistory(loginMember.getMemberId());
-        Map<String, Object> stats = playService.getPredictionStats(loginMember.getMemberId());
+        // 2. 오늘의 경기 목록
+        List<GameVO> todayGames = playService.getGameList(loginMember.getMemberId(), today);
 
         model.addAttribute("today", today);
         model.addAttribute("todayGames", todayGames);
-        model.addAttribute("history", history);
-        model.addAttribute("stats", stats);
 
         return "play/play"; // views/play/play.jsp
     }
@@ -60,7 +54,7 @@ public class PlayController {
     @ResponseBody
     public List<GameVO> getGamesByDate(@RequestParam("date") String date, HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        return playService.getGameListWithPrediction(loginMember.getMemberId(), date);
+        return playService.getGameList(loginMember.getMemberId(), date);
     }
 
     // [AJAX] 승부 예측 제출
