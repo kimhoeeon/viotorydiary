@@ -22,4 +22,10 @@ public interface PredictionMapper {
     int updatePredictionResult(@Param("predictionId") Long predictionId, @Param("isCorrect") Boolean isCorrect);
 
     void updateAlarmSent(Long predictionId);
+
+    // 특정 회원의 전체 승부 예측 내역 조회
+    List<PredictionVO> selectPredictionsByMember(Long memberId);
+
+    // 특정 회원의 특정 경기 승부 예측 단건 조회
+    PredictionVO selectPredictionByMemberAndGame(@Param("memberId") Long memberId, @Param("gameId") Long gameId);
 }

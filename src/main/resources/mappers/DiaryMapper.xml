@@ -36,8 +36,7 @@
         WHERE d.member_id = #{memberId}
           AND d.is_verified = 1
           AND g.status = 'FINISHED'
-          AND d.status = 'COMPLETED' /* [중요] 삭제된 글('DELETED') 제외 */
-            /* [핵심 수정] 승률 통계는 정규시즌(REGULAR)과 포스트시즌(POST)만 포함 */
+          AND d.status = 'COMPLETED'
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
         ORDER BY g.game_date DESC
         ]]>
@@ -70,25 +69,18 @@
     <select id="selectWinYoRankingTop10" resultType="com.viotory.diary.dto.WinYoAnalysisDTO">
         <![CDATA[
         SELECT m.nickname,
-               COUNT(d.diary_id)                               AS totalGames,
-               SUM(CASE
-                       WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR
-                            (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home)
-                           THEN 1
-                       ELSE 0 END)                             AS winGames,
-               (SUM(CASE
-                        WHEN (d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away) OR
-                             (d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home)
-                            THEN 1
-                        ELSE 0 END) / COUNT(d.diary_id)) * 100 AS winRate
+               COUNT(d.diary_id) AS totalGames,
+               SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) AS winGames,
+               (SUM(CASE WHEN p.is_correct = 1 THEN 1 ELSE 0 END) / COUNT(d.diary_id)) * 100 AS winRate
         FROM diaries d
                  JOIN games g ON d.game_id = g.game_id
                  JOIN members m ON d.member_id = m.member_id
+                 LEFT JOIN predictions p ON d.game_id = p.game_id AND d.member_id = p.member_id
         WHERE d.is_verified = 1
           AND g.status = 'FINISHED'
           AND d.status != 'INVALID'
         GROUP BY d.member_id
-        HAVING totalGames >= 5 /* 최소 5경기 이상 직관한 사람만 랭킹 대상 */
+        HAVING totalGames >= 5
         ORDER BY winGames DESC, winRate DESC
         LIMIT 10
         ]]>
@@ -202,11 +194,11 @@
                g.score_home,
                g.score_away,
 
-               g.status AS gameStatus,
-               g.cancel_reason AS cancelReason,
+               g.status                     AS gameStatus,
+               g.cancel_reason              AS cancelReason,
 
-               t1.name_kr AS homeTeamName,
-               t2.name_kr AS awayTeamName,
+               t1.name_kr                   AS homeTeamName,
+               t2.name_kr                   AS awayTeamName,
                IFNULL(s.short_name, s.name) AS stadiumName,
 
                -- 승패 판별 (승요 서비스 로직과 동일)
@@ -215,7 +207,7 @@
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                    ELSE 'NONE' -- 경기 전 or 취소
-                   END    AS gameResult
+                   END                      AS gameResult
 
         FROM diaries d
                  JOIN games g ON d.game_id = g.game_id
@@ -278,7 +270,7 @@
         SET status     = #{status},
             updated_at = NOW()
         WHERE diary_id = #{diaryId}
-          AND member_id = #{memberId} -- 본인 확인
+          AND member_id = #{memberId}
     </update>
 
     <update id="updateViewCount">
@@ -464,7 +456,6 @@
                  LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
         WHERE d.share_uuid = #{uuid}
           AND d.status = 'COMPLETED' /* 삭제된 글 노출 방지 */
-        /* is_public 체크는 서비스 로직에서 처리 (삭제된 글 안내 등을 위해) */
     </select>
 
     <select id="countTotalDiaries" resultType="int">

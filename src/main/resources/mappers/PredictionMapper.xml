@@ -59,4 +59,17 @@
         WHERE prediction_id = #{predictionId}
     </update>
 
+    <select id="selectPredictionsByMember" resultType="com.viotory.diary.vo.PredictionVO">
+        SELECT *
+        FROM predictions
+        WHERE member_id = #{memberId}
+    </select>
+
+    <select id="selectPredictionByMemberAndGame" resultType="com.viotory.diary.vo.PredictionVO">
+        SELECT *
+        FROM predictions
+        WHERE member_id = #{memberId} AND game_id = #{gameId}
+        LIMIT 1
+    </select>
+
 </mapper>
