@@ -15,4 +15,8 @@ public interface StatsMngMapper {
     double selectTotalAvgWinRate();
     double selectAvgMonthlyDiaries(int mau);
     List<Map<String, Object>> selectWeeklyAccessStats();
+
+    Map<String, Object> selectMemberStatusStats();
+
+    Map<String, Object> selectDiaryStatusStats();
 }

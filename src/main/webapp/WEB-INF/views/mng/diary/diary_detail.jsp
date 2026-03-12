@@ -72,15 +72,26 @@
                                 <div class="card mb-5 mb-xl-10">
                                     <div class="card-header border-0 cursor-pointer">
                                         <div class="card-title m-0"><h3 class="fw-bold m-0">일기 상세 정보</h3></div>
-                                        <div class="card-toolbar">
-                                            <c:if test="${diary.status eq 'COMPLETED'}">
-                                                <button type="button" class="btn btn-sm btn-light-danger" onclick="deleteDiary()">
-                                                    일기 삭제
-                                                </button>
-                                            </c:if>
-                                            <c:if test="${diary.status eq 'DELETED'}">
-                                                <span class="badge badge-light-danger fs-6">삭제된 일기</span>
-                                            </c:if>
+                                        <div class="card-toolbar d-flex align-items-center gap-2">
+                                            <c:choose>
+                                                <c:when test="${diary.status eq 'COMPLETED'}">
+                                                    <button type="button" class="btn btn-sm btn-light-warning" onclick="blindDiary()">
+                                                        숨김 처리
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-light-danger" onclick="deleteDiary()">
+                                                        일기 삭제
+                                                    </button>
+                                                </c:when>
+                                                <c:when test="${diary.status eq 'BLIND'}">
+                                                    <span class="badge badge-light-warning fs-6">숨김(블라인드) 처리된 일기</span>
+                                                    <button type="button" class="btn btn-sm btn-light-danger" onclick="deleteDiary()">
+                                                        일기 삭제
+                                                    </button>
+                                                </c:when>
+                                                <c:when test="${diary.status eq 'DELETED'}">
+                                                    <span class="badge badge-light-danger fs-6">삭제된 일기</span>
+                                                </c:when>
+                                            </c:choose>
                                         </div>
                                     </div>
                                     <div class="card-body p-9">
@@ -262,6 +273,20 @@
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
     <script>
+
+        function blindDiary() {
+            if (confirm('이 일기를 숨김(블라인드) 처리하시겠습니까?\n사용자들의 화면에서 더 이상 노출되지 않습니다.')) {
+                $.post('/mng/diary/blind', {diaryId: '${diary.diaryId}'}, function (res) {
+                    if (res === 'ok') {
+                        alert('숨김 처리되었습니다.');
+                        location.reload();
+                    } else {
+                        alert('오류가 발생했습니다.');
+                    }
+                });
+            }
+        }
+
         function deleteDiary() {
             if (confirm('이 일기를 관리자 권한으로 삭제하시겠습니까?\n삭제 후에는 사용자에게 노출되지 않습니다.')) {
                 $.post('/mng/diary/delete', {diaryId: '${diary.diaryId}'}, function (res) {

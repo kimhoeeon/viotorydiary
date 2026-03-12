@@ -42,6 +42,18 @@ public class DiaryMngController {
         return "mng/diary/diary_detail";
     }
 
+    // 블라인드 처리 (AJAX)
+    @PostMapping("/blind")
+    @ResponseBody
+    public String blindAction(@RequestParam("diaryId") Long diaryId) {
+        try {
+            diaryMngService.blindDiary(diaryId);
+            return "ok";
+        } catch (Exception e) {
+            return "fail";
+        }
+    }
+
     // 삭제 (AJAX)
     @PostMapping("/delete")
     @ResponseBody

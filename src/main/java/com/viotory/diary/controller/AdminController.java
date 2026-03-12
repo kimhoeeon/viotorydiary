@@ -98,23 +98,18 @@ public class AdminController {
     public String mainPage(Model model) {
 
         // [대시보드 통계 데이터 조회]
-        // 1. 회원 현황
-        int totalMembers = memberService.countMembers("", "");
+        // 1. 회원 현황 (상태별 통계 맵으로 변경 적용)
         int todayMembers = memberService.countTodayMembers();
+        model.addAttribute("todayMembers", todayMembers);
+        model.addAttribute("memberStats", statsMngService.getMemberStatusStats());
 
-        // 2. 일기 현황
-        int totalDiaries = diaryService.countTotalDiaries();
+        // 2. 일기 현황 (상태별 통계 맵으로 변경 적용)
         int todayDiaries = diaryService.countTodayDiaries();
+        model.addAttribute("todayDiaries", todayDiaries);
+        model.addAttribute("diaryStats", statsMngService.getDiaryStatusStats());
 
         // 3. 오늘 경기 수
-        //int todayGames = gameService.countTodayGames();
         List<GameVO> todayGameList = gameService.getAllGamesToday();
-
-        model.addAttribute("totalMembers", totalMembers);
-        model.addAttribute("todayMembers", todayMembers);
-        model.addAttribute("totalDiaries", totalDiaries);
-        model.addAttribute("todayDiaries", todayDiaries);
-        //model.addAttribute("todayGames", todayGames);
         model.addAttribute("todayGameList", todayGameList);
 
         // 시스템 상태 정보 수집

@@ -51,4 +51,15 @@ public class StatsMngService {
     public List<Map<String, Object>> getWeeklyAccessStats() {
         return statsMapper.selectWeeklyAccessStats();
     }
+
+    // 회원 상태별 통계 반환
+    public Map<String, Object> getMemberStatusStats() {
+        return statsMapper.selectMemberStatusStats();
+    }
+
+    // 일기 상태별 통계 반환
+    public Map<String, Object> getDiaryStatusStats() {
+        return statsMapper.selectDiaryStatusStats();
+    }
+
 }

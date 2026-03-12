@@ -86,14 +86,10 @@
                                                        placeholder="내용 또는 작성자 검색"/>
                                             </div>
                                             <select name="status" class="form-select form-select-solid w-150px me-3">
-                                                <option value="" ${empty pageMaker.cri.status ? 'selected' : ''}>전체 상태
-                                                </option>
-                                                <option value="COMPLETED" ${pageMaker.cri.status eq 'COMPLETED' ? 'selected' : ''}>
-                                                    등록
-                                                </option>
-                                                <option value="DELETED" ${pageMaker.cri.status eq 'DELETED' ? 'selected' : ''}>
-                                                    삭제됨
-                                                </option>
+                                                <option value="" ${empty pageMaker.cri.status ? 'selected' : ''}>전체 상태</option>
+                                                <option value="COMPLETED" ${pageMaker.cri.status eq 'COMPLETED' ? 'selected' : ''}>등록</option>
+                                                <option value="BLIND" ${pageMaker.cri.status eq 'BLIND' ? 'selected' : ''}>블라인드</option>
+                                                <option value="DELETED" ${pageMaker.cri.status eq 'DELETED' ? 'selected' : ''}>삭제됨</option>
                                             </select>
                                             <button type="submit" class="btn btn-primary">검색</button>
                                         </form>
@@ -188,7 +184,7 @@
                                                                                     <span class="badge badge-light fs-8 mb-1">${item.gameDate}</span>
                                                                                     <span class="fw-bold text-gray-800">${item.awayTeamName} vs ${item.homeTeamName}</span>
 
-                                                                                        <%-- 예측 결과 및 실제 결과 표기 (경기 종료시에만 비교) --%>
+                                                                                    <%-- 예측 결과 및 실제 결과 표기 (경기 종료시에만 비교) --%>
                                                                                     <c:if test="${not empty item.predScoreHome and not empty item.predScoreAway}">
                                                                                         <div class="mt-2 text-muted fs-8">
                                                                                             예측: [${item.predScoreAway} : ${item.predScoreHome}]
@@ -246,15 +242,10 @@
 
                                                                     <td class="text-center">
                                                                         <c:choose>
-                                                                            <c:when test="${item.status eq 'COMPLETED'}">
-                                                                                <span class="badge badge-light-success fs-8">등록</span>
-                                                                            </c:when>
-                                                                            <c:when test="${item.status eq 'DELETED'}">
-                                                                                <span class="badge badge-light-danger fs-8">삭제됨</span>
-                                                                            </c:when>
-                                                                            <c:otherwise>
-                                                                                <span class="badge badge-light-secondary fs-8">${item.status}</span>
-                                                                            </c:otherwise>
+                                                                            <c:when test="${item.status eq 'COMPLETED'}"><span class="badge badge-light-success fs-8">등록</span></c:when>
+                                                                            <c:when test="${item.status eq 'BLIND'}"><span class="badge badge-light-warning fs-8">블라인드</span></c:when>
+                                                                            <c:when test="${item.status eq 'DELETED'}"><span class="badge badge-light-danger fs-8">삭제됨</span></c:when>
+                                                                            <c:otherwise><span class="badge badge-light-secondary fs-8">${item.status}</span></c:otherwise>
                                                                         </c:choose>
                                                                     </td>
 

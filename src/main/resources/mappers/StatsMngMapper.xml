@@ -87,4 +87,22 @@
         ]]>
     </select>
 
+    <select id="selectMemberStatusStats" resultType="map">
+        SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) as activeCnt,
+            SUM(CASE WHEN status = 'SUSPENDED' THEN 1 ELSE 0 END) as suspendedCnt,
+            SUM(CASE WHEN status = 'WITHDRAWN' THEN 1 ELSE 0 END) as withdrawnCnt
+        FROM members
+    </select>
+
+    <select id="selectDiaryStatusStats" resultType="map">
+        SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completedCnt,
+            SUM(CASE WHEN status = 'DELETED' THEN 1 ELSE 0 END) as deletedCnt,
+            SUM(CASE WHEN status = 'BLIND' THEN 1 ELSE 0 END) as blindCnt
+        FROM diaries
+    </select>
+
 </mapper>

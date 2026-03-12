@@ -82,6 +82,13 @@
         WHERE d.diary_id = #{diaryId}
     </select>
 
+    <update id="blindDiary">
+        UPDATE diaries
+        SET status = 'BLIND',
+            updated_at = NOW()
+        WHERE diary_id = #{diaryId}
+    </update>
+
     <update id="deleteDiary">
         UPDATE diaries
         SET status = 'DELETED',

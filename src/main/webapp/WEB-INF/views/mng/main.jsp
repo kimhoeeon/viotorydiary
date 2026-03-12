@@ -37,6 +37,11 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <style>
+        .stat-sub-row { font-size: 0.85rem; border-top: 1px dashed #e4e6ef; padding-top: 10px; margin-top: 15px; }
+        .stat-sub-item { display: flex; align-items: center; gap: 4px; }
+    </style>
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -219,12 +224,13 @@
 
                                         <div class="row g-5 g-xl-10 mb-5 mb-xl-0">
                                             <div class="col-md-6">
+                                                <%-- 회원 통계 카드 --%>
                                                 <div class="card card-flush mb-5 mb-xl-10" style="min-height: 150px; justify-content: center;">
-                                                    <div class="card-header pt-5 pb-5">
+                                                    <div class="card-header pt-5 pb-4 d-block">
                                                         <div class="card-title d-flex flex-column">
                                                             <div class="d-flex align-items-center">
                                                                 <span class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">
-                                                                    <fmt:formatNumber value="${totalMembers}" pattern="#,###"/>
+                                                                    <fmt:formatNumber value="${memberStats.total}" pattern="#,###"/>
                                                                 </span>
                                                                 <span class="badge badge-light-primary fs-base ms-2">
                                                                     <i class="ki-duotone ki-user fs-5 text-primary ms-n1">
@@ -234,6 +240,22 @@
                                                                 </span>
                                                             </div>
                                                             <span class="text-gray-500 pt-1 fw-semibold fs-6">전체 회원 수</span>
+                                                        </div>
+
+                                                        <%-- 회원 상태별 상세 카운트 영역 --%>
+                                                        <div class="d-flex justify-content-between text-gray-600 stat-sub-row">
+                                                            <div class="stat-sub-item">
+                                                                <span class="badge badge-success badge-circle w-10px h-10px me-1"></span>
+                                                                정상 <span class="fw-bold ms-1 text-dark"><fmt:formatNumber value="${memberStats.activeCnt}" pattern="#,###"/></span>
+                                                            </div>
+                                                            <div class="stat-sub-item">
+                                                                <span class="badge badge-warning badge-circle w-10px h-10px me-1"></span>
+                                                                정지 <span class="fw-bold ms-1 text-dark"><fmt:formatNumber value="${memberStats.suspendedCnt}" pattern="#,###"/></span>
+                                                            </div>
+                                                            <div class="stat-sub-item">
+                                                                <span class="badge badge-danger badge-circle w-10px h-10px me-1"></span>
+                                                                탈퇴 <span class="fw-bold ms-1 text-dark"><fmt:formatNumber value="${memberStats.withdrawnCnt}" pattern="#,###"/></span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -259,12 +281,13 @@
                                             </div>
 
                                             <div class="col-md-6">
+                                                <%-- 일기 통계 카드 --%>
                                                 <div class="card card-flush mb-5 mb-xl-10" style="min-height: 150px; justify-content: center;">
-                                                    <div class="card-header pt-5 pb-5">
+                                                    <div class="card-header pt-5 pb-4 d-block">
                                                         <div class="card-title d-flex flex-column">
                                                             <div class="d-flex align-items-center">
                                                                 <span class="fs-2hx fw-bold text-gray-900 me-2 lh-1 ls-n2">
-                                                                    <fmt:formatNumber value="${totalDiaries}" pattern="#,###"/>
+                                                                    <fmt:formatNumber value="${diaryStats.total}" pattern="#,###"/>
                                                                 </span>
                                                                 <span class="badge badge-light-info fs-base ms-2">
                                                                     <i class="ki-duotone ki-note-2 fs-5 text-info ms-n1">
@@ -273,7 +296,23 @@
                                                                     </i> Total
                                                                 </span>
                                                             </div>
-                                                            <span class="text-gray-500 pt-1 fw-semibold fs-6">누적 일기 수</span>
+                                                            <span class="text-gray-500 pt-1 fw-semibold fs-6">누적 등록 일기</span>
+                                                        </div>
+
+                                                        <%-- 일기 상태별 상세 카운트 영역 --%>
+                                                        <div class="d-flex justify-content-between text-gray-600 stat-sub-row">
+                                                            <div class="stat-sub-item">
+                                                                <span class="badge badge-success badge-circle w-10px h-10px me-1"></span>
+                                                                정상 <span class="fw-bold ms-1 text-dark"><fmt:formatNumber value="${diaryStats.completedCnt}" pattern="#,###"/></span>
+                                                            </div>
+                                                            <div class="stat-sub-item">
+                                                                <span class="badge badge-danger badge-circle w-10px h-10px me-1"></span>
+                                                                삭제 <span class="fw-bold ms-1 text-dark"><fmt:formatNumber value="${diaryStats.deletedCnt}" pattern="#,###"/></span>
+                                                            </div>
+                                                            <div class="stat-sub-item">
+                                                                <span class="badge badge-dark badge-circle w-10px h-10px me-1"></span>
+                                                                블라인드 <span class="fw-bold ms-1 text-dark"><fmt:formatNumber value="${diaryStats.blindCnt}" pattern="#,###"/></span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -292,7 +331,7 @@
                                                                     </i> Today
                                                                 </span>
                                                             </div>
-                                                            <span class="text-gray-500 pt-1 fw-semibold fs-6">금일 작성 일기</span>
+                                                            <span class="text-gray-500 pt-1 fw-semibold fs-6">금일 신규 작성</span>
                                                         </div>
                                                     </div>
                                                 </div>

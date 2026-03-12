@@ -28,6 +28,11 @@ public class DiaryMngService {
     }
 
     @Transactional
+    public void blindDiary(Long diaryId) {
+        diaryMngMapper.blindDiary(diaryId);
+    }
+
+    @Transactional
     public void deleteDiary(Long diaryId) {
         diaryMngMapper.deleteDiary(diaryId);
     }

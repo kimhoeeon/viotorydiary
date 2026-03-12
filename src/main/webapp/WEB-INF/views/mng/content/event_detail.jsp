@@ -139,11 +139,14 @@
                 <div class="modal-header">
                     <h2 class="fw-bold">이벤트 수정</h2>
                     <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                        <i class="ki-duotone ki-cross fs-1">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                        </i>
                     </div>
                 </div>
 
-                <form action="/mng/content/events/save" method="post" enctype="multipart/form-data">
+                <form id="eventEditForm" action="/mng/content/events/save" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="eventId" value="${event.eventId}">
 
                     <div class="modal-body py-10 px-lg-17">

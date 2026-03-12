@@ -19,6 +19,9 @@ public interface DiaryMngMapper {
     // 일기 상세 조회
     DiaryVO selectDiaryById(Long diaryId);
 
+    // 일기 숨김 처리 (관리자 권한으로 상태 변경 -> BLIND)
+    void blindDiary(Long diaryId);
+
     // 일기 삭제 (관리자 권한으로 상태 변경 -> DELETED)
     void deleteDiary(Long diaryId);
 }
