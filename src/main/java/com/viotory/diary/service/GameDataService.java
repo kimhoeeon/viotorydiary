@@ -60,55 +60,53 @@ public class GameDataService {
      */
     @Transactional
     public GameVO updateLiveGame(String apiGameId) {
-        if (apiGameId == null) return null;
+        if (apiGameId == null || apiGameId.length() < 8) return null;
 
         try {
-            // 1. API 호출 (RapidAPI 등 가정)
-            String url = "https://" + apiHost + "/games?id=" + apiGameId;
+            // 1. apiGameId에서 날짜 추출 (네이버 API 조회를 위함)
+            String rawDate = apiGameId.substring(0, 8);
+            String targetDate = rawDate.substring(0, 4) + "-" + rawDate.substring(4, 6) + "-" + rawDate.substring(6, 8);
+
+            // 2. 네이버 스포츠 일정 API 호출 세팅
+            URI uri = UriComponentsBuilder.fromHttpUrl("https://api-gw.sports.naver.com/schedule/games")
+                    .queryParam("fields", "basic,schedule,baseball,manualRelayUrl")
+                    .queryParam("upperCategoryId", "kbaseball")
+                    .queryParam("categoryId", "kbo")
+                    .queryParam("fromDate", targetDate)
+                    .queryParam("toDate", targetDate)
+                    .queryParam("size", "100")
+                    .build()
+                    .toUri();
 
             HttpHeaders headers = new HttpHeaders();
-            headers.set("X-RapidAPI-Key", apiKey);
-            headers.set("X-RapidAPI-Host", apiHost);
+            headers.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+            headers.set("Referer", "https://m.sports.naver.com/kbaseball/index");
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            // 3. API 통신
+            ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 JsonNode root = objectMapper.readTree(response.getBody());
-                JsonNode responseNode = root.path("response");
+                JsonNode gamesNode = root.path("result").path("games");
 
-                if (responseNode.isArray() && responseNode.size() > 0) {
-                    JsonNode gameNode = responseNode.get(0);
+                if (gamesNode.isArray()) {
+                    for (JsonNode g : gamesNode) {
+                        String currentApiGameId = g.path("gameId").asText(null);
 
-                    // 2. 데이터 파싱
-                    String statusShort = gameNode.path("status").path("short").asText(); // FT, NS, LIVE...
-                    String statusCode = convertStatus(statusShort);
-
-                    int homeScore = gameNode.path("scores").path("home").path("total").asInt(0);
-                    int awayScore = gameNode.path("scores").path("away").path("total").asInt(0);
-
-                    // 3. DB 업데이트를 위한 VO 생성
-                    // (기존 정보는 유지하고 점수와 상태만 업데이트)
-                    GameVO game = GameVO.builder()
-                            .apiGameId(apiGameId)
-                            .status(statusCode)
-                            .scoreHome(homeScore)
-                            .scoreAway(awayScore)
-                            // 승리팀 판별
-                            .winningTeam(determineWinningTeam(statusCode, homeScore, awayScore))
-                            .build();
-
-                    // 4. DB 업데이트 (MyBatis Mapper 호출)
-                    // (updateGameStatusAndScore 쿼리가 GameMapper에 필요함. 없으면 upsertGame 사용)
-                    // 여기서는 기존 upsertGame 로직을 활용하거나 별도 update 쿼리 사용
-                    gameMapper.updateGameScoreAndStatus(game);
-
-                    // 5. 업데이트된 전체 정보를 다시 조회하여 반환 (PlayService 처리를 위해)
-                    return gameMapper.selectGameByApiId(apiGameId);
+                        // 4. 조회한 리스트 중 타겟 경기와 일치하는 데이터만 파싱 및 저장 수행
+                        if (apiGameId.equals(currentApiGameId)) {
+                            // 기존에 구축해 둔 네이버 파싱 로직을 100% 재활용 (DB Upsert 자동 수행)
+                            if (saveNaverGame(g)) {
+                                // 성공적으로 저장되었다면 DB에서 최신 정보를 조회하여 리턴 (상태 변경 감지용)
+                                return gameMapper.selectGameByApiId(apiGameId);
+                            }
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
-            log.error(">>> 경기({}) 실시간 업데이트 실패: {}", apiGameId, e.getMessage());
+            log.error(">>> 경기({}) 실시간 업데이트 실패 (네이버API 통신 오류): {}", apiGameId, e.getMessage());
         }
         return null;
     }
@@ -333,7 +331,7 @@ public class GameDataService {
                     .winningTeam(winningTeam)
                     .status(status)
                     .cancelReason(cancelReason)
-                    .mvpPlayer(mvpPlayer) // 여기에 저장!
+                    .mvpPlayer(mvpPlayer)
                     .dataSource("API")
                     .build();
 

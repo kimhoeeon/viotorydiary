@@ -73,17 +73,19 @@
                                     <div class="card-header border-0">
                                         <div class="card-title m-0">
                                             <h3 class="fw-bold m-0 me-2">문의 상세</h3>
-                                            <c:if test="${inquiry.status eq 'WAITING'}"><span
-                                                    class="badge badge-light-warning">답변대기</span></c:if>
-                                            <c:if test="${inquiry.status eq 'COMPLETED'}"><span
-                                                    class="badge badge-light-success">답변완료</span></c:if>
+                                            <c:if test="${inquiry.status eq 'WAITING'}">
+                                                <span class="badge badge-light-warning">답변대기</span>
+                                            </c:if>
+                                            <c:if test="${inquiry.status eq 'COMPLETED'}">
+                                                <span class="badge badge-light-success">답변완료</span>
+                                            </c:if>
                                         </div>
                                     </div>
                                     <div class="card-body p-9">
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">작성자</label>
-                                            <div class="col-lg-4"><span
-                                                    class="fw-bold fs-6 text-gray-800">${inquiry.memberName} (${inquiry.memberEmail})</span>
+                                            <div class="col-lg-4">
+                                                <span class="fw-bold fs-6 text-gray-800">${inquiry.memberName} (${inquiry.memberEmail})</span>
                                             </div>
                                             <label class="col-lg-2 fw-semibold text-muted">작성일</label>
                                             <div class="col-lg-4">
@@ -94,20 +96,20 @@
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">유형</label>
-                                            <div class="col-lg-4"><span
-                                                    class="badge badge-light-primary fw-bold">${inquiry.typeName}</span>
+                                            <div class="col-lg-4">
+                                                <span class="badge badge-light-primary fw-bold">${inquiry.typeName}</span>
                                             </div>
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">제목</label>
-                                            <div class="col-lg-10"><span
-                                                    class="fw-bold fs-6 text-gray-800">${inquiry.title}</span></div>
+                                            <div class="col-lg-10">
+                                                <span class="fw-bold fs-6 text-gray-800">${inquiry.title}</span>
+                                            </div>
                                         </div>
                                         <div class="row mb-7">
                                             <label class="col-lg-2 fw-semibold text-muted">내용</label>
                                             <div class="col-lg-10">
-                                                <div class="p-5 border rounded bg-light text-gray-800 fs-6"
-                                                     style="white-space: pre-wrap; min-height: 150px;">${inquiry.content}</div>
+                                                <div class="p-5 border rounded bg-light text-gray-800 fs-6" style="white-space: pre-wrap; min-height: 150px;">${inquiry.content}</div>
                                             </div>
                                         </div>
                                     </div>

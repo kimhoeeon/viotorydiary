@@ -46,14 +46,14 @@ public class GameScheduleTask {
      * - 경기 종료 및 취소 시 승부예측 정산 (1회 보장)
      * - 아침 일찍 우천취소 및 자정 넘어가는 연장전 완벽 대응
      */
-    @Scheduled(cron = "0 0/1 8-23,0-2 * * *")
+    @Scheduled(cron = "0 0/3 13-23,0-1 * * *")
     public void runLiveSync() {
         log.debug(">>> [라이브 스케줄러] 실시간 경기 정보 확인 중...");
 
-        // 오늘 경기 전체가 아닌, "어제/오늘 중 아직 안 끝난 경기"만 타겟팅
+        // 진행 중이거나 오늘 예정된 경기 타겟팅
         List<GameVO> targetGames = gameService.getOngoingGames();
 
-        // 안 끝난 경기가 없으면 (월요일 등) 즉시 종료되어 불필요한 API 호출(비용) 완벽 차단!
+        // 관리할 경기가 없으면 즉시 리턴 (자원 절약)
         if (targetGames.isEmpty()) return;
 
         for (GameVO game : targetGames) {
@@ -63,22 +63,22 @@ public class GameScheduleTask {
                     continue;
                 }
 
-                // API 서버 차단(429 Too Many Requests) 방지를 위해 1초 대기
-                Thread.sleep(1000);
+                // 네이버 API도 비공식이므로, IP 차단을 피하기 위해 2초 대기 후 호출
+                Thread.sleep(2000);
 
-                // 1. API를 통해 최신 점수 및 상태 정보 업데이트
+                // 1. 네이버 API를 통해 최신 점수 및 상태 업데이트
                 GameVO updatedGame = gameDataService.updateLiveGame(game.getApiGameId());
 
                 if (updatedGame != null) {
-                    // 상태가 변경되는 찰나의 순간을 감지 (중복 실행 방지)
+                    // 상태 변경 감지 시 (ex. SCHEDULED -> LIVE -> FINISHED)
                     if (!game.getStatus().equals(updatedGame.getStatus())) {
                         log.info(">>> [상태 변경 감지] {} vs {}, 상태 : {} -> {}",
                                 updatedGame.getHomeTeamName(), updatedGame.getAwayTeamName(), game.getStatus(), updatedGame.getStatus());
 
-                        // 2. 사용자에게 상태 변경 알림 발송 (시작/종료/취소)
+                        // 2. 알림 발송
                         createGameStatusAlarm(updatedGame, updatedGame.getStatus());
 
-                        // 3. DB에 확실하게 변경된 상태 저장
+                        // 3. 확실한 업데이트 처리
                         gameDataService.updateGameStatus(updatedGame);
                     }
                 }
