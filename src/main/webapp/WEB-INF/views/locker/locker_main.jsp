@@ -24,22 +24,6 @@
     <title>라커룸 | 승요일기</title>
 
     <style>
-        /* 가로 스크롤 전용 클래스 (CSS 충돌 해결) */
-        .score_wrap.scroll-x {
-            display: flex;             /* Grid -> Flex 변경 */
-            overflow-x: auto;          /* 가로 스크롤 활성화 */
-            gap: 12px;
-            padding-bottom: 10px;
-            grid-template-columns: none; /* 기존 Grid 속성 해제 */
-
-            /* 스크롤바 숨김 */
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .score_wrap.scroll-x::-webkit-scrollbar {
-            display: none;
-        }
-
         /* 텍스트 말줄임 */
         .text-ellipsis {
             white-space: nowrap;
@@ -112,7 +96,7 @@
 
                                 <c:choose>
                                     <c:when test="${not empty contents}">
-                                        <div class="score_wrap scroll-x">
+                                        <div class="score_wrap">
                                             <c:forEach var="content" items="${contents}">
                                                 <div class="score_list"
                                                      onclick="location.href='/locker/content/detail?contentId=${content.contentId}'"

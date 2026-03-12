@@ -20,7 +20,6 @@
                d.pred_score_home AS predScoreHome,
                d.pred_score_away AS predScoreAway,
 
-            /* 화면 뱃지 노출용: 응원팀(직관 팀) 스코어 기준 승패 판별 유지 */
                CASE
                    WHEN d.snapshot_team_code = g.home_team_code THEN
                        CASE
@@ -37,8 +36,8 @@
                    ELSE 'NONE'
                    END AS gameResult
         FROM diaries d
-         INNER JOIN games g ON d.game_id = g.game_id
-         INNER JOIN stadiums s ON g.stadium_id = s.stadium_id
+                 INNER JOIN games g ON d.game_id = g.game_id
+                 INNER JOIN stadiums s ON g.stadium_id = s.stadium_id
         WHERE d.member_id = #{memberId}
           AND d.is_verified = 1
           AND g.status = 'FINISHED'
@@ -75,10 +74,11 @@
     <select id="selectWinYoRankingTop10" resultType="com.viotory.diary.dto.WinYoAnalysisDTO">
         <![CDATA[
         SELECT m.nickname,
-               SUM(CASE WHEN d.pred_score_home IS NOT NULL AND d.pred_score_away IS NOT NULL THEN 1 ELSE 0 END) AS totalGames,
-               SUM(CASE WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1 ELSE 0 END) AS winGames,
-               (SUM(CASE WHEN d.pred_score_home = g.score_home AND d.pred_score_away = g.score_away THEN 1 ELSE 0 END) /
-                NULLIF(SUM(CASE WHEN d.pred_score_home IS NOT NULL AND d.pred_score_away IS NOT NULL THEN 1 ELSE 0 END), 0)) * 100 AS winRate
+               COUNT(d.diary_id) AS totalGames,
+            /* ⭐️ 랭킹 통계용: 실제 직관 응원팀 승리 기준 */
+               SUM(CASE WHEN d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) AS winGames,
+               (SUM(CASE WHEN d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) /
+                NULLIF(SUM(CASE WHEN g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)) * 100 AS winRate
         FROM diaries d
                  JOIN games g ON d.game_id = g.game_id
                  JOIN members m ON d.member_id = m.member_id
@@ -189,10 +189,10 @@
                g.away_team_code,
                g.score_home,
                g.score_away,
-               g.status                     AS gameStatus,
-               g.cancel_reason              AS cancelReason,
-               t1.name_kr                   AS homeTeamName,
-               t2.name_kr                   AS awayTeamName,
+               g.status AS gameStatus,
+               g.cancel_reason AS cancelReason,
+               t1.name_kr AS homeTeamName,
+               t2.name_kr AS awayTeamName,
                IFNULL(s.short_name, s.name) AS stadiumName,
 
                CASE

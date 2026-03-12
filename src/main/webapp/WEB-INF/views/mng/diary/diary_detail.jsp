@@ -196,7 +196,7 @@
                                                                     <c:when test="${diary.gameStatus eq 'FINISHED'}">
                                                                         <c:choose>
                                                                             <c:when test="${diary.predScoreHome == diary.scoreHome and diary.predScoreAway == diary.scoreAway}">
-                                                                                <span class="badge badge-success">적중 (승요력 +1)</span>
+                                                                                <span class="badge badge-success">적중 (스코어)</span>
                                                                             </c:when>
                                                                             <c:otherwise>
                                                                                 <span class="badge badge-danger">미적중</span>

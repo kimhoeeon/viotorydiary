@@ -25,29 +25,26 @@ public class WinYoService {
      * @param memberId 사용자 ID
      */
     public WinYoAnalysisDTO analyzeWinYoPower(Long memberId) {
-        // 1. 유효한 일기 조회 (Mapper 수정으로 실제 스코어와 예측 스코어가 모두 포함되어 내려옴)
+        // 1. 유효한 직관 일기 조회
         List<DiaryVO> diaries = diaryMapper.selectVerifiedDiaries(memberId);
         int total = diaries.size();
 
         int wins = 0;
         int loses = 0;
+        int draws = 0;
 
         // 구장별 방문 횟수 카운팅용 맵
         Map<String, Integer> stadiumCountMap = new HashMap<>();
 
-        // 2. 통계 계산을 위한 승부 예측 결과 도출 (diaries 테이블 스코어 기준)
+        // 2. 통계 계산 (⭐️ 단순 재미용 스코어 예측이 아닌 '내 응원팀 실제 경기 승패' 기준!)
         for (DiaryVO d : diaries) {
 
-            // 스코어 예측값과 실제 결과값이 모두 존재할 때만 비교 (무승부는 제외)
-            if (d.getPredScoreHome() != null && d.getPredScoreAway() != null) {
-
-                // 내 예측 스코어(Integer)와 실제 스코어(int)가 완전히 일치하면 '승'
-                // (== 연산자 사용 시 Integer가 자동으로 int로 언박싱되어 정확한 값 비교가 이루어집니다)
-                if (d.getPredScoreHome() == d.getScoreHome() && d.getPredScoreAway() == d.getScoreAway()) {
-                    wins++;
-                } else {
-                    loses++;
-                }
+            if ("WIN".equals(d.getGameResult())) {
+                wins++;
+            } else if ("LOSE".equals(d.getGameResult())) {
+                loses++;
+            } else if ("DRAW".equals(d.getGameResult())) {
+                draws++;
             }
 
             // 구장 카운트
@@ -66,16 +63,16 @@ public class WinYoService {
             }
         }
 
-        // 3. 승률 계산 (소수점 유지, 예측을 남긴 경기 수만 기준)
-        int validPredictionsCount = wins + loses;
-        double winRate = (validPredictionsCount > 0) ? ((double) wins / validPredictionsCount) * 100.0 : 0.0;
+        // 3. 승률 계산 (소수점 유지, ⭐️ 야구 승률 규정에 따라 무승부는 제외한 validGames 기준)
+        int validGames = wins + loses;
+        double winRate = (validGames > 0) ? ((double) wins / validGames) * 100.0 : 0.0;
 
         // 4. DTO 생성
         WinYoAnalysisDTO analysis = WinYoAnalysisDTO.builder()
                 .totalGames(total)
                 .winGames(wins)
                 .loseGames(loses)
-                .drawGames(0) // 무승부 완전 제거
+                .drawGames(draws)
                 .winRate(winRate)
                 .topStadium(topStadium)
                 .build();
@@ -100,7 +97,7 @@ public class WinYoService {
         analysis.setCountGrade(countCode);
         analysis.setCountMessage(mentionMapper.selectMessage("ATTENDANCE_COUNT", countCode));
 
-        // 7. [규칙 적용] 최근 흐름 (트렌드는 최근 3경기 예측 결과를 바탕으로 함)
+        // 7. [규칙 적용] 최근 흐름 (트렌드 역시 내 응원팀 실제 승패 기준)
         String trendCode = analyzeTrend(diaries);
         analysis.setTrendCode(trendCode);
         analysis.setSubMessage(mentionMapper.selectMessage("RECENT_TREND", trendCode));
@@ -115,17 +112,12 @@ public class WinYoService {
         int recentWins = 0;
         int recentLoses = 0;
 
-        // 최신 3경기만 확인
         for (int i = 0; i < 3; i++) {
             DiaryVO d = diaries.get(i);
-
-            // 동일하게 null 체크 제거 및 == 비교 적용
-            if (d.getPredScoreHome() != null && d.getPredScoreAway() != null) {
-                if (d.getPredScoreHome() == d.getScoreHome() && d.getPredScoreAway() == d.getScoreAway()) {
-                    recentWins++;
-                } else {
-                    recentLoses++;
-                }
+            if ("WIN".equals(d.getGameResult())) {
+                recentWins++;
+            } else if ("LOSE".equals(d.getGameResult())) {
+                recentLoses++;
             }
         }
 
