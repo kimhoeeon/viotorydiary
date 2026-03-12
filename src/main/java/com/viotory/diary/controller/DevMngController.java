@@ -106,6 +106,21 @@ public class DevMngController {
         }
     }
 
+    // 5-1. 상태 일괄 변경 (관리자용 - AJAX 다건)
+    @PostMapping("/status/bulk")
+    @ResponseBody
+    public String updateStatusBulk(@RequestParam("reqIds") List<Long> reqIds,
+                                   @RequestParam("status") String status,
+                                   @RequestParam(value = "dueDate", required = false) String dueDate) {
+        try {
+            devMngService.updateStatusBulk(reqIds, status, dueDate);
+            return "ok";
+        } catch (Exception e) {
+            log.error("상태 일괄 변경 오류", e);
+            return "fail";
+        }
+    }
+
     // 6. 댓글 등록
     @PostMapping("/comment/save")
     public String saveComment(DevCommentVO vo,
@@ -130,7 +145,6 @@ public class DevMngController {
     public String updateComment(DevCommentVO vo,
                                 @RequestParam(value = "coFiles", required = false) List<MultipartFile> files,
                                 HttpSession session) {
-        // (필요 시) 본인 확인 로직 추가 가능
 
         // 신규 파일 업로드
         List<DevFileVO> fileList = uploadFiles(files, "COM");

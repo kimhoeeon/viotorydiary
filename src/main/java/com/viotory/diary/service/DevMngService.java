@@ -65,22 +65,58 @@ public class DevMngService {
         }
 
         // 3. 이메일 알림 (작성자가 발주사인 경우 -> 관리자에게)
-        // (관리자가 자가 등록하는 경우는 알림 제외할 수도 있음, 여기선 항상 발송)
         sendEmailToAdmins(vo, "NEW_REQ");
     }
 
     /**
-     * 상태 변경 및 알림
+     * [단건] 상태 변경 및 알림 (고도화: 중복 알림 방지)
      */
     @Transactional
     public void updateStatus(DevRequestVO vo) {
+        // 변경 전 상태 확인 (중복 알림 메일 방지용)
+        DevRequestVO origin = devMapper.selectRequestById(vo.getReqId());
+        String oldStatus = (origin != null) ? origin.getStatus() : "";
+
         devMapper.updateRequestStatus(vo);
 
-        // 완료(DONE) 처리 시 발주사에게 알림
-        if ("DONE".equals(vo.getStatus())) {
-            // 원본 글 정보 조회를 위해 재조회
-            DevRequestVO origin = devMapper.selectRequestById(vo.getReqId());
-            sendEmailToWriter(origin, "REQ_DONE");
+        // 완료(DONE)로 새롭게 변경된 경우에만 발주사에게 알림
+        if ("DONE".equals(vo.getStatus()) && !"DONE".equals(oldStatus)) {
+            DevRequestVO updatedOrigin = devMapper.selectRequestById(vo.getReqId());
+            sendEmailToWriter(updatedOrigin, "REQ_DONE");
+        }
+    }
+
+    /**
+     * [다건] 상태 일괄 변경 및 알림 (신규 추가)
+     */
+    @Transactional
+    public void updateStatusBulk(List<Long> reqIds, String status, String dueDate) {
+        if (reqIds == null || reqIds.isEmpty()) return;
+
+        for (Long reqId : reqIds) {
+            DevRequestVO origin = devMapper.selectRequestById(reqId);
+            if (origin != null) {
+                String oldStatus = origin.getStatus();
+
+                DevRequestVO updateVo = new DevRequestVO();
+                updateVo.setReqId(reqId);
+                updateVo.setStatus(status);
+
+                // 일괄 변경 시 처리예정일이 입력되었으면 적용, 비워뒀으면 기존 날짜 보존
+                if (dueDate != null && !dueDate.trim().isEmpty()) {
+                    updateVo.setDueDate(dueDate);
+                } else {
+                    updateVo.setDueDate(origin.getDueDate());
+                }
+
+                devMapper.updateRequestStatus(updateVo);
+
+                // 새롭게 완료(DONE) 처리된 건들에 한해 각각 메일 발송
+                if ("DONE".equals(status) && !"DONE".equals(oldStatus)) {
+                    DevRequestVO updatedOrigin = devMapper.selectRequestById(reqId);
+                    sendEmailToWriter(updatedOrigin, "REQ_DONE");
+                }
+            }
         }
     }
 
@@ -119,7 +155,6 @@ public class DevMngService {
     private void sendEmailToAdmins(DevRequestVO vo, String type) {
         try {
             // 1. 수신자 조회 (카테고리/Type 기준)
-            // DevMngMapper.xml의 selectAdminEmailsByType 호출
             List<String> emails = devMapper.selectAdminEmailsByType(vo.getCategory());
             if (emails == null || emails.isEmpty()) return;
 

@@ -3,6 +3,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
+<%-- 현재 로그인한 사람이 발주사(CLIENT)가 아닌 개발사인지 확인하는 변수 세팅 --%>
+<c:set var="isDeveloper" value="${sessionScope.admin.role ne 'CLIENT'}" />
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -71,8 +74,7 @@
 
                                 <div class="card mb-7">
                                     <div class="card-body">
-                                        <form id="searchForm" action="/mng/dev/list" method="get"
-                                              class="d-flex align-items-center flex-wrap gap-2">
+                                        <form id="searchForm" action="/mng/dev/list" method="get" class="d-flex align-items-center flex-wrap gap-2">
                                             <input type="hidden" name="pageNum" value="1">
                                             <input type="hidden" name="amount" value="${pageMaker.cri.amount}">
 
@@ -109,8 +111,10 @@
                                             </select>
 
                                             <div class="position-relative w-md-300px">
-                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6"><span
-                                                        class="path1"></span><span class="path2"></span></i>
+                                                <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
                                                 <input type="text" class="form-control form-control-solid ps-10"
                                                        name="keyword" value="${pageMaker.cri.keyword}" placeholder="제목 검색"/>
                                             </div>
@@ -118,7 +122,7 @@
                                             <button type="submit" class="btn btn-primary">검색</button>
 
                                             <div class="ms-auto">
-                                                <c:if test="${sessionScope.admin.role eq 'CLIENT'}">
+                                                <c:if test="${not isDeveloper}">
                                                     <a href="/mng/dev/write" class="btn btn-success">
                                                         <i class="ki-duotone ki-pencil fs-2">
                                                             <span class="path1"></span>
@@ -133,10 +137,36 @@
 
                                 <div class="card">
                                     <div class="card-body py-4">
+
+                                        <%-- 개발사 전용 일괄 상태 변경 툴바 --%>
+                                        <c:if test="${isDeveloper}">
+                                            <div class="d-flex align-items-center justify-content-start mb-4 gap-2 p-3 bg-light rounded">
+                                                <span class="fw-bold text-gray-700 me-2">선택 항목 일괄 변경:</span>
+                                                <select id="bulkStatus" class="form-select form-select-solid form-select-sm w-150px">
+                                                    <option value="">상태 선택</option>
+                                                    <option value="WAITING">처리대기</option>
+                                                    <option value="PROCESS">진행중</option>
+                                                    <option value="DONE">완료</option>
+                                                    <option value="DISCUSS">논의필요</option>
+                                                    <option value="REJECT">처리불가</option>
+                                                </select>
+                                                <input type="date" id="bulkDueDate" class="form-control form-control-solid form-control-sm w-150px" title="처리예정일 (선택사항)">
+                                                <button type="button" class="btn btn-sm btn-dark fw-bold" onclick="applyBulkStatus()">변경 적용</button>
+                                            </div>
+                                        </c:if>
+
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                                                    <%-- 개발사 전용: 전체 선택 체크박스 --%>
+                                                    <c:if test="${isDeveloper}">
+                                                        <th class="w-40px text-center">
+                                                            <div class="form-check form-check-sm form-check-custom form-check-solid justify-content-center">
+                                                                <input class="form-check-input" type="checkbox" id="chkAll" />
+                                                            </div>
+                                                        </th>
+                                                    </c:if>
                                                     <th class="min-w-50px text-center">No.</th>
                                                     <th class="min-w-80px text-center">유형</th>
                                                     <th class="min-w-300px">제목</th>
@@ -149,6 +179,14 @@
                                                 <tbody class="text-gray-600 fw-semibold">
                                                 <c:forEach var="item" items="${list}" varStatus="status">
                                                     <tr>
+                                                        <%-- 개발사 전용: 개별 선택 체크박스 --%>
+                                                        <c:if test="${isDeveloper}">
+                                                            <td class="text-center">
+                                                                <div class="form-check form-check-sm form-check-custom form-check-solid justify-content-center">
+                                                                    <input class="form-check-input chk-item" type="checkbox" value="${item.reqId}" />
+                                                                </div>
+                                                            </td>
+                                                        </c:if>
                                                         <td class="text-center">${list.size() - status.index}</td>
                                                         <td class="text-center">
                                                             <c:if test="${item.urgency eq 'Y'}">
@@ -159,7 +197,7 @@
                                                         <td>
                                                             <a href="/mng/dev/detail?reqId=${item.reqId}&pageNum=${pageMaker.cri.pageNum}&amount=${pageMaker.cri.amount}&category=${pageMaker.cri.category}&status=${pageMaker.cri.status}&keyword=${pageMaker.cri.keyword}"
                                                                class="text-gray-800 text-hover-primary fw-bold fs-6">
-                                                                ${item.title}
+                                                                    ${item.title}
                                                                 <c:if test="${item.commentCount > 0}">
                                                                     <span class="text-primary ms-1">[${item.commentCount}]</span>
                                                                 </c:if>
@@ -192,7 +230,7 @@
                                                 </c:forEach>
                                                 <c:if test="${empty list}">
                                                     <tr>
-                                                        <td colspan="7" class="text-center py-10">등록된 요청사항이 없습니다.</td>
+                                                        <td colspan="${isDeveloper ? 8 : 7}" class="text-center py-10">등록된 요청사항이 없습니다.</td>
                                                     </tr>
                                                 </c:if>
                                                 </tbody>
@@ -257,7 +295,72 @@
                 actionForm.find("input[name='pageNum']").val(targetPage);
                 actionForm.submit();
             });
+
+            // 개발사 전용 체크박스 이벤트 바인딩
+            <c:if test="${isDeveloper}">
+                // 전체 선택/해제
+                $('#chkAll').on('change', function() {
+                    $('.chk-item').prop('checked', $(this).is(':checked'));
+                });
+
+                // 개별 선택 시 전체 선택 상태 동기화
+                $('.chk-item').on('change', function() {
+                    if($('.chk-item:checked').length === $('.chk-item').length) {
+                        $('#chkAll').prop('checked', true);
+                    } else {
+                        $('#chkAll').prop('checked', false);
+                    }
+                });
+            </c:if>
         });
+
+        // 일괄 상태 변경 AJAX 요청 함수
+        <c:if test="${isDeveloper}">
+            function applyBulkStatus() {
+                var reqIds = [];
+                $('.chk-item:checked').each(function() {
+                    reqIds.push($(this).val());
+                });
+
+                if (reqIds.length === 0) {
+                    alert('상태를 변경할 항목을 체크해주세요.');
+                    return;
+                }
+
+                var status = $('#bulkStatus').val();
+                if (!status) {
+                    alert('변경할 처리 상태를 선택해주세요.');
+                    $('#bulkStatus').focus();
+                    return;
+                }
+
+                var dueDate = $('#bulkDueDate').val();
+
+                if (confirm(reqIds.length + '개의 요청사항을 선택한 상태로 일괄 변경하시겠습니까?')) {
+                    $.ajax({
+                        url: '/mng/dev/status/bulk',
+                        type: 'POST',
+                        traditional: true, // List(배열) 파라미터 직렬화를 위한 필수 설정
+                        data: {
+                            reqIds: reqIds,
+                            status: status,
+                            dueDate: dueDate
+                        },
+                        success: function(res) {
+                            if (res === 'ok') {
+                                alert('일괄 변경 처리되었습니다.');
+                                location.reload();
+                            } else {
+                                alert('처리 중 오류가 발생했습니다.');
+                            }
+                        },
+                        error: function() {
+                            alert('서버 통신 오류가 발생했습니다.');
+                        }
+                    });
+                }
+            }
+        </c:if>
     </script>
 </body>
 </html>
