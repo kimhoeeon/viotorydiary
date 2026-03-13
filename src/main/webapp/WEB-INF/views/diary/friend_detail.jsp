@@ -24,18 +24,20 @@
     <title>친구들의 직관 | 승요일기</title>
 
     <style>
-        /* [외부 CSS에 정의되지 않아 유지 필요한 스타일] */
-
-        /* 1. 팀 로고 이미지 강제 사이즈 (style.css는 background-image 방식만 지원함) */
-        .team img {
-            width: 48px; height: 48px; object-fit: contain; display: block; margin: 0 auto;
-        }
-
-        /* 2. 댓글 더보기 기능을 위한 숨김 클래스 */
+        .team img { width: 48px; height: 48px; object-fit: contain; display: block; margin: 0 auto; }
         .review_list li.hidden-cmt { display: none; }
-
-        /* 3. 삭제 버튼 초기화 */
         .del-btn { background: none; border: none; padding: 0; cursor: pointer; }
+
+        /* 승요 뱃지 커스텀 스타일 */
+        .result-badge-wrap {
+            background-color: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee;
+        }
+        .result-badge-wrap .tit { font-size: 14px; font-weight: 700; color: #555; margin-bottom:0; }
+        .result-badge { font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+        .result-badge.win { background-color: #E8F3FF; color: #1A7CFF; }
+        .result-badge.lose { background-color: #FEE8E8; color: #FF4D4D; }
+        .result-badge.draw { background-color: #F1F1F1; color: #666; }
+        .result-badge.none { background-color: #f5f5f5; color: #999; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
@@ -113,11 +115,39 @@
                                         <c:if test="${not empty diary.gameDate}">
                                             <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
                                             <span style="font-weight:400; color:#666; font-size:13px; margin-left:4px;">
-                                                <fmt:formatDate value="${pDate}" pattern="MM. dd"/> ${diary.gameTime}
+                                                <fmt:formatDate value="${pDate}" pattern="MM.dd"/> ${diary.gameTime}
                                             </span>
                                         </c:if>
                                     </span>
                                 </button>
+                            </div>
+
+                            <%-- 직관 승패 결과 뱃지 --%>
+                            <div class="result-badge-wrap">
+                                <div class="tit">직관 승패 결과</div>
+                                <div>
+                                    <c:choose>
+                                        <c:when test="${diary.gameStatus eq 'FINISHED'}">
+                                            <c:choose>
+                                                <c:when test="${diary.gameResult eq 'WIN'}">
+                                                    <span class="result-badge win"><img src="/img/ico_crown.svg" style="width:16px;"> 승리 요정 달성!</span>
+                                                </c:when>
+                                                <c:when test="${diary.gameResult eq 'LOSE'}">
+                                                    <span class="result-badge lose">패배 요정 (응원팀 패배)</span>
+                                                </c:when>
+                                                <c:when test="${diary.gameResult eq 'DRAW'}">
+                                                    <span class="result-badge draw">무승부</span>
+                                                </c:when>
+                                                <c:when test="${diary.gameResult eq 'NONE'}">
+                                                    <span class="result-badge none">승패 무관 (타팀 관전)</span>
+                                                </c:when>
+                                            </c:choose>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="result-badge none" style="background:transparent; border:1px solid #ddd;">경기 진행 전/중</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
                             </div>
 
                             <div class="diary_write_list diary_character yellow">

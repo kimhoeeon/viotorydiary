@@ -39,7 +39,7 @@
         , t1.name_kr AS homeTeamName
         , t2.name_kr AS awayTeamName
 
-        -- ⭐️ 승요 판별 정보 (타팀 경기 제외 조건 추가)
+        -- 승요 판별 정보 (타팀 경기 제외 조건 추가)
         , d.snapshot_team_code AS snapshotTeamCode
         , CASE
         WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
@@ -84,7 +84,7 @@
             t1.name_kr AS homeTeamName,
             t2.name_kr AS awayTeamName,
 
-            -- ⭐️ 승요 판별 정보 (타팀 경기 제외 조건 추가)
+            -- 승요 판별 정보 (타팀 경기 제외 조건 추가)
             CASE
                 WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                 WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'

@@ -28,22 +28,19 @@
     <title>직관일기 공유 | 승요일기</title>
 
     <style>
-        /* 상세 페이지 스타일 가져옴 */
-        .diary-header-info {
-            border-bottom: 1px solid #f0f0f0;
-            padding-bottom: 16px;
-            margin-bottom: 16px;
-        }
+        .diary-header-info { border-bottom: 1px solid #f0f0f0; padding-bottom: 16px; margin-bottom: 16px; }
         .one-line-box .label { font-size: 13px; color: #999; margin-bottom: 6px; display: block; }
         .one-line-box .text { font-size: 18px; font-weight: 700; color: #111; line-height: 1.4; }
 
         .hero-box { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
-        .hero-badge {
-            background: #e8f3ff; color: #2c7fff;
-            font-size: 12px; font-weight: 700;
-            padding: 4px 8px; border-radius: 6px;
-        }
+        .hero-badge { background: #e8f3ff; color: #2c7fff; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
         .hero-name { font-size: 16px; font-weight: 600; color: #333; }
+
+        .result-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+        .result-badge.win { background-color: #E8F3FF; color: #1A7CFF; }
+        .result-badge.lose { background-color: #FEE8E8; color: #FF4D4D; }
+        .result-badge.draw { background-color: #F1F1F1; color: #666; }
+        .result-badge.none { background-color: #f5f5f5; color: #999; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
@@ -78,6 +75,28 @@
                         <div class="play-result_head">
                             <div class="tit">직관한 경기</div>
                             <div class="txt">${diary.stadiumName}</div>
+
+                            <%-- 공유 페이지용 승패 결과 뱃지 --%>
+                            <div>
+                                <c:choose>
+                                    <c:when test="${diary.gameStatus eq 'FINISHED'}">
+                                        <c:choose>
+                                            <c:when test="${diary.gameResult eq 'WIN'}">
+                                                <span class="result-badge win"><img src="/img/ico_crown.svg" style="width:14px;"> 승리 요정!</span>
+                                            </c:when>
+                                            <c:when test="${diary.gameResult eq 'LOSE'}">
+                                                <span class="result-badge lose">패배 요정</span>
+                                            </c:when>
+                                            <c:when test="${diary.gameResult eq 'DRAW'}">
+                                                <span class="result-badge draw">무승부</span>
+                                            </c:when>
+                                            <c:when test="${diary.gameResult eq 'NONE'}">
+                                                <span class="result-badge none">타팀 관전</span>
+                                            </c:when>
+                                        </c:choose>
+                                    </c:when>
+                                </c:choose>
+                            </div>
                         </div>
                         <div class="play-result_body">
                             <div class="team_score">
