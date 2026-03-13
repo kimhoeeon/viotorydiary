@@ -170,18 +170,19 @@
                                                                                     <span class="badge badge-light fs-8 mb-1">${item.gameDate}</span>
                                                                                     <span class="fw-bold text-gray-800">${item.awayTeamName} vs ${item.homeTeamName}</span>
 
-                                                                                        <%-- ⭐️ 수정: 진짜 승요 여부 메인 노출 --%>
+                                                                                    <%-- 진짜 승요 여부 메인 노출 --%>
                                                                                     <c:if test="${item.gameStatus eq 'FINISHED'}">
                                                                                         <div class="mt-1 mb-1">
                                                                                             <c:choose>
                                                                                                 <c:when test="${item.gameResult eq 'WIN'}"><span class="badge badge-primary fs-9">승리 요정</span></c:when>
                                                                                                 <c:when test="${item.gameResult eq 'LOSE'}"><span class="badge badge-secondary fs-9 text-muted">패배</span></c:when>
                                                                                                 <c:when test="${item.gameResult eq 'DRAW'}"><span class="badge badge-light-dark fs-9 text-muted">무승부</span></c:when>
+                                                                                                <c:when test="${item.gameResult eq 'NONE'}"><span class="badge badge-light fs-9 text-muted">타팀관전</span></c:when>
                                                                                             </c:choose>
                                                                                         </div>
                                                                                     </c:if>
 
-                                                                                        <%-- 서브 정보: 재미용 스코어 예측 --%>
+                                                                                    <%-- 서브 정보: 재미용 스코어 예측 --%>
                                                                                     <c:if test="${not empty item.predScoreHome and not empty item.predScoreAway}">
                                                                                         <div class="text-muted" style="font-size: 11px;">
                                                                                             (재미용 예측: [${item.predScoreAway}:${item.predScoreHome}]

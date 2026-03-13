@@ -12,7 +12,7 @@
             t.name_kr AS myTeamName,
 
             COUNT(d.diary_id) AS totalGames,
-            -- ⭐️ 수정: 타팀 직관 경기는 승무패 카운트에서 완전 제외
+            -- 타팀 직관 경기는 승무패 카운트에서 완전 제외
             SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) AS winGames,
             SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' AND d.snapshot_team_code != g.winning_team THEN 1 ELSE 0 END) AS loseGames,
             SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team = 'DRAW' THEN 1 ELSE 0 END) AS drawGames

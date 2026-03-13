@@ -223,7 +223,7 @@
                                                 </div>
                                                 <label class="col-lg-2 fw-semibold text-muted">직관 전적</label>
                                                 <div class="col-lg-4">
-                                                    <%-- ⭐️ 무승부 표기 추가 --%>
+                                                    <%-- 무승부 표기 추가 --%>
                                                     <span class="fw-bold fs-6 text-gray-800">${member.winCount}승 <c:if test="${member.drawCount > 0}">${member.drawCount}무 </c:if>${member.loseCount}패</span>
                                                 </div>
                                             </div>

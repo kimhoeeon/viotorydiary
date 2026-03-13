@@ -39,16 +39,17 @@
         , t1.name_kr AS homeTeamName
         , t2.name_kr AS awayTeamName
 
-        -- ⭐️ 승요 판별 정보 (응원팀 승패)
+        -- ⭐️ 승요 판별 정보 (타팀 경기 제외 조건 추가)
         , d.snapshot_team_code AS snapshotTeamCode
         , CASE
+        WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
         WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
         WHEN g.winning_team = 'DRAW' THEN 'DRAW'
         WHEN g.winning_team IS NOT NULL THEN 'LOSE'
         ELSE 'NONE'
         END AS gameResult
 
-        -- 예측 관련 정보
+        -- 예측 관련 정보 (재미용)
         , d.pred_score_home AS predScoreHome
         , d.pred_score_away AS predScoreAway
 
@@ -82,13 +83,16 @@
             IFNULL(s.short_name, s.name) AS stadiumName,
             t1.name_kr AS homeTeamName,
             t2.name_kr AS awayTeamName,
-            -- ⭐️ 승요 판별 정보 추가
+
+            -- ⭐️ 승요 판별 정보 (타팀 경기 제외 조건 추가)
             CASE
+                WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                 WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                 WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                 WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                 ELSE 'NONE'
                 END AS gameResult
+
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  LEFT JOIN games g ON d.game_id = g.game_id

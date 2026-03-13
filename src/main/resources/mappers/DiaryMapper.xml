@@ -21,6 +21,7 @@
                d.pred_score_away AS predScoreAway,
 
                CASE
+                   WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                    WHEN d.snapshot_team_code = g.home_team_code THEN
                        CASE
                            WHEN g.score_home > g.score_away THEN 'WIN'
@@ -75,7 +76,6 @@
         <![CDATA[
         SELECT m.nickname,
                COUNT(d.diary_id) AS totalGames,
-            /* ⭐️ 랭킹 통계용: 실제 직관 응원팀 승리 기준 (타팀 관전 제외) */
                SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) AS winGames,
                (SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) /
                 NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)) * 100 AS winRate
@@ -114,6 +114,7 @@
             IFNULL(s.short_name, s.name) AS stadiumName,
 
             CASE
+                WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                 WHEN d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away THEN 'WIN'
                 WHEN d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away THEN 'LOSE'
                 WHEN d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home THEN 'WIN'
@@ -196,6 +197,7 @@
                IFNULL(s.short_name, s.name) AS stadiumName,
 
                CASE
+                   WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                    WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
@@ -232,6 +234,7 @@
                t2.logo_image_url AS awayTeamLogo,
 
                CASE
+                   WHEN m.my_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                    WHEN g.winning_team = m.my_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
@@ -254,7 +257,7 @@
     <select id="selectVisitedStadiumIds" resultType="long">
         SELECT DISTINCT g.stadium_id
         FROM diaries d
-         JOIN games g ON d.game_id = g.game_id
+                 JOIN games g ON d.game_id = g.game_id
         WHERE d.member_id = #{memberId}
           AND d.status = 'COMPLETED'
           AND d.is_verified = 1
@@ -297,6 +300,7 @@
                t2.logo_image_url AS awayTeamLogo,
 
                CASE
+                   WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                    WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
@@ -339,6 +343,7 @@
                m.my_team_code AS snapshotTeamCode,
 
                CASE
+                   WHEN m.my_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                    WHEN g.winning_team = m.my_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
@@ -364,7 +369,9 @@
                m.nickname, m.profile_image,
                g.score_home, g.score_away,
 
-               CASE WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+               CASE WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
+                    WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                     WHEN g.winning_team IS NOT NULL THEN 'LOSE' ELSE 'NONE' END AS gameResult
 
         FROM diaries d
@@ -385,7 +392,9 @@
                m.nickname, m.profile_image,
                g.score_home, g.score_away,
 
-               CASE WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+               CASE WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
+                    WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                     WHEN g.winning_team IS NOT NULL THEN 'LOSE' ELSE 'NONE' END AS gameResult
 
         FROM diaries d
@@ -406,7 +415,9 @@
                m.nickname, m.profile_image,
                g.score_home, g.score_away,
 
-               CASE WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+               CASE WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
+                    WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                     WHEN g.winning_team IS NOT NULL THEN 'LOSE' ELSE 'NONE' END AS gameResult
 
         FROM diaries d
@@ -440,6 +451,7 @@
                m.profile_image,
 
                CASE
+                   WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                    WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'

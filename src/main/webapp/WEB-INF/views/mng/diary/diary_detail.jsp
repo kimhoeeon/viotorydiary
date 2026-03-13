@@ -183,7 +183,7 @@
                                                 </div>
                                             </div>
 
-                                            <%-- ⭐️ 추가: 이 일기가 실제 승리 요정(승요)를 달성한 일기인지 확인하는 패널 --%>
+                                            <%-- 이 일기가 실제 승리 요정(승요)를 달성한 일기인지 확인하는 패널 --%>
                                             <div class="row align-items-center bg-light-primary border-primary border-dashed p-4 rounded mb-5">
                                                 <label class="col-lg-2 fw-semibold text-primary">직관 승패 결과</label>
                                                 <div class="col-lg-10">
@@ -198,6 +198,9 @@
                                                                 </c:when>
                                                                 <c:when test="${diary.gameResult eq 'DRAW'}">
                                                                     <span class="badge badge-light-dark fs-5 py-2 px-3 text-muted">무승부</span>
+                                                                </c:when>
+                                                                <c:when test="${diary.gameResult eq 'NONE'}">
+                                                                    <span class="badge badge-light fs-5 py-2 px-3 text-muted">승패 무관 (타팀 경기 관람)</span>
                                                                 </c:when>
                                                             </c:choose>
                                                         </c:when>

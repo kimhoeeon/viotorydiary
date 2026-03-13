@@ -36,7 +36,7 @@ public class WinYoService {
         // 구장별 방문 횟수 카운팅용 맵
         Map<String, Integer> stadiumCountMap = new HashMap<>();
 
-        // 2. 통계 계산 (⭐️ 단순 재미용 스코어 예측이 아닌 '내 응원팀 실제 경기 승패' 기준!)
+        // 2. 통계 계산 (단순 재미용 스코어 예측이 아닌 '내 응원팀 실제 경기 승패' 기준!)
         for (DiaryVO d : diaries) {
 
             if ("WIN".equals(d.getGameResult())) {
@@ -63,7 +63,7 @@ public class WinYoService {
             }
         }
 
-        // 3. 승률 계산 (소수점 유지, ⭐️ 야구 승률 규정에 따라 무승부는 제외한 validGames 기준)
+        // 3. 승률 계산 (소수점 유지, 야구 승률 규정에 따라 무승부는 제외한 validGames 기준)
         int validGames = wins + loses;
         double winRate = (validGames > 0) ? ((double) wins / validGames) * 100.0 : 0.0;
 
