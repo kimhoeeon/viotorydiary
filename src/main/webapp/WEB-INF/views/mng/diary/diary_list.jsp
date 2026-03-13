@@ -128,20 +128,6 @@
 
                                                                     <td>
                                                                         <div class="d-flex align-items-center">
-                                                                            <%--<c:if test="${not empty item.profileImage}">
-                                                                                <div class="symbol symbol-circle symbol-35px me-3">
-                                                                                    <img src="${item.profileImage}" alt="프로필">
-                                                                                </div>
-                                                                            </c:if>
-                                                                            <c:if test="${empty item.profileImage}">
-                                                                                <div class="symbol symbol-circle symbol-35px me-3 bg-light">
-                                                                                    <i class="ki-duotone ki-user fs-3 text-gray-500 mt-2 ms-2">
-                                                                                        <span class="path1"></span>
-                                                                                        <span class="path2"></span>
-                                                                                    </i>
-                                                                                </div>
-                                                                            </c:if>--%>
-
                                                                             <div class="d-flex flex-column">
                                                                                 <span class="text-gray-800 fw-bold mb-1">${item.memberName}</span>
                                                                                 <span class="text-muted fs-7">${item.memberEmail}</span>
@@ -184,31 +170,36 @@
                                                                                     <span class="badge badge-light fs-8 mb-1">${item.gameDate}</span>
                                                                                     <span class="fw-bold text-gray-800">${item.awayTeamName} vs ${item.homeTeamName}</span>
 
-                                                                                    <%-- 예측 결과 및 실제 결과 표기 (경기 종료시에만 비교) --%>
+                                                                                        <%-- ⭐️ 수정: 진짜 승요 여부 메인 노출 --%>
+                                                                                    <c:if test="${item.gameStatus eq 'FINISHED'}">
+                                                                                        <div class="mt-1 mb-1">
+                                                                                            <c:choose>
+                                                                                                <c:when test="${item.gameResult eq 'WIN'}"><span class="badge badge-primary fs-9">승리 요정</span></c:when>
+                                                                                                <c:when test="${item.gameResult eq 'LOSE'}"><span class="badge badge-secondary fs-9 text-muted">패배</span></c:when>
+                                                                                                <c:when test="${item.gameResult eq 'DRAW'}"><span class="badge badge-light-dark fs-9 text-muted">무승부</span></c:when>
+                                                                                            </c:choose>
+                                                                                        </div>
+                                                                                    </c:if>
+
+                                                                                        <%-- 서브 정보: 재미용 스코어 예측 --%>
                                                                                     <c:if test="${not empty item.predScoreHome and not empty item.predScoreAway}">
-                                                                                        <div class="mt-2 text-muted fs-8">
-                                                                                            예측: [${item.predScoreAway} : ${item.predScoreHome}]
+                                                                                        <div class="text-muted" style="font-size: 11px;">
+                                                                                            (재미용 예측: [${item.predScoreAway}:${item.predScoreHome}]
                                                                                             <c:choose>
                                                                                                 <c:when test="${item.gameStatus eq 'FINISHED'}">
                                                                                                     <c:choose>
                                                                                                         <c:when test="${item.predScoreHome == item.scoreHome and item.predScoreAway == item.scoreAway}">
-                                                                                                            <span class="badge badge-light-success fs-9 ms-1 py-1">적중</span>
+                                                                                                            <span class="text-success ms-1 fw-bold">적중</span>)
                                                                                                         </c:when>
                                                                                                         <c:otherwise>
-                                                                                                            <span class="badge badge-light-danger fs-9 ms-1 py-1">미적중</span>
+                                                                                                            <span class="text-danger ms-1">미적중</span>)
                                                                                                         </c:otherwise>
                                                                                                     </c:choose>
                                                                                                 </c:when>
-                                                                                                <c:otherwise>
-                                                                                                    <span class="badge badge-light-warning fs-9 ms-1 py-1">진행중</span>
-                                                                                                </c:otherwise>
+                                                                                                <c:otherwise>)</c:otherwise>
                                                                                             </c:choose>
                                                                                         </div>
                                                                                     </c:if>
-                                                                                    <c:if test="${empty item.predScoreHome or empty item.predScoreAway}">
-                                                                                        <div class="mt-2 text-muted fs-8">예측: -</div>
-                                                                                    </c:if>
-
                                                                                 </div>
                                                                             </c:when>
                                                                             <c:otherwise>

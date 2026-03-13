@@ -183,8 +183,33 @@
                                                 </div>
                                             </div>
 
+                                            <%-- ⭐️ 추가: 이 일기가 실제 승리 요정(승요)를 달성한 일기인지 확인하는 패널 --%>
+                                            <div class="row align-items-center bg-light-primary border-primary border-dashed p-4 rounded mb-5">
+                                                <label class="col-lg-2 fw-semibold text-primary">직관 승패 결과</label>
+                                                <div class="col-lg-10">
+                                                    <c:choose>
+                                                        <c:when test="${diary.gameStatus eq 'FINISHED'}">
+                                                            <c:choose>
+                                                                <c:when test="${diary.gameResult eq 'WIN'}">
+                                                                    <span class="badge badge-primary fs-5 py-2 px-3"><i class="ki-duotone ki-crown fs-4 text-white me-1"><span class="path1"></span><span class="path2"></span></i>승리 요정 달성 (응원팀 승리)</span>
+                                                                </c:when>
+                                                                <c:when test="${diary.gameResult eq 'LOSE'}">
+                                                                    <span class="badge badge-secondary fs-5 py-2 px-3 text-muted">패배 요정 (응원팀 패배)</span>
+                                                                </c:when>
+                                                                <c:when test="${diary.gameResult eq 'DRAW'}">
+                                                                    <span class="badge badge-light-dark fs-5 py-2 px-3 text-muted">무승부</span>
+                                                                </c:when>
+                                                            </c:choose>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span class="badge badge-light-warning fs-6">경기 진행 전/진행 중</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                            </div>
+
                                             <div class="row align-items-center bg-light-info p-4 rounded">
-                                                <label class="col-lg-2 fw-semibold text-info">사용자 예측</label>
+                                                <label class="col-lg-2 fw-semibold text-info">스코어 예측</label>
                                                 <div class="col-lg-4">
                                                     <span class="fw-bold fs-6 text-gray-800">
                                                         <c:choose>
@@ -196,7 +221,7 @@
                                                                     <c:when test="${diary.gameStatus eq 'FINISHED'}">
                                                                         <c:choose>
                                                                             <c:when test="${diary.predScoreHome == diary.scoreHome and diary.predScoreAway == diary.scoreAway}">
-                                                                                <span class="badge badge-success">적중 (스코어)</span>
+                                                                                <span class="badge badge-success">적중 (스코어 일치)</span>
                                                                             </c:when>
                                                                             <c:otherwise>
                                                                                 <span class="badge badge-danger">미적중</span>
