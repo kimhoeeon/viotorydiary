@@ -28,11 +28,11 @@
         .review_list li.hidden-cmt { display: none; }
         .del-btn { background: none; border: none; padding: 0; cursor: pointer; }
 
-        /* 승요 뱃지 내부 스타일 선언 */
+        /* 승요 뱃지 내부 스타일 선언 (테마 변수 적용 완료) */
         .result-badge-wrap {
             background-color: #f8f9fa; border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--color-border, #eee);
         }
-        .result-badge-wrap .tit { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 0; }
+        .result-badge-wrap .tit { font-size: 14px; font-weight: 700; color: var(--color-text, #555); margin-bottom: 0; }
         .result-badge { font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
         .result-badge.win { background-color: #E8F3FF; color: var(--color-primary, #1A7CFF); }
         .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger, #FF4D4D); }
