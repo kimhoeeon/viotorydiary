@@ -160,7 +160,7 @@
                                   <input type="file" id="fileUpload" name="files" style="display:none;" accept="image/jpeg, image/png" multiple onchange="handleFileSelect(this)">
 
                                   <div class="upload" id="imagePreviewBox" style="display:none; margin-top:12px; white-space: nowrap; overflow-x: auto; padding-bottom: 8px;"></div>
-                                  <div class=“file-mes">[!] 최대 10MB 의 JPG, PNG만 등록 가능합니다.</div>
+                                  <div class="file-mes">[!] 최대 10MB 의 JPG, PNG만 등록 가능합니다.</div>
                               </div>
 
                               <ul class="disClose">

@@ -23,17 +23,17 @@
 
     <style>
         .diary-history-list {
-            max-height: 250px;
+            max-height: 300px;
             overflow-y: auto;
             border: 1px solid var(--bs-gray-200);
             border-radius: 8px;
             background-color: #fff;
         }
         .diary-history-item {
-            padding: 14px 16px;
+            padding: 16px 20px;
             border-bottom: 1px dashed var(--bs-gray-200);
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
         }
         .diary-history-item:last-child {
@@ -42,14 +42,14 @@
         .diary-history-item:hover {
             background-color: var(--bs-light);
         }
-        /* 스코어 강조 디자인 */
         .score-box {
-            background: var(--bs-gray-100);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            color: var(--bs-gray-800);
-            font-size: 13px;
+            background: var(--bs-gray-200);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            color: var(--bs-gray-900);
+            font-size: 15px;
+            letter-spacing: 1px;
         }
     </style>
 </head>
@@ -275,8 +275,19 @@
                                                                 <c:forEach var="diary" items="${diaries}">
                                                                     <div class="diary-history-item">
                                                                         <div class="d-flex flex-column" style="width: 85%;">
-                                                                            <div class="d-flex align-items-center mb-2 gap-2">
-                                                                                <span class="badge badge-light fs-8 text-gray-600">${diary.gameDate}</span>
+
+                                                                            <%-- 1. 경기 일시 및 승요 결과 --%>
+                                                                            <div class="d-flex align-items-center mb-3 gap-2">
+                                                                                <span class="badge badge-secondary fs-8 text-gray-700">
+                                                                                    <i class="ki-duotone ki-calendar fs-8 me-1">
+                                                                                        <span class="path1"></span>
+                                                                                        <span class="path2"></span>
+                                                                                    </i>
+                                                                                    ${diary.gameDate}
+                                                                                    <c:if test="${not empty diary.gameTime and diary.gameTime ne '00:00:00'}">
+                                                                                        ${fn:substring(diary.gameTime, 0, 5)}
+                                                                                    </c:if>
+                                                                                </span>
 
                                                                                 <c:choose>
                                                                                     <c:when test="${diary.gameResult eq 'WIN'}"><span class="badge badge-light-primary px-2 py-1 fs-9">승리요정</span></c:when>
@@ -286,23 +297,52 @@
                                                                                 </c:choose>
                                                                             </div>
 
-                                                                            <div class="d-flex align-items-center mb-1">
-                                                                                <span class="fw-bolder text-gray-800 fs-5">${diary.awayTeamName}</span>
-                                                                                <span class="score-box mx-2">${diary.scoreAway} : ${diary.scoreHome}</span>
-                                                                                <span class="fw-bolder text-gray-800 fs-5">${diary.homeTeamName}</span>
+                                                                            <%-- 2. 원정/홈 매치업 및 스코어 --%>
+                                                                            <div class="d-flex align-items-center mb-3 bg-light rounded px-3 py-2" style="width: fit-content; border: 1px solid var(--bs-gray-200);">
+                                                                                <div class="d-flex align-items-center justify-content-end" style="min-width: 90px;">
+                                                                                    <span class="badge badge-light-secondary fs-10 me-2 text-gray-500">원정</span>
+                                                                                    <span class="fw-bolder fs-6 ${diary.scoreAway > diary.scoreHome ? 'text-primary' : 'text-gray-700'}">
+                                                                                        ${diary.awayTeamName}
+                                                                                        <c:if test="${diary.scoreAway > diary.scoreHome}">
+                                                                                            <i class="ki-duotone ki-crown fs-5 ms-1 text-warning">
+                                                                                                <span class="path1"></span>
+                                                                                                <span class="path2"></span>
+                                                                                            </i>
+                                                                                        </c:if>
+                                                                                    </span>
+                                                                                </div>
+
+                                                                                <span class="score-box mx-4">${diary.scoreAway} : ${diary.scoreHome}</span>
+
+                                                                                <div class="d-flex align-items-center justify-content-start" style="min-width: 90px;">
+                                                                                    <span class="badge badge-light-danger fs-10 me-2">홈</span>
+                                                                                    <span class="fw-bolder fs-6 ${diary.scoreHome > diary.scoreAway ? 'text-danger' : 'text-gray-700'}">
+                                                                                        ${diary.homeTeamName}
+                                                                                        <c:if test="${diary.scoreHome > diary.scoreAway}">
+                                                                                            <i class="ki-duotone ki-crown fs-5 ms-1 text-warning">
+                                                                                                <span class="path1"></span>
+                                                                                                <span class="path2"></span>
+                                                                                            </i>
+                                                                                        </c:if>
+                                                                                    </span>
+                                                                                </div>
                                                                             </div>
 
+                                                                            <%-- 3. 구장 정보 및 한줄평 --%>
                                                                             <span class="text-muted fs-7 text-truncate" style="max-width: 100%;">
-                                                                                <i class="ki-duotone ki-geolocation fs-7 me-1"><span class="path1"></span><span class="path2"></span></i>${diary.stadiumName}
+                                                                                <i class="ki-duotone ki-geolocation fs-7 me-1"><span class="path1"></span><span class="path2"></span></i>
+                                                                                <span class="text-gray-700 fw-semibold">${diary.stadiumName}</span>
                                                                                 <c:if test="${not empty diary.oneLineComment}">
-                                                                                    <span class="mx-1 text-gray-300">|</span>
+                                                                                    <span class="mx-2 text-gray-300">|</span>
                                                                                     <span class="text-gray-600">"${diary.oneLineComment}"</span>
                                                                                 </c:if>
                                                                             </span>
                                                                         </div>
-                                                                        <div class="d-flex justify-content-end" style="width: 15%;">
-                                                                            <a href="/mng/diary/detail?diaryId=${diary.diaryId}" class="btn btn-sm btn-light btn-active-light-primary py-2 px-3 text-nowrap">
-                                                                                일기 상세
+
+                                                                        <%-- 4. 일기 상세 버튼 --%>
+                                                                        <div class="d-flex justify-content-end align-items-center" style="width: 15%; height: 100%;">
+                                                                            <a href="/mng/diary/detail?diaryId=${diary.diaryId}" class="btn btn-sm btn-light btn-active-light-primary py-2 px-3 text-nowrap mt-4">
+                                                                                일기 상세 <i class="ki-duotone ki-arrow-right fs-6 ms-1"><span class="path1"></span><span class="path2"></span></i>
                                                                             </a>
                                                                         </div>
                                                                     </div>

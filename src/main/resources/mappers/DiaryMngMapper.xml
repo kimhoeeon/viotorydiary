@@ -123,9 +123,17 @@
                d.member_id,
                d.one_line_comment,
                g.game_date,
+               g.game_time,
                g.status AS gameStatus,
                g.cancel_reason AS cancelReason,
-               IFNULL(s.short_name, s.name) AS stadiumName,
+
+               -- 구장 짧은 이름 + 풀네임 조합 (예: 잠실 (서울종합운동장 야구장))
+               CASE
+                   WHEN s.short_name IS NOT NULL AND s.short_name != s.name
+                       THEN CONCAT(s.short_name, ' (', s.name, ')')
+                   ELSE s.name
+                   END AS stadiumName,
+
                g.score_home AS scoreHome,
                g.score_away AS scoreAway,
                t1.name_kr AS homeTeamName,
@@ -149,7 +157,7 @@
           AND g.status = 'FINISHED'
           AND d.status = 'COMPLETED'
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
-        ORDER BY g.game_date DESC
+        ORDER BY g.game_date DESC, g.game_time DESC
     </select>
 
 </mapper>
