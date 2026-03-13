@@ -464,3 +464,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// 스와이퍼
+const swiperMainCnt = new Swiper('.swiperMainCnt', {
+    slidesPerView: 'auto',
+    spaceBetween: 20,
+    direction: getDirection(),
+    loop: true,
+    speed:700,
+    preventClicks: false,
+    preventClicksPropagation: false,
+    autoHeight: false,
+    navigation: {
+        nextEl: '.swiperMainCntNext',
+        prevEl: '.swiperMainCntPrev',
+    },
+    breakpoints: {
+        1199: {
+            spaceBetween: 0,
+        },
+    },
+});
+
+function getDirection() {
+    var windowWidth = window.innerWidth;
+    var direction = window.innerWidth <= 0 ? 'vertical' : 'horizontal';
+
+    return direction;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const moreBtn = document.querySelector('.more-btn');
+    const diaryDesc = document.querySelector('.diary_desc');
+
+    if(!moreBtn || !diaryDesc) return;
+
+    moreBtn.addEventListener('click', () => {
+
+        diaryDesc.classList.toggle('is-open');
+
+        if(diaryDesc.classList.contains('is-open')){
+            moreBtn.textContent = '- 일기 숨기기';
+        }else{
+            moreBtn.textContent = '+ 일기 전체보기';
+        }
+
+    });
+
+});

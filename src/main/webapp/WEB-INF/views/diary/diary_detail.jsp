@@ -28,15 +28,11 @@
         .review_list li.hidden-cmt { display: none; }
         .del-btn { background: none; border: none; padding: 0; cursor: pointer; }
 
-        /* 승요 뱃지 내부 스타일 선언 (마진 중첩 방지 및 테마 변수 적용) */
-        .result-badge-wrap {
-            background-color: #f8f9fa; border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--color-border, #eee);
-        }
-        .result-badge-wrap .tit { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 0; }
-        .result-badge { font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
-        .result-badge.win { background-color: #E8F3FF; color: var(--color-primary, #1A7CFF); }
-        .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger, #FF4D4D); }
-        .result-badge.draw { background-color: #F1F1F1; color: #666; }
+        /* 승요 뱃지 커스텀 스타일 (새로운 UI에 맞춤) */
+        .result-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--color-border); }
+        .result-badge.win { background-color: #E8F3FF; color: var(--color-primary); border-color: #E8F3FF; }
+        .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger); border-color: #FEE8E8; }
+        .result-badge.draw { background-color: #F1F1F1; color: #666; border-color: #F1F1F1; }
         .result-badge.none { background-color: #f5f5f5; color: #999; }
     </style>
 
@@ -53,288 +49,243 @@
         </header>
 
         <div class="app-main">
+
             <div class="app-tit">
-                <div class="page-tit">나의 직관일기</div>
-                <c:if test="${diary.verified}">
-                    <div class="location-certify">
-                        <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete">
-                            직관 인증완료!
-                        </button>
-                    </div>
+                <div class="page-tit">
+                    직관일기
+                </div>
+                <c:if test="${isOwner and isEditable}">
+                    <a href="/diary/update?diaryId=${diary.diaryId}" class="btn btn-primary w-auto small">수정</a>
                 </c:if>
             </div>
 
-            <c:if test="${isOwner}">
-                <div class="mt-16 flex-end">
-                    <%-- 삭제 불가 요청으로 임시 주석 처리 --%>
-                    <%--<button type="button" class="btn sub-btn w-auto small" onclick="deleteDiary(${diary.diaryId})">삭제</button>--%>
-                    <a href="/diary/update?diaryId=${diary.diaryId}" class="btn btn-primary w-auto small">수정</a>
-                </div>
-            </c:if>
+            <ul class="comment">
+                <li>내가 작성한 직관일기를 저장할 수 있어요.</li>
+                <li>이미지로 저장해 친구들과 공유해보세요!</li>
+            </ul>
 
             <div class="page-main_wrap">
                 <div class="history">
                     <div class="history-list mt-24">
+                        <div class="card_wrap play_wrap gap-16">
 
-                        <div class="diary_write_form">
+                            <div class="card_item inquiry_item">
+                                <div class="location-certify d-flex justify-content-between align-items-center">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <button class="btn btn-inquiry w-auto" type="button" style="pointer-events: none;">
+                                            내가 직관한 경기
+                                        </button>
 
-                            <div class="diary_write_list req diary_character">
-                                <div class="tit">직관한 경기</div>
-                                <button type="button" class="select-field" style="opacity: 1; cursor: default;">
-                                    <span class="select-field_value" style="color: #000; font-weight: bold;">
-                                        <%--<c:choose>
-                                            <c:when test="${diary.gameType eq 'EXHIBITION'}">
-                                                <span class="badge-game-type badge-exhibition">시범</span>
+                                        <%-- 승패 뱃지 통합 --%>
+                                        <c:choose>
+                                            <c:when test="${diary.gameStatus eq 'FINISHED'}">
+                                                <c:choose>
+                                                    <c:when test="${diary.gameResult eq 'WIN'}">
+                                                        <span class="result-badge win"><img src="/img/ico_crown.svg" style="width:14px;"> 승리 요정!</span>
+                                                    </c:when>
+                                                    <c:when test="${diary.gameResult eq 'LOSE'}">
+                                                        <span class="result-badge lose">패배 요정</span>
+                                                    </c:when>
+                                                    <c:when test="${diary.gameResult eq 'DRAW'}">
+                                                        <span class="result-badge draw">무승부</span>
+                                                    </c:when>
+                                                    <c:when test="${diary.gameResult eq 'NONE'}">
+                                                        <span class="result-badge none">타팀 관전</span>
+                                                    </c:when>
+                                                </c:choose>
                                             </c:when>
-                                            <c:when test="${diary.gameType eq 'REGULAR'}">
-                                                <span class="badge-game-type badge-regular">정규</span>
-                                            </c:when>
-                                            <c:when test="${diary.gameType eq 'POST'}">
-                                                <span class="badge-game-type badge-post">포스트</span>
-                                            </c:when>
-                                            <c:when test="${diary.gameType eq 'ALLSTAR'}">
-                                                <span class="badge-game-type badge-allstar">올스타</span>
-                                            </c:when>
-                                        </c:choose>--%>
+                                            <c:otherwise>
+                                                <span class="result-badge none">경기 전/중</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
 
-                                        [${diary.stadiumName}] ${diary.awayTeamName} vs ${diary.homeTeamName}
-                                        <span style="font-weight:400; font-size:13px; margin-left:4px;">
-                                            (${fn:substring(diary.gameDate, 5, 7)}.${fn:substring(diary.gameDate, 8, 10)})
-                                        </span>
-                                    </span>
-                                </button>
-                            </div>
-
-                            <%-- 내 직관 승패 결과 뱃지 노출 --%>
-                            <div class="result-badge-wrap">
-                                <div class="tit">직관 승패 결과</div>
-                                <div>
-                                    <c:choose>
-                                        <c:when test="${diary.gameStatus eq 'FINISHED'}">
-                                            <c:choose>
-                                                <c:when test="${diary.gameResult eq 'WIN'}">
-                                                    <span class="result-badge win"><img src="/img/ico_crown.svg" style="width:16px;"> 승리 요정 달성!</span>
-                                                </c:when>
-                                                <c:when test="${diary.gameResult eq 'LOSE'}">
-                                                    <span class="result-badge lose">패배 요정 (응원팀 패배)</span>
-                                                </c:when>
-                                                <c:when test="${diary.gameResult eq 'DRAW'}">
-                                                    <span class="result-badge draw">무승부</span>
-                                                </c:when>
-                                                <c:when test="${diary.gameResult eq 'NONE'}">
-                                                    <span class="result-badge none">승패 무관 (타팀 관전)</span>
-                                                </c:when>
-                                            </c:choose>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span class="result-badge none" style="background:transparent; border:1px solid #ddd;">경기 진행 전/중</span>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <c:if test="${diary.verified}">
+                                        <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete" style="pointer-events: none;">
+                                            직관 인증완료!
+                                        </button>
+                                    </c:if>
                                 </div>
-                            </div>
 
-                            <div class="diary_write_list req diary_character yellow">
-                                <div class="tit">내가 예상한 스코어</div>
-                                <div class="card_item">
-                                    <div class="game-board">
-                                        <div class="row row-center gap-6">
-
-                                            <div class="team">
-                                                <div class="team-logo mb-8">
-                                                    <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" style="height: 48px; width: auto; object-fit: contain;">
+                                <c:if test="${not empty diary.imageUrl}">
+                                    <div class="inquiry_img">
+                                        <div class="swiper_btn">
+                                            <div class="swiper-button-next swiperMainCntNext"></div>
+                                            <div class="swiper-button-prev swiperMainCntPrev"></div>
+                                        </div>
+                                        <div class="swiper_box">
+                                            <div class="swiper swiperMainCnt">
+                                                <div class="swiper-wrapper">
+                                                    <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
+                                                    <c:forEach var="imgSrc" items="${imgArr}">
+                                                        <c:if test="${not empty imgSrc}">
+                                                            <div class="swiper-slide item">
+                                                                <img src="${imgSrc}" alt="직관 사진" onclick="viewImage(this.src)">
+                                                            </div>
+                                                        </c:if>
+                                                    </c:forEach>
                                                 </div>
-
-                                                <div class="team-name">${diary.awayTeamName}</div>
-                                                <div class="starting mt-4">${diary.awayStarter}</div>
-                                            </div>
-
-                                            <div class="game-score schedule">
-                                                <div class="left-team-score">
-                                                    <input type="text" value="${diary.predScoreAway}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
-                                                </div>
-                                                <div class="game-info-wrap">VS</div>
-                                                <div class="right-team-score">
-                                                    <input type="text" value="${diary.predScoreHome}" readonly style="background:transparent; border:none; text-align:center; font-size:24px; font-weight:bold; color:#000;">
-                                                </div>
-                                            </div>
-
-                                            <div class="team">
-                                                <div class="team-logo mb-8">
-                                                    <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" style="height: 48px; width: auto; object-fit: contain;">
-                                                </div>
-
-                                                <div class="team-name">${diary.homeTeamName}</div>
-                                                <div class="starting mt-4">${diary.homeStarter}</div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                </c:if>
 
-                            <div class="diary_write_list">
-                                <div class="tit">오늘의 히어로는 누구일까?</div>
-                                <input type="text" value="${diary.heroName}" placeholder="최대 100자까지 입력하실 수 있습니다." readonly>
-                            </div>
+                                <div class="inquiry_game" style="${empty diary.imageUrl ? 'border-top: none; padding-top: 0; margin-top: 0;' : ''}">
+                                    <div class="row row-center gap-6">
+                                        <div class="team">
+                                            <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                            <div class="team-name mt-4">${diary.awayTeamName}</div>
+                                            <div class="pitcher-name">${diary.awayStarter}</div>
+                                        </div>
 
-                            <div class="diary_write_list">
-                                <div class="tit">오늘의 경기를 한 마디로 평가한다면?!</div>
-                                <input type="text" value="${diary.oneLineComment}" placeholder="최대 100자까지 입력하실 수 있습니다." readonly>
-                            </div>
-
-                            <div class="diary_write_list">
-                                <div class="tit">오늘의 경기를 기록해 보세요</div>
-                                <textarea placeholder="최대 1,000자까지 입력하실 수 있습니다." readonly style="height: auto; min-height: 120px; background-color: #f9f9f9;">${diary.content}</textarea>
-                            </div>
-
-                            <c:if test="${not empty diary.imageUrl}">
-                                <div class="diary_write_list">
-                                    <div class="tit">오늘 경기 사진</div>
-                                    <div class="upload" style="display:flex; flex-direction:column; gap:16px; width:100%;">
-                                        <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
-                                        <c:forEach var="imgSrc" items="${imgArr}">
-                                            <c:if test="${not empty imgSrc}">
-                                                <div>
-                                                    <img src="${imgSrc}" alt="직관 사진" onclick="viewImage(this.src)"
-                                                         style="width:100%; border-radius:12px; display:block; object-fit:cover;">
-
-                                                    <c:if test="${isOwner}">
-                                                        <button type="button" onclick="downloadImage('${imgSrc}')"
-                                                                style="margin-top:8px; padding:8px 12px; border-radius:8px; background:#fff; border:1px solid #ddd; font-size:13px; display:inline-flex; align-items:center; gap:6px; color:#555;">
-                                                            <span>📥 사진 저장하기</span>
-                                                        </button>
-                                                    </c:if>
+                                        <div class="game-score schedule">
+                                            <div class="left-team-score ${diary.scoreAway > diary.scoreHome ? 'high' : ''}">${diary.scoreAway}</div>
+                                            <div class="game-info-wrap">
+                                                <div class="badge">
+                                                    <c:choose>
+                                                        <c:when test="${diary.gameStatus eq 'SCHEDULED'}">예정</c:when>
+                                                        <c:when test="${diary.gameStatus eq 'LIVE'}">진행중</c:when>
+                                                        <c:when test="${diary.gameStatus eq 'FINISHED'}">종료</c:when>
+                                                        <c:when test="${diary.gameStatus eq 'CANCELLED'}">취소</c:when>
+                                                    </c:choose>
                                                 </div>
-                                            </c:if>
-                                        </c:forEach>
+                                                <div class="game-info">
+                                                    <div class="day">
+                                                        <c:if test="${not empty diary.gameDate}">
+                                                            <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
+                                                            <fmt:formatDate value="${pDate}" pattern="MM.dd"/>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="place">${diary.stadiumName}</div>
+                                                </div>
+                                            </div>
+                                            <div class="right-team-score ${diary.scoreHome > diary.scoreAway ? 'high' : ''}">${diary.scoreHome}</div>
+                                        </div>
+
+                                        <div class="team">
+                                            <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                            <div class="team-name mt-4">${diary.homeTeamName}</div>
+                                            <div class="pitcher-name">${diary.homeStarter}</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </c:if>
 
-                            <div class="diary_write_list">
-                                <div class="tit">공개 여부</div>
-                                <c:choose>
-                                    <c:when test="${diary.isPublic eq 'PUBLIC'}">
-                                        <input type="text" value="전체 공개" readonly>
-                                    </c:when>
-                                    <c:when test="${diary.isPublic eq 'FRIENDS'}">
-                                        <input type="text" value="맞팔 공개" readonly>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <input type="text" value="비공개" readonly>
-                                    </c:otherwise>
-                                </c:choose>
+                                <div class="inquiry_txt">
+                                    <div class="txt_box">
+                                        <div class="txt_player">
+                                            <div class="inquiry_badge">수훈선수</div>
+                                            <div class="player fw-bold text-dark">
+                                                ${empty diary.heroName ? '-' : diary.heroName}
+                                            </div>
+                                        </div>
+                                        <div class="txt_game">
+                                            <div class="inquiry_badge" style="background:#FFA800;">예상 스코어 (재미용)</div>
+                                            <div class="fw-bold" style="color: #555;">
+                                                <c:choose>
+                                                    <c:when test="${not empty diary.predScoreAway and not empty diary.predScoreHome}">
+                                                        원정 ${diary.predScoreAway} : 홈 ${diary.predScoreHome}
+                                                        <c:if test="${diary.gameStatus eq 'FINISHED'}">
+                                                            <c:choose>
+                                                                <c:when test="${diary.predScoreHome == diary.scoreHome and diary.predScoreAway == diary.scoreAway}">
+                                                                    <span style="color:#00CD5C; font-size:12px; margin-left:4px;">(적중)</span>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span style="color:#FF4D4D; font-size:12px; margin-left:4px;">(미적중)</span>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </c:if>
+                                                    </c:when>
+                                                    <c:otherwise>-</c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-top: 16px;">
+                                        <div class="inquiry_badge" style="background:#555;">한줄평</div>
+                                        <div style="font-weight: 600; font-size: 15px; color: #111;">
+                                            "${empty diary.oneLineComment ? '작성된 한줄평이 없습니다.' : diary.oneLineComment}"
+                                        </div>
+                                    </div>
+
+                                    <div class="diary_desc">
+                                        <div class="inquiry_badge">일기 상세 내용</div>
+                                        <div style="white-space: pre-wrap; line-height: 1.5; color: #444;">${diary.content}</div>
+                                    </div>
+                                </div>
                             </div>
 
-                        </div>
+                            <button class="more-btn" style="width: 100%; text-align: center; border: 1px solid var(--color-border); background: #fff; padding: 12px; border-radius: 8px; font-weight: 600; margin-top: -8px;">
+                                + 일기 전체보기
+                            </button>
 
-                        <div class="card_wrap play_wrap gap-16">
                             <div class="card_item pt-24 pb-24">
                                 <div class="review_wrap">
                                     <ul class="review_list" id="reviewList">
                                         <c:forEach var="cmt" items="${comments}" varStatus="status">
                                             <li class="${status.index >= 5 ? 'hidden-cmt' : ''}">
-                                                <div class="name" style="display: flex; align-items: center; gap: 8px;">
-                                                    <c:choose>
-                                                        <c:when test="${not empty cmt.profileImage}">
-                                                            <img src="${cmt.profileImage}" alt="프로필" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #eee;">
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <img src="/img/ico_user.svg" alt="기본 프로필" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #f5f5f5; padding: 2px;">
-                                                        </c:otherwise>
-                                                    </c:choose>
+                                                <div class="name">
+                                                    <c:if test="${not empty cmt.memberTeamCode}">
+                                                        <span>${fn:substring(cmt.memberTeamCode, 0, 1)}</span>
+                                                    </c:if>
                                                     ${cmt.nickname}
                                                 </div>
                                                 <div class="nae">${cmt.content}</div>
 
-                                                <%-- 댓글 작성자 본인이거나, 일기 원글 작성자(isOwner)인 경우에만 삭제 버튼 노출 --%>
                                                 <c:if test="${cmt.memberId eq sessionScope.loginMember.memberId or isOwner}">
-                                                    <button class="del-btn" style="float:right;" onclick="deleteComment(${cmt.commentId}, this)">
-                                                        <img src="/img/ico_del.svg" alt="삭제" style="width:16px; opacity:0.5;">
+                                                    <button class="del-btn" onclick="deleteComment(${cmt.commentId}, this)">
+                                                        <span><img src="/img/ico_del.svg" alt="삭제"></span>
                                                     </button>
                                                 </c:if>
                                             </li>
                                         </c:forEach>
 
                                         <c:if test="${empty comments}">
-                                            <li style="text-align:center; padding:20px; color:#999; border:none;">
+                                            <li style="text-align:center; padding:20px; color:#999; border:none; justify-content: center;">
                                                 아직 작성된 댓글이 없습니다.
                                             </li>
                                         </c:if>
                                     </ul>
 
                                     <c:if test="${fn:length(comments) > 5}">
-                                        <div class="more-btn" id="moreBtn" onclick="showAllComments()">
-                                            <div class="btn">더 보기</div>
+                                        <div class="more-btn-wrap" style="text-align:center;">
+                                            <div class="btn more-btn-cmt" style="border:1px solid var(--color-primary); color:var(--color-primary); display:inline-block; padding:6px 16px; border-radius:50px; font-size:13px; font-weight:600; cursor:pointer;" onclick="showAllComments(this)">더 보기</div>
                                         </div>
                                     </c:if>
 
-                                    <div class="review_write">
-                                        <div class="tit">댓글 작성하기</div>
-                                        <div class="write_input">
-                                            <input type="text" id="cmtContent" placeholder="댓글을 입력하세요. (30자 이내)" maxlength="30" onkeyup="checkCmtInput()">
-                                            <button class="send wpx-80" id="btnCmtSend" disabled onclick="submitComment()">
-                                                작성
-                                            </button>
+                                    <div class="review_write mt-16">
+                                        <div class="tit fw-bold mb-8">댓글 작성하기</div>
+                                        <div class="write_input d-flex gap-8">
+                                            <input type="text" id="cmtContent" placeholder="댓글을 입력하세요. (30자 이내)" maxlength="30" onkeyup="checkCmtInput()" style="flex:1; border:1px solid #e1e1e1; padding:10px 12px; border-radius:8px;">
+                                            <button class="send wpx-80" id="btnCmtSend" disabled onclick="submitComment()" style="background:var(--color-primary); color:#fff; border:none; border-radius:8px; font-weight:600;">작성</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="viewers" style="margin-top:16px;">
-                            <fmt:formatNumber value="${diary.viewCount}" pattern="#,###"/> view
-                        </div>
-
-                        <c:if test="${!isScoreEditable}">
-                            <div class="horizon-mes" style="margin-top:16px;">
-                                <img src="/img/ico_not_mark_red.svg" alt="수정 불가">
-                                <c:choose>
-                                    <c:when test="${lockReason eq 'FINISHED'}">
-                                        종료되거나 취소된 경기의 승부 예측(스코어)은 수정할 수 없어요.<br>(후기 및 사진은 수정 가능)
-                                    </c:when>
-                                    <c:when test="${lockReason eq 'IMMINENT'}">
-                                        경기가 임박해 승부 예측(스코어)이 잠겼어요.<br>(후기 및 사진은 수정 가능)
-                                    </c:when>
-                                    <c:otherwise>
-                                        승부 예측(스코어)은 현재 수정이 불가능합니다.
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                        </c:if>
-
                     </div>
+
+                    <div class="viewers" style="text-align: center; margin-top: 16px; color: #888; font-size: 13px;">
+                        <fmt:formatNumber value="${diary.viewCount}" pattern="#,###"/> view
+                    </div>
+
+                    <c:if test="${!isScoreEditable}">
+                        <div class="horizon-mes" style="text-align: center; color: var(--color-danger); font-size: 13px; margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            <img src="/img/ico_not_mark_red.svg" alt="수정 불가" style="width:14px;">
+                            <c:choose>
+                                <c:when test="${lockReason eq 'FINISHED'}">종료되거나 취소된 경기는 수정할 수 없습니다.</c:when>
+                                <c:otherwise>기록이 잠겨 승부 예측 수정이 불가능합니다.</c:otherwise>
+                            </c:choose>
+                        </div>
+                    </c:if>
                 </div>
+
             </div>
         </div>
 
-        <c:if test="${isOwner}">
-            <div class="bottom-action">
-                <%-- 삭제 불가 요청으로 임시 주석 처리 --%>
-                <%--<button type="button" class="btn border" onclick="deleteDiary()">
-                    삭제
-                </button>--%>
-
-                <c:choose>
-                    <c:when test="${isEditable}">
-                        <button type="button" class="btn btn-primary" onclick="editDiary()">
-                            수정
-                        </button>
-                    </c:when>
-                    <c:otherwise>
-                        <button type="button" class="btn btn-primary" disabled>
-                            수정
-                        </button>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-        </c:if>
-
-        <%--<c:if test="${!isOwner}">--%>
-            <div class="bottom-action bottom-main">
-                <button type="button" class="btn btn-primary" onclick="shareDiary()">공유하기</button>
-            </div>
-        <%--</c:if>--%>
-
+        <div class="bottom-action bottom-main">
+            <button type="button" class="btn btn-primary" onclick="shareDiary()">공유하기</button>
+        </div>
     </div>
 
     <%@ include file="../include/popup.jsp" %>
@@ -344,6 +295,20 @@
     <script src="/js/app_interface.js"></script>
 
     <script>
+
+        // Swiper 초기화 (script.js에 이미 로직이 포함되어 있으나 재확인)
+        if(typeof Swiper !== 'undefined' && document.querySelector('.swiperMainCnt')) {
+            new Swiper('.swiperMainCnt', {
+                slidesPerView: 'auto',
+                spaceBetween: 10,
+                loop: false,
+                navigation: {
+                    nextEl: '.swiperMainCntNext',
+                    prevEl: '.swiperMainCntPrev',
+                }
+            });
+        }
+
         // [댓글 입력 감지]
         function checkCmtInput() {
             const val = $('#cmtContent').val().trim();
