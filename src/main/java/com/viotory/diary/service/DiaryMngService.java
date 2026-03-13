@@ -36,4 +36,9 @@ public class DiaryMngService {
     public void deleteDiary(Long diaryId) {
         diaryMngMapper.deleteDiary(diaryId);
     }
+
+    public List<DiaryVO> getMemberDiaryHistory(Long memberId) {
+        return diaryMngMapper.selectMemberDiaryHistory(memberId);
+    }
+
 }

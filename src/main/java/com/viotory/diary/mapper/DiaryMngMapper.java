@@ -24,4 +24,8 @@ public interface DiaryMngMapper {
 
     // 일기 삭제 (관리자 권한으로 상태 변경 -> DELETED)
     void deleteDiary(Long diaryId);
+
+    // 관리자 화면 전용 특정 회원의 직관 기록 이력 조회
+    List<DiaryVO> selectMemberDiaryHistory(Long memberId);
+
 }

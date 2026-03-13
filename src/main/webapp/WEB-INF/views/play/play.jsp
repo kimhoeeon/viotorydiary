@@ -60,7 +60,7 @@
 
         .game-sub-info { font-size: 12px; color: #888; margin-top: 4px; text-align: center; }
         .cancel-reason { font-size: 12px; color: #FF2F32; margin-top: 4px; text-align: center; font-weight: 500;}
-        .pitcher-name { font-size: 11px; color: #666; display: block; margin-top: 2px; }
+        .pitcher-name { font-size: 11px; color: #666; display: block; margin-top: 2px; text-align: center;}
 
         /* 승리 팀 스타일 */
         .team.win .team-name {

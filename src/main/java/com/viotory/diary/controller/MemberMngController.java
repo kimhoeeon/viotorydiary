@@ -1,7 +1,7 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.exception.AlertException;
-import com.viotory.diary.mapper.DiaryMapper;
+import com.viotory.diary.service.DiaryMngService;
 import com.viotory.diary.service.MemberMngService;
 import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.DiaryVO;
@@ -23,7 +23,7 @@ import java.util.List;
 public class MemberMngController {
 
     private final MemberMngService memberMngService;
-    private final DiaryMapper diaryMapper;
+    private final DiaryMngService diaryMngService;
 
     // 목록 페이지 (페이징 + 검색)
     @GetMapping("/list")
@@ -49,8 +49,7 @@ public class MemberMngController {
         MemberVO member = memberMngService.getMember(memberId);
         if (member == null) return "redirect:/mng/members/list";
 
-        // 해당 회원이 작성한 "직관 인증 완료된" 일기 목록 조회
-        List<DiaryVO> diaries = diaryMapper.selectVerifiedDiaries(memberId);
+        List<DiaryVO> diaries = diaryMngService.getMemberDiaryHistory(memberId);
 
         model.addAttribute("member", member);
         model.addAttribute("diaries", diaries); // 이력 데이터 전달

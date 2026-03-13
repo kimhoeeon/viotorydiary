@@ -30,7 +30,7 @@
             background-color: #fff;
         }
         .diary-history-item {
-            padding: 12px 16px;
+            padding: 14px 16px;
             border-bottom: 1px dashed var(--bs-gray-200);
             display: flex;
             align-items: center;
@@ -41,6 +41,15 @@
         }
         .diary-history-item:hover {
             background-color: var(--bs-light);
+        }
+        /* 스코어 강조 디자인 */
+        .score-box {
+            background: var(--bs-gray-100);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: var(--bs-gray-800);
+            font-size: 13px;
         }
     </style>
 </head>
@@ -252,8 +261,10 @@
                                             </div>
 
                                             <%-- 직관 기록 이력 (일기 목록) 영역 --%>
-                                            <div class="row align-items-start">
-                                                <label class="col-lg-2 fw-semibold text-muted pt-3">직관 기록 이력<br><span class="fs-8 text-gray-400 fw-normal">(승률 산출 기준)</span></label>
+                                            <div class="row align-items-start mt-7">
+                                                <label class="col-lg-2 fw-semibold text-muted pt-3">
+                                                    직관 기록 이력<br><span class="fs-8 text-gray-400 fw-normal">(승률 산출 기준)</span>
+                                                </label>
                                                 <div class="col-lg-10">
                                                     <div class="diary-history-list">
                                                         <c:choose>
@@ -263,10 +274,9 @@
                                                             <c:otherwise>
                                                                 <c:forEach var="diary" items="${diaries}">
                                                                     <div class="diary-history-item">
-                                                                        <div class="d-flex flex-column">
-                                                                            <div class="d-flex align-items-center mb-1 gap-2">
-                                                                                <span class="badge badge-light fs-8">${diary.gameDate}</span>
-                                                                                <span class="fw-bold text-gray-800">${diary.awayTeamName} vs ${diary.homeTeamName}</span>
+                                                                        <div class="d-flex flex-column" style="width: 85%;">
+                                                                            <div class="d-flex align-items-center mb-2 gap-2">
+                                                                                <span class="badge badge-light fs-8 text-gray-600">${diary.gameDate}</span>
 
                                                                                 <c:choose>
                                                                                     <c:when test="${diary.gameResult eq 'WIN'}"><span class="badge badge-light-primary px-2 py-1 fs-9">승리요정</span></c:when>
@@ -275,13 +285,25 @@
                                                                                     <c:when test="${diary.gameResult eq 'NONE'}"><span class="badge badge-light px-2 py-1 fs-9 text-muted">타팀관전</span></c:when>
                                                                                 </c:choose>
                                                                             </div>
-                                                                            <span class="text-muted fs-7 text-truncate" style="max-width: 400px;">
+
+                                                                            <div class="d-flex align-items-center mb-1">
+                                                                                <span class="fw-bolder text-gray-800 fs-5">${diary.awayTeamName}</span>
+                                                                                <span class="score-box mx-2">${diary.scoreAway} : ${diary.scoreHome}</span>
+                                                                                <span class="fw-bolder text-gray-800 fs-5">${diary.homeTeamName}</span>
+                                                                            </div>
+
+                                                                            <span class="text-muted fs-7 text-truncate" style="max-width: 100%;">
                                                                                 <i class="ki-duotone ki-geolocation fs-7 me-1"><span class="path1"></span><span class="path2"></span></i>${diary.stadiumName}
-                                                                                <c:if test="${not empty diary.oneLineComment}"> | "${diary.oneLineComment}"</c:if>
+                                                                                <c:if test="${not empty diary.oneLineComment}">
+                                                                                    <span class="mx-1 text-gray-300">|</span>
+                                                                                    <span class="text-gray-600">"${diary.oneLineComment}"</span>
+                                                                                </c:if>
                                                                             </span>
                                                                         </div>
-                                                                        <div>
-                                                                            <a href="/mng/diary/detail?diaryId=${diary.diaryId}" class="btn btn-sm btn-light btn-active-light-primary py-2 px-3">일기 상세</a>
+                                                                        <div class="d-flex justify-content-end" style="width: 15%;">
+                                                                            <a href="/mng/diary/detail?diaryId=${diary.diaryId}" class="btn btn-sm btn-light btn-active-light-primary py-2 px-3 text-nowrap">
+                                                                                일기 상세
+                                                                            </a>
                                                                         </div>
                                                                     </div>
                                                                 </c:forEach>
