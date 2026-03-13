@@ -23,6 +23,18 @@
 
     <title>상세보기 | 승요일기</title>
 
+    <style>
+        .result-badge-wrap {
+            background-color: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee;
+        }
+        .result-badge-wrap .tit { font-size: 14px; font-weight: 700; color: #555; margin-bottom:0; }
+        .result-badge { font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+        .result-badge.win { background-color: #E8F3FF; color: #1A7CFF; }
+        .result-badge.lose { background-color: #FEE8E8; color: #FF4D4D; }
+        .result-badge.draw { background-color: #F1F1F1; color: #666; }
+        .result-badge.none { background-color: #f5f5f5; color: #999; }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
@@ -86,6 +98,34 @@
                                         </span>
                                     </span>
                                 </button>
+                            </div>
+
+                            <%-- 내 직관 승패 결과 뱃지 노출 --%>
+                            <div class="result-badge-wrap">
+                                <div class="tit">직관 승패 결과</div>
+                                <div>
+                                    <c:choose>
+                                        <c:when test="${diary.gameStatus eq 'FINISHED'}">
+                                            <c:choose>
+                                                <c:when test="${diary.gameResult eq 'WIN'}">
+                                                    <span class="result-badge win"><img src="/img/ico_crown.svg" style="width:16px;"> 승리 요정 달성!</span>
+                                                </c:when>
+                                                <c:when test="${diary.gameResult eq 'LOSE'}">
+                                                    <span class="result-badge lose">패배 요정 (응원팀 패배)</span>
+                                                </c:when>
+                                                <c:when test="${diary.gameResult eq 'DRAW'}">
+                                                    <span class="result-badge draw">무승부</span>
+                                                </c:when>
+                                                <c:when test="${diary.gameResult eq 'NONE'}">
+                                                    <span class="result-badge none">승패 무관 (타팀 관전)</span>
+                                                </c:when>
+                                            </c:choose>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="result-badge none" style="background:transparent; border:1px solid #ddd;">경기 진행 전/중</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
                             </div>
 
                             <div class="diary_write_list req diary_character yellow">

@@ -12,9 +12,11 @@
                d.is_verified,
                d.verified_at,
                g.game_date,
+               g.game_time,
                g.game_type,
+               g.status AS gameStatus,
+               g.cancel_reason AS cancelReason,
                IFNULL(s.short_name, s.name) AS stadiumName,
-
                g.score_home AS scoreHome,
                g.score_away AS scoreAway,
                d.pred_score_home AS predScoreHome,
@@ -22,18 +24,9 @@
 
                CASE
                    WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
-                   WHEN d.snapshot_team_code = g.home_team_code THEN
-                       CASE
-                           WHEN g.score_home > g.score_away THEN 'WIN'
-                           WHEN g.score_home < g.score_away THEN 'LOSE'
-                           ELSE 'DRAW'
-                           END
-                   WHEN d.snapshot_team_code = g.away_team_code THEN
-                       CASE
-                           WHEN g.score_away > g.score_home THEN 'WIN'
-                           WHEN g.score_away < g.score_home THEN 'LOSE'
-                           ELSE 'DRAW'
-                           END
+                   WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                   WHEN g.winning_team = 'DRAW' THEN 'DRAW'
+                   WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                    ELSE 'NONE'
                    END AS gameResult
         FROM diaries d
@@ -100,11 +93,12 @@
             d.image_url,
             d.one_line_comment,
             g.game_date,
+            g.game_time,
             g.game_type,
             g.home_team_code,
             g.away_team_code,
-            g.score_home,
-            g.score_away,
+            g.score_home AS scoreHome,
+            g.score_away AS scoreAway,
             d.pred_score_home AS predScoreHome,
             d.pred_score_away AS predScoreAway,
             g.status AS gameStatus,
@@ -115,11 +109,9 @@
 
             CASE
                 WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
-                WHEN d.snapshot_team_code = g.home_team_code AND g.score_home > g.score_away THEN 'WIN'
-                WHEN d.snapshot_team_code = g.home_team_code AND g.score_home < g.score_away THEN 'LOSE'
-                WHEN d.snapshot_team_code = g.away_team_code AND g.score_away > g.score_home THEN 'WIN'
-                WHEN d.snapshot_team_code = g.away_team_code AND g.score_away < g.score_home THEN 'LOSE'
-                WHEN g.score_home = g.score_away THEN 'DRAW'
+                WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                WHEN g.winning_team = 'DRAW' THEN 'DRAW'
+                WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                 ELSE 'NONE'
                 END AS gameResult
         FROM diaries d
@@ -155,6 +147,8 @@
             m.profile_image,
             g.game_date,
             g.game_time,
+            g.status AS gameStatus,
+            g.cancel_reason AS cancelReason,
             IFNULL(s.short_name, s.name) AS stadiumName,
             t1.name_kr AS homeTeamName,
             t2.name_kr AS awayTeamName,
@@ -162,11 +156,19 @@
             t2.logo_image_url AS awayTeamLogo,
             g.home_starter,
             g.away_starter,
-            g.score_home,
-            g.score_away,
+            g.score_home AS scoreHome,
+            g.score_away AS scoreAway,
             g.home_team_code,
             g.away_team_code,
-            g.cancel_reason
+
+            CASE
+                WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
+                WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
+                WHEN g.winning_team = 'DRAW' THEN 'DRAW'
+                WHEN g.winning_team IS NOT NULL THEN 'LOSE'
+                ELSE 'NONE'
+                END AS gameResult
+
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
@@ -188,8 +190,8 @@
                g.game_type,
                g.home_team_code,
                g.away_team_code,
-               g.score_home,
-               g.score_away,
+               g.score_home AS scoreHome,
+               g.score_away AS scoreAway,
                g.status AS gameStatus,
                g.cancel_reason AS cancelReason,
                t1.name_kr AS homeTeamName,
@@ -202,7 +204,7 @@
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                    ELSE 'NONE'
-                   END    AS gameResult
+                   END AS gameResult
 
         FROM diaries d
                  JOIN games g ON d.game_id = g.game_id
@@ -221,12 +223,15 @@
                d.one_line_comment,
                d.rating,
                g.game_date,
+               g.game_time,
+               g.status AS gameStatus,
+               g.cancel_reason AS cancelReason,
                g.home_team_code,
                g.away_team_code,
-               g.score_home,
-               g.score_away,
-               t1.name_kr     AS homeTeamName,
-               t2.name_kr     AS awayTeamName,
+               g.score_home AS scoreHome,
+               g.score_away AS scoreAway,
+               t1.name_kr AS homeTeamName,
+               t2.name_kr AS awayTeamName,
                m.nickname,
                m.profile_image,
                m.my_team_code AS snapshotTeamCode,
@@ -239,7 +244,7 @@
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                    ELSE 'NONE'
-                   END        AS gameResult
+                   END AS gameResult
 
         FROM diaries d
                  JOIN follows f ON d.member_id = f.following_id
@@ -285,10 +290,11 @@
                d.content,
                d.image_url,
                g.game_date,
+               g.game_time,
                g.home_team_code,
                g.away_team_code,
-               g.score_home,
-               g.score_away,
+               g.score_home AS scoreHome,
+               g.score_away AS scoreAway,
                g.status AS gameStatus,
                g.cancel_reason AS cancelReason,
                t1.name_kr AS homeTeamName,
@@ -330,10 +336,11 @@
                d.content,
                d.image_url,
                g.game_date,
+               g.game_time,
                g.home_team_code,
                g.away_team_code,
-               g.score_home,
-               g.score_away,
+               g.score_home AS scoreHome,
+               g.score_away AS scoreAway,
                g.status AS gameStatus,
                g.cancel_reason AS cancelReason,
                t1.name_kr     AS homeTeamName,
@@ -348,7 +355,7 @@
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                    ELSE 'NONE'
-                   END        AS gameResult
+                   END AS gameResult
 
         FROM diaries d
                  JOIN follows f ON d.member_id = f.following_id
@@ -364,10 +371,10 @@
 
     <select id="selectFollowerDiaries" resultType="com.viotory.diary.vo.DiaryVO">
         SELECT d.diary_id, d.member_id, d.one_line_comment, d.rating, d.content, d.image_url,
-               g.game_date, g.status AS gameStatus, g.cancel_reason,
+               g.game_date, g.game_time, g.status AS gameStatus, g.cancel_reason AS cancelReason,
                t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
                m.nickname, m.profile_image,
-               g.score_home, g.score_away,
+               g.score_home AS scoreHome, g.score_away AS scoreAway,
 
                CASE WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                     WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
@@ -387,10 +394,10 @@
 
     <select id="selectMemberPublicDiaries" resultType="com.viotory.diary.vo.DiaryVO">
         SELECT d.diary_id, d.member_id, d.one_line_comment, d.rating, d.content, d.image_url,
-               g.game_date, g.status AS gameStatus, g.cancel_reason,
+               g.game_date, g.game_time, g.status AS gameStatus, g.cancel_reason AS cancelReason,
                t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
                m.nickname, m.profile_image,
-               g.score_home, g.score_away,
+               g.score_home AS scoreHome, g.score_away AS scoreAway,
 
                CASE WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                     WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
@@ -410,10 +417,10 @@
 
     <select id="selectAllPublicDiaries" resultType="com.viotory.diary.vo.DiaryVO">
         SELECT d.diary_id, d.member_id, d.one_line_comment, d.rating, d.content, d.image_url,
-               g.game_date, g.status AS gameStatus,
+               g.game_date, g.game_time, g.status AS gameStatus, g.cancel_reason AS cancelReason,
                t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName,
                m.nickname, m.profile_image,
-               g.score_home, g.score_away,
+               g.score_home AS scoreHome, g.score_away AS scoreAway,
 
                CASE WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
                     WHEN g.winning_team = d.snapshot_team_code THEN 'WIN'
@@ -440,10 +447,12 @@
         SELECT d.*,
                g.game_date,
                g.game_time,
+               g.status AS gameStatus,
+               g.cancel_reason AS cancelReason,
                g.home_team_code,
                g.away_team_code,
-               g.score_home,
-               g.score_away,
+               g.score_home AS scoreHome,
+               g.score_away AS scoreAway,
                t1.name_kr AS homeTeamName,
                t2.name_kr AS awayTeamName,
                IFNULL(s.short_name, s.name) AS stadiumName,

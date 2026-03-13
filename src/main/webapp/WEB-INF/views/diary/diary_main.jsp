@@ -112,8 +112,8 @@
                                     <li>
                                         <div>
                                             <p>우리팀 전적</p>
-                                            <div class="data">${winYo.winGames}승 ${winYo.loseGames}패</div>
-                                        </div>
+                                            <div class="data">${winYo.winGames}승 <c:if test="${winYo.drawGames > 0}">${winYo.drawGames}무 </c:if>${winYo.loseGames}패</div>
+                                         </div>
                                         <c:choose>
                                             <c:when test="${winYo.winRate < 50}">
                                                 <img src="/img/score_character03-2.svg" alt="스코어 캐릭터(패배)">
