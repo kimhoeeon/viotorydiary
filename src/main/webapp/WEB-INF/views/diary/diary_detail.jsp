@@ -28,7 +28,7 @@
         .review_list li.hidden-cmt { display: none; }
         .del-btn { background: none; border: none; padding: 0; cursor: pointer; }
 
-        /* 승요 뱃지 커스텀 스타일 (새로운 UI에 맞춤) */
+        /* 승요 뱃지 커스텀 스타일 (새로운 UI 규격에 맞춤) */
         .result-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--color-border); }
         .result-badge.win { background-color: #E8F3FF; color: var(--color-primary); border-color: #E8F3FF; }
         .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger); border-color: #FEE8E8; }
@@ -51,9 +51,7 @@
         <div class="app-main">
 
             <div class="app-tit">
-                <div class="page-tit">
-                    직관일기
-                </div>
+                <div class="page-tit">직관일기</div>
                 <c:if test="${isOwner and isEditable}">
                     <a href="/diary/update?diaryId=${diary.diaryId}" class="btn btn-primary w-auto small">수정</a>
                 </c:if>
@@ -76,7 +74,7 @@
                                             내가 직관한 경기
                                         </button>
 
-                                        <%-- 승패 뱃지 통합 --%>
+                                        <%-- 승패 뱃지 통합 위치 --%>
                                         <c:choose>
                                             <c:when test="${diary.gameStatus eq 'FINISHED'}">
                                                 <c:choose>
@@ -119,8 +117,15 @@
                                                     <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
                                                     <c:forEach var="imgSrc" items="${imgArr}">
                                                         <c:if test="${not empty imgSrc}">
-                                                            <div class="swiper-slide item">
+                                                            <div class="swiper-slide item" style="position: relative;">
                                                                 <img src="${imgSrc}" alt="직관 사진" onclick="viewImage(this.src)">
+
+                                                                <%-- ⭐️ 누락 복구: 작성자만 보이는 사진 저장 버튼 --%>
+                                                                <c:if test="${isOwner}">
+                                                                    <button type="button" onclick="downloadImage('${imgSrc}')" class="btn btn-light" style="position:absolute; bottom:12px; right:12px; padding:6px 12px; font-size:12px; box-shadow:0 2px 6px rgba(0,0,0,0.3); border-radius:6px; z-index:10; background: rgba(255,255,255,0.85); font-weight:600;">
+                                                                        📥 저장
+                                                                    </button>
+                                                                </c:if>
                                                             </div>
                                                         </c:if>
                                                     </c:forEach>
@@ -208,6 +213,18 @@
                                         </div>
                                     </div>
 
+                                    <%-- ⭐️ 누락 복구: 공개 여부 텍스트 추가 --%>
+                                    <div style="margin-top: 16px;">
+                                        <div class="inquiry_badge" style="background:#888;">공개 여부</div>
+                                        <div style="font-weight: 600; font-size: 14px; color: #555;">
+                                            <c:choose>
+                                                <c:when test="${diary.isPublic eq 'PUBLIC'}">전체 공개</c:when>
+                                                <c:when test="${diary.isPublic eq 'FRIENDS'}">맞팔 공개</c:when>
+                                                <c:otherwise>비공개</c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+
                                     <div class="diary_desc">
                                         <div class="inquiry_badge">일기 상세 내용</div>
                                         <div style="white-space: pre-wrap; line-height: 1.5; color: #444;">${diary.content}</div>
@@ -273,7 +290,7 @@
                         <div class="horizon-mes" style="text-align: center; color: var(--color-danger); font-size: 13px; margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 4px;">
                             <img src="/img/ico_not_mark_red.svg" alt="수정 불가" style="width:14px;">
                             <c:choose>
-                                <c:when test="${lockReason eq 'FINISHED'}">종료되거나 취소된 경기는 수정할 수 없습니다.</c:when>
+                                <c:when test="${lockReason eq 'FINISHED'}">종료/취소된 경기의 예측 스코어는 수정 불가합니다.</c:when>
                                 <c:otherwise>기록이 잠겨 승부 예측 수정이 불가능합니다.</c:otherwise>
                             </c:choose>
                         </div>
@@ -283,6 +300,7 @@
             </div>
         </div>
 
+        <%-- 하단 고정 수정 & 공유 버튼 --%>
         <div class="bottom-action bottom-main">
             <button type="button" class="btn btn-primary" onclick="shareDiary()">공유하기</button>
         </div>
@@ -295,20 +313,6 @@
     <script src="/js/app_interface.js"></script>
 
     <script>
-
-        // Swiper 초기화 (script.js에 이미 로직이 포함되어 있으나 재확인)
-        if(typeof Swiper !== 'undefined' && document.querySelector('.swiperMainCnt')) {
-            new Swiper('.swiperMainCnt', {
-                slidesPerView: 'auto',
-                spaceBetween: 10,
-                loop: false,
-                navigation: {
-                    nextEl: '.swiperMainCntNext',
-                    prevEl: '.swiperMainCntPrev',
-                }
-            });
-        }
-
         // [댓글 입력 감지]
         function checkCmtInput() {
             const val = $('#cmtContent').val().trim();
