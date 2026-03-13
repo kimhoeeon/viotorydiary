@@ -28,14 +28,14 @@
         .review_list li.hidden-cmt { display: none; }
         .del-btn { background: none; border: none; padding: 0; cursor: pointer; }
 
-        /* 승요 뱃지 커스텀 스타일 */
+        /* 승요 뱃지 내부 스타일 선언 */
         .result-badge-wrap {
-            background-color: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee;
+            background-color: #f8f9fa; border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--color-border, #eee);
         }
-        .result-badge-wrap .tit { font-size: 14px; font-weight: 700; color: #555; margin-bottom:0; }
+        .result-badge-wrap .tit { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 0; }
         .result-badge { font-size: 14px; font-weight: 700; padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
-        .result-badge.win { background-color: #E8F3FF; color: #1A7CFF; }
-        .result-badge.lose { background-color: #FEE8E8; color: #FF4D4D; }
+        .result-badge.win { background-color: #E8F3FF; color: var(--color-primary, #1A7CFF); }
+        .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger, #FF4D4D); }
         .result-badge.draw { background-color: #F1F1F1; color: #666; }
         .result-badge.none { background-color: #f5f5f5; color: #999; }
     </style>
