@@ -28,7 +28,7 @@
     <title>직관일기 공유 | 승요일기</title>
 
     <style>
-        /* 공유 페이지 전용 추가 스타일 (마진 중첩 방지) */
+        /* 공유 페이지 전용 추가 스타일 */
         .diary-header-info { border-bottom: 1px solid var(--color-border, #eee); padding-bottom: 16px; margin-bottom: 16px; }
         .one-line-box .label { font-size: 13px; color: #999; margin-bottom: 6px; display: block; }
         .one-line-box .text { font-size: 18px; font-weight: 700; color: var(--color-text, #111); line-height: 1.4; }
