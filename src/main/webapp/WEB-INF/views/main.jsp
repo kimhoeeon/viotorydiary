@@ -112,7 +112,7 @@
                                                             <div class="badge">
                                                                 <c:choose>
                                                                     <c:when test="${todayGame.status == 'SCHEDULED'}">예정</c:when>
-                                                                    <c:when test="${todayGame.status == 'LIVE'}">LIVE</c:when>
+                                                                    <c:when test="${todayGame.status == 'LIVE'}">경기중</c:when>
                                                                     <c:when test="${todayGame.status == 'FINISHED'}">종료</c:when>
                                                                     <c:when test="${todayGame.status == 'CANCELLED'}">취소</c:when>
                                                                 </c:choose>

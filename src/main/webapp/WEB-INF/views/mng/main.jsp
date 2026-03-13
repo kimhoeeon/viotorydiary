@@ -157,7 +157,7 @@
                                                                                 <span class="badge badge-light text-muted fs-7 me-2">${game.stadiumName}</span>
                                                                                 <c:choose>
                                                                                     <c:when test="${game.status eq 'LIVE'}">
-                                                                                        <span class="badge badge-danger animation-blink">LIVE</span>
+                                                                                        <span class="badge badge-danger animation-blink">경기중</span>
                                                                                     </c:when>
                                                                                     <c:when test="${game.status eq 'FINISHED'}">
                                                                                         <span class="badge badge-secondary">종료</span>
