@@ -212,18 +212,19 @@
                                             </div>
 
                                             <div class="row align-items-center">
-                                                <label class="col-lg-2 fw-semibold text-muted">예측 승률</label>
+                                                <label class="col-lg-2 fw-semibold text-muted">직관 승률</label>
                                                 <div class="col-lg-4">
-                                                    <c:set var="totalGames" value="${member.winCount + member.loseCount}" />
+                                                    <c:set var="validGames" value="${member.winCount + member.loseCount}" />
                                                     <c:set var="winRate" value="0.0" />
-                                                    <c:if test="${totalGames > 0}">
-                                                        <c:set var="winRate" value="${(member.winCount * 100.0) / totalGames}" />
+                                                    <c:if test="${validGames > 0}">
+                                                        <c:set var="winRate" value="${(member.winCount * 100.0) / validGames}" />
                                                     </c:if>
                                                     <span class="fw-bolder fs-3 text-primary"><fmt:formatNumber value="${winRate}" pattern="0.0"/>%</span>
                                                 </div>
-                                                <label class="col-lg-2 fw-semibold text-muted">전적</label>
+                                                <label class="col-lg-2 fw-semibold text-muted">직관 전적</label>
                                                 <div class="col-lg-4">
-                                                    <span class="fw-bold fs-6 text-gray-800">${member.winCount}승 ${member.loseCount}패</span>
+                                                    <%-- ⭐️ 무승부 표기 추가 --%>
+                                                    <span class="fw-bold fs-6 text-gray-800">${member.winCount}승 <c:if test="${member.drawCount > 0}">${member.drawCount}무 </c:if>${member.loseCount}패</span>
                                                 </div>
                                             </div>
                                         </div>

@@ -42,18 +42,18 @@
         -- 3. 팔로워 수 (나를 팔로우하는 사람)
         (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-        -- 승요 정보 (스코어 예측 X -> 내 응원팀 실제 승리 기준)
+        -- ⭐️ 승요 정보 (타팀 경기 제외 조건 추가: IN (home, away))
         (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id
         WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED'
-        AND d2.snapshot_team_code = g2.winning_team) AS winCount,
+        AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND d2.snapshot_team_code = g2.winning_team) AS winCount,
 
         (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id
         WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED'
-        AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
+        AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
 
         (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id
         WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED'
-        AND g2.winning_team = 'DRAW') AS drawCount
+        AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team = 'DRAW') AS drawCount
 
         FROM members m
         <include refid="criteria"/>
@@ -94,10 +94,10 @@
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
                (SELECT COUNT(f1.follow_id) FROM follows f1 JOIN follows f2 ON f1.follower_id = f2.following_id AND f1.following_id = f2.follower_id WHERE f1.follower_id = m.member_id) AS mutualFollowCount,
 
-               -- ⭐️ 승요 정보 (스코어 예측 X -> 내 응원팀 실제 승리 기준)
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code = g2.winning_team) AS winCount,
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND g2.winning_team = 'DRAW') AS drawCount,
+               -- ⭐️ 승요 정보 (타팀 경기 제외 조건 추가: IN (home, away))
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND d2.snapshot_team_code = g2.winning_team) AS winCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team = 'DRAW') AS drawCount,
 
                (SELECT s.name
                 FROM diaries d
@@ -146,10 +146,10 @@
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id)  AS followingCount,
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-               -- ⭐️ 승요 정보 (스코어 예측 X -> 내 응원팀 실제 승리 기준)
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code = g2.winning_team) AS winCount,
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND g2.winning_team = 'DRAW') AS drawCount
+               -- ⭐️ 승요 정보 (타팀 경기 제외 조건 추가: IN (home, away))
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND d2.snapshot_team_code = g2.winning_team) AS winCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team = 'DRAW') AS drawCount
 
         FROM members m
         ORDER BY m.created_at DESC

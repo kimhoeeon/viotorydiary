@@ -87,6 +87,7 @@
                                                     <th class="min-w-125px text-center">응원 구단</th>
                                                     <th class="min-w-100px text-center">총 직관</th>
                                                     <th class="min-w-80px text-center text-primary">승</th>
+                                                    <th class="min-w-80px text-center text-muted">무</th>
                                                     <th class="min-w-80px text-center text-danger">패</th>
                                                     <th class="min-w-100px text-center">승률</th>
                                                     <th class="w-80px text-center">관리</th>
@@ -145,7 +146,7 @@
                                                         </td>
 
                                                         <td class="text-center fw-bolder text-primary fs-5">${item.winGames}</td>
-
+                                                        <td class="text-center fw-bolder text-muted fs-5">${item.drawGames}</td>
                                                         <td class="text-center fw-bolder text-danger fs-5">${item.loseGames}</td>
 
                                                         <td class="text-center">
@@ -168,7 +169,7 @@
 
                                                 <c:if test="${empty list}">
                                                     <tr>
-                                                        <td colspan="8" class="text-center py-10 text-muted">랭킹 데이터가 없습니다.</td>
+                                                        <td colspan="9" class="text-center py-10 text-muted">랭킹 데이터가 없습니다.</td>
                                                     </tr>
                                                 </c:if>
                                                 </tbody>

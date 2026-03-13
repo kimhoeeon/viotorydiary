@@ -140,10 +140,11 @@
                                                             <c:forEach var="item" items="${list}" varStatus="status">
                                                                 <c:set var="rowNum" value="${pageMaker.total - (pageMaker.cri.pageNum - 1) * pageMaker.cri.amount - status.index}"/>
 
-                                                                <c:set var="totalGames" value="${item.winCount + item.loseCount + item.drawCount}" />
+                                                                <%-- ⭐️ 무승부는 승률 분모에서 제외 --%>
+                                                                <c:set var="validGames" value="${item.winCount + item.loseCount}" />
                                                                 <c:set var="winRate" value="0.0" />
-                                                                <c:if test="${totalGames > 0}">
-                                                                    <c:set var="winRate" value="${(item.winCount * 100.0) / totalGames}" />
+                                                                <c:if test="${validGames > 0}">
+                                                                    <c:set var="winRate" value="${(item.winCount * 100.0) / validGames}" />
                                                                 </c:if>
 
                                                                 <tr>
@@ -214,7 +215,8 @@
                                                                     <td class="text-center">
                                                                         <div class="d-flex flex-column align-items-center">
                                                                             <span class="fw-bolder text-gray-800"><fmt:formatNumber value="${winRate}" pattern="0.0"/>%</span>
-                                                                            <span class="text-muted fs-8">(${item.winCount}승 ${item.loseCount}패)</span>
+                                                                                <%-- ⭐️ 무승부 표기 추가 --%>
+                                                                            <span class="text-muted fs-8">(${item.winCount}승 <c:if test="${item.drawCount > 0}">${item.drawCount}무 </c:if>${item.loseCount}패)</span>
                                                                         </div>
                                                                     </td>
 
