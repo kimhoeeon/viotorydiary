@@ -20,6 +20,29 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <style>
+        .diary-history-list {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid var(--bs-gray-200);
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .diary-history-item {
+            padding: 12px 16px;
+            border-bottom: 1px dashed var(--bs-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .diary-history-item:last-child {
+            border-bottom: none;
+        }
+        .diary-history-item:hover {
+            background-color: var(--bs-light);
+        }
+    </style>
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
@@ -225,6 +248,46 @@
                                                 <div class="col-lg-4">
                                                     <%-- 무승부 표기 추가 --%>
                                                     <span class="fw-bold fs-6 text-gray-800">${member.winCount}승 <c:if test="${member.drawCount > 0}">${member.drawCount}무 </c:if>${member.loseCount}패</span>
+                                                </div>
+                                            </div>
+
+                                            <%-- 직관 기록 이력 (일기 목록) 영역 --%>
+                                            <div class="row align-items-start">
+                                                <label class="col-lg-2 fw-semibold text-muted pt-3">직관 기록 이력<br><span class="fs-8 text-gray-400 fw-normal">(승률 산출 기준)</span></label>
+                                                <div class="col-lg-10">
+                                                    <div class="diary-history-list">
+                                                        <c:choose>
+                                                            <c:when test="${empty diaries}">
+                                                                <div class="p-5 text-center text-muted fs-6">작성된 직관 일기가 없습니다.</div>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <c:forEach var="diary" items="${diaries}">
+                                                                    <div class="diary-history-item">
+                                                                        <div class="d-flex flex-column">
+                                                                            <div class="d-flex align-items-center mb-1 gap-2">
+                                                                                <span class="badge badge-light fs-8">${diary.gameDate}</span>
+                                                                                <span class="fw-bold text-gray-800">${diary.awayTeamName} vs ${diary.homeTeamName}</span>
+
+                                                                                <c:choose>
+                                                                                    <c:when test="${diary.gameResult eq 'WIN'}"><span class="badge badge-light-primary px-2 py-1 fs-9">승리요정</span></c:when>
+                                                                                    <c:when test="${diary.gameResult eq 'LOSE'}"><span class="badge badge-light-danger px-2 py-1 fs-9">패배요정</span></c:when>
+                                                                                    <c:when test="${diary.gameResult eq 'DRAW'}"><span class="badge badge-light-dark px-2 py-1 fs-9">무승부</span></c:when>
+                                                                                    <c:when test="${diary.gameResult eq 'NONE'}"><span class="badge badge-light px-2 py-1 fs-9 text-muted">타팀관전</span></c:when>
+                                                                                </c:choose>
+                                                                            </div>
+                                                                            <span class="text-muted fs-7 text-truncate" style="max-width: 400px;">
+                                                                                <i class="ki-duotone ki-geolocation fs-7 me-1"><span class="path1"></span><span class="path2"></span></i>${diary.stadiumName}
+                                                                                <c:if test="${not empty diary.oneLineComment}"> | "${diary.oneLineComment}"</c:if>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div>
+                                                                            <a href="/mng/diary/detail?diaryId=${diary.diaryId}" class="btn btn-sm btn-light btn-active-light-primary py-2 px-3">일기 상세</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </c:forEach>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

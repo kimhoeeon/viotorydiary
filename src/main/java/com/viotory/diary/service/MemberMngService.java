@@ -128,12 +128,12 @@ public class MemberMngService {
         leftStyle.setBorderLeft(BorderStyle.THIN);
         leftStyle.setBorderRight(BorderStyle.THIN);
 
-        // 4. 헤더(첫 줄) 작성 (무승부 제거)
+        // 4. 헤더(첫 줄) 작성
         Row headerRow = sheet.createRow(0);
         headerRow.setHeight((short) 500);
         String[] headers = {
                 "No.", "상태", "닉네임", "이메일", "가입경로", "연락처",
-                "응원팀", "이번달 직관", "팔로잉", "팔로워", "승(적중)", "패(실패)", "승률(%)", "가입일시"
+                "응원팀", "이번달 직관", "팔로잉", "팔로워", "승(요정)", "무", "패(요정)", "승률(%)", "가입일시"
         };
 
         for (int i = 0; i < headers.length; i++) {
@@ -197,8 +197,9 @@ public class MemberMngService {
             cell9.setCellValue(member.getFollowerCount() != null ? member.getFollowerCount() : 0);
             cell9.setCellStyle(centerStyle);
 
-            // 승, 패, 승률 계산 (무승부 삭제)
+            // 승, 무, 패, 승률 계산
             int win = member.getWinCount() != null ? member.getWinCount() : 0;
+            int draw = member.getDrawCount() != null ? member.getDrawCount() : 0;
             int lose = member.getLoseCount() != null ? member.getLoseCount() : 0;
             int total = win + lose;
             double winRate = total > 0 ? (win * 100.0) / total : 0.0;
@@ -208,19 +209,23 @@ public class MemberMngService {
             cell10.setCellStyle(centerStyle);
 
             Cell cell11 = row.createCell(colNum++);
-            cell11.setCellValue(lose);
+            cell11.setCellValue(draw);
             cell11.setCellStyle(centerStyle);
 
             Cell cell12 = row.createCell(colNum++);
-            cell12.setCellValue(Double.parseDouble(String.format("%.1f", winRate)));
+            cell12.setCellValue(lose);
             cell12.setCellStyle(centerStyle);
+
+            Cell cell13 = row.createCell(colNum++);
+            cell13.setCellValue(Double.parseDouble(String.format("%.1f", winRate)));
+            cell13.setCellStyle(centerStyle);
 
             String cDate = member.getCreatedAt() != null ? String.valueOf(member.getCreatedAt()).replace("T", " ") : "-";
             if (cDate.length() > 19) cDate = cDate.substring(0, 19);
 
-            Cell cell13 = row.createCell(colNum++);
-            cell13.setCellValue(cDate);
-            cell13.setCellStyle(centerStyle);
+            Cell cell14 = row.createCell(colNum++);
+            cell14.setCellValue(cDate);
+            cell14.setCellStyle(centerStyle);
         }
 
         // 6. 셀 너비 자동 맞춤
