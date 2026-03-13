@@ -271,20 +271,26 @@ public class GameDataService {
             // 7. 점수 및 경기 상태 파싱
             int homeScore = g.path("homeTeamScore").asInt(0);
             int awayScore = g.path("awayTeamScore").asInt(0);
+
             String statusCode = g.path("statusCode").asText(""); // RESULT, STARTED, BEFORE, CANCEL 등
+            String statusInfo = g.path("statusInfo").asText("").trim(); // ex: "종료", "우천취소", "9회말"
             boolean isCancel = g.path("cancel").asBoolean(false);
 
             String status = "SCHEDULED"; // 기본값: 예정
             String cancelReason = null;
 
-            if (isCancel || "CANCEL".equals(statusCode)) {
+            if (isCancel || statusCode.contains("CANCEL") || statusInfo.contains("취소")) {
                 status = "CANCELLED";
-                // 취소 사유: statusInfo (ex: "경기취소", "우천취소")
-                cancelReason = g.path("statusInfo").asText("취소");
-            } else if ("RESULT".equals(statusCode) || "FINISHED".equals(statusCode)) {
+                cancelReason = statusInfo.isEmpty() ? "취소" : statusInfo;
+            } else if ("RESULT".equals(statusCode) || "FINISHED".equals(statusCode) || "END".equals(statusCode) || "FINAL".equals(statusCode) || "종료".equals(statusInfo)) {
+                // 종료 판별 조건을 API 변수에 맞게 확장 (한글 텍스트 '종료'까지 완벽하게 커버)
                 status = "FINISHED";
-            } else if ("STARTED".equals(statusCode) || "ONGOING".equals(statusCode)) {
+            } else if ("STARTED".equals(statusCode) || "ONGOING".equals(statusCode) || "PLAYING".equals(statusCode) || "LIVE".equals(statusCode) || statusInfo.contains("회") || statusInfo.contains("진행")) {
                 status = "LIVE";
+            } else {
+                if (!"BEFORE".equals(statusCode)) {
+                    log.debug(">>> 미지정 경기 상태 감지 (statusCode: {}, statusInfo: {}) -> 기본값 SCHEDULED 처리됨", statusCode, statusInfo);
+                }
             }
 
             // 8. 승리팀 판별 (FINISHED 상태일 때만)
