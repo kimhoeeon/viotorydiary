@@ -48,13 +48,14 @@
             </button>
         </header>
 
-        <div class="app-main">
+        <div class="app-main column">
 
             <div class="app-tit">
                 <div class="page-tit">프로필 수정</div>
             </div>
 
             <form id="profileForm" action="/member/update/profile" method="post" enctype="multipart/form-data">
+
                 <div class="stack mt-24">
 
                     <div class="profile-img-area" style="text-align:center; margin-bottom:30px;">
@@ -69,10 +70,6 @@
                         <button type="button" class="btn btn-xs btn-secondary mt-12" onclick="document.getElementById('profileFile').click()">
                             사진 변경
                         </button>
-
-                        <div class="horizon-mes">
-                            * 닉네임 변경은 월 1회 가능합니다.
-                        </div>
                     </div>
 
                     <div class="profile_info">
@@ -96,6 +93,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="one-time"><img src="/img/ico_not_mark_blue.svg" alt="주의 아이콘">닉네임 변경은 월 1회 가능합니다.</div>
             </form>
         </div>
     </div>
