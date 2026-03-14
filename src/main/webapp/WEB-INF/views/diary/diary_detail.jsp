@@ -80,8 +80,10 @@
                                                 직관 인증완료!
                                             </button>
                                         </c:if>
+                                    </div>
 
-                                        <%-- 승패 뱃지 --%>
+                                    <%-- 승패 뱃지 --%>
+                                    <div>
                                         <c:choose>
                                             <c:when test="${diary.gameStatus eq 'FINISHED'}">
                                                 <c:choose>
@@ -99,6 +101,9 @@
                                                     </c:when>
                                                 </c:choose>
                                             </c:when>
+                                            <c:otherwise>
+                                                <span class="result-badge none">경기 전/중</span>
+                                            </c:otherwise>
                                         </c:choose>
                                     </div>
                                 </div>
@@ -135,7 +140,7 @@
 
                                 <div class="inquiry_game" style="${empty diary.imageUrl ? 'border-top: none; padding-top: 0; margin-top: 0;' : ''}">
                                     <div class="row row-center gap-6">
-                                        <div class="team ">
+                                        <div class="team">
                                             <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
                                             <div class="team-name mt-4">${diary.awayTeamName}</div>
                                             <div class="pitcher-name">${diary.awayStarter}</div>
@@ -164,7 +169,7 @@
                                             </div>
                                             <div class="right-team-score ${diary.scoreHome > diary.scoreAway ? 'high' : ''}">${diary.scoreHome}</div>
                                         </div>
-                                        <div class="team ">
+                                        <div class="team">
                                             <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
                                             <div class="team-name mt-4">${diary.homeTeamName}</div>
                                             <div class="pitcher-name">${diary.homeStarter}</div>
