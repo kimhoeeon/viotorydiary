@@ -465,25 +465,27 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // 스와이퍼
-const swiperMainCnt = new Swiper('.swiperMainCnt', {
-    slidesPerView: 'auto',
-    spaceBetween: 20,
-    direction: getDirection(),
-    loop: true,
-    speed:700,
-    preventClicks: false,
-    preventClicksPropagation: false,
-    autoHeight: false,
-    navigation: {
-        nextEl: '.swiperMainCntNext',
-        prevEl: '.swiperMainCntPrev',
-    },
-    breakpoints: {
-        1199: {
-            spaceBetween: 0,
+if (document.querySelector('.swiperMainCnt')) {
+    const swiperMainCnt = new Swiper('.swiperMainCnt', {
+        slidesPerView: 'auto',
+        spaceBetween: 20,
+        direction: getDirection(),
+        loop: true,
+        speed: 700,
+        preventClicks: false,
+        preventClicksPropagation: false,
+        autoHeight: false,
+        navigation: {
+            nextEl: '.swiperMainCntNext',
+            prevEl: '.swiperMainCntPrev',
         },
-    },
-});
+        breakpoints: {
+            1199: {
+                spaceBetween: 0,
+            },
+        },
+    });
+}
 
 function getDirection() {
     var windowWidth = window.innerWidth;
