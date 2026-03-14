@@ -383,9 +383,9 @@
             });
         }
 
-        function showAllComments() {
+        function showAllComments(element) {
             $('.hidden-cmt').slideDown();
-            $('#moreBtn').hide();
+            $(element).hide();
         }
 
         // --- 기능 로직 유지 ---
