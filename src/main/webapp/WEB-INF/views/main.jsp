@@ -317,7 +317,7 @@
                         <div class="card_wrap clip">
                             <div class="card_item">
                                 <div class="row history-head">
-                                    <div class="tit clip_tit">우리 팀 새 소식</div>
+                                    <div class="tit clip_tit">우리 팀 추천 콘텐츠</div>
                                     <a href="/locker/main">
                                         <img src="/img/ico_next_arrow.svg" alt="모두 보기">
                                     </a>

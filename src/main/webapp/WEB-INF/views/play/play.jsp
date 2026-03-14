@@ -324,19 +324,58 @@
                 });
             }
 
+            // =======================================================================
+            // 캘린더 일자 클릭 시 하단 팝업에 경기 목록을 렌더링하는 함수
+            // 1. AJAX 통신으로 데이터를 받아옴
+            // 2. 퍼블리싱 원본 레이아웃(로고-vs-로고) 적용 및 엑스박스 방어 (시간, 뱃지 제외)
+            // =======================================================================
             function updateMonthMatchInfo(dateStr) {
-                monthMatchText.innerHTML = '<div style="padding:10px;">로딩중...</div>';
+                const monthMatchText = document.getElementById('monthMatchText');
+                const monthMatchBox = document.querySelector('.month-match');
+                if (!monthMatchText) return;
+
+                // 로딩 중 UI 표시
+                monthMatchText.innerHTML = '<div style="padding:10px; text-align:center; color:#888;">경기 정보를 불러오는 중...</div>';
                 monthMatchBox.classList.add('is-show');
-                $.get('/play/games', { date: dateStr }, function(data) {
-                    if (data && data.length > 0) {
-                        let html = '';
-                        data.forEach(game => {
-                            html += `<div class="month-match_item" style="margin-bottom:4px;">\${game.awayTeamName} vs \${game.homeTeamName}</div>`;
+
+                // 선택한 날짜의 경기 데이터를 서버에서 가져옴
+                $.get('/play/games', { date: dateStr }, function(games) {
+                    if (games && games.length > 0) {
+                        // 퍼블리싱 원본 <ul> 클래스 적용
+                        let html = '<ul class="month-match_list">';
+
+                        games.forEach(function(game) {
+                            // 1. 구단 로고 세팅 및 이미지 깨짐 방어 로직
+                            const awayCodeLower = (game.awayTeamCode || '').toLowerCase();
+                            const homeCodeLower = (game.homeTeamCode || '').toLowerCase();
+
+                            let awayLogo = game.awayTeamLogo ? game.awayTeamLogo : '/img/logo/logo_' + awayCodeLower + '.svg';
+                            let homeLogo = game.homeTeamLogo ? game.homeTeamLogo : '/img/logo/logo_' + homeCodeLower + '.svg';
+
+                            // 2. 퍼블리싱된 순정 HTML 구조(DOM) 생성
+                            html += '<li class="month-match_item">';
+
+                            // [원정팀 로고]
+                            html += '<div class="month-match_team"><img src="' + awayLogo + '" alt="' + game.awayTeamName + '" onerror="this.src=\'/img/team_default.svg\'"></div>';
+
+                            // [가운데 VS 마크]
+                            html += '<div class="month-match_vs">vs</div>';
+
+                            // [홈팀 로고]
+                            html += '<div class="month-match_team"><img src="' + homeLogo + '" alt="' + game.homeTeamName + '" onerror="this.src=\'/img/team_default.svg\'"></div>';
+
+                            html += '</li>';
                         });
-                        monthMatchText.innerHTML = html;
+
+                        html += '</ul>';
+                        monthMatchText.innerHTML = html; // 팝업 내 렌더링
+
                     } else {
+                        // 경기가 없을 경우의 UI
                         monthMatchText.innerHTML = '<div style="color:#999;">해당 날짜에는 등록된 경기가 없습니다.</div>';
                     }
+                }).fail(function() {
+                    monthMatchText.innerHTML = '<div style="color:var(--color-danger, #ff4d4d);">데이터를 불러오는데 실패했습니다.</div>';
                 });
             }
 
