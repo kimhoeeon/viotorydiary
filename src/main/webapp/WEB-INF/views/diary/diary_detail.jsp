@@ -33,8 +33,6 @@
         .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger); border-color: #FEE8E8; }
         .result-badge.draw { background-color: #F1F1F1; color: #666; border-color: #F1F1F1; }
         .result-badge.none { background-color: #f5f5f5; color: #999; }
-
-        .swiper-button-next::after, .swiper-button-prev::after { display: none !important; }
     </style>
 
     <!-- swiper 외부 라이브러리 -->
