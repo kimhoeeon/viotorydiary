@@ -375,7 +375,7 @@
 .month-match_list{display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;}
 .month-match_item{border: 1px solid #E1E1E1; border-radius: 8px; padding: 8px;}
 .month-match_vs{color: #6F7380; font-weight: 300;font-size: 14px;}
-.month-match_team img{margin: 0 auto;}
+.month-match_team img{margin: 0 auto; min-height: 35px; max-height: 35px;}
 
 
 /* 동의하기 페이지 */
@@ -515,7 +515,8 @@
 .badge-post       { background-color: #D12B2B; } /* 빨강 */
 .badge-allstar    { background-color: #3B5BDB; } /* 보라/남색 */
 
-.file-mes{ font-size: var(--fs-14);color: #FF4D4D;}
+.file-mes{ font-size: var(--fs-12);color: var(--color-primary);display: flex;align-items: center;gap: 3px;}
+.file-mes img{width: inherit;}
 .like_wrap ul{display:flex;gap: 8px;justify-content: space-around;}
 .like_wrap .like_btn{display:flex;align-items:center;justify-content:center;gap: 16px;}
 .like_wrap .like_btn .tit{font-size: 14px;color: #999;font-weight: 500;justify-content: center;}
@@ -539,12 +540,13 @@
 .inquiry_game .pitcher-name{font-size: 11px;text-align: center; color: #666;display: block;margin-top: 2px;}
 
 .inquiry_txt{margin-top: 16px; padding-top: 16px;font-size: var(--fs-14); border-top: 1px solid #e1e1e1;}
-.inquiry_txt .txt_box{display: flex;}
+.inquiry_txt .txt_box{display: flex;gap: 16px;}
 .inquiry_txt .inquiry_badge{background: #5994F4;border-radius: 30px;margin-bottom: 8px; display: inline-block;padding: 2px 8px; color: #fff; font-size: var(--fs-12);}
+.inquiry_txt .txt_player{width: 50%; text-align: center;}
 .inquiry_txt .txt_player .player{text-align: center;}
-.inquiry_txt .txt_game{padding-left: 16px;margin-left: 16px; border-left: 1px solid #e1e1e1;}
+.inquiry_txt .txt_game{width: 50%; text-align: center;}
 
-.diary_desc{margin-top: 16px; padding-top: 16px; border-top: 1px solid #e1e1e1; max-height: 0; overflow: hidden; transition:max-height 0.65s ease;}
+.diary_desc{margin-top: 16px; text-align: center; padding-top: 16px; border-top: 1px solid #e1e1e1; max-height: 0; overflow: hidden; transition:max-height 0.65s ease;}
 .diary_desc.is-open{max-height: 500px;}
 .more-btn{margin-left: auto; font-size: 14px;margin-bottom: 12px;}
 
@@ -556,3 +558,11 @@
 .swiper-button-prev:after {font-size: 0; display: none !important;}
 .swiper-button-next.swiper-button-disabled,
 .swiper-button-prev.swiper-button-disabled {opacity: 0;}
+
+/* 0316추가 */
+.inquiry_img .swiper-button-prev{ height: 15px; left: -20px; width: 20px;}
+.inquiry_img .swiper-button-next{ height: 15px; right: -20px; width: 20px;}
+.inquiry_item{position: relative;}
+.stamp{position: absolute;z-index: 9; top: 220px; right: 0;}
+.stamp img{max-width: 90px;}
+.stamp img.win_mark{max-width: 120px;position: relative; top: -10px; left: 10px;}

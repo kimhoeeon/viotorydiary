@@ -93,8 +93,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="one-time"><img src="/img/ico_not_mark_blue.svg" alt="주의 아이콘">닉네임 변경은 월 1회 가능합니다.</div>
             </form>
+            <div class="one-time"><img src="/img/ico_not_mark_blue.svg" alt="주의 아이콘">닉네임 변경은 월 1회 가능합니다.</div>
         </div>
     </div>
 
