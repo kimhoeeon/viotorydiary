@@ -185,31 +185,31 @@
                                     </div>
 
                                     <%-- 두 번째 줄: 예상 스코어 / 공개 여부 --%>
-                                    <div class="txt_box" style="margin-top: 16px;">
-                                        <div class="txt_player">
+                                    <div class="txt_box mt-24">
+                                        <div class="inquiry_score">
                                             <div class="inquiry_badge">
                                                 예상 스코어
                                             </div>
-                                            <div class="player">
+                                            <div class="score">
                                                 <c:choose>
                                                     <c:when test="${not empty diary.predScoreAway and not empty diary.predScoreHome}">
-                                                        ${diary.predScoreAway} : ${diary.predScoreHome}
+                                                    <div>${diary.predScoreAway} : ${diary.predScoreHome}</div>
                                                         <c:if test="${diary.gameStatus eq 'FINISHED'}">
                                                             <c:choose>
                                                                 <c:when test="${diary.predScoreHome == diary.scoreHome and diary.predScoreAway == diary.scoreAway}">
-                                                                    <span style="color:var(--color-primary); font-weight:bold;">(적중)</span>
+                                                                    <img src="/img/ico_check.svg" alt="체크">
                                                                 </c:when>
                                                                 <c:otherwise>
-                                                                    <span style="color:var(--color-danger); font-weight:bold;">(미적중)</span>
+                                                                    <img src="/img/ico_fail.svg" alt="실패">
                                                                 </c:otherwise>
                                                             </c:choose>
                                                         </c:if>
                                                     </c:when>
-                                                    <c:otherwise>-</c:otherwise>
+                                                    <c:otherwise><div>-</div></c:otherwise>
                                                 </c:choose>
                                             </div>
                                         </div>
-                                        <div class="txt_game">
+                                        <div class="inquiry_public">
                                             <div class="inquiry_badge">
                                                 공개 여부
                                             </div>

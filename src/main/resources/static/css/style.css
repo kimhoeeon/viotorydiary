@@ -545,6 +545,10 @@
 .inquiry_txt .txt_player{width: 50%; text-align: center;}
 .inquiry_txt .txt_player .player{text-align: center;}
 .inquiry_txt .txt_game{width: 50%; text-align: center;}
+.inquiry_txt .inquiry_score{width: 50%; text-align: center;}
+.inquiry_txt .inquiry_score img{width: 22px; max-height: 22px;}
+.inquiry_txt .inquiry_score .score{display: flex; gap: 3px; justify-content: center;width: inherit;align-items: center;margin: 0 auto;}
+.inquiry_txt .inquiry_public{width: 50%; text-align: center;}
 
 .diary_desc{margin-top: 16px; text-align: center; padding-top: 16px; border-top: 1px solid #e1e1e1; max-height: 0; overflow: hidden; transition:max-height 0.65s ease;}
 .diary_desc.is-open{max-height: 500px;}
