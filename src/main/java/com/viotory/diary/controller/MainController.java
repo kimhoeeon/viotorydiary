@@ -95,7 +95,7 @@ public class MainController {
             model.addAttribute("diaries", recentDiaries);
 
             // 6. [구단 소식] 최신글 (Active & 내 팀)
-            List<TeamContentVO> teamContents = contentMngService.getActiveTeamContentList(loginMember.getMyTeamCode());
+            List<TeamContentVO> teamContents = contentMngService.getActiveTeamContentList(loginMember.getMyTeamCode(), 4);
             if (!teamContents.isEmpty()) {
                 // 화면 디자인에 따라 리스트 전체를 넘기거나 최신 n개만 넘김
                 model.addAttribute("latestContent", teamContents);

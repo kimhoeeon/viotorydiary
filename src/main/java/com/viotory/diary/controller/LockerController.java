@@ -53,7 +53,7 @@ public class LockerController {
 
         // 3. 일반 콘텐츠 (기존 로직 유지, 예: 최신순 20개)
         String myTeam = loginMember.getMyTeamCode();
-        List<TeamContentVO> contents = contentMngService.getActiveTeamContentList(myTeam);
+        List<TeamContentVO> contents = contentMngService.getActiveTeamContentList(myTeam, 4);
         model.addAttribute("contents", contents);
 
         /* 만약 유저 게시글(locker_posts)을 보여주는 것이라면 아래 코드를 사용:
@@ -104,7 +104,7 @@ public class LockerController {
         if (loginMember == null) return "redirect:/member/login";
 
         // 필요 시 사용자 팀 코드를 파라미터로 넘길 수 있음
-        List<TeamContentVO> list = contentMngService.getActiveTeamContentList(loginMember.getMyTeamCode());
+        List<TeamContentVO> list = contentMngService.getActiveTeamContentList(loginMember.getMyTeamCode(), null);
         model.addAttribute("list", list);
 
         return "locker/content_list"; // views/locker/content_list.jsp

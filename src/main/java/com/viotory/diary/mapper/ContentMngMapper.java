@@ -21,7 +21,7 @@ public interface ContentMngMapper {
 
     // 2. 팀 콘텐츠 관리
     List<TeamContentVO> selectTeamContentList(@Param("teamCode") String teamCode);
-    List<TeamContentVO> selectActiveTeamContentList(@Param("teamCode") String teamCode); // 사용자용
+    List<TeamContentVO> selectActiveTeamContentList(@Param("teamCode") String teamCode, @Param("limit") Integer limit);// 사용자용
     TeamContentVO selectTeamContentById(Long contentId);
     void insertTeamContent(TeamContentVO vo);
     void updateTeamContent(TeamContentVO vo);

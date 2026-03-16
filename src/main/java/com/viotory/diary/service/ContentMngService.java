@@ -71,8 +71,8 @@ public class ContentMngService {
     }
 
     // 사용자용 구단 콘텐츠 목록
-    public List<TeamContentVO> getActiveTeamContentList(String teamCode) {
-        return contentMngMapper.selectActiveTeamContentList(teamCode);
+    public List<TeamContentVO> getActiveTeamContentList(String teamCode, Integer limit) {
+        return contentMngMapper.selectActiveTeamContentList(teamCode, limit);
     }
 
     // 상세 조회

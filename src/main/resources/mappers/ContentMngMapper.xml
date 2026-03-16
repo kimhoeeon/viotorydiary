@@ -64,6 +64,9 @@
             AND team_code = #{teamCode}
         </if>
         ORDER BY sort_order ASC, created_at DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
     </select>
 
     <select id="selectTeamContentById" resultType="com.viotory.diary.vo.TeamContentVO">
