@@ -96,7 +96,7 @@
                                             <div class="swiper swiperMainCnt">
                                                 <div class="swiper-wrapper">
                                                     <c:choose>
-                                                        <c:when test="${empty diary.imageUrl}">
+                                                        <c:when test="${not empty diary.imageUrl}">
                                                             <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
                                                             <c:forEach var="imgSrc" items="${imgArr}">
                                                                 <c:if test="${not empty imgSrc}">
