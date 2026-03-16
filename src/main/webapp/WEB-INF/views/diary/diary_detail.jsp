@@ -35,6 +35,9 @@
         .result-badge.none { background-color: #f5f5f5; color: #999; }
     </style>
 
+    <!-- swiper 외부 라이브러리 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
@@ -125,7 +128,7 @@
 
                                                                 <%-- 다운로드 버튼 (작성자만 보임) --%>
                                                                 <c:if test="${isOwner}">
-                                                                    <button type="button" onclick="downloadImage('${imgSrc}')" class="btn btn-light" style="position:absolute; bottom:12px; right:12px; padding:6px 12px; font-size:12px; box-shadow:0 2px 6px rgba(0,0,0,0.3); border-radius:6px; z-index:10; background: rgba(255,255,255,0.85); font-weight:600;">
+                                                                    <button type="button" onclick="downloadImage('${imgSrc}')" class="btn btn-light" style="position:absolute; bottom:12px; right:12px; padding:6px 12px; font-size:12px; box-shadow:0 2px 6px rgba(0,0,0,0.3); border-radius:6px; z-index:10; background: rgba(255,255,255,0.85); font-weight:600;left: 50%;transform: translateX(-50%);">
                                                                         📥 저장
                                                                     </button>
                                                                 </c:if>
@@ -334,6 +337,7 @@
 
     <%@ include file="../include/popup.jsp" %>
 
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
