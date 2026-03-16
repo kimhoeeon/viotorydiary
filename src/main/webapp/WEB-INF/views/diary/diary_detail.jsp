@@ -33,6 +33,8 @@
         .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger); border-color: #FEE8E8; }
         .result-badge.draw { background-color: #F1F1F1; color: #666; border-color: #F1F1F1; }
         .result-badge.none { background-color: #f5f5f5; color: #999; }
+
+        .swiper-button-next::after, .swiper-button-prev::after { display: none !important; }
     </style>
 
     <!-- swiper 외부 라이브러리 -->
@@ -114,8 +116,8 @@
                                 <c:if test="${not empty diary.imageUrl}">
                                     <div class="inquiry_img">
                                         <div class="swiper_btn">
-                                            <div class="swiper-button-next swiperMainCntNext"></div>
                                             <div class="swiper-button-prev swiperMainCntPrev"></div>
+                                            <div class="swiper-button-next swiperMainCntNext"></div>
                                         </div>
                                         <div class="swiper_box">
                                             <div class="swiper swiperMainCnt">

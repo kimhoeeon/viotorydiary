@@ -476,8 +476,8 @@ if (document.querySelector('.swiperMainCnt')) {
         preventClicksPropagation: false,
         autoHeight: false,
         navigation: {
-            nextEl: '.swiperMainCntNext',
             prevEl: '.swiperMainCntPrev',
+            nextEl: '.swiperMainCntNext'
         },
         breakpoints: {
             1199: {
