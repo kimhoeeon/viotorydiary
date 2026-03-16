@@ -48,10 +48,10 @@ public class MenuService {
         menus.add(new MenuItem("통계 관리", "#", "ki-chart-line-up", 2, subStats));
 
         // 6. 고객센터 관리 (그룹)
-        List<MenuItem> subSupport = new ArrayList<>();
+        //List<MenuItem> subSupport = new ArrayList<>();
         //subSupport.add(new MenuItem("FAQ 관리", "/mng/support/faq/list", "", 0));
-        subSupport.add(new MenuItem("1:1 문의 관리", "/mng/support/inquiry/list", "", 0));
-        menus.add(new MenuItem("고객센터", "#", "ki-question", 2, subSupport));
+        //subSupport.add(new MenuItem("1:1 문의 관리", "/mng/support/inquiry/list", "", 0));
+        //menus.add(new MenuItem("고객센터", "#", "ki-question", 2, subSupport));
 
         // 7. 시스템 관리 (그룹)
         List<MenuItem> subSys = new ArrayList<>();
