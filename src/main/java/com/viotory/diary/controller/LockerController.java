@@ -107,7 +107,7 @@ public class LockerController {
         List<TeamContentVO> list = contentMngService.getActiveTeamContentList(loginMember.getMyTeamCode(), null);
         model.addAttribute("list", list);
 
-        return "locker/content_list"; // views/locker/content_list.jsp
+        return "locker/content_list";
     }
 
     // 콘텐츠 상세
