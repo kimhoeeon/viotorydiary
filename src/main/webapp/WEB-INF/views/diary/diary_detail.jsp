@@ -462,66 +462,64 @@
 
         // [카드 이미지 캡쳐 기능 - 오프스크린 클론 방식 (레이아웃 깨짐 완벽 해결)]
         async function captureCard() {
-            const originalTarget = document.querySelector('.inquiry_item'); // 원본 카드
+            const target = document.querySelector('.inquiry_item'); // 캡쳐할 카드 영역
             const saveBtn = document.querySelector('.page-down');   // 다운로드 버튼
+            const swiperBtn = document.querySelector('.swiper_btn');// 스와이퍼 화살표
 
-            if(!originalTarget) return;
+            if(!target) return;
 
-            // 1. 화면 깜빡임 방지를 위해 원본 다운로드 버튼만 살짝 숨김
+            // 1. 화면에 불필요한 캡쳐 방해 UI 숨김
             if(saveBtn) saveBtn.style.display = 'none';
+            if(swiperBtn) swiperBtn.style.display = 'none';
 
-            // 2. 화면 밖(Off-screen)에 보이지 않는 임시 복제 컨테이너 생성
-            const cloneContainer = document.createElement('div');
-            cloneContainer.style.position = 'absolute';
-            cloneContainer.style.left = '-9999px'; // 화면 왼쪽 밖으로 날려버림 (사용자 눈에 안 보임)
-            cloneContainer.style.top = '0';
-            cloneContainer.style.width = originalTarget.offsetWidth + 'px'; // 원본 너비와 100% 동일하게 맞춤
-            cloneContainer.style.backgroundColor = '#f5f5f5'; // 캡쳐본 배경색 (앱 배경색과 동일)
-            cloneContainer.style.padding = '20px'; // 캡쳐 이미지 테두리에 여백을 주어 카드가 예쁘게 보이게 함
+            // 2. 요소들의 원본 인라인 스타일을 저장해둘 Map 객체 생성
+            const originalStyles = new Map();
 
-            // 3. 카드 노드 복제 (원본 레이아웃 손상도 0%)
-            const cloneTarget = originalTarget.cloneNode(true);
-            cloneTarget.style.margin = '0'; // 복제본의 기본 마진 제거
+            // 3. [글자 뭉침 해결] html2canvas의 Flexbox 버그를 피하기 위해 내부 컨테이너 강제 Block 처리
+            // (주의: 좌우 레이아웃 유지를 위해 감싸는 부모인 .txt_box는 건드리지 않습니다)
+            const blockElements = target.querySelectorAll('.txt_player, .txt_game, .diary_desc');
+            blockElements.forEach(el => {
+                originalStyles.set(el, el.getAttribute('style') || '');
+                el.style.setProperty('display', 'block', 'important'); // 수직으로 정상적으로 쌓이게 함
+            });
 
-            // 4. 복제본(클론) 내부 조작: 캡쳐본에 안 나올 버튼 삭제 및 숨긴 텍스트 펼치기
-
-            // 4-1. 스와이퍼 화살표 버튼 삭제
-            const swiperBtn = cloneTarget.querySelector('.swiper_btn');
-            if (swiperBtn) swiperBtn.remove();
-
-            // 4-2. 말줄임 해제 (전체 일기 내용이 바닥까지 보이게)
-            const diaryDesc = cloneTarget.querySelector('.diary_desc');
+            // 4. [숨김 내용 캡쳐 해결] 일기 본문 내용 말줄임표 완전 해제
+            const diaryDesc = target.querySelector('.diary_desc');
             if (diaryDesc) {
                 const contentDiv = diaryDesc.querySelector('div:not(.inquiry_badge)');
                 if (contentDiv) {
-                    contentDiv.style.webkitLineClamp = 'unset'; // 말줄임(...) 제거
-                    contentDiv.style.overflow = 'visible';
-                    contentDiv.style.maxHeight = 'none';
+                    originalStyles.set(contentDiv, contentDiv.getAttribute('style') || '');
+                    contentDiv.style.setProperty('display', 'block', 'important');
+                    contentDiv.style.setProperty('-webkit-line-clamp', 'unset', 'important');
+                    contentDiv.style.setProperty('max-height', 'none', 'important');
+                    contentDiv.style.setProperty('overflow', 'visible', 'important');
+                    contentDiv.style.setProperty('text-overflow', 'clip', 'important');
+                    contentDiv.style.setProperty('white-space', 'normal', 'important');
                 }
             }
 
-            // 5. 클론을 컨테이너에 담고 바디에 추가 (html2canvas가 읽을 수 있도록)
-            cloneContainer.appendChild(cloneTarget);
-            document.body.appendChild(cloneContainer);
+            // ⭐️ 5. 매우 중요: 변경된 스타일(텍스트 확장 등)을 브라우저가 화면에 완전히 렌더링할 때까지 대기
+            // 이 대기 시간이 있어야 html2canvas가 늘어난 실제 높이를 100% 인식합니다.
+            await new Promise(resolve => setTimeout(resolve, 150));
 
             try {
-                // 6. 클론된 완벽한 레이아웃을 캡쳐
-                const canvas = await html2canvas(cloneContainer, {
-                    scale: 2,                  // 2배 화질로 선명하게
-                    useCORS: true,             // 외부 로고 이미지 허용
-                    backgroundColor: '#f5f5f5',// 캔버스 배경색 지정
-                    logging: false
+                // 6. 완벽하게 펼쳐진 요소 캡쳐 진행
+                const canvas = await html2canvas(target, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    scrollY: -window.scrollY // 스크롤 위치에 의한 상단 잘림 현상 방지
                 });
 
                 const imgData = canvas.toDataURL('image/png');
 
-                // 파일명 지정 (승요일기_20260317_KIAvsNC.png)
+                // 파일명 지정
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
                 const fileName = '승요일기_' + gameDate + '_' + awayTeam + 'vs' + homeTeam + '.png';
 
-                // 7. 다운로드 처리
+                // 다운로드 처리 로직 (앱/웹 분기)
                 if (typeof appify !== 'undefined' && appify.isWebview) {
                     try {
                         if (appify.download && appify.download.base64Image) {
@@ -540,11 +538,17 @@
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 8. 캡쳐 완료 후 클론 컨테이너 영구 삭제 & 원본 UI 복구
-                if (cloneContainer.parentNode) {
-                    document.body.removeChild(cloneContainer);
-                }
-                if (saveBtn) saveBtn.style.display = '';
+                // 7. 캡쳐 완료 후 Map에 저장해둔 기존 스타일로 100% 원상 복구
+                if(saveBtn) saveBtn.style.display = '';
+                if(swiperBtn) swiperBtn.style.display = '';
+
+                originalStyles.forEach((styleStr, el) => {
+                    if (styleStr === '') {
+                        el.removeAttribute('style'); // 원래 스타일이 없었다면 속성 자체를 제거
+                    } else {
+                        el.setAttribute('style', styleStr);
+                    }
+                });
             }
         }
 
