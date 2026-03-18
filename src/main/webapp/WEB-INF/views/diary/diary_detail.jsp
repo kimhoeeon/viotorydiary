@@ -343,7 +343,8 @@
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <%--<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>--%>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 
     <script>
         // [댓글 제어]
@@ -461,79 +462,94 @@
             }
         }
 
-        // ⭐️ [카드 캡쳐 기능] CSS 붕괴 없이 화면과 100% 동일하게 캡쳐하는 궁극의 onclone 방식
+        // ⭐️ [카드 캡쳐 기능] - 왼쪽 쏠림 및 늘어남 완벽 해결 최종본
+        // ⭐️ [최종 정답] html-to-image 적용 및 왼쪽 쏠림 완벽 해결판
         async function captureCard() {
             const target = document.querySelector('.inquiry_item');
             if(!target) return;
 
+            // 1. html-to-image 라이브러리 자동 로드 (HTML 수정 불필요)
+            if (typeof htmlToImage === 'undefined') {
+                await new Promise((resolve) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
+                    script.onload = resolve;
+                    document.head.appendChild(script);
+                });
+            }
+
+            // 2. 퍼블리싱된 원본 디자인을 보호하기 위한 임시 스타일 저장소
+            const oldStyles = new Map();
+            function setTempStyle(el, cssStr) {
+                if (!el) return;
+                if (!oldStyles.has(el)) oldStyles.set(el, el.style.cssText);
+                el.style.cssText += cssStr;
+            }
+
+            // 3. 캡쳐 이미지에 보이면 안 되는 버튼들 조용히 숨김
+            target.querySelectorAll('.page-down, .swiper_btn, .more-btn, .capture-hide-btn').forEach(el => setTempStyle(el, 'display: none !important;'));
+            target.querySelectorAll('a[onclick*="captureCard"], button[onclick*="captureCard"]').forEach(el => setTempStyle(el, 'display: none !important;'));
+
+            // 4. 숨겨진 '승요일기' 긴 내용 100% 바닥까지 펼치기
+            const diaryDesc = target.querySelector('.diary_desc');
+            if (diaryDesc) {
+                setTempStyle(diaryDesc, 'display: block !important; max-height: none !important; overflow: visible !important; padding: 16px !important; margin-top: 16px !important; border-top: 1px solid #e1e1e1 !important; transition: none !important;');
+            }
+
+            // 5. [팀명 정렬 유지] 팀명(KIA, NC)은 건드리지 않고, 오직 '긴 텍스트' 부분만 말줄임표(..) 해제
+            target.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge), .player').forEach(div => {
+                setTempStyle(div, 'display: block !important; max-height: none !important; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; white-space: pre-wrap !important;');
+            });
+
+            // 6. [Security Error 차단] Swiper CSS 에러 우회 (가운데 정렬 보존)
+            const swiperLink = document.querySelector('link[href*="swiper"]');
+            let tempStyleTag = null;
+            if (swiperLink) {
+                try {
+                    const res = await fetch(swiperLink.href);
+                    const cssText = await res.text();
+                    tempStyleTag = document.createElement('style');
+                    tempStyleTag.innerHTML = cssText;
+                    document.head.appendChild(tempStyleTag);
+                    swiperLink.disabled = true; // 캡쳐 순간에만 링크 무효화
+                } catch(e) { console.warn('Swiper CSS Fetch Fail', e); }
+            }
+
+            // 브라우저 화면 안정화 (펼쳐진 텍스트 렌더링) 0.3초 대기
+            await new Promise(resolve => setTimeout(resolve, 300));
+
             try {
-                // html2canvas가 내부적으로 전체 페이지를 복제하여 CSS 깨짐을 원천 차단합니다.
-                const canvas = await html2canvas(target, {
-                    scale: 2,                  // 화질 2배
-                    useCORS: true,             // 구단 외부 로고 허용
-                    backgroundColor: '#ffffff',// 투명 배경 방지
-                    windowWidth: document.documentElement.scrollWidth, // 반응형 Flex 구조 보존
-                    onclone: (clonedDoc) => {
-                        // ⭐️ 복제된 가상 화면 안에서 대상 카드를 찾습니다. (이 안에서만 조작하므로 실제 화면은 안전합니다)
-                        const clonedTarget = clonedDoc.querySelector('.inquiry_item');
-                        if (!clonedTarget) return;
-
-                        // 1. 캡쳐본에 보이면 안 되는 버튼류 깔끔하게 숨김
-                        const hideSelectors = ['.page-down', '.swiper_btn', '.more-btn'];
-                        clonedTarget.querySelectorAll(hideSelectors.join(',')).forEach(el => {
-                            el.style.setProperty('display', 'none', 'important');
-                        });
-
-                        // 2. 숨겨진 일기 영역(diary_desc)을 바닥까지 100% 강제 펼침 (.is-open 스타일 강제 적용)
-                        const diaryDesc = clonedTarget.querySelector('.diary_desc');
-                        if (diaryDesc) {
-                            diaryDesc.style.setProperty('max-height', 'none', 'important');
-                            diaryDesc.style.setProperty('padding', '16px', 'important');
-                            diaryDesc.style.setProperty('border-top', '1px solid #e1e1e1', 'important');
-                            diaryDesc.style.setProperty('margin-top', '16px', 'important');
-                            diaryDesc.style.setProperty('display', 'block', 'important');
-                            diaryDesc.style.setProperty('overflow', 'visible', 'important');
-                        }
-
-                        // 3. 웹킷 버그(글자 쏠림 및 엿가락 늘어남) 방지
-                        // flex 구조를 부수지 않기 위해 텍스트가 들어있는 가장 안쪽 div만 골라서 block으로 풀어줍니다.
-                        const textNodes = clonedTarget.querySelectorAll('.player, .txt_game div:not(.inquiry_badge), .diary_desc div:not(.inquiry_badge)');
-                        textNodes.forEach(node => {
-                            node.style.setProperty('display', 'block', 'important');
-                            node.style.setProperty('-webkit-line-clamp', 'unset', 'important');
-                            node.style.setProperty('-webkit-box-orient', 'unset', 'important');
-                            node.style.setProperty('white-space', 'pre-wrap', 'important'); // 줄바꿈 유지
-                            node.style.setProperty('max-height', 'none', 'important');
-                        });
-                    }
+                // ⭐️ 7. html-to-image 캡쳐 (이전에 넣었던 쏠림의 원흉 style: {margin:0, left:0} 옵션 제거!!!)
+                // 이제 퍼블리싱된 정렬 상태 그대로 비율 왜곡 없이 깨끗하게 캡쳐됩니다.
+                const imgData = await htmlToImage.toPng(target, {
+                    pixelRatio: 2,
+                    backgroundColor: '#ffffff'
                 });
 
-                const imgData = canvas.toDataURL('image/png');
-
-                // 파일명 지정
+                // 8. 파일명 지정 및 다운로드 처리
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
                 const fileName = '승요일기_' + gameDate + '_' + awayTeam + 'vs' + homeTeam + '.png';
 
-                // 앱/웹 분기 다운로드
                 if (typeof appify !== 'undefined' && appify.isWebview) {
                     try {
                         if (appify.download && appify.download.base64Image) {
                             const result = await appify.download.base64Image(imgData, fileName);
                             if (result) alert("갤러리에 저장되었습니다. 📸");
-                        } else {
-                            downloadURI(imgData, fileName);
-                        }
-                    } catch (e) {
-                        downloadURI(imgData, fileName);
-                    }
+                        } else downloadURI(imgData, fileName);
+                    } catch (e) { downloadURI(imgData, fileName); }
                 } else {
                     downloadURI(imgData, fileName);
                 }
             } catch (err) {
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
+            } finally {
+                // 9. 캡쳐가 끝나면 0.1초 만에 화면 100% 원상 복구
+                oldStyles.forEach((css, el) => el.style.cssText = css);
+                if (swiperLink) swiperLink.disabled = false;
+                if (tempStyleTag) tempStyleTag.remove();
             }
         }
 
