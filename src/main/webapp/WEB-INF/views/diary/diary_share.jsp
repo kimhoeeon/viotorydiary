@@ -16,9 +16,16 @@
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <meta property="og:title" content="${diary.nickname}님의 직관 일기">
-    <meta property="og:description" content="${diary.oneLineComment}">
-    <meta property="og:image" content="${not empty diary.imageUrl ? diary.imageUrl : '/img/logo.png'}">
+    <meta property="og:title" content="${diary.nickname}님의 직관일기">
+    <meta property="og:description" content="${not empty diary.oneLineComment ? diary.oneLineComment : '오늘의 직관 기록을 확인해보세요!'}">
+
+    <%-- 카카오톡 공유 시 이미지가 콤마로 깨지지 않도록 첫 번째 이미지만 추출 --%>
+    <c:set var="ogImage" value="/img/logo.png" />
+    <c:if test="${not empty diary.imageUrl}">
+        <c:set var="ogImgArr" value="${fn:split(diary.imageUrl, ',')}" />
+        <c:set var="ogImage" value="${ogImgArr[0]}" />
+    </c:if>
+    <meta property="og:image" content="${ogImage}">
 
     <link rel="stylesheet" href="/css/reset.css">
     <link rel="stylesheet" href="/css/font.css">
@@ -26,6 +33,21 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <title>직관일기 공유 | 승요일기</title>
+
+    <style>
+        .team img { width: 48px; height: 48px; object-fit: contain; display: block; margin: 0 auto; }
+        .review_list li.hidden-cmt { display: none; }
+        .del-btn { background: none; border: none; padding: 0; cursor: pointer; }
+
+        .result-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--color-border); }
+        .result-badge.win { background-color: #E8F3FF; color: var(--color-primary); border-color: #E8F3FF; }
+        .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger); border-color: #FEE8E8; }
+        .result-badge.draw { background-color: #F1F1F1; color: #666; border-color: #F1F1F1; }
+        .result-badge.none { background-color: #f5f5f5; color: #999; }
+
+        /* 스와이퍼 기본 화살표 숨김 처리 (커스텀 배경 이미지만 보이도록) */
+        .swiper-button-next::after, .swiper-button-prev::after { display: none !important; }
+    </style>
 
     <!-- swiper 외부 라이브러리 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
@@ -245,7 +267,7 @@
                                     </c:choose>
                                 </div>
                             </div>
-                            <button class="more-btn">
+                            <button class="more-btn" type="button">
                                 + 일기 전체보기
                             </button>
                         </div>
@@ -262,9 +284,33 @@
         </div>
     </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
+
+    <script>
+        // Swiper 명시적 초기화 로직 추가 (화면 렌더링 직후 정상 동작 보장)
+        document.addEventListener('DOMContentLoaded', function() {
+            if(document.querySelector('.swiperMainCnt')) {
+                new Swiper('.swiperMainCnt', {
+                    slidesPerView: 'auto',
+                    spaceBetween: 10,
+                    loop: false,
+                    navigation: {
+                        nextEl: '.swiperMainCntNext',
+                        prevEl: '.swiperMainCntPrev',
+                    }
+                });
+            }
+        });
+
+        function viewImage(src) {
+            if (typeof appify !== 'undefined' && appify.isWebview) {
+            } else {
+                window.open(src, '_blank');
+            }
+        }
+    </script>
 </body>
 </html>
