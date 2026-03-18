@@ -461,7 +461,6 @@
             }
         }
 
-        // ⭐️ [진짜 최종 정답] 쏠림 현상 100% 제거 및 순정 레이아웃 보존 캡쳐
         // ⭐️ [진짜 최종 정답] html-to-image 순정 캡쳐 (백화현상 & iOS Flex 쏠림 버그 완벽 차단)
         async function captureCard() {
             const target = document.querySelector('.inquiry_item');
@@ -476,7 +475,7 @@
             }
 
             // 2. 캡쳐 이미지에 보이면 안 되는 다운로드 버튼, 화살표 등 숨김
-            target.querySelectorAll('.page-down, .swiper_btn, .more-btn, .capture-hide-btn, a[onclick*="captureCard"], button[onclick*="captureCard"]').forEach(el => {
+            target.querySelectorAll('.page-down, .swiper_btn, .more-btn, .capture-hide-btn, a[onclick*="captureCard"]').forEach(el => {
                 setTempStyle(el, 'display', 'none');
             });
 
@@ -491,15 +490,6 @@
                 setTempStyle(diaryDesc, 'border-top', '1px solid #e1e1e1');
                 setTempStyle(diaryDesc, 'transition', 'none');
             }
-
-            // 4. 말줄임표(..)가 적용된 긴 텍스트 영역 해제
-            target.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge)').forEach(div => {
-                setTempStyle(div, 'display', 'block');
-                setTempStyle(div, '-webkit-line-clamp', 'unset');
-                setTempStyle(div, '-webkit-box-orient', 'unset');
-                setTempStyle(div, 'white-space', 'pre-wrap');
-                setTempStyle(div, 'max-height', 'none');
-            });
 
             // ⭐️ 5. [핵심] 모바일 브라우저(Safari)의 Flexbox 캡쳐 쏠림 버그 원천 차단
             // Flexbox를 일시적으로 끄고 Block + text-align: center로 바꿔서 가운데 정렬을 강제 유지합니다.
