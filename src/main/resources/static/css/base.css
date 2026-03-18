@@ -135,11 +135,13 @@
 .card_wrap.ev .card_item{gap: 16px;}
 .card_wrap.content .card_item{gap: 16px;}
 .card_wrap.notice .card_item{gap: 16px;}
+.card_wrap.ev .card_item .img{max-height: 200px;  min-height: 200px;}
+.card_wrap.ev .card_item .img img{height:100%; object-fit: cover;}
 
 .card_wrap.play_wrap{display: grid;}
 .card_wrap.play_wrap .card_item{margin-top: 0;}
-.card_wrap.event{width: 100%; border-radius: 20px; overflow: hidden; max-height: 110px;}
-.card_wrap.event img{width: 100%;}
+.card_wrap.event{width: 100%; border-radius: 20px; overflow: hidden; max-height: 200px;  min-height: 200px; }
+.card_wrap.event img{width: 100%; height: 100%; object-fit: cover;}
 .section {margin-bottom: 16px;}
 .stack {display: grid;gap: 8px; background-color: #fff; border-radius: 20px; padding: 16px; box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);}
 .row {display: flex;align-items: center;justify-content: space-between;gap: 12px;}

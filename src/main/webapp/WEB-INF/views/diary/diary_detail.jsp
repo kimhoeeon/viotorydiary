@@ -83,6 +83,13 @@
                                                 직관 인증완료!
                                             </button>
                                         </c:if>
+                                        <c:if test="${isOwner}">
+                                            <div class="page-down">
+                                                <a href="">
+                                                    <img src="/img/ico_pagedown.svg" alt="페이지 다운로드">
+                                                </a>
+                                            </div>
+                                        </c:if>
                                     </div>
                                 </div>
 
@@ -101,13 +108,6 @@
                                                             <c:if test="${not empty imgSrc}">
                                                                 <div class="swiper-slide item" style="position: relative;">
                                                                     <img src="${imgSrc}" alt="직관 사진" onclick="viewImage(this.src)">
-
-                                                                    <%-- 다운로드 버튼 (작성자만 보임) --%>
-                                                                    <c:if test="${isOwner}">
-                                                                        <button type="button" onclick="downloadImage('${imgSrc}')" class="btn btn-light" style="position:absolute; bottom:12px; right:12px; padding:6px 12px; font-size:12px; box-shadow:0 2px 6px rgba(0,0,0,0.3); border-radius:6px; z-index:10; background: rgba(255,255,255,0.85); font-weight:600;left: 50%;transform: translateX(-50%); width: 50%;">
-                                                                            📥 저장
-                                                                        </button>
-                                                                    </c:if>
                                                                 </div>
                                                             </c:if>
                                                         </c:forEach>
@@ -183,7 +183,7 @@
                                     </div>
 
                                     <%-- 두 번째 줄: 예상 스코어 / 공개 여부 --%>
-                                    <div class="txt_box mt-24">
+                                    <%--<div class="txt_box mt-24">
                                         <div class="inquiry_score">
                                             <div class="inquiry_badge">
                                                 예상 스코어
@@ -219,7 +219,7 @@
                                                 </c:choose>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>--%>
 
                                     <%-- 일기 본문 영역 (스크립트 제어 대상) --%>
                                     <div class="diary_desc">

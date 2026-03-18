@@ -23,15 +23,6 @@
 
     <title>라커룸 | 승요일기</title>
 
-    <style>
-        /* 텍스트 말줄임 */
-        .text-ellipsis {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    </style>
-
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
@@ -120,7 +111,7 @@
                                                     </div>
                                                     <div class="score_txt">
                                                         <div class="txt_box">
-                                                            <div class="tit text-ellipsis">${content.title}</div>
+                                                            <div class="tit">${content.title}</div>
                                                             <div class="date">
                                                                 <fmt:parseDate value="${content.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="pDate" type="both"/>
                                                                 <fmt:formatDate value="${pDate}" pattern="yyyy-MM-dd"/>
@@ -162,7 +153,7 @@
                                                             <div class="notice_badge ${notice.category eq 'SURVEY' ? 'quest_badge' : ''}">
                                                                 ${notice.category eq 'SURVEY' ? '설문' : '공지'}
                                                             </div>
-                                                            <div class="tit text-ellipsis">${notice.title}</div>
+                                                            <div class="tit">${notice.title}</div>
                                                         </div>
                                                         <div class="date">
                                                             <fmt:parseDate value="${notice.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="nDate" type="both"/>
