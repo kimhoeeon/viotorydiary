@@ -460,54 +460,117 @@
             }
         }
 
-        // ⭐️ [카드 이미지 캡쳐 기능 - 순정 레이아웃 보존 방식]
+        // ⭐️ [카드 이미지 캡쳐 기능 - 방탄 CSS 주입 기법 (글자 쏠림/늘어남 완벽 해결)]
         async function captureCard() {
-            const target = document.querySelector('.inquiry_item'); // 캡쳐할 실제 카드 영역
-            const saveBtn = document.querySelector('.page-down');   // 다운로드 버튼
-            const swiperBtn = document.querySelector('.swiper_btn');// 스와이퍼 화살표
-            const moreBtn = document.querySelector('.more-btn');    // 더보기 버튼
+            const originalTarget = document.querySelector('.inquiry_item');
+            const saveBtn = document.querySelector('.page-down');
 
-            if(!target) return;
+            if(!originalTarget) return;
 
-            // 1. 캡쳐 이미지에 나오지 않아야 할 버튼들 임시 숨김
-            if(saveBtn) saveBtn.style.display = 'none';
-            if(swiperBtn) swiperBtn.style.display = 'none';
-            if(moreBtn) moreBtn.style.display = 'none';
+            // 1. 캡쳐 중 버튼 흐리게 처리
+            if(saveBtn) saveBtn.style.opacity = '0.5';
 
-            // 2. [가장 중요] 레이아웃을 부수지 않고 '승요일기' 영역만 부드럽게 끝까지 펼침
-            const diaryDesc = target.querySelector('.diary_desc');
-            let originalStyle = '';
+            // 2. 화면 밖 캡쳐 전용 컨테이너 생성
+            const captureWrapper = document.createElement('div');
+            captureWrapper.style.position = 'absolute';
+            captureWrapper.style.top = '-9999px';
+            captureWrapper.style.left = '0';
+            captureWrapper.style.width = originalTarget.offsetWidth + 'px';
+            captureWrapper.style.padding = '20px';
+            captureWrapper.style.background = '#f5f5f5';
 
-            if (diaryDesc) {
-                // 원래 적용되어 있던 style 저장
-                originalStyle = diaryDesc.getAttribute('style') || '';
-                // css에 정의된 .is-open 효과를 주입하되, max-height(500px) 제한을 없애 짤림 방지
-                diaryDesc.style.cssText = 'padding: 16px !important; max-height: none !important; overflow: visible !important; border-top: 1px solid #e1e1e1 !important; display: block !important;';
-            }
+            // 3. 카드 복제 및 전용 ID 부여 (원본 보호)
+            const clone = originalTarget.cloneNode(true);
+            clone.id = 'capture-clone-element';
 
-            // 3. 숨겨져 있던 일기가 화면에 쭉 늘어나서(Reflow) 그려질 수 있도록 0.3초 대기
+            // 4. 방해 UI 삭제
+            clone.querySelectorAll('.swiper_btn, .more-btn, .page-down').forEach(el => el.remove());
+
+            captureWrapper.appendChild(clone);
+            document.body.appendChild(captureWrapper);
+
+            // ⭐️ 5. [핵심] html2canvas의 렌더링 버그를 원천 차단하는 전용 CSS 강제 주입
+            const style = document.createElement('style');
+            style.id = 'capture-style-injection';
+            style.innerHTML = `
+                /* 카드 전체 기본 형태 */
+                #capture-clone-element {
+                    background: #ffffff !important;
+                    border-radius: 16px !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+                    margin: 0 !important;
+                    height: auto !important;
+                    max-height: none !important;
+                    overflow: visible !important;
+                    padding-bottom: 24px !important;
+                }
+                /* 좌우 분할 박스는 상단 정렬(flex-start)을 강제해 세로 늘어남 방지 */
+                #capture-clone-element .txt_box {
+                    display: flex !important;
+                    align-items: flex-start !important;
+                    height: auto !important;
+                    margin-bottom: 16px !important;
+                }
+                /* 글자가 바닥으로 떨어지는 Flex 버그를 막기 위해 강제 Block 처리 */
+                #capture-clone-element .txt_player,
+                #capture-clone-element .txt_game {
+                    display: block !important;
+                    width: 50% !important;
+                    height: auto !important;
+                }
+                /* 뱃지 아래 간격 확보 */
+                #capture-clone-element .inquiry_badge {
+                    display: inline-block !important;
+                    margin-bottom: 8px !important;
+                }
+                /* 말줄임 방지 및 내용 바닥까지 무조건 펼침 */
+                #capture-clone-element .player,
+                #capture-clone-element .txt_game > div:not(.inquiry_badge),
+                #capture-clone-element .diary_desc > div:not(.inquiry_badge) {
+                    display: block !important;
+                    height: auto !important;
+                    max-height: none !important;
+                    overflow: visible !important;
+                    -webkit-line-clamp: unset !important;
+                    -webkit-box-orient: unset !important;
+                    white-space: pre-wrap !important;
+                    line-height: 1.5 !important;
+                    margin-top: 0 !important;
+                }
+                /* 숨겨진 일기 영역도 무조건 펼침 */
+                #capture-clone-element .diary_desc {
+                    display: block !important;
+                    padding: 16px 0 0 0 !important;
+                    border-top: 1px solid #e1e1e1 !important;
+                    margin-top: 16px !important;
+                    height: auto !important;
+                    max-height: none !important;
+                    overflow: visible !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // 6. 브라우저가 주입된 CSS를 완전히 계산할 때까지 대기
             await new Promise(resolve => setTimeout(resolve, 300));
 
             try {
-                // 4. 화면에 보이는 예쁜 원본 레이아웃 그대로 캡쳐 진행
-                const canvas = await html2canvas(target, {
-                    scale: 2,                  // 화질 2배
-                    useCORS: true,             // 구단 로고 등 외부 이미지 허용
-                    backgroundColor: '#ffffff',// 투명 배경 방지용 하얀색
-                    windowWidth: document.documentElement.offsetWidth, // 전체 너비 기준
-                    windowHeight: document.documentElement.offsetHeight, // 늘어난 전체 높이 기준
-                    scrollY: -window.scrollY   // 스크롤 시 화면 상단 짤림 방지
+                // 7. 캡쳐 실행 (비율 지정 없이 자동으로 내용물에 맞게 촬영)
+                const canvas = await html2canvas(captureWrapper, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#f5f5f5',
+                    logging: false
                 });
 
                 const imgData = canvas.toDataURL('image/png');
 
-                // 파일명 생성
+                // 파일명 지정
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
                 const fileName = '승요일기_' + gameDate + '_' + awayTeam + 'vs' + homeTeam + '.png';
 
-                // 5. 앱 / 웹 브라우저 분기 다운로드
+                // 기기 다운로드
                 if (typeof appify !== 'undefined' && appify.isWebview) {
                     try {
                         if (appify.download && appify.download.base64Image) {
@@ -526,17 +589,10 @@
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 6. 촬영이 완료되면 눈 깜짝할 새 화면을 원래 상태(숨김/버튼 노출)로 원상복구
-                if(saveBtn) saveBtn.style.display = '';
-                if(swiperBtn) swiperBtn.style.display = '';
-                if(moreBtn) moreBtn.style.display = '';
-                if(diaryDesc) {
-                    if (originalStyle === '') {
-                        diaryDesc.removeAttribute('style');
-                    } else {
-                        diaryDesc.setAttribute('style', originalStyle);
-                    }
-                }
+                // 8. 촬영 후 메모리 클론 및 전용 스타일 즉시 파기
+                if (captureWrapper.parentNode) document.body.removeChild(captureWrapper);
+                if (style.parentNode) document.head.removeChild(style);
+                if (saveBtn) saveBtn.style.opacity = '1';
             }
         }
 
