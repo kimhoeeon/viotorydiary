@@ -82,6 +82,7 @@
                                             직관 인증완료!
                                         </button>
                                     </c:if>
+
                                     <c:if test="${isOwner}">
                                         <div class="page-down">
                                             <a href="javascript:void(0);" onclick="captureCard();" class="capture-hide-btn">
@@ -461,60 +462,91 @@
         }
 
         // ⭐️ [카드 이미지 캡쳐 기능]
+        // ⭐️ [카드 캡쳐 기능] - 기존 퍼블리싱(HTML/CSS) 변경 없이 100% JS로만 렌더링 버그 해결
         async function captureCard() {
-            const target = document.querySelector('.inquiry_item');
-            if(!target) return;
+            // 1. 퍼블리싱된 원본 카드 영역 찾기
+            const originalTarget = document.querySelector('.inquiry_item');
+            if(!originalTarget) return;
 
-            // 1. 캡쳐 이미지에 보이지 말아야 할 UI 버튼들
-            const hideBtns = target.querySelectorAll('.capture-hide-btn, .swiper_btn, .more-btn');
+            // 2. 화면 밖(Off-screen)에 사용자 눈에 보이지 않는 임시 캡쳐 공간 생성
+            const captureWrapper = document.createElement('div');
+            captureWrapper.style.position = 'absolute';
+            captureWrapper.style.top = '-9999px';
+            captureWrapper.style.left = '0';
+            captureWrapper.style.width = originalTarget.offsetWidth + 'px'; // 원본 너비 그대로 픽스
+            captureWrapper.style.padding = '20px';
+            captureWrapper.style.background = '#f5f5f5';
 
-            // 2. 글자 쏠림과 세로 늘어남을 일으키는 타겟 요소들
-            const txtBoxes = target.querySelectorAll('.txt_box');
-            const diaryDesc = target.querySelector('.diary_desc');
+            // 3. 카드 노드 복제 (사용자가 보는 실제 화면은 절대 건드리지 않음)
+            const clone = originalTarget.cloneNode(true);
+            clone.style.margin = '0';
+            clone.style.background = '#ffffff';
+            clone.style.borderRadius = '16px';
+            clone.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+            clone.style.height = 'auto'; // 세로 늘어남 방지
 
-            // 3. 브라우저의 원래 CSS 상태를 기억해둘 Map 객체
-            const originalStyles = new Map();
-            function setTempStyle(el, prop, value) {
-                if (!el) return;
-                if (!originalStyles.has(el)) originalStyles.set(el, el.getAttribute('style') || '');
-                el.style.setProperty(prop, value, 'important');
-            }
+            // 4. [기존 클래스명 그대로 사용] 캡쳐본에 찍히면 안 되는 UI 요소들 삭제
+            const hideElements = clone.querySelectorAll('.page-down, .swiper_btn, .more-btn');
+            hideElements.forEach(el => el.remove());
 
-            // --- [캡쳐 전처리 시작: 원본 DOM을 레이아웃 붕괴 없이 완벽하게 제어합니다] ---
+            // a 태그로 감싸진 저장 버튼 처리 (클릭 이벤트에 captureCard가 있는 태그 숨김)
+            clone.querySelectorAll('a[onclick*="captureCard"]').forEach(el => el.remove());
 
-            hideBtns.forEach(btn => setTempStyle(btn, 'display', 'none'));
+            // 5. [버그 해결] html2canvas 엔진이 Flex와 말줄임표(...)를 만나면 글자를 바닥으로 쏠리게 하는 현상 강제 교정
 
-            // [해결 1] 글자 바닥 쏠림 버그 해결: Flex 자식들이 억지로 늘어나지 않게 위쪽(flex-start) 정렬로 강제 고정
-            txtBoxes.forEach(box => setTempStyle(box, 'align-items', 'flex-start'));
-
-            // [해결 2] 이미지 세로 엿가락 늘어남 방지 & 글씨 짤림 방지: 애니메이션(transition)을 완전히 끄고 바닥 끝까지 펼침
+            // 일기 내용 무조건 끝까지 펼치기
+            const diaryDesc = clone.querySelector('.diary_desc');
             if (diaryDesc) {
-                setTempStyle(diaryDesc, 'transition', 'none');
-                setTempStyle(diaryDesc, 'max-height', 'none');
-                setTempStyle(diaryDesc, 'overflow', 'visible');
+                diaryDesc.style.display = 'block';
+                diaryDesc.style.maxHeight = 'none';
+                diaryDesc.style.padding = '16px';
+                diaryDesc.style.borderTop = '1px solid #e1e1e1';
+                diaryDesc.style.marginTop = '16px';
+                diaryDesc.style.overflow = 'visible';
             }
 
-            // 4. 브라우저가 위에서 변경한 CSS 모양대로 화면을 완벽하게 다시 그릴 때까지 잠깐 대기 (핵심)
-            await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 150)));
+            // 글자 쏠림 및 늘어남 방지 (순수 Block 강제 변환)
+            clone.querySelectorAll('.txt_box').forEach(box => {
+                box.style.alignItems = 'flex-start';
+                box.style.height = 'auto';
+            });
+
+            clone.querySelectorAll('.player, .txt_game div:not(.inquiry_badge), .diary_desc div:not(.inquiry_badge), .team-name, .pitcher-name').forEach(node => {
+                node.style.display = 'block';
+                node.style.webkitLineClamp = 'unset';
+                node.style.webkitBoxOrient = 'unset';
+                node.style.whiteSpace = 'pre-wrap'; // 줄바꿈 유지
+                node.style.height = 'auto';
+                node.style.maxHeight = 'none';
+                node.style.lineHeight = '1.5';
+            });
+
+            // 6. 조립 후 임시로 body에 붙이고 렌더링 대기
+            captureWrapper.appendChild(clone);
+            document.body.appendChild(captureWrapper);
+
+            await new Promise(resolve => setTimeout(resolve, 300));
 
             try {
-                // 5. 완벽하게 세팅된 원본 DOM을 그대로 촬영합니다. (비율 왜곡 원천 차단)
-                const canvas = await html2canvas(target, {
+                // 7. 안전하게 교정된 복제본 캡쳐
+                const canvas = await html2canvas(captureWrapper, {
                     scale: 2,
                     useCORS: true,
-                    backgroundColor: '#ffffff',
-                    scrollY: -window.scrollY // 스크롤 시 상단이 잘리는 현상 방지
+                    backgroundColor: '#f5f5f5',
+                    logging: false,
+                    width: captureWrapper.offsetWidth,
+                    height: captureWrapper.offsetHeight
                 });
 
                 const imgData = canvas.toDataURL('image/png');
 
-                // 파일명 지정
+                // 8. 파일명 조립
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
                 const fileName = '승요일기_' + gameDate + '_' + awayTeam + 'vs' + homeTeam + '.png';
 
-                // 다운로드 실행
+                // 9. 다운로드
                 if (typeof appify !== 'undefined' && appify.isWebview) {
                     try {
                         if (appify.download && appify.download.base64Image) {
@@ -533,11 +565,10 @@
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 6. 촬영이 완료되면 화면을 원래 상태(버튼 노출/일기 접힘)로 즉시 100% 원상 복구합니다.
-                originalStyles.forEach((styleStr, el) => {
-                    if (styleStr === '') el.removeAttribute('style');
-                    else el.setAttribute('style', styleStr);
-                });
+                // 10. 캡쳐 완료 후 화면 밖 임시 요소 깔끔하게 제거
+                if (captureWrapper.parentNode) {
+                    document.body.removeChild(captureWrapper);
+                }
             }
         }
 
