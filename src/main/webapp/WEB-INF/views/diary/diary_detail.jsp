@@ -85,8 +85,8 @@
                                         </c:if>
                                         <c:if test="${isOwner}">
                                             <div class="page-down">
-                                                <a href="">
-                                                    <img src="/img/ico_pagedown.svg" alt="페이지 다운로드">
+                                                <a href="javascript:void(0);" onclick="captureCard();">
+                                                    <img src="/img/ico_pagedown.svg" alt="페이지 캡쳐 다운로드">
                                                 </a>
                                             </div>
                                         </c:if>
@@ -344,6 +344,8 @@
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <script>
         // [댓글 제어]
         function checkCmtInput() {
@@ -458,6 +460,70 @@
                     alert('공유 링크가 복사되었습니다!');
                 });
             }
+        }
+
+        // [카드 이미지 캡쳐 후 다운로드 기능]
+        async function captureCard() {
+            const target = document.querySelector('.inquiry_item'); // 캡쳐할 카드 영역
+            const saveBtn = document.querySelector('.page-down');   // 캡쳐 이미지에서 뺄 다운로드 버튼
+            const swiperBtn = document.querySelector('.swiper_btn');// 캡쳐 이미지에서 뺄 슬라이드 화살표
+
+            if(!target) return;
+
+            // 1. 캡쳐되는 이미지에 UI 버튼들이 보이지 않도록 임시로 숨김
+            if(saveBtn) saveBtn.style.display = 'none';
+            if(swiperBtn) swiperBtn.style.display = 'none';
+
+            try {
+                // 2. html2canvas로 화면을 이미지 캔버스로 변환
+                const canvas = await html2canvas(target, {
+                    scale: 2,                  // 화질을 2배로 높여서 선명하게 캡쳐
+                    useCORS: true,             // 구단 로고 등 외부 도메인 이미지 허용
+                    backgroundColor: '#ffffff' // 배경 투명 방지
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                // 파일명 생성 로직: 승요일기_경기일자_원정팀vs홈팀.png
+                const gameDate = '${diary.gameDate}'.replace(/-/g, '');
+                const awayTeam = '${diary.awayTeamName}';
+                const homeTeam = '${diary.homeTeamName}';
+                const fileName = '승요일기_' + gameDate + '_' + awayTeam + 'vs' + homeTeam + '.png';
+
+                // 3. 앱 환경 (Appify) 및 웹 브라우저 분기 처리
+                if (typeof appify !== 'undefined' && appify.isWebview) {
+                    try {
+                        // 앱에 Base64 저장 인터페이스가 있다면 호출, 없으면 우회 다운로드
+                        if (appify.download && appify.download.base64Image) {
+                            const result = await appify.download.base64Image(imgData, fileName);
+                            if (result) alert("갤러리에 저장되었습니다. 📸");
+                        } else {
+                            downloadURI(imgData, fileName);
+                        }
+                    } catch (e) {
+                        downloadURI(imgData, fileName);
+                    }
+                } else {
+                    // PC 및 일반 모바일 브라우저
+                    downloadURI(imgData, fileName);
+                }
+            } catch (err) {
+                console.error("Capture Error:", err);
+                alert("이미지 생성 중 오류가 발생했습니다.");
+            } finally {
+                // 4. 캡쳐가 완료되면 숨겼던 UI 버튼들을 원상복구
+                if(saveBtn) saveBtn.style.display = '';
+                if(swiperBtn) swiperBtn.style.display = '';
+            }
+        }
+
+        // 공통 이미지 다운로드 함수
+        function downloadURI(uri, name) {
+            const link = document.createElement("a");
+            link.download = name;
+            link.href = uri;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         /*function deleteDiary(diaryId) {

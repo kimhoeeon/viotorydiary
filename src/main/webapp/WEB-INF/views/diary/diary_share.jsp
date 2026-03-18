@@ -27,32 +27,20 @@
 
     <title>직관일기 공유 | 승요일기</title>
 
-    <style>
-        /* 공유 페이지 전용 추가 스타일 (테마 변수 적용 완료) */
-        .diary-header-info { border-bottom: 1px solid var(--color-border, #eee); padding-bottom: 16px; margin-bottom: 16px; }
-        .one-line-box .label { font-size: 13px; color: #999; margin-bottom: 6px; display: block; }
-        .one-line-box .text { font-size: 18px; font-weight: 700; color: var(--color-text, #111); line-height: 1.4; }
-
-        .hero-box { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
-        .hero-badge { background: #e8f3ff; color: var(--color-primary, #1A7CFF); font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
-        .hero-name { font-size: 16px; font-weight: 600; color: var(--color-text, #333); }
-
-        .result-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
-        .result-badge.win { background-color: #E8F3FF; color: var(--color-primary, #1A7CFF); }
-        .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger, #FF4D4D); }
-        .result-badge.draw { background-color: #F1F1F1; color: #666; }
-        .result-badge.none { background-color: #f5f5f5; color: #999; }
-    </style>
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
 <body>
     <div class="app">
-        <header class="app-header" style="justify-content:center;">
-            <div class="page-tit" style="font-weight:700;">승요일기</div>
-        </header>
+        <header class="app-header"></header>
 
         <div class="app-main">
+            <div class="app-tit" style="justify-content: center;">
+                <div class="page-tit">
+                    승요일기
+                </div>
+            </div>
+
             <div class="card_wrap play_wrap gap-16">
                 <div class="card_item pt-16 pb-16">
                     <div class="row align-center">
