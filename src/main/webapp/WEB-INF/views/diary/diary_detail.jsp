@@ -461,7 +461,7 @@
             }
         }
 
-        // ⭐️ [진짜 최종 정답] html-to-image 순정 캡쳐 (백화현상 & iOS Flex 쏠림 버그 완벽 차단)
+        // ⭐️ [가장 완벽한 최종 정답] html-to-image 순정 캡쳐 (백화현상 & iOS Flex 쏠림 버그 완벽 차단)
         async function captureCard() {
             const target = document.querySelector('.inquiry_item');
             if(!target) return;
@@ -491,18 +491,15 @@
                 setTempStyle(diaryDesc, 'transition', 'none');
             }
 
-            // ⭐️ 5. [핵심] 모바일 브라우저(Safari)의 Flexbox 캡쳐 쏠림 버그 원천 차단
-            // Flexbox를 일시적으로 끄고 Block + text-align: center로 바꿔서 가운데 정렬을 강제 유지합니다.
-            target.querySelectorAll('.team, .swiper-slide, .game-info-wrap').forEach(el => {
+            // ⭐️ 5. 모바일 브라우저의 로고/텍스트 Flex 쏠림 버그 차단
+            target.querySelectorAll('.team, .game-info-wrap').forEach(el => {
                 setTempStyle(el, 'display', 'block');
                 setTempStyle(el, 'text-align', 'center');
             });
-            // 로고와 사진이 정가운데에 오도록 margin auto 적용
-            target.querySelectorAll('.team img, .swiper-slide img').forEach(img => {
+            target.querySelectorAll('.team img').forEach(img => {
                 setTempStyle(img, 'display', 'inline-block');
                 setTempStyle(img, 'margin', '0 auto');
             });
-            // 팀명(KIA, NC)과 투수명이 가운데로 오도록 적용
             target.querySelectorAll('.team-name, .pitcher-name').forEach(el => {
                 setTempStyle(el, 'display', 'block');
                 setTempStyle(el, 'text-align', 'center');
@@ -510,17 +507,41 @@
                 setTempStyle(el, 'margin-right', 'auto');
             });
 
-            // 화면에 텍스트가 펴지고 정렬이 적용될 수 있도록 0.3초 대기 (이게 없으면 또 빈 화면이 나올 수 있습니다)
+            // ⭐️ 6. [사용자님 아이디어 적용!!] inquiry_img 조작으로 Swiper 쏠림 완벽 회피
+            const inquiryImg = target.querySelector('.inquiry_img');
+            const swiperBox = target.querySelector('.swiper_box');
+            let tempStaticImg = null;
+
+            if (inquiryImg && swiperBox) {
+                // 현재 화면에 띄워진 활성 이미지 1장만 추출
+                const activeImg = swiperBox.querySelector('.swiper-slide-active img') || swiperBox.querySelector('.swiper-slide img');
+
+                if (activeImg) {
+                    setTempStyle(swiperBox, 'display', 'none'); // 쏠림 버그의 원흉인 스와이퍼 껍데기 통째로 숨김
+                    setTempStyle(inquiryImg, 'display', 'block');
+                    setTempStyle(inquiryImg, 'text-align', 'center'); // inquiry_img 영역을 강제 가운데 정렬
+
+                    // 순수 <img> 태그 생성 및 정가운데 세팅
+                    tempStaticImg = document.createElement('img');
+                    tempStaticImg.src = activeImg.src;
+                    tempStaticImg.style.cssText = 'width: 100%; max-width: 100%; object-fit: contain; display: block; margin: 0 auto; border-radius: 8px;';
+
+                    // inquiry_img 안에 쏙 집어넣기
+                    inquiryImg.appendChild(tempStaticImg);
+                }
+            }
+
+            // 렌더링 적용 대기
             await new Promise(resolve => setTimeout(resolve, 300));
 
             try {
-                // 6. html-to-image 캡쳐 실행 (백화현상을 일으켰던 scrollTo 함수 제거)
+                // 7. html-to-image 캡쳐 실행
                 const imgData = await htmlToImage.toPng(target, {
                     pixelRatio: 2,
                     backgroundColor: '#ffffff'
                 });
 
-                // 파일명 지정 및 다운로드 처리
+                // 8. 파일명 지정 및 다운로드 처리
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
@@ -540,7 +561,9 @@
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 7. 캡쳐 완료 후 눈 깜짝할 새 원본 디자인으로 100% 원상 복구
+                // 9. 캡쳐 완료 후 눈 깜짝할 새 원본 디자인으로 100% 원상 복구
+                if (tempStaticImg) tempStaticImg.remove(); // 캡쳐용 임시 사진 제거
+
                 oldStyles.forEach((val, el) => {
                     if (val === '') el.removeAttribute('style');
                     else el.setAttribute('style', val);
