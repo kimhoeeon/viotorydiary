@@ -343,8 +343,7 @@
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
 
-    <%--<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>--%>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
         // [댓글 제어]
@@ -467,16 +466,6 @@
             const target = document.querySelector('.inquiry_item');
             if(!target) return;
 
-            // 1. html-to-image 라이브러리 자동 로드 (HTML 수정 불필요)
-            if (typeof htmlToImage === 'undefined') {
-                await new Promise((resolve) => {
-                    const script = document.createElement('script');
-                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
-                    script.onload = resolve;
-                    document.head.appendChild(script);
-                });
-            }
-
             // 2. 퍼블리싱된 원본 디자인 보호용 저장소
             const oldStyles = new Map();
             function setTempStyle(el, prop, val) {
@@ -487,7 +476,7 @@
 
             // 3. 캡쳐 이미지에 보이면 안 되는 버튼들 숨김
             target.querySelectorAll('.page-down, .swiper_btn, .more-btn, .capture-hide-btn').forEach(el => setTempStyle(el, 'display', 'none'));
-            target.querySelectorAll('a[onclick*="captureCard"], button[onclick*="captureCard"]').forEach(el => setTempStyle(el, 'display', 'none'));
+            target.querySelectorAll('a[onclick*="captureCard"]').forEach(el => setTempStyle(el, 'display', 'none'));
 
             // 4. 숨겨진 '승요일기' 내용 바닥까지 완벽하게 펼치기
             const diaryDesc = target.querySelector('.diary_desc');
@@ -500,15 +489,6 @@
                 setTempStyle(diaryDesc, 'border-top', '1px solid #e1e1e1');
                 setTempStyle(diaryDesc, 'transition', 'none'); // 애니메이션 해제
             }
-
-            // 5. 말줄임표(..) 텍스트 해제 (팀명, 투수명은 건드리지 않음!)
-            target.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge), .player').forEach(div => {
-                setTempStyle(div, 'display', 'block');
-                setTempStyle(div, '-webkit-line-clamp', 'unset');
-                setTempStyle(div, '-webkit-box-orient', 'unset');
-                setTempStyle(div, 'white-space', 'pre-wrap');
-                setTempStyle(div, 'max-height', 'none');
-            });
 
             // ⭐️ 6. [사진 왼쪽 쏠림 완벽 해결] Swiper 껍데기 우회
             const swiperBox = target.querySelector('.swiper_box');
