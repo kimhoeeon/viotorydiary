@@ -460,37 +460,70 @@
             }
         }
 
-        // [카드 이미지 캡쳐 후 다운로드 기능]
+        // [카드 이미지 캡쳐 기능 - 오프스크린 클론 방식 (레이아웃 깨짐 완벽 해결)]
         async function captureCard() {
-            const target = document.querySelector('.inquiry_item'); // 캡쳐할 카드 영역
-            const saveBtn = document.querySelector('.page-down');   // 캡쳐 이미지에서 뺄 다운로드 버튼
-            const swiperBtn = document.querySelector('.swiper_btn');// 캡쳐 이미지에서 뺄 슬라이드 화살표
+            const originalTarget = document.querySelector('.inquiry_item'); // 원본 카드
+            const saveBtn = document.querySelector('.page-down');   // 다운로드 버튼
 
-            if(!target) return;
+            if(!originalTarget) return;
 
-            // 1. 캡쳐되는 이미지에 UI 버튼들이 보이지 않도록 임시로 숨김
+            // 1. 화면 깜빡임 방지를 위해 원본 다운로드 버튼만 살짝 숨김
             if(saveBtn) saveBtn.style.display = 'none';
-            if(swiperBtn) swiperBtn.style.display = 'none';
+
+            // 2. 화면 밖(Off-screen)에 보이지 않는 임시 복제 컨테이너 생성
+            const cloneContainer = document.createElement('div');
+            cloneContainer.style.position = 'absolute';
+            cloneContainer.style.left = '-9999px'; // 화면 왼쪽 밖으로 날려버림 (사용자 눈에 안 보임)
+            cloneContainer.style.top = '0';
+            cloneContainer.style.width = originalTarget.offsetWidth + 'px'; // 원본 너비와 100% 동일하게 맞춤
+            cloneContainer.style.backgroundColor = '#f5f5f5'; // 캡쳐본 배경색 (앱 배경색과 동일)
+            cloneContainer.style.padding = '20px'; // 캡쳐 이미지 테두리에 여백을 주어 카드가 예쁘게 보이게 함
+
+            // 3. 카드 노드 복제 (원본 레이아웃 손상도 0%)
+            const cloneTarget = originalTarget.cloneNode(true);
+            cloneTarget.style.margin = '0'; // 복제본의 기본 마진 제거
+
+            // 4. 복제본(클론) 내부 조작: 캡쳐본에 안 나올 버튼 삭제 및 숨긴 텍스트 펼치기
+
+            // 4-1. 스와이퍼 화살표 버튼 삭제
+            const swiperBtn = cloneTarget.querySelector('.swiper_btn');
+            if (swiperBtn) swiperBtn.remove();
+
+            // 4-2. 말줄임 해제 (전체 일기 내용이 바닥까지 보이게)
+            const diaryDesc = cloneTarget.querySelector('.diary_desc');
+            if (diaryDesc) {
+                const contentDiv = diaryDesc.querySelector('div:not(.inquiry_badge)');
+                if (contentDiv) {
+                    contentDiv.style.webkitLineClamp = 'unset'; // 말줄임(...) 제거
+                    contentDiv.style.overflow = 'visible';
+                    contentDiv.style.maxHeight = 'none';
+                }
+            }
+
+            // 5. 클론을 컨테이너에 담고 바디에 추가 (html2canvas가 읽을 수 있도록)
+            cloneContainer.appendChild(cloneTarget);
+            document.body.appendChild(cloneContainer);
 
             try {
-                // 2. html2canvas로 화면을 이미지 캔버스로 변환
-                const canvas = await html2canvas(target, {
-                    scale: 2,                  // 화질을 2배로 높여서 선명하게 캡쳐
-                    useCORS: true,             // 구단 로고 등 외부 도메인 이미지 허용
-                    backgroundColor: '#ffffff' // 배경 투명 방지
+                // 6. 클론된 완벽한 레이아웃을 캡쳐
+                const canvas = await html2canvas(cloneContainer, {
+                    scale: 2,                  // 2배 화질로 선명하게
+                    useCORS: true,             // 외부 로고 이미지 허용
+                    backgroundColor: '#f5f5f5',// 캔버스 배경색 지정
+                    logging: false
                 });
 
                 const imgData = canvas.toDataURL('image/png');
-                // 파일명 생성 로직: 승요일기_경기일자_원정팀vs홈팀.png
+
+                // 파일명 지정 (승요일기_20260317_KIAvsNC.png)
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
                 const fileName = '승요일기_' + gameDate + '_' + awayTeam + 'vs' + homeTeam + '.png';
 
-                // 3. 앱 환경 (Appify) 및 웹 브라우저 분기 처리
+                // 7. 다운로드 처리
                 if (typeof appify !== 'undefined' && appify.isWebview) {
                     try {
-                        // 앱에 Base64 저장 인터페이스가 있다면 호출, 없으면 우회 다운로드
                         if (appify.download && appify.download.base64Image) {
                             const result = await appify.download.base64Image(imgData, fileName);
                             if (result) alert("갤러리에 저장되었습니다. 📸");
@@ -501,16 +534,17 @@
                         downloadURI(imgData, fileName);
                     }
                 } else {
-                    // PC 및 일반 모바일 브라우저
                     downloadURI(imgData, fileName);
                 }
             } catch (err) {
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 4. 캡쳐가 완료되면 숨겼던 UI 버튼들을 원상복구
-                if(saveBtn) saveBtn.style.display = '';
-                if(swiperBtn) swiperBtn.style.display = '';
+                // 8. 캡쳐 완료 후 클론 컨테이너 영구 삭제 & 원본 UI 복구
+                if (cloneContainer.parentNode) {
+                    document.body.removeChild(cloneContainer);
+                }
+                if (saveBtn) saveBtn.style.display = '';
             }
         }
 
