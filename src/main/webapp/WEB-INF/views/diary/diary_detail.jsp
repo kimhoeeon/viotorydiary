@@ -36,7 +36,7 @@
     </style>
 
     <!-- swiper 외부 라이브러리 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" crossorigin="anonymous" />
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
@@ -342,7 +342,7 @@
     <script src="/js/script.js"></script>
     <script src="/js/app_interface.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 
     <script>
         // [댓글 제어]
@@ -460,7 +460,7 @@
             }
         }
 
-        // [카드 이미지 캡쳐 기능 - 오프스크린 클론 방식 (레이아웃 깨짐 완벽 해결)]
+        // [카드 이미지 캡쳐 기능 - html-to-image 방식 적용 (쏠림/에러 완벽 해결)]
         async function captureCard() {
             const target = document.querySelector('.inquiry_item'); // 캡쳐할 카드 영역
             const saveBtn = document.querySelector('.page-down');   // 다운로드 버튼
@@ -468,58 +468,51 @@
 
             if(!target) return;
 
-            // 1. 화면에 불필요한 캡쳐 방해 UI 숨김
+            // 1. 화면에 불필요한 UI 숨김
             if(saveBtn) saveBtn.style.display = 'none';
             if(swiperBtn) swiperBtn.style.display = 'none';
 
-            // 2. 요소들의 원본 인라인 스타일을 저장해둘 Map 객체 생성
+            // 2. 일기 내용 모두 보이게 강제 처리
             const originalStyles = new Map();
-
-            // 3. [글자 뭉침 해결] html2canvas의 Flexbox 버그를 피하기 위해 내부 컨테이너 강제 Block 처리
-            // (주의: 좌우 레이아웃 유지를 위해 감싸는 부모인 .txt_box는 건드리지 않습니다)
-            const blockElements = target.querySelectorAll('.txt_player, .txt_game, .diary_desc');
-            blockElements.forEach(el => {
-                originalStyles.set(el, el.getAttribute('style') || '');
-                el.style.setProperty('display', 'block', 'important'); // 수직으로 정상적으로 쌓이게 함
-            });
-
-            // 4. [숨김 내용 캡쳐 해결] 일기 본문 내용 말줄임표 완전 해제
             const diaryDesc = target.querySelector('.diary_desc');
+
             if (diaryDesc) {
+                originalStyles.set(diaryDesc, diaryDesc.getAttribute('style') || '');
+                diaryDesc.style.setProperty('max-height', 'none', 'important');
+                diaryDesc.style.setProperty('overflow', 'visible', 'important');
+                diaryDesc.style.setProperty('padding', '16px', 'important');
+                diaryDesc.style.setProperty('border-top', '1px solid #e1e1e1', 'important');
+
                 const contentDiv = diaryDesc.querySelector('div:not(.inquiry_badge)');
                 if (contentDiv) {
                     originalStyles.set(contentDiv, contentDiv.getAttribute('style') || '');
-                    contentDiv.style.setProperty('display', 'block', 'important');
                     contentDiv.style.setProperty('-webkit-line-clamp', 'unset', 'important');
-                    contentDiv.style.setProperty('max-height', 'none', 'important');
-                    contentDiv.style.setProperty('overflow', 'visible', 'important');
-                    contentDiv.style.setProperty('text-overflow', 'clip', 'important');
-                    contentDiv.style.setProperty('white-space', 'normal', 'important');
+                    contentDiv.style.setProperty('display', 'block', 'important');
                 }
             }
 
-            // ⭐️ 5. 매우 중요: 변경된 스타일(텍스트 확장 등)을 브라우저가 화면에 완전히 렌더링할 때까지 대기
-            // 이 대기 시간이 있어야 html2canvas가 늘어난 실제 높이를 100% 인식합니다.
+            // 3. 브라우저 렌더링 대기
             await new Promise(resolve => setTimeout(resolve, 150));
 
             try {
-                // 6. 완벽하게 펼쳐진 요소 캡쳐 진행
-                const canvas = await html2canvas(target, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    scrollY: -window.scrollY // 스크롤 위치에 의한 상단 잘림 현상 방지
+                // 4. html-to-image를 사용해 캡쳐 (왼쪽 쏠림 버그 해결)
+                const imgData = await htmlToImage.toPng(target, {
+                    pixelRatio: 2, // 화질 2배
+                    backgroundColor: '#ffffff', // 배경 투명화 방지
+                    style: {
+                        margin: '0', // 강제로 마진을 없애 왼쪽 쏠림(Offset) 현상 방지
+                        left: '0',
+                        top: '0'
+                    }
                 });
 
-                const imgData = canvas.toDataURL('image/png');
-
-                // 파일명 지정
+                // 5. 파일명 지정
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
                 const fileName = '승요일기_' + gameDate + '_' + awayTeam + 'vs' + homeTeam + '.png';
 
-                // 다운로드 처리 로직 (앱/웹 분기)
+                // 6. 다운로드 처리
                 if (typeof appify !== 'undefined' && appify.isWebview) {
                     try {
                         if (appify.download && appify.download.base64Image) {
@@ -536,15 +529,15 @@
                 }
             } catch (err) {
                 console.error("Capture Error:", err);
-                alert("이미지 생성 중 오류가 발생했습니다.");
+                alert("이미지 캡쳐 중 오류가 발생했습니다. 브라우저 설정을 확인해주세요.");
             } finally {
-                // 7. 캡쳐 완료 후 Map에 저장해둔 기존 스타일로 100% 원상 복구
+                // 7. UI 원상 복구
                 if(saveBtn) saveBtn.style.display = '';
                 if(swiperBtn) swiperBtn.style.display = '';
 
                 originalStyles.forEach((styleStr, el) => {
                     if (styleStr === '') {
-                        el.removeAttribute('style'); // 원래 스타일이 없었다면 속성 자체를 제거
+                        el.removeAttribute('style');
                     } else {
                         el.setAttribute('style', styleStr);
                     }
