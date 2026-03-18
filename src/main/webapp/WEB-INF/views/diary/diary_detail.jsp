@@ -72,25 +72,23 @@
                         <div class="card_wrap play_wrap gap-16">
 
                             <div class="card_item inquiry_item">
-                                <div class="location-certify" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <button class="btn btn-inquiry w-auto" type="button" style="pointer-events: none;">
-                                            내가 직관한 경기
-                                        </button>
+                                <div class="location-certify">
+                                    <button class="btn btn-inquiry w-auto" type="button">
+                                        내가 직관한 경기
+                                    </button>
 
-                                        <c:if test="${diary.verified}">
-                                            <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete" style="pointer-events: none;">
-                                                직관 인증완료!
-                                            </button>
-                                        </c:if>
-                                        <c:if test="${isOwner}">
-                                            <div class="page-down">
-                                                <a href="javascript:void(0);" onclick="captureCard();">
-                                                    <img src="/img/ico_pagedown.svg" alt="페이지 캡쳐 다운로드">
-                                                </a>
-                                            </div>
-                                        </c:if>
-                                    </div>
+                                    <c:if test="${diary.verified}">
+                                        <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete">
+                                            직관 인증완료!
+                                        </button>
+                                    </c:if>
+                                    <c:if test="${isOwner}">
+                                        <div class="page-down">
+                                            <a href="javascript:void(0);" onclick="captureCard();">
+                                                <img src="/img/ico_pagedown.svg" alt="페이지 캡쳐 다운로드">
+                                            </a>
+                                        </div>
+                                    </c:if>
                                 </div>
 
                                 <div class="inquiry_img">
