@@ -462,71 +462,91 @@
             }
         }
 
-        // ⭐️ [카드 캡쳐 기능] - 왼쪽 쏠림 및 늘어남 완벽 해결 최종본
-        // ⭐️ [최종 정답] html-to-image 적용 및 왼쪽 쏠림 완벽 해결판
+        // ⭐️ [진짜 최종판] 스와이퍼 해체 + 인라인 복제 기법 (쏠림/늘어남/깨짐 완벽 해결)
         async function captureCard() {
-            const target = document.querySelector('.inquiry_item');
-            if(!target) return;
+            const originalTarget = document.querySelector('.inquiry_item');
+            if (!originalTarget) return;
 
-            // 1. html-to-image 라이브러리 자동 로드 (HTML 수정 불필요)
-            if (typeof htmlToImage === 'undefined') {
+            // 1. html2canvas 라이브러리 자동 로드 (HTML 건드릴 필요 없음)
+            if (typeof html2canvas === 'undefined') {
                 await new Promise((resolve) => {
                     const script = document.createElement('script');
-                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
                     script.onload = resolve;
                     document.head.appendChild(script);
                 });
             }
 
-            // 2. 퍼블리싱된 원본 디자인을 보호하기 위한 임시 스타일 저장소
-            const oldStyles = new Map();
-            function setTempStyle(el, cssStr) {
-                if (!el) return;
-                if (!oldStyles.has(el)) oldStyles.set(el, el.style.cssText);
-                el.style.cssText += cssStr;
+            // 2. 화면 깜빡임 방지용 버튼 처리
+            const originalBtns = originalTarget.querySelectorAll('.page-down, .capture-hide-btn, .more-btn');
+            originalBtns.forEach(btn => btn.style.opacity = '0.5');
+
+            // 3. [핵심 1] 동일한 부모 안에 복제본 생성 (퍼블리싱된 CSS 속성 100% 보존)
+            originalTarget.parentNode.style.position = 'relative'; // 복제본 위치 고정용
+            const clone = originalTarget.cloneNode(true);
+            clone.id = 'capture-clone';
+            clone.style.position = 'absolute';
+            clone.style.top = originalTarget.offsetTop + 'px';
+            clone.style.left = originalTarget.offsetLeft + 'px';
+            clone.style.width = originalTarget.offsetWidth + 'px';
+            clone.style.zIndex = '-10'; // 원본 뒤에 숨겨서 사용자 눈에 안 보이게 함
+            clone.style.backgroundColor = '#ffffff';
+
+            // 4. 캡쳐용 복제본 DOM 안전하게 조작 시작
+
+            // 4-1. 캡쳐본에 찍히면 안 되는 버튼류 완전 삭제
+            clone.querySelectorAll('.swiper_btn, .more-btn, .page-down, .capture-hide-btn, a[onclick*="captureCard"], button[onclick*="captureCard"]').forEach(el => el.remove());
+
+            // 4-2. [핵심 2 - 사진 쏠림 완벽 해결] Swiper의 복잡한 움직임 구조를 다 부수고 단일 이미지로 치환
+            const activeSlide = clone.querySelector('.swiper-slide-active') || clone.querySelector('.swiper-slide');
+            const swiperBox = clone.querySelector('.swiper_box');
+            if (swiperBox && activeSlide) {
+                swiperBox.innerHTML = ''; // 캡쳐 오류를 일으키는 스와이퍼 껍데기 제거
+                activeSlide.style.cssText = 'width: 100%; display: flex; justify-content: center; align-items: center; margin: 0 auto; transform: none !important;';
+                swiperBox.appendChild(activeSlide);
             }
 
-            // 3. 캡쳐 이미지에 보이면 안 되는 버튼들 조용히 숨김
-            target.querySelectorAll('.page-down, .swiper_btn, .more-btn, .capture-hide-btn').forEach(el => setTempStyle(el, 'display: none !important;'));
-            target.querySelectorAll('a[onclick*="captureCard"], button[onclick*="captureCard"]').forEach(el => setTempStyle(el, 'display: none !important;'));
-
-            // 4. 숨겨진 '승요일기' 긴 내용 100% 바닥까지 펼치기
-            const diaryDesc = target.querySelector('.diary_desc');
+            // 4-3. [숨김 영역 펼침] 일기 영역 무조건 바닥까지 표시
+            const diaryDesc = clone.querySelector('.diary_desc');
             if (diaryDesc) {
-                setTempStyle(diaryDesc, 'display: block !important; max-height: none !important; overflow: visible !important; padding: 16px !important; margin-top: 16px !important; border-top: 1px solid #e1e1e1 !important; transition: none !important;');
+                diaryDesc.style.setProperty('display', 'block', 'important');
+                diaryDesc.style.setProperty('max-height', 'none', 'important');
+                diaryDesc.style.setProperty('padding', '16px', 'important');
+                diaryDesc.style.setProperty('border-top', '1px solid #e1e1e1', 'important');
+                diaryDesc.style.setProperty('margin-top', '16px', 'important');
+                diaryDesc.style.setProperty('overflow', 'visible', 'important');
             }
 
-            // 5. [팀명 정렬 유지] 팀명(KIA, NC)은 건드리지 않고, 오직 '긴 텍스트' 부분만 말줄임표(..) 해제
-            target.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge), .player').forEach(div => {
-                setTempStyle(div, 'display: block !important; max-height: none !important; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; white-space: pre-wrap !important;');
+            // 4-4. [핵심 3 - 팀명 쏠림 완벽 해결] 팀명(KIA, NC) 등은 절대 건드리지 않고, 오직 '긴 텍스트'만 말줄임 해제
+            const textDivs = clone.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge), .player');
+            textDivs.forEach(div => {
+                div.style.setProperty('display', 'block', 'important');
+                div.style.setProperty('-webkit-line-clamp', 'unset', 'important');
+                div.style.setProperty('-webkit-box-orient', 'unset', 'important');
+                div.style.setProperty('white-space', 'pre-wrap', 'important');
+                div.style.setProperty('max-height', 'none', 'important');
             });
 
-            // 6. [Security Error 차단] Swiper CSS 에러 우회 (가운데 정렬 보존)
-            const swiperLink = document.querySelector('link[href*="swiper"]');
-            let tempStyleTag = null;
-            if (swiperLink) {
-                try {
-                    const res = await fetch(swiperLink.href);
-                    const cssText = await res.text();
-                    tempStyleTag = document.createElement('style');
-                    tempStyleTag.innerHTML = cssText;
-                    document.head.appendChild(tempStyleTag);
-                    swiperLink.disabled = true; // 캡쳐 순간에만 링크 무효화
-                } catch(e) { console.warn('Swiper CSS Fetch Fail', e); }
-            }
-
-            // 브라우저 화면 안정화 (펼쳐진 텍스트 렌더링) 0.3초 대기
+            // 5. 복제본을 원본과 같은 부모 트리에 부착하여 렌더링 대기 (0.3초)
+            originalTarget.parentNode.appendChild(clone);
             await new Promise(resolve => setTimeout(resolve, 300));
 
             try {
-                // ⭐️ 7. html-to-image 캡쳐 (이전에 넣었던 쏠림의 원흉 style: {margin:0, left:0} 옵션 제거!!!)
-                // 이제 퍼블리싱된 정렬 상태 그대로 비율 왜곡 없이 깨끗하게 캡쳐됩니다.
-                const imgData = await htmlToImage.toPng(target, {
-                    pixelRatio: 2,
-                    backgroundColor: '#ffffff'
+                // 6. html2canvas로 안전하게 세팅된 복제본 촬영
+                const canvas = await html2canvas(clone, {
+                    scale: 2,
+                    useCORS: true, // 외부 구단 로고 및 사진 허용
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    width: clone.offsetWidth,     // 세로/가로 엿가락 늘어남 방지
+                    height: clone.scrollHeight,   // 늘어난 높이만큼만 정확히 캡쳐
+                    windowWidth: document.documentElement.offsetWidth,
+                    scrollY: -window.scrollY      // 상단 잘림 방지
                 });
 
-                // 8. 파일명 지정 및 다운로드 처리
+                const imgData = canvas.toDataURL('image/png');
+
+                // 7. 파일명 생성 및 다운로드
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
@@ -546,10 +566,11 @@
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 9. 캡쳐가 끝나면 0.1초 만에 화면 100% 원상 복구
-                oldStyles.forEach((css, el) => el.style.cssText = css);
-                if (swiperLink) swiperLink.disabled = false;
-                if (tempStyleTag) tempStyleTag.remove();
+                // 8. 캡쳐 완료 후 화면 뒤에 숨겨둔 복제본 영구 삭제 및 버튼 원상복구
+                if (clone.parentNode) {
+                    clone.parentNode.removeChild(clone);
+                }
+                originalBtns.forEach(btn => btn.style.opacity = '1');
             }
         }
 
