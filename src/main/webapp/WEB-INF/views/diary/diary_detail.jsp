@@ -495,7 +495,7 @@
 
             // 4-1. 버튼 삭제
             clone.querySelectorAll('.swiper_btn, .more-btn, .page-down, .capture-hide-btn').forEach(el => el.remove());
-            clone.querySelectorAll('a[onclick*="captureCard"], button[onclick*="captureCard"]').forEach(el => el.remove());
+            clone.querySelectorAll('a[onclick*="captureCard"]').forEach(el => el.remove());
 
             // 4-2. 숨은 텍스트 100% 펼침
             const diaryDesc = clone.querySelector('.diary_desc');
