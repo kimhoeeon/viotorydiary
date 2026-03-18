@@ -110,7 +110,7 @@
                                                         <th class="min-w-100px text-center">경기결과</th>
                                                         <th class="min-w-150px text-center">대진 (원정 vs 홈)</th>
                                                         <th class="min-w-100px text-center">날짜/시간</th>
-                                                        <th class="min-w-100px text-center">히어로</th>
+                                                        <th class="min-w-100px text-center">승리투수</th>
                                                         <th class="min-w-100px text-center">점수</th>
                                                         <th class="min-w-125px">경기장소</th>
                                                         <th class="min-w-125px text-center">직관 일기 작성 수</th>
