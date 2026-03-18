@@ -84,7 +84,7 @@
                                     </c:if>
                                     <c:if test="${isOwner}">
                                         <div class="page-down">
-                                            <a href="javascript:void(0);" onclick="captureCard();">
+                                            <a href="javascript:void(0);" onclick="captureCard();" class="capture-hide-btn">
                                                 <img src="/img/ico_pagedown.svg" alt="페이지 캡쳐 다운로드">
                                             </a>
                                         </div>
@@ -460,106 +460,50 @@
             }
         }
 
-        // ⭐️ [카드 이미지 캡쳐 기능 - 방탄 CSS 주입 기법 (글자 쏠림/늘어남 완벽 해결)]
+        // ⭐️ [카드 이미지 캡쳐 기능]
         async function captureCard() {
-            const originalTarget = document.querySelector('.inquiry_item');
-            const saveBtn = document.querySelector('.page-down');
+            const target = document.querySelector('.inquiry_item');
+            if(!target) return;
 
-            if(!originalTarget) return;
+            // 1. 캡쳐 이미지에 보이지 말아야 할 UI 버튼들
+            const hideBtns = target.querySelectorAll('.capture-hide-btn, .swiper_btn, .more-btn');
 
-            // 1. 캡쳐 중 버튼 흐리게 처리
-            if(saveBtn) saveBtn.style.opacity = '0.5';
+            // 2. 글자 쏠림과 세로 늘어남을 일으키는 타겟 요소들
+            const txtBoxes = target.querySelectorAll('.txt_box');
+            const diaryDesc = target.querySelector('.diary_desc');
 
-            // 2. 화면 밖 캡쳐 전용 컨테이너 생성
-            const captureWrapper = document.createElement('div');
-            captureWrapper.style.position = 'absolute';
-            captureWrapper.style.top = '-9999px';
-            captureWrapper.style.left = '0';
-            captureWrapper.style.width = originalTarget.offsetWidth + 'px';
-            captureWrapper.style.padding = '20px';
-            captureWrapper.style.background = '#f5f5f5';
+            // 3. 브라우저의 원래 CSS 상태를 기억해둘 Map 객체
+            const originalStyles = new Map();
+            function setTempStyle(el, prop, value) {
+                if (!el) return;
+                if (!originalStyles.has(el)) originalStyles.set(el, el.getAttribute('style') || '');
+                el.style.setProperty(prop, value, 'important');
+            }
 
-            // 3. 카드 복제 및 전용 ID 부여 (원본 보호)
-            const clone = originalTarget.cloneNode(true);
-            clone.id = 'capture-clone-element';
+            // --- [캡쳐 전처리 시작: 원본 DOM을 레이아웃 붕괴 없이 완벽하게 제어합니다] ---
 
-            // 4. 방해 UI 삭제
-            clone.querySelectorAll('.swiper_btn, .more-btn, .page-down').forEach(el => el.remove());
+            hideBtns.forEach(btn => setTempStyle(btn, 'display', 'none'));
 
-            captureWrapper.appendChild(clone);
-            document.body.appendChild(captureWrapper);
+            // [해결 1] 글자 바닥 쏠림 버그 해결: Flex 자식들이 억지로 늘어나지 않게 위쪽(flex-start) 정렬로 강제 고정
+            txtBoxes.forEach(box => setTempStyle(box, 'align-items', 'flex-start'));
 
-            // ⭐️ 5. [핵심] html2canvas의 렌더링 버그를 원천 차단하는 전용 CSS 강제 주입
-            const style = document.createElement('style');
-            style.id = 'capture-style-injection';
-            style.innerHTML = `
-                /* 카드 전체 기본 형태 */
-                #capture-clone-element {
-                    background: #ffffff !important;
-                    border-radius: 16px !important;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-                    margin: 0 !important;
-                    height: auto !important;
-                    max-height: none !important;
-                    overflow: visible !important;
-                    padding-bottom: 24px !important;
-                }
-                /* 좌우 분할 박스는 상단 정렬(flex-start)을 강제해 세로 늘어남 방지 */
-                #capture-clone-element .txt_box {
-                    display: flex !important;
-                    align-items: flex-start !important;
-                    height: auto !important;
-                    margin-bottom: 16px !important;
-                }
-                /* 글자가 바닥으로 떨어지는 Flex 버그를 막기 위해 강제 Block 처리 */
-                #capture-clone-element .txt_player,
-                #capture-clone-element .txt_game {
-                    display: block !important;
-                    width: 50% !important;
-                    height: auto !important;
-                }
-                /* 뱃지 아래 간격 확보 */
-                #capture-clone-element .inquiry_badge {
-                    display: inline-block !important;
-                    margin-bottom: 8px !important;
-                }
-                /* 말줄임 방지 및 내용 바닥까지 무조건 펼침 */
-                #capture-clone-element .player,
-                #capture-clone-element .txt_game > div:not(.inquiry_badge),
-                #capture-clone-element .diary_desc > div:not(.inquiry_badge) {
-                    display: block !important;
-                    height: auto !important;
-                    max-height: none !important;
-                    overflow: visible !important;
-                    -webkit-line-clamp: unset !important;
-                    -webkit-box-orient: unset !important;
-                    white-space: pre-wrap !important;
-                    line-height: 1.5 !important;
-                    margin-top: 0 !important;
-                }
-                /* 숨겨진 일기 영역도 무조건 펼침 */
-                #capture-clone-element .diary_desc {
-                    display: block !important;
-                    padding: 16px 0 0 0 !important;
-                    border-top: 1px solid #e1e1e1 !important;
-                    margin-top: 16px !important;
-                    height: auto !important;
-                    max-height: none !important;
-                    overflow: visible !important;
-                }
-            `;
-            document.head.appendChild(style);
+            // [해결 2] 이미지 세로 엿가락 늘어남 방지 & 글씨 짤림 방지: 애니메이션(transition)을 완전히 끄고 바닥 끝까지 펼침
+            if (diaryDesc) {
+                setTempStyle(diaryDesc, 'transition', 'none');
+                setTempStyle(diaryDesc, 'max-height', 'none');
+                setTempStyle(diaryDesc, 'overflow', 'visible');
+            }
 
-            // 6. 브라우저가 주입된 CSS를 완전히 계산할 때까지 대기
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // 4. 브라우저가 위에서 변경한 CSS 모양대로 화면을 완벽하게 다시 그릴 때까지 잠깐 대기 (핵심)
+            await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 150)));
 
             try {
-                // 7. 캡쳐 실행 (비율 지정 없이 자동으로 내용물에 맞게 촬영)
-                const canvas = await html2canvas(captureWrapper, {
+                // 5. 완벽하게 세팅된 원본 DOM을 그대로 촬영합니다. (비율 왜곡 원천 차단)
+                const canvas = await html2canvas(target, {
                     scale: 2,
                     useCORS: true,
-                    backgroundColor: '#f5f5f5',
-                    logging: false
+                    backgroundColor: '#ffffff',
+                    scrollY: -window.scrollY // 스크롤 시 상단이 잘리는 현상 방지
                 });
 
                 const imgData = canvas.toDataURL('image/png');
@@ -570,7 +514,7 @@
                 const homeTeam = '${diary.homeTeamName}';
                 const fileName = '승요일기_' + gameDate + '_' + awayTeam + 'vs' + homeTeam + '.png';
 
-                // 기기 다운로드
+                // 다운로드 실행
                 if (typeof appify !== 'undefined' && appify.isWebview) {
                     try {
                         if (appify.download && appify.download.base64Image) {
@@ -589,14 +533,15 @@
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 8. 촬영 후 메모리 클론 및 전용 스타일 즉시 파기
-                if (captureWrapper.parentNode) document.body.removeChild(captureWrapper);
-                if (style.parentNode) document.head.removeChild(style);
-                if (saveBtn) saveBtn.style.opacity = '1';
+                // 6. 촬영이 완료되면 화면을 원래 상태(버튼 노출/일기 접힘)로 즉시 100% 원상 복구합니다.
+                originalStyles.forEach((styleStr, el) => {
+                    if (styleStr === '') el.removeAttribute('style');
+                    else el.setAttribute('style', styleStr);
+                });
             }
         }
 
-        // 공통 이미지 다운로드 함수
+        // 이미지 다운로드 헬퍼 함수
         function downloadURI(uri, name) {
             const link = document.createElement("a");
             link.download = name;
