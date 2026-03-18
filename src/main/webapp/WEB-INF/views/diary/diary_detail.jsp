@@ -460,88 +460,54 @@
             }
         }
 
-        // ⭐️ [카드 이미지 캡쳐 기능 - 강제 CSS 렌더링 초기화 및 클론 기법]
+        // ⭐️ [카드 이미지 캡쳐 기능 - 순정 레이아웃 보존 방식]
         async function captureCard() {
-            const originalTarget = document.querySelector('.inquiry_item');
-            const saveBtn = document.querySelector('.page-down');
+            const target = document.querySelector('.inquiry_item'); // 캡쳐할 실제 카드 영역
+            const saveBtn = document.querySelector('.page-down');   // 다운로드 버튼
+            const swiperBtn = document.querySelector('.swiper_btn');// 스와이퍼 화살표
+            const moreBtn = document.querySelector('.more-btn');    // 더보기 버튼
 
-            if(!originalTarget) return;
+            if(!target) return;
 
-            // 1. 화면 깜빡임 방지를 위해 캡쳐 중 버튼 흐리게 처리
-            if(saveBtn) saveBtn.style.opacity = '0.5';
+            // 1. 캡쳐 이미지에 나오지 않아야 할 버튼들 임시 숨김
+            if(saveBtn) saveBtn.style.display = 'none';
+            if(swiperBtn) swiperBtn.style.display = 'none';
+            if(moreBtn) moreBtn.style.display = 'none';
 
-            // 2. 완벽하게 격리된 캡쳐용 임시 컨테이너 생성 (사용자 눈에 안 보임)
-            const captureWrapper = document.createElement('div');
-            captureWrapper.style.position = 'fixed';
-            captureWrapper.style.top = '-9999px'; // 화면 밖으로 날림
-            captureWrapper.style.left = '0';
-            captureWrapper.style.width = originalTarget.offsetWidth + 'px'; // 원본 너비 강제 고정
-            captureWrapper.style.background = '#f5f5f5'; // 인스타그램 스타일의 예쁜 배경
-            captureWrapper.style.padding = '20px';
-            captureWrapper.style.zIndex = '-1000';
+            // 2. [가장 중요] 레이아웃을 부수지 않고 '승요일기' 영역만 부드럽게 끝까지 펼침
+            const diaryDesc = target.querySelector('.diary_desc');
+            let originalStyle = '';
 
-            // 3. 원본 요소 복제 및 캡쳐본 전용 스타일 부여
-            const clone = originalTarget.cloneNode(true);
-            clone.style.margin = '0';
-            clone.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-            clone.style.borderRadius = '16px';
-
-            // 4. [핵심] 캡쳐를 방해하는 UI 및 CSS 요소 강제 초기화
-            // 4-1. 불필요한 버튼들 삭제
-            const swiperBtn = clone.querySelector('.swiper_btn');
-            const moreBtn = clone.querySelector('.more-btn');
-            if (swiperBtn) swiperBtn.remove();
-            if (moreBtn) moreBtn.remove();
-
-            // 4-2. 글자 뭉침 및 짤림의 주범인 Webkit 속성과 높이 제한을 박살냄
-            const diaryDesc = clone.querySelector('.diary_desc');
             if (diaryDesc) {
-                diaryDesc.style.setProperty('max-height', 'none', 'important');
-                diaryDesc.style.setProperty('overflow', 'visible', 'important');
-
-                const contentDiv = diaryDesc.querySelector('div:not(.inquiry_badge)');
-                if (contentDiv) {
-                    contentDiv.style.setProperty('display', 'block', 'important'); // flex/webkit-box 강제 해제
-                    contentDiv.style.setProperty('-webkit-line-clamp', 'unset', 'important');
-                    contentDiv.style.setProperty('-webkit-box-orient', 'unset', 'important');
-                    contentDiv.style.setProperty('max-height', 'none', 'important');
-                    contentDiv.style.setProperty('white-space', 'pre-wrap', 'important'); // 줄바꿈 유지
-                    contentDiv.style.setProperty('line-height', '1.6', 'important'); // 줄간격 확보로 뭉침 방지
-                }
+                // 원래 적용되어 있던 style 저장
+                originalStyle = diaryDesc.getAttribute('style') || '';
+                // css에 정의된 .is-open 효과를 주입하되, max-height(500px) 제한을 없애 짤림 방지
+                diaryDesc.style.cssText = 'padding: 16px !important; max-height: none !important; overflow: visible !important; border-top: 1px solid #e1e1e1 !important; display: block !important;';
             }
 
-            // 4-3. 텍스트 영역의 높이(height)를 auto로 만들어 요소 겹침(Overlapping) 완벽 차단
-            const txtAreaDivs = clone.querySelectorAll('.inquiry_txt div');
-            txtAreaDivs.forEach(div => {
-                div.style.setProperty('height', 'auto', 'important');
-            });
-
-            // 5. 조립 후 바디에 부착
-            captureWrapper.appendChild(clone);
-            document.body.appendChild(captureWrapper);
-
-            // 6. 브라우저가 변경된 CSS를 계산하고 폰트를 로딩할 시간 충분히 부여
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 3. 숨겨져 있던 일기가 화면에 쭉 늘어나서(Reflow) 그려질 수 있도록 0.3초 대기
+            await new Promise(resolve => setTimeout(resolve, 300));
 
             try {
-                // 7. 안정적인 html2canvas로 최종 촬영
-                const canvas = await html2canvas(captureWrapper, {
+                // 4. 화면에 보이는 예쁜 원본 레이아웃 그대로 캡쳐 진행
+                const canvas = await html2canvas(target, {
                     scale: 2,                  // 화질 2배
-                    useCORS: true,             // 구단 로고 허용
-                    backgroundColor: '#f5f5f5',
-                    allowTaint: true,
-                    windowWidth: captureWrapper.scrollWidth,
-                    windowHeight: captureWrapper.scrollHeight
+                    useCORS: true,             // 구단 로고 등 외부 이미지 허용
+                    backgroundColor: '#ffffff',// 투명 배경 방지용 하얀색
+                    windowWidth: document.documentElement.offsetWidth, // 전체 너비 기준
+                    windowHeight: document.documentElement.offsetHeight, // 늘어난 전체 높이 기준
+                    scrollY: -window.scrollY   // 스크롤 시 화면 상단 짤림 방지
                 });
 
                 const imgData = canvas.toDataURL('image/png');
 
+                // 파일명 생성
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
                 const fileName = '승요일기_' + gameDate + '_' + awayTeam + 'vs' + homeTeam + '.png';
 
-                // 8. 앱/웹 다운로드 처리
+                // 5. 앱 / 웹 브라우저 분기 다운로드
                 if (typeof appify !== 'undefined' && appify.isWebview) {
                     try {
                         if (appify.download && appify.download.base64Image) {
@@ -560,11 +526,17 @@
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 9. 캡쳐가 끝나면 화면 밖의 클론을 삭제하고 버튼 원상복구
-                if (captureWrapper.parentNode) {
-                    document.body.removeChild(captureWrapper);
+                // 6. 촬영이 완료되면 눈 깜짝할 새 화면을 원래 상태(숨김/버튼 노출)로 원상복구
+                if(saveBtn) saveBtn.style.display = '';
+                if(swiperBtn) swiperBtn.style.display = '';
+                if(moreBtn) moreBtn.style.display = '';
+                if(diaryDesc) {
+                    if (originalStyle === '') {
+                        diaryDesc.removeAttribute('style');
+                    } else {
+                        diaryDesc.setAttribute('style', originalStyle);
+                    }
                 }
-                if(saveBtn) saveBtn.style.opacity = '1';
             }
         }
 
