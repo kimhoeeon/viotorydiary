@@ -60,8 +60,7 @@
                                         <div class="txt_box">
                                             <div class="tit">${item.title}</div>
                                             <div class="date">
-                                                <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm"
-                                                               var="parsedDate" type="both"/>
+                                                <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
                                                 <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
                                             </div>
                                         </div>

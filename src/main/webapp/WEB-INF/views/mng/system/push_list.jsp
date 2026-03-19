@@ -76,6 +76,44 @@
                                         <form id="pushForm" action="/mng/system/push/send" method="post">
                                             <div class="row mb-5">
                                                 <div class="col-md-12">
+                                                    <label class="required fs-6 fw-semibold mb-2">발송 대상</label>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="form-check form-check-custom form-check-solid me-5">
+                                                            <input class="form-check-input" type="radio" name="targetType" value="ALL" id="targetAll" checked />
+                                                            <label class="form-check-label" for="targetAll">전체 발송</label>
+                                                        </div>
+                                                        <div class="form-check form-check-custom form-check-solid me-5">
+                                                            <input class="form-check-input" type="radio" name="targetType" value="TEAM" id="targetTeam" />
+                                                            <label class="form-check-label" for="targetTeam">구단별 발송</label>
+                                                        </div>
+                                                        <div class="form-check form-check-custom form-check-solid">
+                                                            <input class="form-check-input" type="radio" name="targetType" value="INACTIVE" id="targetInactive" />
+                                                            <label class="form-check-label" for="targetInactive">1주일 이내 미접속자</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-5" id="teamSelectWrapper" style="display: none;">
+                                                <div class="col-md-4">
+                                                    <label class="fs-6 fw-semibold mb-2">구단 선택</label>
+                                                    <select class="form-select form-select-solid" name="targetTeam">
+                                                        <option value="KIA">KIA 타이거즈</option>
+                                                        <option value="KT">KT 위즈</option>
+                                                        <option value="LG">LG 트윈스</option>
+                                                        <option value="NC">NC 다이노스</option>
+                                                        <option value="SSG">SSG 랜더스</option>
+                                                        <option value="두산">두산 베어스</option>
+                                                        <option value="롯데">롯데 자이언츠</option>
+                                                        <option value="삼성">삼성 라이온즈</option>
+                                                        <option value="키움">키움 히어로즈</option>
+                                                        <option value="한화">한화 이글스</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-5">
+                                                <div class="col-md-12">
                                                     <label class="required fs-6 fw-semibold mb-2">알림 제목</label>
                                                     <input type="text" class="form-control form-control-solid" name="title"
                                                            placeholder="예: [긴급] 오늘 경기 우천 취소 안내" required/>
@@ -141,9 +179,7 @@
                                                         <td><span class="badge badge-light-primary">전체</span></td>
                                                         <td>${item.sendCount}명</td>
                                                         <td>
-                                                            <fmt:parseDate value="${item.createdAt}"
-                                                                           pattern="yyyy-MM-dd'T'HH:mm:ss" var="sendDate"
-                                                                           type="both"/>
+                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="sendDate" type="both"/>
                                                             <fmt:formatDate value="${sendDate}" pattern="yyyy-MM-dd HH:mm"/>
                                                         </td>
                                                         <td><span class="badge badge-light-success">${item.status}</span>
@@ -172,8 +208,24 @@
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
     <script>
+        // 라디오 버튼 선택에 따른 구단 셀렉트박스 노출 처리
+        $('input[name="targetType"]').on('change', function() {
+            if ($(this).val() === 'TEAM') {
+                $('#teamSelectWrapper').show();
+            } else {
+                $('#teamSelectWrapper').hide();
+            }
+        });
+
         function confirmSend() {
-            return confirm("전체 회원에게 푸시 알림을 발송하시겠습니까?\n발송 후에는 취소할 수 없습니다.");
+            // 발송 대상에 따른 맞춤형 컨펌 메시지 제공
+            const target = $('input[name="targetType"]:checked').val();
+            let msg = "";
+            if(target === 'ALL') msg = "전체 회원에게";
+            else if(target === 'TEAM') msg = $('select[name="targetTeam"]').val() + " 구단 팬에게";
+            else msg = "1주일 이상 미접속자에게";
+
+            return confirm(msg + " 푸시 알림을 발송하시겠습니까?\n발송 후에는 취소할 수 없습니다.");
         }
     </script>
 </body>

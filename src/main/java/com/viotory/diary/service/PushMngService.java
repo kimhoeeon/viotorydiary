@@ -56,28 +56,33 @@ public class PushMngService {
      */
     @Transactional
     public void sendPush(PushLogVO vo) {
-        // 1. 발송 대상 토큰 조회 (전체 회원 중 토큰이 있는 사용자)
-        // Mapper에 selectAllFcmTokens 메서드를 추가해야 합니다.
-        List<String> tokens = pushMngMapper.selectAllFcmTokens();
+        // [추가] 발송 대상 DB 기록용 텍스트 변환
+        if ("TEAM".equals(vo.getTargetType())) {
+            vo.setTargetUser(vo.getTargetTeam() + " 팬");
+        } else if ("INACTIVE".equals(vo.getTargetType())) {
+            vo.setTargetUser("7일 이상 미접속자");
+        } else {
+            vo.setTargetUser("전체 회원");
+        }
+
+        // 1. 발송 대상 토큰 조건부 조회
+        List<String> tokens = pushMngMapper.selectTargetFcmTokens(vo.getTargetType(), vo.getTargetTeam());
 
         if (tokens == null || tokens.isEmpty()) {
-            log.warn("발송 가능한 FCM 토큰이 없습니다.");
+            log.warn("발송 가능한 FCM 토큰이 없습니다. Target: {}", vo.getTargetUser());
             vo.setSendCount(0);
-            vo.setStatus("NO_TARGET");
+            vo.setStatus("NO_TARGET"); // 전송 대상 없음
             pushMngMapper.insertPushLog(vo);
             return;
         }
 
         log.info(">>>> [PUSH START] Title: {}, Target Count: {}", vo.getTitle(), tokens.size());
 
-        // 2. FCM 발송 (최대 500개씩 끊어서 전송 - Firebase 권장사항)
         int successCount = 0;
         int failureCount = 0;
+        String linkUrl = (vo.getLinkUrl() != null && !vo.getLinkUrl().isEmpty()) ? vo.getLinkUrl() : "/";
 
-        // 링크 URL 처리 (없으면 메인으로)
-        String linkUrl = (vo.getLinkUrl() != null && !vo.getLinkUrl().isEmpty())
-                ? vo.getLinkUrl() : "/";
-
+        // 2. FCM 500건씩 분할 발송
         List<List<String>> batches = partition(tokens, 500);
 
         for (List<String> batchTokens : batches) {
@@ -87,9 +92,8 @@ public class PushMngService {
                                 .setTitle(vo.getTitle())
                                 .setBody(vo.getContent())
                                 .build())
-                        // Appify 앱이 이 data를 읽어 페이지를 이동시킵니다.
                         .putData("link", linkUrl)
-                        .putData("click_action", "FLUTTER_NOTIFICATION_CLICK") // 안드로이드 호환성용
+                        .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
                         .addAllTokens(batchTokens)
                         .build();
 
@@ -106,7 +110,11 @@ public class PushMngService {
 
         // 3. 발송 이력 저장
         vo.setSendCount(successCount);
-        vo.setStatus("SUCCESS"); // 부분 성공도 성공으로 간주
+        if (successCount == 0 && failureCount > 0) {
+            vo.setStatus("FAIL"); // 모두 실패
+        } else {
+            vo.setStatus("SUCCESS");
+        }
         pushMngMapper.insertPushLog(vo);
     }
 

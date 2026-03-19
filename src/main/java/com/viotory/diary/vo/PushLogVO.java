@@ -13,4 +13,7 @@ public class PushLogVO {
     private Integer sendCount;
     private String status;     // SUCCESS
     private LocalDateTime createdAt;
+
+    private String targetType; // ALL, TEAM, INACTIVE
+    private String targetTeam; // KIA, LG 등 선택된 구단
 }

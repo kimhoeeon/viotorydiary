@@ -2,6 +2,8 @@ package com.viotory.diary.mapper;
 
 import com.viotory.diary.vo.PushLogVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 @Mapper
@@ -15,5 +17,5 @@ public interface PushMngMapper {
     // 전체 회원 수 조회 (발송 대상 수 집계용)
     int countAllMembers();
 
-    List<String> selectAllFcmTokens();
+    List<String> selectTargetFcmTokens(@Param("targetType") String targetType, @Param("targetTeam") String targetTeam);
 }
