@@ -505,6 +505,7 @@
             });
 
             // 7. 스와이퍼 쏠림 방지 유지 + 가로 늘어남 방지 (Wrapper 크롭 기법)
+            // ⭐️ 7. [핵심] 스와이퍼 쏠림 방지 유지 + 가로 늘어남 방지 (Wrapper 크롭 기법)
             const swiperBox = target.querySelector('.swiper_box');
             const inquiryImg = target.querySelector('.inquiry_img');
             let tempWrapper = null;
@@ -512,7 +513,7 @@
             if (swiperBox && inquiryImg) {
                 const activeImg = swiperBox.querySelector('.swiper-slide-active img') || swiperBox.querySelector('.swiper-slide img');
                 if (activeImg) {
-                    const exactWidth = inquiryImg.offsetWidth || (target.offsetWidth - 40);
+                    // 자바스크립트로 exactWidth를 계산하는 코드를 삭제합니다.
 
                     setTempStyle(swiperBox, '; display: none !important;'); // 버그 덩어리 숨김
                     setTempStyle(inquiryImg, '; display: flex !important; justify-content: center !important; width: 100% !important;');
@@ -520,8 +521,9 @@
                     // 늘어남을 물리적으로 방지하기 위해, 픽셀이 고정된 '단단한 액자(Wrapper)'를 만듭니다.
                     tempWrapper = document.createElement('div');
                     tempWrapper.style.cssText = `
-                        width: ${exactWidth}px !important;
-                        height: 200px !important;
+                        width: calc(100% - 32px) !important;
+                        max-width: 100% !important;
+                        height: 200px !important; /* 원본 CSS의 min/max-height와 동일 */
                         border-radius: 8px !important;
                         overflow: hidden !important; /* 액자를 튀어나가면 잘라냄 */
                         display: flex !important;
