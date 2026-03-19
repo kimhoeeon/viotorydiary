@@ -461,114 +461,105 @@
             }
         }
 
-        // [가운데 정렬 완벽 보존 + 스와이퍼 늘어남 100% 방지]
+        // [가운데 정렬 완벽 보존 + 꿀렁임 원천 차단(복제 기법)]
         async function captureCard() {
-            const target = document.querySelector('.inquiry_item');
-            if(!target) return;
+            const originalTarget = document.querySelector('.inquiry_item');
+            if(!originalTarget) return;
 
-            // 2. 스타일 백업 도구
-            const oldStyles = new Map();
-            function setTempStyle(el, cssStr) {
-                if (!el) return;
-                if (!oldStyles.has(el)) oldStyles.set(el, el.getAttribute('style') || '');
-                el.style.cssText += cssStr;
-            }
+            // 2. [핵심 1: 꿀렁임 방지] 현재 화면을 100% 똑같이 복제하여 안 보이는 곳에 숨깁니다.
+            // (원본 화면은 단 1픽셀도 조작하지 않으므로 화면 덜컹거림이 아예 발생하지 않습니다!)
+            const captureWrapper = document.createElement('div');
+            captureWrapper.style.cssText = 'position: fixed; top: -9999px; left: -9999px; z-index: -9999;';
 
-            // 3. 캡쳐 방해 버튼들 숨김
-            target.querySelectorAll('.page-down, .capture-hide-btn, .more-btn, .swiper_btn, .more_box, a[onclick*="captureCard"]').forEach(el => {
-                setTempStyle(el, '; display: none !important;');
+            const clone = originalTarget.cloneNode(true);
+            clone.style.width = originalTarget.offsetWidth + 'px'; // 플렉스 레이아웃 붕괴 방지
+            clone.style.backgroundColor = '#ffffff';
+
+            captureWrapper.appendChild(clone);
+            document.body.appendChild(captureWrapper);
+
+            // 3. 복제본(clone) 내부의 방해 요소 제거 (화면에 안 보이므로 마음껏 조작 가능)
+            clone.querySelectorAll('.page-down, .capture-hide-btn, .more-btn, .swiper_btn, .more_box, a[onclick*="captureCard"]').forEach(el => {
+                el.style.setProperty('display', 'none', 'important');
             });
 
-            // 4. 숨겨진 일기 꽉 펼치기
-            const diaryDesc = target.querySelector('.diary_desc');
+            // 4. 복제본의 숨겨진 일기 꽉 펼치기
+            const diaryDesc = clone.querySelector('.diary_desc');
             if (diaryDesc) {
-                setTempStyle(diaryDesc, '; padding: 16px !important; margin-top: 16px !important; border-top: 1px solid #e1e1e1 !important; transition: none !important; max-height: none !important; height: auto !important; overflow: visible !important;');
+                diaryDesc.style.cssText += 'padding: 16px !important; margin-top: 16px !important; border-top: 1px solid #e1e1e1 !important; transition: none !important; max-height: none !important; height: auto !important; overflow: visible !important; display: block !important;';
             }
-            const txtGameList = target.querySelector('.txt_game_list');
+            const txtGameList = clone.querySelector('.txt_game_list');
             if (txtGameList) {
-                setTempStyle(txtGameList, '; max-height: none !important; height: auto !important;');
+                txtGameList.style.cssText += 'max-height: none !important; height: auto !important;';
             }
 
-            // 5. 말줄임표(..) 해제 (정렬 및 들여쓰기 원본 100% 보존)
-            target.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge), .player').forEach(el => {
-                setTempStyle(el, '; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; max-height: none !important;');
+            // 5. 말줄임표(..) 해제 (원본 들여쓰기 보존)
+            clone.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge), .player').forEach(el => {
+                el.style.cssText += '-webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; max-height: none !important;';
             });
 
-            // 6. [팀 로고 SVG 쏠림 자물쇠 유지]
-            target.querySelectorAll('.team, .game-info-wrap').forEach(wrap => {
-                setTempStyle(wrap, '; display: grid !important; justify-items: center !important; align-items: center !important; text-align: center !important;');
+            // 6. 팀 로고 SVG 쏠림 자물쇠 (완벽히 성공했던 정렬 코드 적용)
+            clone.querySelectorAll('.team, .game-info-wrap').forEach(wrap => {
+                wrap.style.cssText += 'display: grid !important; justify-items: center !important; align-items: center !important; text-align: center !important;';
             });
-            target.querySelectorAll('.team img').forEach(img => {
+            clone.querySelectorAll('.team img').forEach(img => {
                 img.setAttribute('width', '48');
                 img.setAttribute('height', '48');
-                setTempStyle(img, '; width: 48px !important; height: 48px !important; display: block !important; margin: 0 auto !important;');
+                img.style.cssText += 'width: 48px !important; height: 48px !important; display: block !important; margin: 0 auto !important;';
             });
 
-            // 7. 스와이퍼 쏠림 방지 유지 + 가로 늘어남 방지 (Wrapper 크롭 기법)
-            // ⭐️ 7. [핵심] 스와이퍼 쏠림 방지 유지 + 가로 늘어남 방지 (Wrapper 크롭 기법)
-            const swiperBox = target.querySelector('.swiper_box');
-            const inquiryImg = target.querySelector('.inquiry_img');
-            let tempWrapper = null;
+            // 7. [핵심 2: 쏠림 방지] 복제본에서 쏠림의 주범인 Swiper를 완전히 삭제하고 '순정 액자'로 교체합니다.
+            const swiperBox = clone.querySelector('.swiper_box');
+            const inquiryImg = clone.querySelector('.inquiry_img');
 
             if (swiperBox && inquiryImg) {
                 const activeImg = swiperBox.querySelector('.swiper-slide-active img') || swiperBox.querySelector('.swiper-slide img');
                 if (activeImg) {
-                    // 자바스크립트로 exactWidth를 계산하는 코드를 삭제합니다.
+                    // 복잡한 transform과 margin을 가진 Swiper를 복제본에서 완전히 뜯어냅니다.
+                    swiperBox.remove();
 
-                    setTempStyle(swiperBox, '; display: none !important;'); // 버그 덩어리 숨김
-                    setTempStyle(inquiryImg, '; display: flex !important; justify-content: center !important; width: 100% !important;');
-
-                    // 늘어남을 물리적으로 방지하기 위해, 픽셀이 고정된 '단단한 액자(Wrapper)'를 만듭니다.
-                    tempWrapper = document.createElement('div');
-                    tempWrapper.style.cssText = `
-                        width: calc(100% - 32px) !important;
-                        max-width: 100% !important;
-                        height: 200px !important; /* 원본 CSS의 min/max-height와 동일 */
+                    // 사용자님이 가장 마음에 들어하셨던, 1픽셀도 쏠리지 않는 완벽한 '정중앙 액자' 생성
+                    const perfectWrapper = document.createElement('div');
+                    perfectWrapper.style.cssText = `
+                        width: 100% !important;
+                        height: 200px !important;
+                        border: 1px solid #E0E3E8 !important;
                         border-radius: 8px !important;
-                        overflow: hidden !important; /* 액자를 튀어나가면 잘라냄 */
-                        display: flex !important;
-                        justify-content: center !important;
-                        align-items: center !important;
+                        overflow: hidden !important;
+                        display: block !important;
                         margin: 0 auto !important;
                         background-color: #25282F !important;
+                        box-sizing: border-box !important;
                     `;
 
-                    // 사진은 픽셀에 억지로 끼워 맞추지 않고, 자기 비율을 유지하며 액자 안에 꽉 차게 들어갑니다.
-                    const tempImg = document.createElement('img');
-                    tempImg.src = activeImg.src;
-                    tempImg.style.cssText = `
-                        min-width: 100% !important;
-                        min-height: 100% !important;
-                        width: auto !important;
-                        height: auto !important;
-                        max-width: none !important;
-                        max-height: none !important;
-                        flex-shrink: 0 !important;
+                    // 순수 사진은 액자 안에 100% 꽉 차게 삽입 (늘어남 방지)
+                    const perfectImg = document.createElement('img');
+                    perfectImg.src = activeImg.src;
+                    perfectImg.style.cssText = `
+                        width: 100% !important;
+                        height: 100% !important;
                         object-fit: cover !important;
                         display: block !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        border: none !important;
+                        transform: none !important;
                     `;
 
-                    tempWrapper.appendChild(tempImg);
-                    inquiryImg.appendChild(tempWrapper);
+                    perfectWrapper.appendChild(perfectImg);
+                    inquiryImg.appendChild(perfectWrapper);
                 }
             }
 
-            // 외부 Swiper CSS 캡쳐 충돌 방지
-            const swiperLink = document.querySelector('link[href*="swiper"]');
-            if (swiperLink) swiperLink.disabled = true;
-
-            // 스크롤 오프셋 버그 방지를 위해 스크롤 임시 이동
-            const originalScrollY = window.scrollY;
-            window.scrollTo(0, 0);
-
-            // 화면 안정화 0.3초 대기
+            // 화면 안정화 0.3초 대기 (사용자 화면은 아무 변화 없음)
             await new Promise(resolve => setTimeout(resolve, 300));
 
             try {
-                // 8. 캡쳐 실행
-                const imgData = await htmlToImage.toPng(target, {
+                // 8. 캡쳐 실행 (오류가 수정된 복제본을 캡쳐!)
+                const imgData = await htmlToImage.toPng(clone, {
                     pixelRatio: 2,
                     backgroundColor: '#ffffff',
+                    useCORS: true,
                     style: { transform: 'none' }
                 });
 
@@ -592,16 +583,8 @@
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 9. 100% 원상 복구
-                if (tempWrapper) tempWrapper.remove();
-                if (swiperLink) swiperLink.disabled = false;
-
-                oldStyles.forEach((val, el) => {
-                    if (val === '') el.removeAttribute('style');
-                    else el.setAttribute('style', val);
-                });
-
-                window.scrollTo(0, originalScrollY);
+                // 9. 캡쳐가 끝나면 메모리에서 복제본 완전 삭제
+                captureWrapper.remove();
             }
         }
 
