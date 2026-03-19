@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <title>경기 관리 | 승요일기 관리자</title>
+    <title>경기 데이터 관리 | 승요일기 관리자</title>
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
@@ -112,7 +112,7 @@
                                                         <th class="min-w-100px text-center">날짜/시간</th>
                                                         <th class="min-w-100px text-center">승리투수</th>
                                                         <th class="min-w-100px text-center">점수</th>
-                                                        <th class="min-w-125px">경기장소</th>
+                                                        <th class="min-w-50px text-center">경기장소</th>
                                                         <th class="min-w-125px text-center">직관 일기 작성 수</th>
                                                         <th class="min-w-80px text-center">관리</th>
                                                     </tr>
@@ -195,7 +195,7 @@
                                                                         </c:choose>
                                                                     </td>
 
-                                                                    <td>${empty item.stadiumName ? '-' : item.stadiumName}</td>
+                                                                    <td class="text-center">${empty item.stadiumName ? '-' : item.stadiumName}</td>
 
                                                                     <td class="text-center">
                                                                         <span class="fw-bold text-gray-800">${item.diaryCount}</span><span class="fs-8 text-muted fw-normal ms-1">건</span>

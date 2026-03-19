@@ -404,7 +404,6 @@ public class GameDataService {
     }
 
     // 홈팀 코드로 구장 ID 매핑 (DB의 stadiums 테이블 ID와 일치시켜야 함)
-    // 임시로 하드코딩된 ID를 리턴합니다. 추후 DB 조회로 변경 가능.
     private int mapStadiumId(String homeTeamCode) {
         if (homeTeamCode == null) return 0; // 알 수 없음
         switch (homeTeamCode) {
@@ -414,9 +413,9 @@ public class GameDataService {
             case "KT": return 4; // 수원
             case "HANWHA": return 5; // 대전
             case "SAMSUNG": return 6; // 대구
-            case "KIA": return 7; // 광주
-            case "LOTTE": return 8; // 사직
-            case "NC": return 9; // 창원
+            case "LOTTE": return 7; // 사직
+            case "NC": return 8; // 창원
+            case "KIA": return 9; // 광주
             default: return 0; // 기본값
         }
     }
