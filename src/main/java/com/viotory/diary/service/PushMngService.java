@@ -4,7 +4,9 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.*;
+import com.viotory.diary.mapper.AlarmMapper;
 import com.viotory.diary.mapper.PushMngMapper;
+import com.viotory.diary.vo.AlarmVO;
 import com.viotory.diary.vo.PushLogVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ import java.util.List;
 public class PushMngService {
 
     private final PushMngMapper pushMngMapper;
+    private final AlarmMapper alarmMapper;
 
     /**
      * Firebase 초기화 (서버 시작 시 1회 실행)
@@ -56,7 +59,6 @@ public class PushMngService {
      */
     @Transactional
     public void sendPush(PushLogVO vo) {
-        // [추가] 발송 대상 DB 기록용 텍스트 변환
         if ("TEAM".equals(vo.getTargetType())) {
             vo.setTargetUser(vo.getTargetTeam() + " 팬");
         } else if ("INACTIVE".equals(vo.getTargetType())) {
@@ -65,66 +67,76 @@ public class PushMngService {
             vo.setTargetUser("전체 회원");
         }
 
-        // 1. 발송 대상 토큰 조건부 조회
-        List<String> tokens = pushMngMapper.selectTargetFcmTokens(vo.getTargetType(), vo.getTargetTeam());
+        // 1. 타겟 유저(ID) 조회
+        List<Long> targetMemberIds = pushMngMapper.selectTargetMemberIds(vo.getTargetType(), vo.getTargetTeam());
 
-        if (tokens == null || tokens.isEmpty()) {
-            log.warn("발송 가능한 FCM 토큰이 없습니다. Target: {}", vo.getTargetUser());
+        if (targetMemberIds == null || targetMemberIds.isEmpty()) {
+            log.warn("발송 가능한 대상이 없습니다. Target: {}", vo.getTargetUser());
             vo.setSendCount(0);
-            vo.setStatus("NO_TARGET"); // 전송 대상 없음
+            vo.setStatus("NO_TARGET");
             pushMngMapper.insertPushLog(vo);
             return;
         }
 
-        log.info(">>>> [PUSH START] Title: {}, Target Count: {}", vo.getTitle(), tokens.size());
+        log.info(">>>> [ALARM/PUSH START] Title: {}, Target Count: {}", vo.getTitle(), targetMemberIds.size());
 
-        int successCount = 0;
-        int failureCount = 0;
         String linkUrl = (vo.getLinkUrl() != null && !vo.getLinkUrl().isEmpty()) ? vo.getLinkUrl() : "/";
 
-        // 2. FCM 500건씩 분할 발송
-        List<List<String>> batches = partition(tokens, 500);
+        // 2. 웹사이트 DB(알림 리스트)에 저장
+        for (Long memberId : targetMemberIds) {
+            AlarmVO alarm = new AlarmVO();
+            alarm.setMemberId(memberId);
+            alarm.setCategory("SYSTEM"); // [수정] VO 변수명 맞춤
+            alarm.setTitle(vo.getTitle()); // [추가] 방금 추가한 Title
+            alarm.setContent(vo.getContent());
+            alarm.setRedirectUrl(linkUrl); // [수정] VO 변수명 맞춤
+            alarmMapper.insertAlarm(alarm);
+        }
 
-        for (List<String> batchTokens : batches) {
-            try {
-                MulticastMessage message = MulticastMessage.builder()
-                        .setNotification(Notification.builder()
-                                .setTitle(vo.getTitle())
-                                .setBody(vo.getContent())
-                                .build())
-                        .putData("link", linkUrl)
-                        .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
-                        .addAllTokens(batchTokens)
-                        .build();
+        // 3. 기기 푸시(FCM) 발송 로직 (추후 Key 발급 시 즉시 동작)
+        List<String> tokens = pushMngMapper.selectTargetFcmTokens(vo.getTargetType(), vo.getTargetTeam());
+        int successCount = 0;
+        int failureCount = 0;
 
-                BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
-                successCount += response.getSuccessCount();
-                failureCount += response.getFailureCount();
+        if (tokens != null && !tokens.isEmpty()) {
+            List<List<String>> batches = partition(tokens, 500);
 
-            } catch (FirebaseMessagingException e) {
-                log.error("FCM Send Error: ", e);
+            for (List<String> batchTokens : batches) {
+                try {
+                    MulticastMessage message = MulticastMessage.builder()
+                            .setNotification(Notification.builder()
+                                    .setTitle(vo.getTitle())
+                                    .setBody(vo.getContent())
+                                    .build())
+                            .putData("link", linkUrl)
+                            .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                            .addAllTokens(batchTokens)
+                            .build();
+
+                    BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
+                    successCount += response.getSuccessCount();
+                    failureCount += response.getFailureCount();
+
+                } catch (FirebaseMessagingException e) {
+                    log.error("FCM Send Error: ", e);
+                }
             }
         }
 
-        log.info(">>>> [PUSH END] Success: {}, Fail: {}", successCount, failureCount);
+        log.info(">>>> [ALARM/PUSH END] DB 알림: {}건, FCM Success: {}, Fail: {}", targetMemberIds.size(), successCount, failureCount);
 
-        // 3. 발송 이력 저장
-        vo.setSendCount(successCount);
-        if (successCount == 0 && failureCount > 0) {
-            vo.setStatus("FAIL"); // 모두 실패
-        } else {
-            vo.setStatus("SUCCESS");
-        }
+        // 4. 발송 로그 저장
+        vo.setSendCount(targetMemberIds.size());
+        vo.setStatus("SUCCESS");
         pushMngMapper.insertPushLog(vo);
     }
 
-    // 리스트 분할 유틸 메서드
     private <T> List<List<T>> partition(List<T> list, int size) {
-        List<List<T>> parts = new ArrayList<>();
-        final int N = list.size();
-        for (int i = 0; i < N; i += size) {
-            parts.add(new ArrayList<>(list.subList(i, Math.min(N, i + size))));
+        List<List<T>> partitions = new ArrayList<>();
+        for (int i = 0; i < list.size(); i += size) {
+            partitions.add(new ArrayList<>(list.subList(i, Math.min(i + size, list.size()))));
         }
-        return parts;
+        return partitions;
     }
+
 }

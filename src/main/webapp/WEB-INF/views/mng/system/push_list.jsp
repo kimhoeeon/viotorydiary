@@ -119,6 +119,7 @@
                                                            placeholder="예: [긴급] 오늘 경기 우천 취소 안내" required/>
                                                 </div>
                                             </div>
+
                                             <div class="row mb-5">
                                                 <div class="col-md-12">
                                                     <label class="required fs-6 fw-semibold mb-2">알림 내용</label>
@@ -126,6 +127,7 @@
                                                               rows="3" placeholder="내용을 입력하세요." required></textarea>
                                                 </div>
                                             </div>
+
                                             <div class="row mb-5">
                                                 <div class="col-md-12">
                                                     <label class="fs-6 fw-semibold mb-2">이동 링크 (Deep Link)</label>
@@ -133,6 +135,7 @@
                                                            name="linkUrl" placeholder="예: /mng/event/detail?id=5 (선택사항)"/>
                                                 </div>
                                             </div>
+
                                             <div class="d-flex justify-content-end">
                                                 <button type="submit" class="btn btn-primary"
                                                         onclick="return confirmSend()">
@@ -172,8 +175,9 @@
                                                         <td class="text-gray-800 fw-bold">${item.title}</td>
                                                         <td>${item.content}</td>
                                                         <td>
-                                                            <c:if test="${not empty item.linkUrl}"><span
-                                                                    class="badge badge-light">${item.linkUrl}</span></c:if>
+                                                            <c:if test="${not empty item.linkUrl}">
+                                                                <span class="badge badge-light">${item.linkUrl}</span>
+                                                            </c:if>
                                                             <c:if test="${empty item.linkUrl}">-</c:if>
                                                         </td>
                                                         <td><span class="badge badge-light-primary">전체</span></td>

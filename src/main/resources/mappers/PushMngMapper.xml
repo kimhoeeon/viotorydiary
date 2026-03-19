@@ -31,4 +31,16 @@
         </if>
     </select>
 
+    <select id="selectTargetMemberIds" resultType="long">
+        SELECT member_id
+        FROM members
+        WHERE status = 'ACTIVE'
+        <if test="targetType == 'TEAM' and targetTeam != null and targetTeam != ''">
+            AND my_team_code = #{targetTeam}
+        </if>
+        <if test="targetType == 'INACTIVE'">
+            AND (last_login_at <![CDATA[ <= ]]> DATE_SUB(NOW(), INTERVAL 7 DAY) OR last_login_at IS NULL)
+        </if>
+    </select>
+
 </mapper>

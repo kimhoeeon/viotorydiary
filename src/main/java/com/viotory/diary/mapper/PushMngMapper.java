@@ -18,4 +18,6 @@ public interface PushMngMapper {
     int countAllMembers();
 
     List<String> selectTargetFcmTokens(@Param("targetType") String targetType, @Param("targetTeam") String targetTeam);
+
+    List<Long> selectTargetMemberIds(@Param("targetType") String targetType, @Param("targetTeam") String targetTeam);
 }
