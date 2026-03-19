@@ -7,13 +7,13 @@
         SELECT *
         FROM alarms
         WHERE member_id = #{memberId}
-          AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)
+          AND created_at <![CDATA[>]]> DATE_SUB(NOW(), INTERVAL 7 DAY)
         ORDER BY created_at DESC
     </select>
 
-    <insert id="insertAlarm">
-        INSERT INTO alarms (member_id, category, content, redirect_url, is_read, created_at)
-        VALUES (#{memberId}, #{category}, #{content}, #{redirectUrl}, 0, NOW())
+    <insert id="insertAlarm" parameterType="com.viotory.diary.vo.AlarmVO">
+        INSERT INTO alarms (member_id, category, title, content, redirect_url, is_read, created_at)
+        VALUES (#{memberId}, #{category}, #{title}, #{content}, #{redirectUrl}, 0, NOW())
     </insert>
 
     <update id="updateReadStatus">
@@ -28,19 +28,19 @@
         FROM alarms
         WHERE member_id = #{memberId}
           AND is_read = 0
-          AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)
+          AND created_at <![CDATA[>]]> DATE_SUB(NOW(), INTERVAL 7 DAY)
     </select>
-
-    <delete id="deleteOldAlarms">
-        DELETE FROM alarms
-        WHERE created_at &lt; DATE_SUB(NOW(), INTERVAL 7 DAY)
-    </delete>
 
     <select id="selectUnreadCount" parameterType="long" resultType="int">
         SELECT COUNT(*)
         FROM alarms
         WHERE member_id = #{memberId}
-          AND is_read = 'N'
+          AND is_read = 0
     </select>
+
+    <delete id="deleteOldAlarms">
+        DELETE FROM alarms
+        WHERE created_at <![CDATA[<]]> DATE_SUB(NOW(), INTERVAL 7 DAY)
+    </delete>
 
 </mapper>
