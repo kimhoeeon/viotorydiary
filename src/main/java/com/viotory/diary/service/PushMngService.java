@@ -86,10 +86,10 @@ public class PushMngService {
         for (Long memberId : targetMemberIds) {
             AlarmVO alarm = new AlarmVO();
             alarm.setMemberId(memberId);
-            alarm.setCategory("SYSTEM"); // [수정] VO 변수명 맞춤
-            alarm.setTitle(vo.getTitle()); // [추가] 방금 추가한 Title
+            alarm.setCategory("SYSTEM"); // VO 변수명 맞춤
+            alarm.setTitle(vo.getTitle()); // 방금 추가한 Title
             alarm.setContent(vo.getContent());
-            alarm.setRedirectUrl(linkUrl); // [수정] VO 변수명 맞춤
+            alarm.setRedirectUrl(linkUrl); // VO 변수명 맞춤
             alarmMapper.insertAlarm(alarm);
         }
 
