@@ -46,6 +46,10 @@
           AND status != 'WITHDRAWN'
     </select>
 
+    <select id="selectMembersByPhoneNumber" parameterType="string" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT * FROM members WHERE phone_number = #{phoneNumber} ORDER BY updated_at DESC
+    </select>
+
     <select id="selectMemberById" parameterType="long" resultType="com.viotory.diary.vo.MemberVO">
         SELECT
             m.*,

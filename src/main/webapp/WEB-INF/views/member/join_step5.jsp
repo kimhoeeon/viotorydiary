@@ -151,8 +151,14 @@
                 } else if(res === 'duplicate_phone') {
                     // 중복 연락처인 경우 알럿 띄우고 발송 중단
                     alert('이미 가입된 연락처입니다.\n로그인이나 비밀번호 찾기를 이용해 주세요.');
+                } else if(res === 'suspended') {
+                    // [추가] 영구 정지된 계정의 연락처인 경우
+                    alert('운영정책 위반으로 영구 정지된 연락처이므로 가입할 수 없습니다.');
+                } else if(res === 'withdrawn_7days') {
+                    // [추가] 탈퇴 후 7일이 지나지 않은 경우
+                    alert('탈퇴 후 7일간은 동일한 연락처로 재가입할 수 없습니다.');
                 } else {
-                    // 실패 시 페이지 이동
+                    // 기타 실패 시 (발송 건수 초과 등) 페이지 이동
                     location.href = '/member/sms/fail?msg=' + encodeURIComponent(res);
                 }
             }).fail(function() {

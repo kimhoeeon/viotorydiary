@@ -145,6 +145,16 @@ public class MemberController {
                 return "member/join_social_bridge"; // 정보를 세션스토리지에 담는 중간 페이지
             }
 
+            // 3. 기존 회원 -> 정지 및 탈퇴 계정 로그인 및 재가입 차단 ▼
+            if ("WITHDRAWN".equals(member.getStatus())) {
+                model.addAttribute("message", "탈퇴한 계정입니다.");
+                return "member/login";
+            }
+            if ("SUSPENDED".equals(member.getStatus())) {
+                model.addAttribute("message", "운영정책 위반으로 활동이 영구 정지된 계정입니다.");
+                return "member/login"; // 로그인 차단으로 재가입(연동)도 원천 봉쇄됨
+            }
+
             // 3. 기존 회원 -> 로그인 처리
             session.setAttribute("loginMember", member);
 
@@ -374,11 +384,12 @@ public class MemberController {
                     return "is_kakao";
                 }
             }
-            // 2. 회원가입 시 검증 로직 추가 (이미 가입된 번호면 SMS 발송 즉시 차단)
+            // 2. 회원가입 시 검증 로직 추가 (이미 가입, 정지, 탈퇴된 번호면 SMS 발송 즉시 차단)
             else if ("JOIN".equals(type)) {
-                if (memberService.checkDuplicatePhone(cleanNumber)) {
-                    return "duplicate_phone";
-                }
+                String restriction = memberService.checkPhoneJoinRestriction(cleanNumber);
+                if ("suspended".equals(restriction)) return "suspended";
+                if ("duplicate".equals(restriction)) return "duplicate_phone";
+                if ("withdrawn_7days".equals(restriction)) return "withdrawn_7days";
             }
 
             // 위 검증을 모두 무사히 통과했을 때만 최종 SMS 발송

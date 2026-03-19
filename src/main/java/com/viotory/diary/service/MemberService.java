@@ -67,11 +67,30 @@ public class MemberService {
             throw new AlertException("이미 사용 중인 닉네임입니다.");
         }
 
-        // 연락처 중복 체크 (이메일 / 카카오 공통 적용)
+        // 연락처 중복 및 가입 제한 2차 체크 (이메일 / 카카오 공통 적용)
         if (member.getPhoneNumber() != null && !member.getPhoneNumber().isEmpty()) {
             String cleanPhone = member.getPhoneNumber().replaceAll("-", "");
-            if (memberMapper.countByPhoneNumber(cleanPhone) > 0) {
-                throw new AlertException("이미 가입된 연락처입니다.\n다른 연락처를 사용해 주세요.");
+
+            List<MemberVO> historyMembers = memberMapper.selectMembersByPhoneNumber(cleanPhone);
+
+            for (MemberVO hist : historyMembers) {
+                if ("SUSPENDED".equals(hist.getStatus())) {
+                    throw new AlertException("운영정책 위반으로 영구 정지된 연락처이므로 가입할 수 없습니다.");
+                }
+                if ("ACTIVE".equals(hist.getStatus())) {
+                    throw new AlertException("이미 가입된 연락처입니다.\n다른 연락처를 사용해 주세요.");
+                }
+            }
+
+            for (MemberVO hist : historyMembers) {
+                if ("WITHDRAWN".equals(hist.getStatus())) {
+                    // 탈퇴 후 7일 경과 여부 확인
+                    if (hist.getUpdatedAt() != null && LocalDateTime.now().isBefore(hist.getUpdatedAt().plusDays(7))) {
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시 mm분");
+                        String availableDate = hist.getUpdatedAt().plusDays(7).format(formatter);
+                        throw new AlertException("탈퇴 후 7일간은 동일한 연락처로 가입할 수 없습니다.\n(" + availableDate + " 이후 가입 가능)");
+                    }
+                }
             }
             member.setPhoneNumber(cleanPhone); // DB 저장 시 하이픈(-) 제거하여 깔끔하게 저장
         }
@@ -675,6 +694,29 @@ public class MemberService {
         } catch (Exception e) {
             log.error("접속 로그 기록 실패", e);
         }
+    }
+
+    /**
+     * [추가] SMS 발송 전 연락처 가입 제한 상태 체크
+     */
+    public String checkPhoneJoinRestriction(String phoneNumber) {
+        List<MemberVO> historyMembers = memberMapper.selectMembersByPhoneNumber(phoneNumber);
+
+        // 1순위: 영구 정지 및 중복 여부 확인
+        for (MemberVO hist : historyMembers) {
+            if ("SUSPENDED".equals(hist.getStatus())) return "suspended";
+            if ("ACTIVE".equals(hist.getStatus())) return "duplicate";
+        }
+
+        // 2순위: 탈퇴 후 7일 경과 여부 확인
+        for (MemberVO hist : historyMembers) {
+            if ("WITHDRAWN".equals(hist.getStatus())) {
+                if (hist.getUpdatedAt() != null && LocalDateTime.now().isBefore(hist.getUpdatedAt().plusDays(7))) {
+                    return "withdrawn_7days";
+                }
+            }
+        }
+        return "ok";
     }
 
 }
