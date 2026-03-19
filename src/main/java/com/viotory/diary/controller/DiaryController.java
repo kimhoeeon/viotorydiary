@@ -219,7 +219,7 @@ public class DiaryController {
                 return "<script>alert('수정 권한이 없습니다.'); history.back();</script>";
             }
 
-            // 3. [핵심] 경기 시작 1시간 전 체크
+            // 3. 경기 시작 1시간 전 체크
             // 원본 일기의 경기 정보를 가져옴
             GameVO game = gameService.getGameById(originalDiary.getGameId());
             boolean isScoreEditable = true;

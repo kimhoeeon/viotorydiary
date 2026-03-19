@@ -309,7 +309,7 @@ public class GameDataService {
                 }
             }
 
-            // 9. [핵심] MVP(수훈선수) 저장
+            // 9. MVP(수훈선수) 저장
             // 별도 API 호출 없이 리스트에 있는 '승리 투수' 정보를 MVP로 활용
             String mvpPlayer = null;
             if ("FINISHED".equals(status) && !isCancel) {

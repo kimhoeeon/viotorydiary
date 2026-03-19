@@ -461,20 +461,10 @@
             }
         }
 
-        // ⭐️ [가운데 정렬 완벽 보존 + 스와이퍼 늘어남 100% 방지]
+        // [가운데 정렬 완벽 보존 + 스와이퍼 늘어남 100% 방지]
         async function captureCard() {
             const target = document.querySelector('.inquiry_item');
             if(!target) return;
-
-            // 1. html-to-image 로드
-            if (typeof htmlToImage === 'undefined') {
-                await new Promise((resolve) => {
-                    const script = document.createElement('script');
-                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js';
-                    script.onload = resolve;
-                    document.head.appendChild(script);
-                });
-            }
 
             // 2. 스타일 백업 도구
             const oldStyles = new Map();
@@ -485,7 +475,7 @@
             }
 
             // 3. 캡쳐 방해 버튼들 숨김
-            target.querySelectorAll('.page-down, .capture-hide-btn, .more-btn, .swiper_btn, .more_box, a[onclick*="captureCard"], button[onclick*="captureCard"]').forEach(el => {
+            target.querySelectorAll('.page-down, .capture-hide-btn, .more-btn, .swiper_btn, .more_box, a[onclick*="captureCard"]').forEach(el => {
                 setTempStyle(el, '; display: none !important;');
             });
 
@@ -504,7 +494,7 @@
                 setTempStyle(el, '; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; max-height: none !important;');
             });
 
-            // 6. [성공했던 팀 로고 SVG 쏠림 자물쇠 유지]
+            // 6. [팀 로고 SVG 쏠림 자물쇠 유지]
             target.querySelectorAll('.team, .game-info-wrap').forEach(wrap => {
                 setTempStyle(wrap, '; display: grid !important; justify-items: center !important; align-items: center !important; text-align: center !important;');
             });
@@ -514,7 +504,7 @@
                 setTempStyle(img, '; width: 48px !important; height: 48px !important; display: block !important; margin: 0 auto !important;');
             });
 
-            // ⭐️ 7. [핵심] 스와이퍼 쏠림 방지 유지 + 가로 늘어남 방지 (Wrapper 크롭 기법)
+            // 7. 스와이퍼 쏠림 방지 유지 + 가로 늘어남 방지 (Wrapper 크롭 기법)
             const swiperBox = target.querySelector('.swiper_box');
             const inquiryImg = target.querySelector('.inquiry_img');
             let tempWrapper = null;

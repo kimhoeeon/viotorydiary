@@ -87,7 +87,7 @@ public class PushMngService {
                                 .setTitle(vo.getTitle())
                                 .setBody(vo.getContent())
                                 .build())
-                        // [핵심] Appify 앱이 이 data를 읽어 페이지를 이동시킵니다.
+                        // Appify 앱이 이 data를 읽어 페이지를 이동시킵니다.
                         .putData("link", linkUrl)
                         .putData("click_action", "FLUTTER_NOTIFICATION_CLICK") // 안드로이드 호환성용
                         .addAllTokens(batchTokens)
