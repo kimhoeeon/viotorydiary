@@ -63,7 +63,7 @@
         <if test="teamCode != null and teamCode != '' and teamCode != 'ALL'">
             AND team_code = #{teamCode}
         </if>
-        ORDER BY sort_order ASC, created_at DESC
+        ORDER BY created_at DESC, sort_order ASC
         <if test="limit != null">
             LIMIT #{limit}
         </if>

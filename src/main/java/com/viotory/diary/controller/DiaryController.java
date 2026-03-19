@@ -58,6 +58,7 @@ public class DiaryController {
         }
 
         boolean isScoreEditable = true; // 기본적으로 스코어 작성 가능 상태
+        boolean isVerifyPossible = true; // [추가] 기본적으로 직관 인증 가능 상태
 
         // 메인에서 '오늘의 경기 기록하기'로 넘어온 경우, 해당 경기 정보를 미리 세팅
         if (gameId != null) {
@@ -81,6 +82,7 @@ public class DiaryController {
                 // 신규 작성 시에도 경기 종료/취소 또는 시작 1시간 이후면 스코어 입력 차단
                 if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
                     isScoreEditable = false;
+                    isVerifyPossible = false; // [추가] 이미 종료되거나 취소된 경기는 인증 불가
                 } else {
                     try {
                         String timeStr = game.getGameTime();
@@ -92,6 +94,11 @@ public class DiaryController {
                         if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
                             isScoreEditable = false;
                         }
+
+                        // [추가] 경기 시작 후 1시간이 지났으면 직관 인증 불가
+                        if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
+                            isVerifyPossible = false;
+                        }
                     } catch (Exception e) {
                         log.error("경기 시작시간 파싱 오류", e);
                     }
@@ -100,6 +107,7 @@ public class DiaryController {
         }
 
         model.addAttribute("isScoreEditable", isScoreEditable);
+        model.addAttribute("isVerifyPossible", isVerifyPossible);
 
         return "diary/diary_write"; // views/diary/diary_write.jsp
     }
@@ -169,18 +177,28 @@ public class DiaryController {
 
         // 스코어 수정 가능 여부 판단
         boolean isScoreEditable = true;
+        boolean isVerifyPossible = true;
+
         if (game != null) {
             if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
                 isScoreEditable = false;
+                isVerifyPossible = false;
             } else {
                 try {
                     String timeStr = game.getGameTime();
                     if (timeStr != null && timeStr.length() == 5) timeStr += ":00"; // HH:mm 초단위 예외 처리
                     String dateTimeStr = game.getGameDate() + " " + timeStr;
                     LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
                     if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
                         isScoreEditable = false;
                     }
+
+                    // [추가] 경기 시작 후 1시간이 지났으면 직관 인증 불가
+                    if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
+                        isVerifyPossible = false;
+                    }
+
                 } catch (Exception e) {
                     log.error("경기 시작시간 파싱 오류", e);
                 }
@@ -190,6 +208,7 @@ public class DiaryController {
         model.addAttribute("diary", diary);
         model.addAttribute("game", game);
         model.addAttribute("isScoreEditable", isScoreEditable);
+        model.addAttribute("isVerifyPossible", isVerifyPossible);
 
         return "diary/diary_update";
     }
@@ -556,6 +575,26 @@ public class DiaryController {
             // 1. 경기 정보 조회
             GameVO game = gameService.getGameById(gameId);
             if (game == null) return "fail:game_not_found";
+
+            // [추가] 1-1. 취소/종료된 경기는 인증 불가
+            if ("CANCELLED".equals(game.getStatus()) || "FINISHED".equals(game.getStatus())) {
+                return "fail:game_ended";
+            }
+
+            // [추가] 1-2. 시간 검증: 경기 시작 1시간 후에는 인증 불가
+            try {
+                String timeStr = game.getGameTime();
+                if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
+                String dateTimeStr = game.getGameDate() + " " + timeStr;
+                LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+                if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
+                    return "fail:timeout"; // 경기 시작 1시간 초과로 인증 불가
+                }
+            } catch (Exception e) {
+                log.error("GPS 인증 - 경기 시간 파싱 오류", e);
+                return "fail:error";
+            }
 
             // 2. 구장 정보 및 좌표 조회
             StadiumVO stadium = gameService.getStadium(game.getStadiumId());
