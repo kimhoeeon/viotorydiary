@@ -461,29 +461,7 @@
             }
         }
 
-        // ⭐️ [가장 완벽한 최종 정답] html-to-image 순정 캡쳐 (백화현상 & iOS Flex 쏠림 버그 완벽 차단)
-        // ⭐️ [진짜 최종 정답] Swiper 해체 + iOS/Safari 쏠림 버그 완벽 차단 기법
-        // ⭐️ [진짜 최종 완성본] 레이아웃 100% 보존 + SVG/스와이퍼 쏠림 완벽 자물쇠
-        // ⭐️ [가장 완벽한 최종 정답] 퍼블리싱 정렬 100% 보존, 팀 로고 & 사진 쏠림만 타겟팅 해결
-        // ⭐️ [진정한 최종본] 기존 정렬(Flexbox) 100% 보존 + 쏠림 버그만 타겟팅 해결
-        // ⭐️ [진짜 최종 완성본] 이미지/로고 쏠림 라이브러리 버그 완벽 회피
-        // ⭐️ [진짜 최종 완성본] 팀 로고 정렬 유지 + 스와이퍼 이미지 픽셀 고정으로 쏠림 완전 차단
-        // ⭐️ [진짜 최종 완성본] 원본 렌더링 너비 추출로 스와이퍼 늘어남 100% 방지
-        // ⭐️ [진짜 최종 완성본] CSS 버그를 우회하는 수학적 사진 크롭 기법 적용
-        // ⭐️ [진정한 최종본] 이미지 증발(Base64) 방지 및 가로 늘어남 완벽 차단
-        // ⭐️ [진정한 최종본] 라이브러리 버그를 100% 무력화하는 수학적 Margin Crop 기법
-        // ⭐️ [진정한 최종 완성본] Safari 이미지 늘어남 버그 완벽 무력화 (Canvas Baking)
-        // ⭐️ [진정한 최종 완성본] SVG 크기 상실 버그 및 Safari 늘어남 버그 100% 완벽 무력화
-        // ⭐️ [진짜 최종 완성본] 사용자님 제안 적용: 사이즈 조작 전면 금지, 오직 '정렬'만 우회
-        // ⭐️ [진정한 최종본] 사이즈 조작 전면 금지! CSS 원본 크기 유지 + 순수 Flex 정렬만 적용
-        // ⭐️ [진짜 최종 완성본] 원본 DOM 보존으로 깜빡임(수축/팽창) 해결 + 복제본 정중앙 배치
-        // ⭐️ [진짜 최종 완성본] 원본 DOM 보존으로 깜빡임(수축/팽창) 해결 + 순수 이미지 오버레이로 쏠림 차단
-        // ⭐️ [진정한 최후의 해답] 자바스크립트 DOM 조작 0%, 순수 CSS 주입으로 쏠림/늘어남 100% 통제
-        // ⭐️ [진정한 최후의 해답] 화면 꿀렁임 0% + 인라인 transform/margin 압수로 쏠림 100% 완벽 차단
-        // ⭐️ [진정한 최종본] 흔들림(수축) 방지 + Transform을 뺀 완벽한 고정 좌표(Overlay) 적용
-        // ⭐️ [절대 실패할 수 없는 최종 정답] 모바일 Safari SVG 폭주 및 Swiper 쏠림 100% 영구 차단
-        // ⭐️ [절대 실패할 수 없는 최종 정답] SVG 폭주 원천 차단 (배경 렌더링) + 백화현상 해결
-        // ⭐️ [가운데 정렬 복구본] 팀 로고 정렬 유지 + 스와이퍼 이미지 픽셀 고정으로 쏠림 완전 차단
+        // ⭐️ [가운데 정렬 완벽 보존 + 스와이퍼 늘어남 100% 방지]
         async function captureCard() {
             const target = document.querySelector('.inquiry_item');
             if(!target) return;
@@ -526,7 +504,7 @@
                 setTempStyle(el, '; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; max-height: none !important;');
             });
 
-            // 6. [성공했던 팀 로고 SVG 쏠림 자물쇠]
+            // 6. [성공했던 팀 로고 SVG 쏠림 자물쇠 유지]
             target.querySelectorAll('.team, .game-info-wrap').forEach(wrap => {
                 setTempStyle(wrap, '; display: grid !important; justify-items: center !important; align-items: center !important; text-align: center !important;');
             });
@@ -536,32 +514,50 @@
                 setTempStyle(img, '; width: 48px !important; height: 48px !important; display: block !important; margin: 0 auto !important;');
             });
 
-            // ⭐️ 7. [성공했던 스와이퍼 쏠림 및 SVG 폭주 차단] 100% 대신 '정확한 픽셀'을 박아 넣어 정중앙에 고정
+            // ⭐️ 7. [핵심] 스와이퍼 쏠림 방지 유지 + 가로 늘어남 방지 (Wrapper 크롭 기법)
             const swiperBox = target.querySelector('.swiper_box');
             const inquiryImg = target.querySelector('.inquiry_img');
-            let tempImg = null;
+            let tempWrapper = null;
 
             if (swiperBox && inquiryImg) {
                 const activeImg = swiperBox.querySelector('.swiper-slide-active img') || swiperBox.querySelector('.swiper-slide img');
                 if (activeImg) {
-                    // 상대값(100%) 대신 절대 픽셀 너비를 추출하여 캡쳐 엔진이 크기를 잃어버리지 않게 만듭니다.
                     const exactWidth = inquiryImg.offsetWidth || (target.offsetWidth - 40);
 
                     setTempStyle(swiperBox, '; display: none !important;'); // 버그 덩어리 숨김
                     setTempStyle(inquiryImg, '; display: flex !important; justify-content: center !important; width: 100% !important;');
 
-                    // 순수 img 태그에 픽셀 자물쇠 채우기
-                    tempImg = document.createElement('img');
-                    tempImg.src = activeImg.src;
-                    tempImg.style.cssText = `
+                    // 늘어남을 물리적으로 방지하기 위해, 픽셀이 고정된 '단단한 액자(Wrapper)'를 만듭니다.
+                    tempWrapper = document.createElement('div');
+                    tempWrapper.style.cssText = `
                         width: ${exactWidth}px !important;
                         height: 200px !important;
-                        object-fit: cover !important;
-                        border-radius: 12px !important;
-                        display: block !important;
+                        border-radius: 8px !important;
+                        overflow: hidden !important; /* 액자를 튀어나가면 잘라냄 */
+                        display: flex !important;
+                        justify-content: center !important;
+                        align-items: center !important;
                         margin: 0 auto !important;
+                        background-color: #25282F !important;
                     `;
-                    inquiryImg.appendChild(tempImg);
+
+                    // 사진은 픽셀에 억지로 끼워 맞추지 않고, 자기 비율을 유지하며 액자 안에 꽉 차게 들어갑니다.
+                    const tempImg = document.createElement('img');
+                    tempImg.src = activeImg.src;
+                    tempImg.style.cssText = `
+                        min-width: 100% !important;
+                        min-height: 100% !important;
+                        width: auto !important;
+                        height: auto !important;
+                        max-width: none !important;
+                        max-height: none !important;
+                        flex-shrink: 0 !important;
+                        object-fit: cover !important;
+                        display: block !important;
+                    `;
+
+                    tempWrapper.appendChild(tempImg);
+                    inquiryImg.appendChild(tempWrapper);
                 }
             }
 
@@ -605,7 +601,7 @@
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
                 // 9. 100% 원상 복구
-                if (tempImg) tempImg.remove();
+                if (tempWrapper) tempWrapper.remove();
                 if (swiperLink) swiperLink.disabled = false;
 
                 oldStyles.forEach((val, el) => {
