@@ -55,8 +55,13 @@
               <div class="page-tit">직관일기</div>
 
               <div class="location-certify">
-                  <button class="btn btn-certify w-auto" type="button" id="btnVerify" onclick="certifyLocation()">
-                      직관 인증하기
+                  <button class="btn btn-certify w-auto" type="button" id="btnVerify"
+                          <c:if test="${not empty selectedGame and not isVerifyPossible}">disabled style="background-color:#ccc; border:none; color:#fff; cursor:not-allowed;"</c:if>
+                          onclick="certifyLocation()">
+                      <c:choose>
+                          <c:when test="${not empty selectedGame and not isVerifyPossible}">인증 시간 초과</c:when>
+                          <c:otherwise>직관 인증하기</c:otherwise>
+                      </c:choose>
                   </button>
                   <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete" style="display:none;">
                       직관 인증완료!
@@ -351,15 +356,37 @@
 
           // 경기 상태에 따른 스코어 입력창 활성/비활성 처리
           let isEditable = true;
+          let isVerifyPos = true;
+
           if (g.status === 'FINISHED' || g.status === 'CANCELLED') {
               isEditable = false;
+              isVerifyPos = false;
           } else {
               if (g.date && g.time) {
                   let t = g.time.length === 5 ? g.time + ':00' : g.time;
                   let start = new Date(g.date + 'T' + t);
-                  start.setHours(start.getHours() - 1); // 경기 시작 1시간 전
-                  if (new Date() > start) isEditable = false;
+
+                  // 스코어 제어: 시작 1시간 전
+                  let editStart = new Date(start.getTime());
+                  editStart.setHours(editStart.getHours() - 1);
+                  if (new Date() > editStart) isEditable = false;
+
+                  // 인증 제어: 시작 1시간 후
+                  let verifyEnd = new Date(start.getTime());
+                  verifyEnd.setHours(verifyEnd.getHours() + 1);
+                  if (new Date() > verifyEnd) isVerifyPos = false;
               }
+          }
+
+          // 인증 버튼 UI 동적 변경
+          if (!isVerifyPos) {
+              $('#btnVerify').prop('disabled', true)
+                  .css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'})
+                  .text('인증 시간 초과');
+          } else {
+              $('#btnVerify').prop('disabled', false)
+                  .css({'background-color':'', 'border':'', 'color':'', 'cursor':'pointer'})
+                  .text('직관 인증하기');
           }
 
           window.isScoreEditableDynamic = isEditable; // 전역 플래그 업데이트
@@ -457,12 +484,23 @@
                           $('#isVerified').val('true');
                       } else if (res === 'fail:distance') {
                           alert('경기장과 거리가 너무 멀어요! 🏟️\n경기장 근처에서 다시 시도해주세요.');
+                          $btn.text(originalText).prop('disabled', false); // 버튼 복구
+                      } else if (res === 'fail:timeout') {
+                          alert('경기 시작 후 1시간이 지나 직관 인증을 할 수 없습니다.');
+                          // 팝업 확인 후 버튼을 아예 막아버림
+                          $btn.text('인증 시간 초과').prop('disabled', true).css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'});
+                      } else if (res === 'fail:game_ended') {
+                          alert('이미 종료되거나 취소된 경기입니다.');
+                          $btn.text('인증 불가').prop('disabled', true).css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'});
                       } else {
                           alert('인증 실패: ' + res);
+                          $btn.text(originalText).prop('disabled', false);
                       }
                   },
-                  error: function() { alert('서버 통신 오류가 발생했습니다.'); },
-                  complete: function() { $btn.text(originalText).prop('disabled', false); }
+                  error: function() {
+                      alert('서버 통신 오류가 발생했습니다.');
+                      $btn.text(originalText).prop('disabled', false);
+                  }
               });
 
           } catch (error) {
