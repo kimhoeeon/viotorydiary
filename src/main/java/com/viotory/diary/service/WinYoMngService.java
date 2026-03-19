@@ -13,8 +13,8 @@ public class WinYoMngService {
 
     private final WinYoMentionMapper winYoMentionMapper;
 
-    public List<WinYoMentionVO> getMentionList() {
-        return winYoMentionMapper.selectMentionList();
+    public List<WinYoMentionVO> getMentionList(String searchType, String searchWord) {
+        return winYoMentionMapper.selectMentionList(searchType, searchWord);
     }
 
     public WinYoMentionVO getMention(Long mentionId) {

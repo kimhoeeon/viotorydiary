@@ -40,58 +40,92 @@
 
                 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
                     <div class="d-flex flex-column flex-column-fluid">
-                        <div id="kt_app_content" class="app-content flex-column-fluid">
-                            <div id="kt_app_content_container" class="app-container container-xxl pt-10">
 
-                                <div class="card mb-5 mb-xl-10">
-                                    <div class="card-header border-0 cursor-pointer">
-                                        <div class="card-title m-0"><h3 class="fw-bold m-0">승요 멘트 상세</h3></div>
+                        <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-6">
+                            <div id="kt_app_toolbar_container" class="app-container container-fluid d-flex flex-stack">
+                                <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
+                                    <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">승요 멘트 상세 및 수정</h1>
+                                    <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
+                                        <li class="breadcrumb-item text-muted">승요력 관리</li>
+                                        <li class="breadcrumb-item"><span class="bullet bg-gray-400 w-5px h-2px"></span></li>
+                                        <li class="breadcrumb-item text-muted">승요 멘트 수정</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="kt_app_content" class="app-content flex-column-fluid">
+                            <div id="kt_app_content_container" class="app-container container-fluid">
+                                <div class="card shadow-sm">
+                                    <div class="card-header border-0 pt-5">
+                                        <h3 class="card-title fw-bold">멘트 설정 수정</h3>
                                     </div>
-                                    <div class="card-body p-9">
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">카테고리</label>
-                                            <div class="col-lg-4"><span
-                                                    class="badge badge-light-primary fw-bold fs-6">${mention.category}</span>
+                                    <div class="card-body py-5">
+                                        <form id="mentionForm">
+                                            <input type="hidden" name="mentionId" value="${mention.mentionId}">
+                                            <input type="hidden" name="category" value="${mention.category}">
+                                            <input type="hidden" name="conditionCode" value="${mention.conditionCode}">
+
+                                            <div class="row mb-8">
+                                                <div class="col-md-6">
+                                                    <label class="form-label fs-6 fw-bold">구분 (카테고리)</label>
+                                                    <input type="text" class="form-control form-control-solid bg-secondary"
+                                                           value="${mention.category eq 'WIN_RATE' ? '승률 구간 (%)' : mention.category eq 'ATTENDANCE_COUNT' ? '직관 횟수 (회)' : mention.category eq 'RECENT_TREND' ? '최근 흐름' : mention.category}" readonly />
+                                                    <div class="form-text mt-2">※ 카테고리와 조건 코드는 시스템 로직과 연결되어 임의로 변경할 수 없습니다.</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fs-6 fw-bold">조건 코드 (시스템 매핑용)</label>
+                                                    <input type="text" class="form-control form-control-solid bg-secondary" value="${mention.conditionCode}" readonly />
+                                                </div>
                                             </div>
-                                            <label class="col-lg-2 fw-semibold text-muted">조건 코드</label>
-                                            <div class="col-lg-4"><span
-                                                    class="fw-bold fs-6 text-gray-800">${mention.conditionCode}</span></div>
-                                        </div>
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">우선순위</label>
-                                            <div class="col-lg-4"><span
-                                                    class="badge badge-light-warning fw-bold">${mention.priority}</span>
+
+                                            <div class="separator border-dashed my-8"></div>
+
+                                            <div class="mb-8">
+                                                <label class="required form-label fs-6 fw-bold">레벨 명 (타이틀)</label>
+                                                <input type="text" name="levelName" class="form-control" value="${mention.levelName}" required placeholder="이모티콘과 함께 칭호를 입력하세요 (예: 🍼 응애 승요)" />
                                             </div>
-                                            <label class="col-lg-2 fw-semibold text-muted">설명</label>
-                                            <div class="col-lg-4"><span
-                                                    class="fw-bold fs-6 text-gray-800">${mention.description}</span></div>
-                                        </div>
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">멘트 내용</label>
-                                            <div class="col-lg-10">
-                                                <div class="p-4 bg-light rounded text-gray-800 fs-6"
-                                                     style="white-space: pre-wrap;">${mention.message}</div>
+
+                                            <div class="row mb-8">
+                                                <div class="col-md-4">
+                                                    <label class="form-label fs-6 fw-bold">조건 최소값 (시작)</label>
+                                                    <input type="number" name="minVal" class="form-control ${mention.category eq 'RECENT_TREND' ? 'form-control-solid bg-secondary' : ''}"
+                                                           value="${mention.minVal}" ${mention.category eq 'RECENT_TREND' ? 'readonly' : ''} />
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label fs-6 fw-bold">조건 최대값 (끝)</label>
+                                                    <input type="number" name="maxVal" class="form-control ${mention.category eq 'RECENT_TREND' ? 'form-control-solid bg-secondary' : ''}"
+                                                           value="${mention.maxVal}" ${mention.category eq 'RECENT_TREND' ? 'readonly' : ''} />
+                                                    <c:if test="${mention.category ne 'RECENT_TREND'}">
+                                                        <div class="form-text text-primary mt-2">※ 상한선이 없는 구간(무한대)일 경우 <b>9999</b> 를 입력하세요.</div>
+                                                    </c:if>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="required form-label fs-6 fw-bold">우선순위</label>
+                                                    <input type="number" name="priority" class="form-control" value="${mention.priority}" required />
+                                                    <div class="form-text mt-2">숫자가 클수록 우선순위가 높습니다. (기본값: 0)</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="row mb-7">
-                                            <label class="col-lg-2 fw-semibold text-muted">최종 수정일</label>
-                                            <div class="col-lg-4">
-                                                <span class="fw-bold fs-6 text-gray-800">
-                                                    <fmt:parseDate value="${mention.updatedAt}"
-                                                                   pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate"
-                                                                   type="both"/>
-                                                    <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
-                                                </span>
+
+                                            <div class="mb-8">
+                                                <label class="required form-label fs-6 fw-bold">사용자 노출 멘트</label>
+                                                <textarea name="message" class="form-control" rows="4" required placeholder="사용자에게 보여질 실제 안내 멘트를 작성해주세요.">${mention.message}</textarea>
                                             </div>
-                                        </div>
+
+                                            <div class="mb-8">
+                                                <label class="form-label fs-6 fw-bold">관리자 메모 (설명)</label>
+                                                <input type="text" name="description" class="form-control" value="${mention.description}" placeholder="어떤 조건일 때 보여지는 멘트인지 관리자용 메모를 남겨주세요." />
+                                            </div>
+
+                                        </form>
                                     </div>
-                                    <div class="card-footer d-flex justify-content-end py-6 px-9">
-                                        <a href="/mng/winyo/mentions" class="btn btn-light btn-active-light-primary me-2">목록으로</a>
-                                        <button type="button" class="btn btn-primary" onclick="openEditModal()">수정하기
+                                    <div class="card-footer d-flex justify-content-end py-6 border-0">
+                                        <a href="/mng/winyo/mentions" class="btn btn-light me-3">목록으로</a>
+                                        <button type="button" class="btn btn-primary" onclick="saveMention()">
+                                            <span class="indicator-label">수정 내용 저장</span>
                                         </button>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -100,68 +134,26 @@
         </div>
     </div>
 
-    <div class="modal fade" id="mentionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
-            <div class="modal-content">
-                <form id="mentionForm" action="/mng/winyo/mention/save" method="post">
-                    <input type="hidden" name="mentionId" value="${mention.mentionId}">
-                    <div class="modal-header">
-                        <h2 class="fw-bold">멘트 수정</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal"><i
-                                class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
-                        </div>
-                    </div>
-                    <div class="modal-body py-10 px-lg-17">
-                        <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">카테고리</label>
-                            <select class="form-select form-select-solid" name="category">
-                                <option value="WIN_RATE" ${mention.category eq 'WIN_RATE' ? 'selected' : ''}>승률</option>
-                                <option value="ATTENDANCE_COUNT" ${mention.category eq 'ATTENDANCE_COUNT' ? 'selected' : ''}>
-                                    직관수
-                                </option>
-                                <option value="RECENT_TREND" ${mention.category eq 'RECENT_TREND' ? 'selected' : ''}>최근흐름
-                                </option>
-                            </select>
-                        </div>
-                        <div class="row mb-7">
-                            <div class="col-md-8">
-                                <label class="required fs-6 fw-semibold mb-2">조건 코드</label>
-                                <input type="text" class="form-control form-control-solid" name="conditionCode"
-                                       value="${mention.conditionCode}"/>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="required fs-6 fw-semibold mb-2">우선순위</label>
-                                <input type="number" class="form-control form-control-solid" name="priority"
-                                       value="${mention.priority}"/>
-                            </div>
-                        </div>
-                        <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">설명</label>
-                            <input type="text" class="form-control form-control-solid" name="description"
-                                   value="${mention.description}"/>
-                        </div>
-                        <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">멘트 내용</label>
-                            <textarea class="form-control form-control-solid" name="message"
-                                      rows="3">${mention.message}</textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer flex-center">
-                        <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">취소</button>
-                        <button type="submit" class="btn btn-primary">저장</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('mentionModal'));
+        function saveMention() {
+            const $form = $('#mentionForm');
 
-        function openEditModal() {
-            modal.show();
+            if(!$('input[name=levelName]').val().trim()) { alert('레벨 명(타이틀)을 입력해주세요.'); return; }
+            if(!$('input[name=priority]').val().trim()) { alert('우선순위를 입력해주세요.'); return; }
+            if(!$('textarea[name=message]').val().trim()) { alert('사용자 노출 멘트를 입력해주세요.'); return; }
+
+            if(confirm('이 설정으로 멘트를 수정하시겠습니까?')) {
+                $.post('/mng/winyo/mention/update', $form.serialize(), function(res) {
+                    if(res === 'ok') {
+                        alert('정상적으로 수정되었습니다.');
+                        location.href = '/mng/winyo/mentions';
+                    } else {
+                        alert('서버 처리 중 오류가 발생했습니다.');
+                    }
+                });
+            }
         }
     </script>
 </body>

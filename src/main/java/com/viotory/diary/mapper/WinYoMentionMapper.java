@@ -3,12 +3,15 @@ package com.viotory.diary.mapper;
 import com.viotory.diary.vo.WinYoMentionVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 @Mapper
 public interface WinYoMentionMapper {
-    List<WinYoMentionVO> selectMentionList();
+    List<WinYoMentionVO> selectMentionList(@Param("searchType") String searchType, @Param("searchWord") String searchWord);
+
     WinYoMentionVO selectMention(Long mentionId);
+
     void updateMention(WinYoMentionVO vo);
 
     // 사용자 분석용: 범위로 멘트 조회
