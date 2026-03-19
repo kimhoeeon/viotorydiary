@@ -163,33 +163,39 @@ public class ContentMngService {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(5000); // 5초 타임아웃
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0"); // 봇 차단 방지
+            conn.setReadTimeout(5000);    // 읽기 타임아웃 추가
+
+            // [핵심 변경 1] 인스타그램 등 소셜 미디어의 로그인 벽을 우회하기 위해
+            // Facebook 공식 크롤러인 것처럼 User-Agent를 위장합니다.
+            conn.setRequestProperty("User-Agent", "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)");
 
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuilder html = new StringBuilder();
             String inputLine;
-            String ogImage = null;
 
+            // HTML의 <head> 영역(주로 앞부분)만 읽도록 최대 5만자 제한
             while ((inputLine = in.readLine()) != null) {
-                // <meta property="og:image" content="..."> 찾기
-                if (inputLine.contains("og:image")) {
-                    int contentIndex = inputLine.indexOf("content=");
-                    if (contentIndex > -1) {
-                        // 따옴표 처리 (" 또는 ')
-                        char quote = inputLine.charAt(contentIndex + 8);
-                        int endQuoteIndex = inputLine.indexOf(quote, contentIndex + 9);
-                        if (endQuoteIndex > -1) {
-                            ogImage = inputLine.substring(contentIndex + 9, endQuoteIndex);
-                            break; // 찾았으면 종료
-                        }
-                    }
-                }
+                html.append(inputLine).append(" ");
+                if (html.length() > 50000) break;
             }
             in.close();
-            return ogImage;
+
+            // [핵심 변경 2] 기존의 에러를 유발하던 indexOf 대신 안전한 정규표현식 사용
+            // property="og:image" content="..." 또는 content="..." property="og:image" 두 가지 패턴 모두 대응
+            Pattern ogPattern = Pattern.compile("<meta[^>]+property=[\"']og:image[\"'][^>]+content=[\"']([^\"']+)[\"']|<meta[^>]+content=[\"']([^\"']+)[\"'][^>]+property=[\"']og:image[\"']");
+            Matcher m = ogPattern.matcher(html.toString());
+
+            if (m.find()) {
+                // 정규표현식 그룹 1번 또는 2번에서 추출된 썸네일 URL을 반환 (HTML 엔티티 디코딩 포함)
+                String ogImage = m.group(1) != null ? m.group(1) : m.group(2);
+                return ogImage.replace("&amp;", "&");
+            }
+
+            return null; // 못 찾으면 null
 
         } catch (Exception e) {
-            log.warn("썸네일 추출 실패: {}", e.getMessage());
-            return null; // 실패 시 null 반환 (기본 이미지 사용 등 처리)
+            log.warn("썸네일 추출 실패 [{}]: {}", urlString, e.getMessage());
+            return null; // 에러가 나도 전체 저장 로직이 터지지 않도록 null 반환
         }
     }
 
