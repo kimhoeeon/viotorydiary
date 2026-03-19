@@ -102,15 +102,15 @@
                                                 <form id="searchForm" action="/mng/content/teams" method="get">
                                                     <select name="teamCode" class="form-select form-select-solid w-200px" onchange="this.form.submit()">
                                                         <option value="ALL">전체 구단</option>
-                                                        <option value="KIA" ${paramTeamCode eq 'KIA' ? 'selected' : ''}>KIA</option>
-                                                        <option value="SAMSUNG" ${paramTeamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성</option>
                                                         <option value="LG" ${paramTeamCode eq 'LG' ? 'selected' : ''}>LG</option>
-                                                        <option value="DOOSAN" ${paramTeamCode eq 'DOOSAN' ? 'selected' : ''}>두산</option>
-                                                        <option value="KT" ${paramTeamCode eq 'KT' ? 'selected' : ''}>KT</option>
-                                                        <option value="SSG" ${paramTeamCode eq 'SSG' ? 'selected' : ''}>SSG</option>
-                                                        <option value="LOTTE" ${paramTeamCode eq 'LOTTE' ? 'selected' : ''}>롯데</option>
                                                         <option value="HANWHA" ${paramTeamCode eq 'HANWHA' ? 'selected' : ''}>한화</option>
+                                                        <option value="SSG" ${paramTeamCode eq 'SSG' ? 'selected' : ''}>SSG</option>
+                                                        <option value="SAMSUNG" ${paramTeamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성</option>
                                                         <option value="NC" ${paramTeamCode eq 'NC' ? 'selected' : ''}>NC</option>
+                                                        <option value="KT" ${paramTeamCode eq 'KT' ? 'selected' : ''}>KT</option>
+                                                        <option value="LOTTE" ${paramTeamCode eq 'LOTTE' ? 'selected' : ''}>롯데</option>
+                                                        <option value="KIA" ${paramTeamCode eq 'KIA' ? 'selected' : ''}>KIA</option>
+                                                        <option value="DOOSAN" ${paramTeamCode eq 'DOOSAN' ? 'selected' : ''}>두산</option>
                                                         <option value="KIWOOM" ${paramTeamCode eq 'KIWOOM' ? 'selected' : ''}>키움</option>
                                                     </select>
                                                 </form>
@@ -237,15 +237,15 @@
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">구단 선택</label>
                                 <select class="form-select form-select-solid" name="teamCode" id="teamCode">
-                                    <option value="KIA">KIA</option>
-                                    <option value="SAMSUNG">삼성</option>
                                     <option value="LG">LG</option>
-                                    <option value="DOOSAN">두산</option>
-                                    <option value="KT">KT</option>
-                                    <option value="SSG">SSG</option>
-                                    <option value="LOTTE">롯데</option>
                                     <option value="HANWHA">한화</option>
+                                    <option value="SSG">SSG</option>
+                                    <option value="SAMSUNG">삼성</option>
                                     <option value="NC">NC</option>
+                                    <option value="KT">KT</option>
+                                    <option value="LOTTE">롯데</option>
+                                    <option value="KIA">KIA</option>
+                                    <option value="DOOSAN">두산</option>
                                     <option value="KIWOOM">키움</option>
                                 </select>
                             </div>

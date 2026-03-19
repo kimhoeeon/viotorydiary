@@ -266,14 +266,14 @@
                                 <label class="required fs-6 fw-semibold mb-2">원정 팀 (Away)</label>
                                 <select class="form-select form-select-solid" name="awayTeamCode" id="awayTeamCode">
                                     <option value="LG">LG</option>
-                                    <option value="KT">KT</option>
-                                    <option value="SSG">SSG</option>
-                                    <option value="NC">NC</option>
-                                    <option value="DOOSAN">두산</option>
-                                    <option value="KIA">KIA</option>
-                                    <option value="LOTTE">롯데</option>
-                                    <option value="SAMSUNG">삼성</option>
                                     <option value="HANWHA">한화</option>
+                                    <option value="SSG">SSG</option>
+                                    <option value="SAMSUNG">삼성</option>
+                                    <option value="NC">NC</option>
+                                    <option value="KT">KT</option>
+                                    <option value="LOTTE">롯데</option>
+                                    <option value="KIA">KIA</option>
+                                    <option value="DOOSAN">두산</option>
                                     <option value="KIWOOM">키움</option>
                                 </select>
                             </div>
@@ -281,14 +281,14 @@
                                 <label class="required fs-6 fw-semibold mb-2">홈 팀 (Home)</label>
                                 <select class="form-select form-select-solid" name="homeTeamCode" id="homeTeamCode">
                                     <option value="LG">LG</option>
-                                    <option value="KT">KT</option>
-                                    <option value="SSG">SSG</option>
-                                    <option value="NC">NC</option>
-                                    <option value="DOOSAN">두산</option>
-                                    <option value="KIA">KIA</option>
-                                    <option value="LOTTE">롯데</option>
-                                    <option value="SAMSUNG">삼성</option>
                                     <option value="HANWHA">한화</option>
+                                    <option value="SSG">SSG</option>
+                                    <option value="SAMSUNG">삼성</option>
+                                    <option value="NC">NC</option>
+                                    <option value="KT">KT</option>
+                                    <option value="LOTTE">롯데</option>
+                                    <option value="KIA">KIA</option>
+                                    <option value="DOOSAN">두산</option>
                                     <option value="KIWOOM">키움</option>
                                 </select>
                             </div>

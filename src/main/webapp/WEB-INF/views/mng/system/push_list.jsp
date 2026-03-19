@@ -98,16 +98,16 @@
                                                 <div class="col-md-4">
                                                     <label class="fs-6 fw-semibold mb-2">구단 선택</label>
                                                     <select class="form-select form-select-solid" name="targetTeam">
-                                                        <option value="KIA">KIA 타이거즈</option>
-                                                        <option value="KT">KT 위즈</option>
-                                                        <option value="LG">LG 트윈스</option>
-                                                        <option value="NC">NC 다이노스</option>
-                                                        <option value="SSG">SSG 랜더스</option>
-                                                        <option value="두산">두산 베어스</option>
-                                                        <option value="롯데">롯데 자이언츠</option>
-                                                        <option value="삼성">삼성 라이온즈</option>
-                                                        <option value="키움">키움 히어로즈</option>
-                                                        <option value="한화">한화 이글스</option>
+                                                        <option value="LG">LG</option>
+                                                        <option value="HANWHA">한화</option>
+                                                        <option value="SSG">SSG</option>
+                                                        <option value="SAMSUNG">삼성</option>
+                                                        <option value="NC">NC</option>
+                                                        <option value="KT">KT</option>
+                                                        <option value="LOTTE">롯데</option>
+                                                        <option value="KIA">KIA</option>
+                                                        <option value="DOOSAN">두산</option>
+                                                        <option value="KIWOOM">키움</option>
                                                     </select>
                                                 </div>
                                             </div>

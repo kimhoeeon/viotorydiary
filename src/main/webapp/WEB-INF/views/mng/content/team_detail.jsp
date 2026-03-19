@@ -324,15 +324,15 @@
                             <div class="col-md-6">
                                 <label class="required fs-6 fw-semibold mb-2">구단 선택</label>
                                 <select class="form-select form-select-solid" name="teamCode" id="detailTeamCode">
-                                    <option value="KIA" ${content.teamCode eq 'KIA' ? 'selected' : ''}>KIA</option>
-                                    <option value="SAMSUNG" ${content.teamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성</option>
                                     <option value="LG" ${content.teamCode eq 'LG' ? 'selected' : ''}>LG</option>
-                                    <option value="DOOSAN" ${content.teamCode eq 'DOOSAN' ? 'selected' : ''}>두산</option>
-                                    <option value="KT" ${content.teamCode eq 'KT' ? 'selected' : ''}>KT</option>
-                                    <option value="SSG" ${content.teamCode eq 'SSG' ? 'selected' : ''}>SSG</option>
-                                    <option value="LOTTE" ${content.teamCode eq 'LOTTE' ? 'selected' : ''}>롯데</option>
                                     <option value="HANWHA" ${content.teamCode eq 'HANWHA' ? 'selected' : ''}>한화</option>
+                                    <option value="SSG" ${content.teamCode eq 'SSG' ? 'selected' : ''}>SSG</option>
+                                    <option value="SAMSUNG" ${content.teamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성</option>
                                     <option value="NC" ${content.teamCode eq 'NC' ? 'selected' : ''}>NC</option>
+                                    <option value="KT" ${content.teamCode eq 'KT' ? 'selected' : ''}>KT</option>
+                                    <option value="LOTTE" ${content.teamCode eq 'LOTTE' ? 'selected' : ''}>롯데</option>
+                                    <option value="KIA" ${content.teamCode eq 'KIA' ? 'selected' : ''}>KIA</option>
+                                    <option value="DOOSAN" ${content.teamCode eq 'DOOSAN' ? 'selected' : ''}>두산</option>
                                     <option value="KIWOOM" ${content.teamCode eq 'KIWOOM' ? 'selected' : ''}>키움</option>
                                 </select>
                             </div>
