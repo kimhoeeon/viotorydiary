@@ -4,6 +4,7 @@ import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.mapper.DiaryMapper;
 import com.viotory.diary.mapper.WinYoMentionMapper;
 import com.viotory.diary.vo.DiaryVO;
+import com.viotory.diary.vo.WinYoMentionVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -77,30 +78,33 @@ public class WinYoService {
                 .topStadium(topStadium)
                 .build();
 
-        // 5. [규칙 적용] 승률 구간 (A~E)
-        String rateCode;
-        if (winRate >= 70) rateCode = "A";
-        else if (winRate >= 60) rateCode = "B";
-        else if (winRate >= 50) rateCode = "C";
-        else if (winRate >= 40) rateCode = "D";
-        else rateCode = "E";
+        // 5. [DB 연동] 승률 구간 및 멘트 세팅
+        int rateInt = (int) winRate; // 소수점 내림 처리 (엄격한 구간 체크)
+        if (total >= 2) {
+            WinYoMentionVO rateMention = mentionMapper.selectMentionByValue("WIN_RATE", rateInt);
+            if (rateMention != null) {
+                analysis.setRateLevelName(rateMention.getLevelName());
+                analysis.setRateMessage(rateMention.getMessage());
+            }
+        } else {
+            analysis.setRateLevelName("🌱 예비 승요");
+            analysis.setRateMessage("직관 데이터가 더 필요해요! (2회 이상)");
+        }
 
-        analysis.setWinRateGrade(rateCode);
-        analysis.setMainMessage(mentionMapper.selectMessage("WIN_RATE", rateCode));
+        // 6. [DB 연동] 직관 횟수 구간 및 멘트 세팅
+        WinYoMentionVO countMention = mentionMapper.selectMentionByValue("ATTENDANCE_COUNT", total);
+        if (countMention != null) {
+            analysis.setCountLevelName(countMention.getLevelName());
+            analysis.setCountMessage(countMention.getMessage());
+        }
 
-        // 6. [규칙 적용] 직관 횟수
-        String countCode;
-        if (total >= 10) countCode = "HEAVY";
-        else if (total >= 3) countCode = "MID";
-        else countCode = "NEW";
-
-        analysis.setCountGrade(countCode);
-        analysis.setCountMessage(mentionMapper.selectMessage("ATTENDANCE_COUNT", countCode));
-
-        // 7. [규칙 적용] 최근 흐름 (트렌드 역시 내 응원팀 실제 승패 기준)
+        // 7. [DB 연동] 최근 흐름 로직 세팅
         String trendCode = analyzeTrend(diaries);
         analysis.setTrendCode(trendCode);
-        analysis.setSubMessage(mentionMapper.selectMessage("RECENT_TREND", trendCode));
+        WinYoMentionVO trendMention = mentionMapper.selectMentionByCode("RECENT_TREND", trendCode);
+        if (trendMention != null) {
+            analysis.setSubMessage(trendMention.getMessage());
+        }
 
         return analysis;
     }
@@ -108,22 +112,16 @@ public class WinYoService {
     // 최근 3경기 흐름 분석 (예측 적중 여부 기준)
     private String analyzeTrend(List<DiaryVO> diaries) {
         if (diaries.size() < 3) return "WAIT";
-
         int recentWins = 0;
         int recentLoses = 0;
-
         for (int i = 0; i < 3; i++) {
             DiaryVO d = diaries.get(i);
-            if ("WIN".equals(d.getGameResult())) {
-                recentWins++;
-            } else if ("LOSE".equals(d.getGameResult())) {
-                recentLoses++;
-            }
+            if ("WIN".equals(d.getGameResult())) recentWins++;
+            else if ("LOSE".equals(d.getGameResult())) recentLoses++;
         }
-
-        if (recentWins >= 2) return "UP";        // 상승세
-        else if (recentLoses >= 2) return "DOWN"; // 하락세
-        return "KEEP";                            // 유지
+        if (recentWins >= 2) return "UP";
+        else if (recentLoses >= 2) return "DOWN";
+        return "KEEP";
     }
 
     /**

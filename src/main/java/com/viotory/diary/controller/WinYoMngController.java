@@ -20,11 +20,9 @@ public class WinYoMngController {
 
     // 목록 페이지
     @GetMapping("/mentions")
-    public String listPage(@RequestParam(value = "category", required = false) String category,
-                           Model model) {
-        List<WinYoMentionVO> list = winYoMngService.getMentionList(category);
+    public String mentionList(Model model) {
+        List<WinYoMentionVO> list = winYoMngService.getMentionList();
         model.addAttribute("list", list);
-        model.addAttribute("category", category);
         return "mng/winyo/mention_list";
     }
 
@@ -38,30 +36,15 @@ public class WinYoMngController {
         return "mng/winyo/mention_detail";
     }
 
-    // 등록 및 수정 처리
-    @PostMapping("/mention/save")
-    public String saveAction(WinYoMentionVO vo) {
-        winYoMngService.saveMention(vo);
-        return "redirect:/mng/winyo/mentions";
-    }
-
-    // 삭제 처리 (AJAX)
-    @PostMapping("/mention/delete")
+    @PostMapping("/mention/update")
     @ResponseBody
-    public String deleteAction(@RequestParam("mentionId") Long mentionId) {
+    public String updateMentionAction(@ModelAttribute WinYoMentionVO mention) {
         try {
-            winYoMngService.deleteMention(mentionId);
+            winYoMngService.modifyMention(mention);
             return "ok";
         } catch (Exception e) {
-            log.error("멘트 삭제 실패", e);
+            log.error("멘트 수정 중 오류", e);
             return "fail";
         }
-    }
-
-    // 상세 조회 (수정 팝업용 AJAX)
-    @GetMapping("/mention/get")
-    @ResponseBody
-    public WinYoMentionVO getMention(@RequestParam("mentionId") Long mentionId) {
-        return winYoMngService.getMention(mentionId);
     }
 }

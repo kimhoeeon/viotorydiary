@@ -11,27 +11,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WinYoMngService {
 
-    private final WinYoMentionMapper winYoMapper;
+    private final WinYoMentionMapper winYoMentionMapper;
 
-    public List<WinYoMentionVO> getMentionList(String category) {
-        return winYoMapper.selectMentionList(category);
+    public List<WinYoMentionVO> getMentionList() {
+        return winYoMentionMapper.selectMentionList();
     }
 
     public WinYoMentionVO getMention(Long mentionId) {
-        return winYoMapper.selectMentionById(mentionId);
+        return winYoMentionMapper.selectMention(mentionId);
     }
 
-    @Transactional
-    public void saveMention(WinYoMentionVO vo) {
-        if (vo.getMentionId() == null) {
-            winYoMapper.insertMention(vo);
-        } else {
-            winYoMapper.updateMention(vo);
-        }
-    }
-
-    @Transactional
-    public void deleteMention(Long mentionId) {
-        winYoMapper.deleteMention(mentionId);
+    public void modifyMention(WinYoMentionVO vo) {
+        winYoMentionMapper.updateMention(vo);
     }
 }
