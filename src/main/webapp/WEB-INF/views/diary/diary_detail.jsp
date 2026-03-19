@@ -467,6 +467,8 @@
         // ⭐️ [가장 완벽한 최종 정답] 퍼블리싱 정렬 100% 보존, 팀 로고 & 사진 쏠림만 타겟팅 해결
         // ⭐️ [진정한 최종본] 기존 정렬(Flexbox) 100% 보존 + 쏠림 버그만 타겟팅 해결
         // ⭐️ [진짜 최종 완성본] 이미지/로고 쏠림 라이브러리 버그 완벽 회피
+        // ⭐️ [진짜 최종 완성본] 팀 로고 정렬 유지 + 스와이퍼 이미지 픽셀 고정으로 쏠림 완전 차단
+        // ⭐️ [진짜 최종 완성본] 원본 렌더링 너비 추출로 스와이퍼 늘어남 100% 방지
         async function captureCard() {
             const target = document.querySelector('.inquiry_item');
             if(!target) return;
@@ -504,13 +506,12 @@
                 setTempStyle(txtGameList, '; max-height: none !important; height: auto !important;');
             }
 
-            // 5. 말줄임표(..) 해제
+            // 5. 말줄임표(..) 해제 (정렬 및 들여쓰기 100% 보존)
             target.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge), .player').forEach(el => {
                 setTempStyle(el, '; -webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; max-height: none !important;');
             });
 
-            // ⭐️ 6. [팀 로고 SVG 쏠림 자물쇠]
-            // 캡쳐 엔진이 무시해버리는 Grid 좌우 정렬을 justify-items: center로 멱살 잡고 고정합니다.
+            // 6. 팀 로고 SVG 쏠림 자물쇠
             target.querySelectorAll('.team, .game-info-wrap').forEach(wrap => {
                 setTempStyle(wrap, '; display: grid !important; justify-items: center !important; align-items: center !important; text-align: center !important;');
             });
@@ -520,31 +521,32 @@
                 setTempStyle(img, '; width: 48px !important; height: 48px !important; display: block !important; margin: 0 auto !important;');
             });
 
-            // ⭐️ 7. [스와이퍼 사진 왼쪽 쏠림 완벽 해체 - 배경 이미지 트릭]
-            // img 태그의 object-fit 버그를 회피하기 위해, 사진을 <div>의 배경으로 깔아 정중앙을 강제합니다.
+            // ⭐️ 7. [핵심] 스와이퍼 늘어남 방지: 원본 이미지의 "진짜 픽셀 너비"를 추출해 자물쇠를 채웁니다.
             const swiperBox = target.querySelector('.swiper_box');
             const inquiryImg = target.querySelector('.inquiry_img');
-            let tempImgWrapper = null;
+            let tempImg = null;
 
             if (swiperBox && inquiryImg) {
                 const activeImg = swiperBox.querySelector('.swiper-slide-active img') || swiperBox.querySelector('.swiper-slide img');
                 if (activeImg) {
-                    setTempStyle(swiperBox, '; display: none !important;'); // 버그 덩어리 숨김
+                    // ⭐️ 원본 이미지의 실제 렌더링된 가로 길이를 정확히 가져옵니다.
+                    const realWidth = activeImg.offsetWidth || activeImg.getBoundingClientRect().width;
 
-                    tempImgWrapper = document.createElement('div');
-                    tempImgWrapper.style.cssText = `
-                        width: 100%;
-                        height: 200px;
-                        border-radius: 12px;
-                        background-color: #f5f5f5;
-                        background-image: url('${activeImg.src}');
-                        background-size: cover;
-                        background-position: center center;
-                        background-repeat: no-repeat;
-                        margin: 0 auto;
-                        display: block;
+                    setTempStyle(swiperBox, '; display: none !important;'); // 스와이퍼 껍데기 숨김
+                    setTempStyle(inquiryImg, '; display: flex !important; justify-content: center !important; width: 100% !important;');
+
+                    // 부모 영역만큼 늘어나지 않게 realWidth 값을 width에 박아줍니다.
+                    tempImg = document.createElement('img');
+                    tempImg.src = activeImg.src;
+                    tempImg.style.cssText = `
+                        width: ${realWidth}px !important;
+                        height: 200px !important;
+                        object-fit: cover !important;
+                        border-radius: 12px !important;
+                        display: block !important;
+                        margin: 0 auto !important;
                     `;
-                    inquiryImg.appendChild(tempImgWrapper);
+                    inquiryImg.appendChild(tempImg);
                 }
             }
 
@@ -552,7 +554,7 @@
             const swiperLink = document.querySelector('link[href*="swiper"]');
             if (swiperLink) swiperLink.disabled = true;
 
-            // 캡쳐 엔진 오프셋 버그 방지를 위해 스크롤 임시 이동
+            // 스크롤 오프셋 버그 방지를 위해 스크롤 임시 이동
             const originalScrollY = window.scrollY;
             window.scrollTo(0, 0);
 
@@ -564,7 +566,7 @@
                 const imgData = await htmlToImage.toPng(target, {
                     pixelRatio: 2,
                     backgroundColor: '#ffffff',
-                    style: { transform: 'none' } // Safari 잔여 버그 방어
+                    style: { transform: 'none' }
                 });
 
                 // 파일명 및 다운로드
@@ -588,7 +590,7 @@
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
                 // 9. 100% 원상 복구
-                if (tempImgWrapper) tempImgWrapper.remove();
+                if (tempImg) tempImg.remove();
                 if (swiperLink) swiperLink.disabled = false;
 
                 oldStyles.forEach((val, el) => {
