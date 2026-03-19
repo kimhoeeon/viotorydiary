@@ -66,8 +66,11 @@
     <div class="app">
         <div class="top_wrap">
             <div class="main-top">
-                <div class="main-title">
-                    <span id="userName">${loginMember.nickname}</span>님
+                <div class="main-title" style="display: flex; align-items: center; gap: 8px;">
+                    <div><span id="userName">${loginMember.nickname}</span>님</div>
+                    <c:if test="${not empty winYo.countLevelName}">
+                        <span style="font-size: 13px; font-weight: 600; color: #1A7CFF; background-color: #EBF4FF; padding: 4px 10px; border-radius: 12px; letter-spacing: -0.3px;">${winYo.countLevelName}</span>
+                    </c:if>
                 </div>
 
                 <button class="noti-btn ${hasUnreadAlarm ? 'has-badge' : ''}" onclick="location.href='/alarm/list'">
@@ -170,7 +173,12 @@
 
                         <div class="card_wrap live">
                             <div class="card_item gap-16">
-                                <div class="tit live_tit">나의 승요력은 얼마?</div>
+                                <div class="tit live_tit" style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span>나의 승요력은 얼마?</span>
+                                    <c:if test="${not empty winYo.rateLevelName}">
+                                        <span style="font-size: 13px; font-weight: 600; color: #FF4D4D; background-color: #FFF0F0; padding: 4px 8px; border-radius: 6px;">${winYo.rateLevelName}</span>
+                                    </c:if>
+                                </div>
                                 <ul class="live-score">
                                     <li>
                                         <div>

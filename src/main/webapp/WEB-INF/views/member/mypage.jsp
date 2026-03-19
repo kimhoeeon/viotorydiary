@@ -91,10 +91,15 @@
                          onclick="location.href='/member/update/profile'"
                          style="width:100%; height:100%; object-fit:cover; cursor:pointer; display:block;">
                 </div>
-                <div class="page-tit" style="font-size: 20px; font-weight: 700;">
-                    <span id="userName">
-                        <a href="javascript:location.href='/member/update/profile'">${member.nickname}</a>
-                    </span> 님
+                <div class="page-tit" style="font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                    <div>
+                        <span id="userName">
+                            <a href="javascript:location.href='/member/update/profile'">${member.nickname}</a>
+                        </span> 님
+                    </div>
+                    <c:if test="${not empty winYo.countLevelName}">
+                        <span style="font-size: 13px; font-weight: 600; color: #1A7CFF; background-color: #EBF4FF; padding: 4px 10px; border-radius: 12px; letter-spacing: -0.3px; line-height: 1;">${winYo.countLevelName}</span>
+                    </c:if>
                 </div>
             </div>
 

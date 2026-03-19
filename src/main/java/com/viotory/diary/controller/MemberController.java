@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.viotory.diary.dto.CommentDTO;
 import com.viotory.diary.dto.FollowDTO;
+import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.exception.AlertException;
-import com.viotory.diary.service.CommentService;
-import com.viotory.diary.service.MemberService;
-import com.viotory.diary.service.SmsService;
-import com.viotory.diary.service.TeamInfoMngService;
+import com.viotory.diary.service.*;
 import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.MemberVO;
@@ -41,6 +39,7 @@ public class MemberController {
     private final SmsService smsService;
     private final CommentService commentService;
     private final TeamInfoMngService teamInfoMngService;
+    private final WinYoService winYoService;
 
     // ==========================================
     // 1. 로그인 & 로그아웃
@@ -431,6 +430,10 @@ public class MemberController {
         // (다른 곳에서 포인트나 상태가 변했을 수 있으므로)
         MemberVO memberInfo = memberService.getMemberInfo(loginMember.getMemberId());
         model.addAttribute("member", memberInfo);
+
+        // 칭호(레벨) 노출을 위한 승요력 분석 데이터 추가
+        WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(loginMember.getMemberId());
+        model.addAttribute("winYo", winYo);
 
         return "member/mypage"; // /WEB-INF/views/member/mypage.jsp
     }
