@@ -5,15 +5,19 @@
     <select id="selectMentionList" resultType="com.viotory.diary.vo.WinYoMentionVO">
         SELECT * FROM winyo_mentions
         <where>
+            <if test="filterCategory != null and filterCategory != ''">
+                category = #{filterCategory}
+            </if>
             <if test="searchWord != null and searchWord != ''">
+                AND (
                 <choose>
                     <when test="searchType == 'category'">
-                        (category LIKE CONCAT('%', #{searchWord}, '%') OR
+                        category LIKE CONCAT('%', #{searchWord}, '%') OR
                         category = CASE
                         WHEN #{searchWord} LIKE '%승률%' THEN 'WIN_RATE'
                         WHEN #{searchWord} LIKE '%횟수%' THEN 'ATTENDANCE_COUNT'
                         WHEN #{searchWord} LIKE '%흐름%' THEN 'RECENT_TREND'
-                        ELSE #{searchWord} END)
+                        ELSE #{searchWord} END
                     </when>
                     <when test="searchType == 'levelName'">
                         level_name LIKE CONCAT('%', #{searchWord}, '%')
@@ -22,11 +26,12 @@
                         message LIKE CONCAT('%', #{searchWord}, '%')
                     </when>
                     <otherwise>
-                        (category LIKE CONCAT('%', #{searchWord}, '%') OR
+                        category LIKE CONCAT('%', #{searchWord}, '%') OR
                         level_name LIKE CONCAT('%', #{searchWord}, '%') OR
-                        message LIKE CONCAT('%', #{searchWord}, '%'))
+                        message LIKE CONCAT('%', #{searchWord}, '%')
                     </otherwise>
                 </choose>
+                )
             </if>
         </where>
         ORDER BY category ASC, min_val ASC, priority DESC

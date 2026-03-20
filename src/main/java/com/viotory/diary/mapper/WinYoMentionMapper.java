@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface WinYoMentionMapper {
-    List<WinYoMentionVO> selectMentionList(@Param("searchType") String searchType, @Param("searchWord") String searchWord);
+    List<WinYoMentionVO> selectMentionList(@Param("filterCategory") String filterCategory, @Param("searchType") String searchType, @Param("searchWord") String searchWord);
 
     WinYoMentionVO selectMention(Long mentionId);
 

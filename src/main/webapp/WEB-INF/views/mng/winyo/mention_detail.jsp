@@ -82,7 +82,7 @@
                                             <div class="separator border-dashed my-8"></div>
 
                                             <div class="mb-8">
-                                                <label class="required form-label fs-6 fw-bold">레벨 명 (타이틀)</label>
+                                                <label class="required form-label fs-6 fw-bold">레벨 명</label>
                                                 <input type="text" name="levelName" class="form-control" value="${mention.levelName}" required placeholder="이모티콘과 함께 칭호를 입력하세요 (예: 🍼 응애 승요)" />
                                             </div>
 

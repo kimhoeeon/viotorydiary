@@ -84,16 +84,28 @@
 
                                 <div class="card mb-7">
                                     <div class="card-body py-5">
-                                        <form id="searchForm" method="get" action="/mng/winyo/mentions" class="d-flex align-items-center gap-3">
-                                            <select name="searchType" class="form-select form-select-solid w-150px">
-                                                <option value="">전체</option>
-                                                <option value="category" ${searchType eq 'category' ? 'selected' : ''}>구분</option>
-                                                <option value="levelName" ${searchType eq 'levelName' ? 'selected' : ''}>레벨 명</option>
-                                                <option value="message" ${searchType eq 'message' ? 'selected' : ''}>멘트 내용</option>
-                                            </select>
-                                            <input type="text" name="searchWord" class="form-control form-control-solid w-300px" placeholder="검색어를 입력하세요" value="${searchWord}" />
-                                            <button type="submit" class="btn btn-primary">검색</button>
-                                            <a href="/mng/winyo/mentions" class="btn btn-light">초기화</a>
+                                        <form id="searchForm" method="get" action="/mng/winyo/mentions">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <select name="searchType" class="form-select form-select-solid w-150px">
+                                                    <option value="">전체</option>
+                                                    <option value="category" ${searchType eq 'category' ? 'selected' : ''}>구분 (카테고리)</option>
+                                                    <option value="levelName" ${searchType eq 'levelName' ? 'selected' : ''}>레벨 명</option>
+                                                    <option value="message" ${searchType eq 'message' ? 'selected' : ''}>멘트 내용</option>
+                                                </select>
+                                                <input type="text" name="searchWord" class="form-control form-control-solid w-300px" placeholder="검색어를 입력하세요" value="${searchWord}" />
+                                                <button type="submit" class="btn btn-primary">검색</button>
+                                                <a href="/mng/winyo/mentions" class="btn btn-light">초기화</a>
+                                            </div>
+
+                                            <div class="d-flex align-items-center gap-3 mt-5 pt-5 border-top border-gray-200">
+                                                <label class="form-label mb-0 fw-bold text-muted" style="min-width: 60px;">구분 필터</label>
+                                                <select name="filterCategory" class="form-select form-select-solid w-200px" onchange="this.form.submit();">
+                                                    <option value="">모든 항목 보기</option>
+                                                    <option value="WIN_RATE" ${filterCategory eq 'WIN_RATE' ? 'selected' : ''}>승률 구간</option>
+                                                    <option value="ATTENDANCE_COUNT" ${filterCategory eq 'ATTENDANCE_COUNT' ? 'selected' : ''}>직관 횟수</option>
+                                                    <option value="RECENT_TREND" ${filterCategory eq 'RECENT_TREND' ? 'selected' : ''}>최근 흐름</option>
+                                                </select>
+                                            </div>
                                         </form>
                                     </div>
                                 </div>

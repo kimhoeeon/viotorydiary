@@ -21,13 +21,15 @@ public class WinYoMngController {
     // 목록 페이지
     @GetMapping("/mentions")
     public String mentionList(
+            @RequestParam(value = "filterCategory", required = false) String filterCategory,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "searchWord", required = false) String searchWord,
             Model model) {
 
-        List<WinYoMentionVO> list = winYoMngService.getMentionList(searchType, searchWord);
+        List<WinYoMentionVO> list = winYoMngService.getMentionList(filterCategory, searchType, searchWord);
 
         model.addAttribute("list", list);
+        model.addAttribute("filterCategory", filterCategory);
         model.addAttribute("searchType", searchType);
         model.addAttribute("searchWord", searchWord);
 
