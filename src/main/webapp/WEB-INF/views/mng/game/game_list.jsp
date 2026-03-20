@@ -73,7 +73,8 @@
                                     <div class="card-body py-4 d-flex justify-content-between align-items-center">
                                         <form action="/mng/game/list" method="get" class="d-flex align-items-center">
                                             <input type="month" class="form-control form-control-solid w-150px me-3" name="ym" value="${ym}">
-                                            <button type="submit" class="btn btn-primary">조회</button>
+                                            <button type="submit" class="btn btn-primary me-2">조회</button>
+                                            <button type="button" class="btn btn-light-info" onclick="scrollToToday()">오늘로 이동</button>
                                         </form>
                                         <div>
                                             <button type="button" class="btn btn-light-success me-2" onclick="syncData('MONTH')">
@@ -126,7 +127,7 @@
                                                         </c:when>
                                                         <c:otherwise>
                                                             <c:forEach var="item" items="${list}" varStatus="status">
-                                                                <tr>
+                                                                <tr data-date="${item.gameDate}">
                                                                     <td class="text-center">${status.count}</td>
 
                                                                     <td class="text-center">
@@ -525,6 +526,37 @@
                 }
             });
         }
+
+        function scrollToToday() {
+            // 오늘 날짜 구하기 (YYYY-MM-DD 형식)
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+
+            // DB 포맷을 모두 커버하기 위한 두 가지 날짜 형태
+            const todayStr1 = year + '-' + month + '-' + day; // 예: 2026-03-20
+
+            // data-date 속성에 오늘 날짜 문자열이 "포함(*=)" 되어 있는 첫 번째 행을 찾음 (시간이 포함되어 있어도 매핑됨)
+            const $todayRow = $('tr[data-date*="' + todayStr1 + '"]').first();
+
+            if ($todayRow.length > 0) {
+                // 오늘 날짜의 모든 행에 옅은 파란색 배경 하이라이트 적용
+                $('tr[data-date*="' + todayStr1 + '"]').css('background-color', '#f0f8ff');
+
+                // 해당 위치로 부드럽게 스크롤 (상단 헤더 높이 150px 정도 빼줌)
+                $('html, body').animate({
+                    scrollTop: $todayRow.offset().top - 150
+                }, 500);
+            }/* else {
+                alert('조회하신 월에는 오늘 날짜의 경기가 없습니다.');
+            }*/
+        }
+
+        // 페이지가 로드되면 자동으로 오늘 위치로 이동시킴
+        $(document).ready(function() {
+            scrollToToday();
+        });
     </script>
 </body>
 </html>
