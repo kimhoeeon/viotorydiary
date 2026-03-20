@@ -140,7 +140,7 @@
         function saveMention() {
             const $form = $('#mentionForm');
 
-            if(!$('input[name=levelName]').val().trim()) { alert('레벨 명(타이틀)을 입력해주세요.'); return; }
+            if(!$('input[name=levelName]').val().trim()) { alert('레벨 명을 입력해주세요.'); return; }
             if(!$('input[name=priority]').val().trim()) { alert('우선순위를 입력해주세요.'); return; }
             if(!$('textarea[name=message]').val().trim()) { alert('사용자 노출 멘트를 입력해주세요.'); return; }
 

@@ -63,19 +63,19 @@
 
                         <div class="card_wrap clover">
                             <div class="card_item gap-16">
-                                <div class="tit clover_tit" style="line-height: 1.4;">
+                                <div class="tit clover_tit">
                                     <c:choose>
                                         <c:when test="${not empty winYo.rateMessage}">
                                             ${winYo.rateMessage}
                                         </c:when>
                                         <c:otherwise>승요력 데이터가 필요해요! 직관을 기록해보세요.</c:otherwise>
                                     </c:choose>
-                                    <c:if test="${not empty winYo.countMessage}">
-                                        <div style="font-size: 14px; font-weight: 500; color: #555; margin-top: 6px;">
-                                            ${winYo.countMessage}
-                                        </div>
-                                    </c:if>
                                 </div>
+                                <c:if test="${not empty winYo.countMessage}">
+                                    <div style="font-size: 14px; font-weight: 500; color: #555;">
+                                        ${winYo.countMessage}
+                                    </div>
+                                </c:if>
                                 <div class="live-certify">
                                     <c:if test="${hasTodayGame}">
                                         <c:choose>

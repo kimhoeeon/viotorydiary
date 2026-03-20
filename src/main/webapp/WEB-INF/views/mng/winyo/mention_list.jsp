@@ -115,47 +115,47 @@
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
-                                                <tr class="text-muted fw-bold fs-7 text-uppercase gs-0 border-bottom border-gray-200">
-                                                    <th class="w-100px text-center">구분</th>
-                                                    <th class="w-100px text-center">조건 코드</th>
-                                                    <th class="w-120px text-center">조건 범위</th>
-                                                    <th class="w-200px text-center">레벨 명(타이틀)</th>
-                                                    <th class="text-start">멘트 내용</th>
-                                                    <th class="w-80px text-center">우선순위</th>
-                                                    <th class="w-100px text-center">관리</th>
-                                                </tr>
+                                                    <tr class="text-muted fw-bold fs-7 text-uppercase gs-0 border-bottom border-gray-200">
+                                                        <th class="w-100px text-center">구분</th>
+                                                        <th class="w-100px text-center">조건 코드</th>
+                                                        <th class="w-120px text-center">조건 범위</th>
+                                                        <th class="w-200px text-center">레벨 명</th>
+                                                        <th class="text-start">멘트 내용</th>
+                                                        <th class="w-80px text-center">우선순위</th>
+                                                        <th class="w-100px text-center">관리</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${list}">
-                                                    <tr>
-                                                        <td class="text-center">
-                                                            <c:choose>
-                                                                <c:when test="${item.category eq 'WIN_RATE'}"><span class="badge badge-light-primary">승률 구간</span></c:when>
-                                                                <c:when test="${item.category eq 'ATTENDANCE_COUNT'}"><span class="badge badge-light-success">직관 횟수</span></c:when>
-                                                                <c:when test="${item.category eq 'RECENT_TREND'}"><span class="badge badge-light-warning">최근 흐름</span></c:when>
-                                                                <c:otherwise><span class="badge badge-light-secondary">${item.category}</span></c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td class="text-center">${item.conditionCode}</td>
-                                                        <td class="text-center fw-bold text-dark">
-                                                            <c:choose>
-                                                                <c:when test="${not empty item.minVal}">${item.minVal} ~ ${item.maxVal == 9999 ? '이상' : item.maxVal}</c:when>
-                                                                <c:otherwise>-</c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td class="text-center fw-bold text-dark">${item.levelName}</td>
-                                                        <td class="text-start">${item.message}</td>
-                                                        <td class="text-center">${item.priority}</td>
-                                                        <td class="text-center">
-                                                            <a href="/mng/winyo/mention/detail?mentionId=${item.mentionId}" class="btn btn-sm btn-light btn-active-light-primary">수정</a>
-                                                        </td>
-                                                    </tr>
-                                                </c:forEach>
-                                                <c:if test="${empty list}">
-                                                    <tr>
-                                                        <td colspan="7" class="text-center p-10 text-muted">검색 결과가 없습니다.</td>
-                                                    </tr>
-                                                </c:if>
+                                                    <c:forEach var="item" items="${list}">
+                                                        <tr>
+                                                            <td class="text-center">
+                                                                <c:choose>
+                                                                    <c:when test="${item.category eq 'WIN_RATE'}"><span class="badge badge-light-primary">승률 구간</span></c:when>
+                                                                    <c:when test="${item.category eq 'ATTENDANCE_COUNT'}"><span class="badge badge-light-success">직관 횟수</span></c:when>
+                                                                    <c:when test="${item.category eq 'RECENT_TREND'}"><span class="badge badge-light-warning">최근 흐름</span></c:when>
+                                                                    <c:otherwise><span class="badge badge-light-secondary">${item.category}</span></c:otherwise>
+                                                                </c:choose>
+                                                            </td>
+                                                            <td class="text-center">${item.conditionCode}</td>
+                                                            <td class="text-center fw-bold text-dark">
+                                                                <c:choose>
+                                                                    <c:when test="${not empty item.minVal}">${item.minVal} ~ ${item.maxVal == 9999 ? '이상' : item.maxVal}</c:when>
+                                                                    <c:otherwise>-</c:otherwise>
+                                                                </c:choose>
+                                                            </td>
+                                                            <td class="text-center fw-bold text-dark">${item.levelName}</td>
+                                                            <td class="text-start">${item.message}</td>
+                                                            <td class="text-center">${item.priority}</td>
+                                                            <td class="text-center">
+                                                                <a href="/mng/winyo/mention/detail?mentionId=${item.mentionId}" class="btn btn-sm btn-light btn-active-light-primary">수정</a>
+                                                            </td>
+                                                        </tr>
+                                                    </c:forEach>
+                                                    <c:if test="${empty list}">
+                                                        <tr>
+                                                            <td colspan="7" class="text-center p-10 text-muted">검색 결과가 없습니다.</td>
+                                                        </tr>
+                                                    </c:if>
                                                 </tbody>
                                             </table>
                                         </div>
