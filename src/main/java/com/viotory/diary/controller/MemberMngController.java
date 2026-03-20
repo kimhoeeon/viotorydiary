@@ -1,8 +1,10 @@
 package com.viotory.diary.controller;
 
+import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.service.DiaryMngService;
 import com.viotory.diary.service.MemberMngService;
+import com.viotory.diary.service.WinYoService;
 import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.DiaryVO;
 import com.viotory.diary.vo.MemberVO;
@@ -24,6 +26,7 @@ public class MemberMngController {
 
     private final MemberMngService memberMngService;
     private final DiaryMngService diaryMngService;
+    private final WinYoService winYoService;
 
     // 목록 페이지 (페이징 + 검색)
     @GetMapping("/list")
@@ -51,8 +54,12 @@ public class MemberMngController {
 
         List<DiaryVO> diaries = diaryMngService.getMemberDiaryHistory(memberId);
 
+        WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(memberId);
+
         model.addAttribute("member", member);
         model.addAttribute("diaries", diaries); // 이력 데이터 전달
+        model.addAttribute("winYo", winYo);
+
         return "mng/member/member_detail";
     }
 

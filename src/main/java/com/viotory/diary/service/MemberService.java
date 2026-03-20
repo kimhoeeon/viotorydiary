@@ -697,7 +697,7 @@ public class MemberService {
     }
 
     /**
-     * [추가] SMS 발송 전 연락처 가입 제한 상태 체크
+     * SMS 발송 전 연락처 가입 제한 상태 체크
      */
     public String checkPhoneJoinRestriction(String phoneNumber) {
         List<MemberVO> historyMembers = memberMapper.selectMembersByPhoneNumber(phoneNumber);

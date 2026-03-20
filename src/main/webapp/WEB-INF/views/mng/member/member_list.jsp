@@ -119,12 +119,12 @@
                                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                                                         <th class="w-50px text-center">No.</th>
                                                         <th class="min-w-80px text-center">상태</th>
-                                                        <th class="min-w-150px">회원정보 (닉네임/이메일)</th>
-                                                        <th class="min-w-100px text-center">연락처</th>
-                                                        <th class="min-w-100px text-center">응원팀</th>
+                                                        <th class="min-w-175px">회원정보 (닉네임/이메일)</th>
+                                                        <th class="min-w-125px text-center">연락처</th>
+                                                        <th class="min-w-125px text-center">응원팀</th>
                                                         <th class="min-w-100px text-center">직관 횟수<br><span class="fs-8 text-muted">(이번달)</span></th>
                                                         <th class="min-w-125px text-center">팔로우/팔로워</th>
-                                                        <th class="min-w-150px text-center">승률 (전적)</th>
+                                                        <th class="min-w-125px text-center">승률 (전적)</th>
                                                         <th class="min-w-125px text-center">가입일시</th>
                                                         <th class="min-w-80px text-center">관리</th>
                                                     </tr>

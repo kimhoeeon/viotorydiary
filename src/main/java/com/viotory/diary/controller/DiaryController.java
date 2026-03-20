@@ -58,7 +58,7 @@ public class DiaryController {
         }
 
         boolean isScoreEditable = true; // 기본적으로 스코어 작성 가능 상태
-        boolean isVerifyPossible = true; // [추가] 기본적으로 직관 인증 가능 상태
+        boolean isVerifyPossible = true; // 기본적으로 직관 인증 가능 상태
 
         // 메인에서 '오늘의 경기 기록하기'로 넘어온 경우, 해당 경기 정보를 미리 세팅
         if (gameId != null) {
@@ -82,7 +82,7 @@ public class DiaryController {
                 // 신규 작성 시에도 경기 종료/취소 또는 시작 1시간 이후면 스코어 입력 차단
                 if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
                     isScoreEditable = false;
-                    isVerifyPossible = false; // [추가] 이미 종료되거나 취소된 경기는 인증 불가
+                    isVerifyPossible = false; // 이미 종료되거나 취소된 경기는 인증 불가
                 } else {
                     try {
                         String timeStr = game.getGameTime();
@@ -95,7 +95,7 @@ public class DiaryController {
                             isScoreEditable = false;
                         }
 
-                        // [추가] 경기 시작 후 1시간이 지났으면 직관 인증 불가
+                        // 경기 시작 후 1시간이 지났으면 직관 인증 불가
                         if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
                             isVerifyPossible = false;
                         }
@@ -194,7 +194,7 @@ public class DiaryController {
                         isScoreEditable = false;
                     }
 
-                    // [추가] 경기 시작 후 1시간이 지났으면 직관 인증 불가
+                    // 경기 시작 후 1시간이 지났으면 직관 인증 불가
                     if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
                         isVerifyPossible = false;
                     }
@@ -576,12 +576,12 @@ public class DiaryController {
             GameVO game = gameService.getGameById(gameId);
             if (game == null) return "fail:game_not_found";
 
-            // [추가] 1-1. 취소/종료된 경기는 인증 불가
+            // 1-1. 취소/종료된 경기는 인증 불가
             if ("CANCELLED".equals(game.getStatus()) || "FINISHED".equals(game.getStatus())) {
                 return "fail:game_ended";
             }
 
-            // [추가] 1-2. 시간 검증: 경기 시작 1시간 후에는 인증 불가
+            // 1-2. 시간 검증: 경기 시작 1시간 후에는 인증 불가
             try {
                 String timeStr = game.getGameTime();
                 if (timeStr != null && timeStr.length() == 5) timeStr += ":00";

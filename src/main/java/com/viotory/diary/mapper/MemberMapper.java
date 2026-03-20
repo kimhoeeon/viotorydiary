@@ -23,7 +23,7 @@ public interface MemberMapper {
     // 연락처 중복 체크
     int countByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
-    // [추가] 가입 제한 체크용: 전화번호로 모든 상태의 회원 이력 조회
+    // 가입 제한 체크용: 전화번호로 모든 상태의 회원 이력 조회
     List<MemberVO> selectMembersByPhoneNumber(@Param("phoneNumber") String phoneNumber);
 
     // 4. 회원 정보 상세 조회 (PK 기준)

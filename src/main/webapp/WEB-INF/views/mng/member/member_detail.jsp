@@ -193,8 +193,8 @@
                                                         <c:when test="${empty member.socialProvider or member.socialProvider eq 'NONE' or member.socialProvider eq 'EMAIL'}">
                                                             <div class="d-flex align-items-center">
                                                                 <button type="button" class="btn btn-sm btn-danger text-nowrap me-3" onclick="resetPassword()">비밀번호 초기화</button>
+                                                                <div class="fs-8 text-muted">(가입된 연락처로 SMS 임시 비밀번호 발송)</div>
                                                             </div>
-                                                            <div class="fs-8 text-muted mt-2">(가입된 연락처로 SMS 임시 비밀번호 발송)</div>
                                                         </c:when>
                                                         <c:otherwise>
                                                             <span class="badge badge-light-secondary fs-7">소셜 로그인 계정 (초기화 불가)</span>
@@ -257,6 +257,29 @@
                                                 <div class="col-lg-4">
                                                     <%-- 무승부 표기 추가 --%>
                                                     <span class="fw-bold fs-6 text-gray-800">${member.winCount}승 <c:if test="${member.drawCount > 0}">${member.drawCount}무 </c:if>${member.loseCount}패</span>
+                                                </div>
+                                            </div>
+
+                                            <%-- 승요력 칭호 및 멘트 노출 영역 --%>
+                                            <div class="separator separator-dashed my-7"></div>
+                                            <div class="row mb-7 align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">직관 횟수 칭호</label>
+                                                <div class="col-lg-10 d-flex align-items-center">
+                                                    <span class="badge badge-light-success fs-6 fw-bold me-3">${not empty winYo.countLevelName ? winYo.countLevelName : '-'}</span>
+                                                    <span class="text-gray-800">${winYo.countMessage}</span>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-7 align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">승률 구간 칭호</label>
+                                                <div class="col-lg-10 d-flex align-items-center">
+                                                    <span class="badge badge-light-primary fs-6 fw-bold me-3">${not empty winYo.rateLevelName ? winYo.rateLevelName : '-'}</span>
+                                                    <span class="text-gray-800">${winYo.rateMessage}</span>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-7 align-items-center">
+                                                <label class="col-lg-2 fw-semibold text-muted">최근 흐름 멘트</label>
+                                                <div class="col-lg-10">
+                                                    <span class="text-gray-800 fs-6">${not empty winYo.subMessage ? winYo.subMessage : '-'}</span>
                                                 </div>
                                             </div>
 
