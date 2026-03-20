@@ -65,9 +65,9 @@
                         </div>
 
                         <div id="kt_app_content" class="app-content flex-column-fluid">
-                            <div id="kt_app_content_container" class="app-container container-fluid">
+                            <div id="kt_app_content_container" class="app-container container-xxl pt-6">
 
-                                <div class="alert alert-primary d-flex align-items-center p-5 mb-7">
+                                <div class="notice d-flex bg-light-primary d-flex align-items-center rounded border-primary border border-dashed p-5 mb-7">
                                     <i class="ki-duotone ki-shield-tick fs-2hx text-primary me-4">
                                         <span class="path1"></span><span class="path2"></span>
                                     </i>

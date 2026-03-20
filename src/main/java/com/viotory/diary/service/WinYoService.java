@@ -88,7 +88,7 @@ public class WinYoService {
             }
         } else {
             analysis.setRateLevelName("🌱 예비 승요");
-            analysis.setRateMessage("직관 데이터가 더 필요해요! (2회 이상)");
+            analysis.setRateMessage("직관 데이터가 더 필요해요!");
         }
 
         // 6. [DB 연동] 직관 횟수 구간 및 멘트 세팅
