@@ -37,7 +37,7 @@
     </select>
 
     <select id="countByNickname" parameterType="string" resultType="int">
-        SELECT COUNT(*) FROM members WHERE nickname = #{nickname}
+        SELECT COUNT(*) FROM members WHERE nickname = #{nickname} and status != 'WITHDRAWN'
     </select>
 
     <select id="countByPhoneNumber" parameterType="string" resultType="int">

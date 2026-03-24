@@ -146,8 +146,13 @@ public class MemberController {
 
             // 3. 기존 회원 -> 정지 및 탈퇴 계정 로그인 및 재가입 차단 ▼
             if ("WITHDRAWN".equals(member.getStatus())) {
-                model.addAttribute("message", "탈퇴한 계정입니다.");
-                return "member/login";
+                if (member.getUpdatedAt() != null && member.getUpdatedAt().plusDays(7).isAfter(java.time.LocalDateTime.now())) {
+                    model.addAttribute("message", "탈퇴 후 7일이 지나지 않아 재가입할 수 없습니다.");
+                    return "member/login";
+                }
+                // 7일 경과 시 재가입 허용 (신규가입 취급)
+                model.addAttribute("kakaoInfo", member);
+                return "member/join_social_bridge";
             }
             if ("SUSPENDED".equals(member.getStatus())) {
                 model.addAttribute("message", "운영정책 위반으로 활동이 영구 정지된 계정입니다.");
@@ -221,9 +226,14 @@ public class MemberController {
 
             if (existingMember != null) {
                 // 탈퇴 여부 체크
+                // 탈퇴한 계정이라도 7일이 경과했으면 재가입 브릿지로 보냄
                 if ("WITHDRAWN".equals(existingMember.getStatus())) {
-                    model.addAttribute("message", "탈퇴한 계정입니다.");
-                    return "member/login";
+                    if (existingMember.getUpdatedAt() != null && existingMember.getUpdatedAt().plusDays(7).isAfter(java.time.LocalDateTime.now())) {
+                        model.addAttribute("message", "탈퇴 후 7일이 지나지 않아 재가입할 수 없습니다.");
+                        return "member/login";
+                    }
+                    model.addAttribute("kakaoInfo", existingMember);
+                    return "member/join_social_bridge";
                 }
                 if ("SUSPENDED".equals(existingMember.getStatus())) {
                     model.addAttribute("message", "운영정책 위반으로 활동이 정지된 계정입니다.");
@@ -298,7 +308,23 @@ public class MemberController {
     @ResponseBody
     public String checkEmail(@RequestParam("email") String email) {
         MemberVO existing = memberService.getMemberByEmail(email);
-        return (existing == null) ? "ok" : "fail";
+        if (existing == null) {
+            return "ok"; // 완전 신규
+        }
+
+        if ("WITHDRAWN".equals(existing.getStatus())) {
+            // 탈퇴 후 7일 경과 여부 확인
+            if (existing.getUpdatedAt() != null && existing.getUpdatedAt().plusDays(7).isAfter(java.time.LocalDateTime.now())) {
+                return "withdrawn_7days";
+            }
+            return "ok"; // 7일 지났으면 재가입 가능 (프론트에선 ok로 처리)
+        }
+
+        if ("SUSPENDED".equals(existing.getStatus())) {
+            return "suspended"; // 영구 정지 회원
+        }
+
+        return "fail"; // 기존 회원이 사용 중
     }
 
     /**

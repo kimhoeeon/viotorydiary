@@ -116,6 +116,7 @@
             // 이메일 중복 체크 (운영 기준 필수)
             $.post('/member/check/email', {email: email}, function(res) {
                 if(res === 'ok') {
+                    // 탈퇴 7일 경과 회원 또는 완전 신규 회원은 통과
                     sessionStorage.setItem('join_email', email);
                     // 이메일 수동 입력에 성공한 소셜 유저도 4단계로 점프
                     if (joinProvider && (joinProvider === 'KAKAO' || joinProvider === 'APPLE')) {
@@ -123,8 +124,16 @@
                     } else {
                         location.href = '/member/join/step3';
                     }
-                } else {
-                    alert('이미 가입된 이메일입니다.');
+                }
+                // [핵심 수정] 컨트롤러에서 반환하는 세분화된 상태값 처리
+                else if (res === 'withdrawn_7days') {
+                    alert('탈퇴 후 7일이 경과하지 않아 재가입할 수 없습니다.');
+                }
+                else if (res === 'suspended') {
+                    alert('운영정책 위반으로 가입이 영구 제한된 이메일입니다.');
+                }
+                else {
+                    alert('이미 사용중인 이메일입니다.');
                 }
             }).fail(function() {
                 alert('서버 통신 오류가 발생했습니다.');
