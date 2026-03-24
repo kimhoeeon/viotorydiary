@@ -165,6 +165,7 @@
             // Step 2(이메일 입력)를 건너뛰고 Step 3(비밀번호 입력)으로 바로 이동
             if (joinProvider && (joinProvider === 'KAKAO' || joinProvider === 'APPLE')) {
                 if (savedEmail && savedEmail !== 'null' && savedEmail.trim() !== '') {
+                    sessionStorage.setItem('join_pw', 'kakao')
                     location.href = '/member/join/step4';
                     return;
                 }
