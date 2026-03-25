@@ -127,4 +127,16 @@
         LIMIT 1
     </select>
 
+    <select id="selectMaintenanceMode" resultType="string">
+        SELECT config_value
+        FROM system_config
+        WHERE config_key = 'MAINTENANCE_MODE'
+    </select>
+
+    <update id="updateMaintenanceMode">
+        UPDATE system_config
+        SET config_value = #{status}
+        WHERE config_key = 'MAINTENANCE_MODE'
+    </update>
+
 </mapper>

@@ -437,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tab.classList.add('on');
         tab.setAttribute('aria-selected', 'true');
 
-        // (선택) 패널 전환
+        // 패널 전환
         if (panels.length) {
             panels.forEach(p => p.classList.toggle('on', p.dataset.panel === key));
         }

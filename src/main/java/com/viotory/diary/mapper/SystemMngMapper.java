@@ -70,4 +70,10 @@ public interface SystemMngMapper {
 
     // 약관 삭제
     void deleteTerms(Long termId);
+
+    // 점검 모드 상태 조회 및 업데이트
+    String selectMaintenanceMode();
+    
+    void updateMaintenanceMode(@Param("status") String status);
+    
 }

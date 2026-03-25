@@ -1,5 +1,6 @@
 package com.viotory.diary.service;
 
+import com.viotory.diary.config.MaintenanceInterceptor;
 import com.viotory.diary.mapper.SystemMngMapper;
 import com.viotory.diary.vo.AppVersionVO;
 import com.viotory.diary.vo.NoticeVO;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Slf4j
@@ -122,4 +124,30 @@ public class SystemMngService {
     public void deleteTerms(Long termId) {
         systemMngMapper.deleteTerms(termId);
     }
+
+    // ==========================================
+    // 서버 부팅 시 점검 모드 상태 로드
+    // ==========================================
+    @PostConstruct
+    public void initMaintenanceMode() {
+        try {
+            String status = systemMngMapper.selectMaintenanceMode();
+            if (status != null) {
+                // DB 값이 'Y'이면 true, 아니면 false로 메모리에 세팅
+                MaintenanceInterceptor.isMaintenanceMode = "Y".equals(status);
+                log.info("✅ 서버 부팅 완료: 현재 사이트 점검 모드 = {}", MaintenanceInterceptor.isMaintenanceMode);
+            }
+        } catch (Exception e) {
+            log.warn("점검 모드 초기화 실패 (DB 테이블 확인 필요): {}", e.getMessage());
+        }
+    }
+
+    // 관리자가 점검 모드를 켜고 끌 때 호출할 메서드
+    @Transactional
+    public void setMaintenanceMode(boolean isLock) {
+        String status = isLock ? "Y" : "N";
+        systemMngMapper.updateMaintenanceMode(status);     // 1. DB 업데이트 (영구 저장)
+        MaintenanceInterceptor.isMaintenanceMode = isLock; // 2. 메모리 즉시 반영 (재부팅 없이 바로 적용)
+    }
+    
 }

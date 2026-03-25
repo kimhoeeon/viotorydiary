@@ -2,6 +2,7 @@ package com.viotory.diary.controller;
 
 import com.viotory.diary.config.MaintenanceInterceptor;
 import com.viotory.diary.service.AdminMngService;
+import com.viotory.diary.service.SystemMngService;
 import com.viotory.diary.vo.AdminVO;
 import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.PageDTO;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class AdminMngController {
 
     private final AdminMngService adminMngService;
+    private final SystemMngService systemMngService;
 
     @GetMapping("/list")
     public String list(Model model, @ModelAttribute("cri") Criteria cri) {
@@ -68,8 +70,10 @@ public class AdminMngController {
     public Map<String, Object> toggleMaintenance(@RequestParam("mode") boolean mode,
                                                  @RequestParam(value="message", required=false) String message) {
 
-        // Static 변수 값 변경 (즉시 전역 적용됨)
-        MaintenanceInterceptor.isMaintenanceMode = mode;
+        // [수정] DB 상태 저장 및 메모리 즉시 반영을 위해 Service 호출
+        systemMngService.setMaintenanceMode(mode);
+
+        // 점검 메시지가 함께 넘어올 경우 세팅
         if (message != null && !message.isEmpty()) {
             MaintenanceInterceptor.maintenanceMessage = message;
         }

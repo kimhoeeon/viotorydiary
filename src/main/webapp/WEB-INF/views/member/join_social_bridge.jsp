@@ -20,7 +20,7 @@
     <script src="/js/script.js"></script>
 
     <script>
-        // [추가] 브라우저 URL에 남아있는 1회용 인증 코드를 숨겨 새로고침 시 중복 요청(KOE320 에러) 방지
+        // 브라우저 URL에 남아있는 1회용 인증 코드를 숨겨 새로고침 시 중복 요청(KOE320 에러) 방지
         if (window.history.replaceState) {
             window.history.replaceState({}, null, '/member/login');
         }
