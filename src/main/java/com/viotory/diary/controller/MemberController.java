@@ -132,9 +132,13 @@ public class MemberController {
     // [카카오 로그인 콜백]
     @GetMapping("/kakao/callback")
     public String kakaoCallback(@RequestParam String code, HttpSession session, Model model) {
-        try {
-            //log.info("카카오 인증 코드 수신: {}", code);
 
+        // [방어 로직 1] 이미 로그인된 상태에서 뒤로가기 등으로 다시 진입한 경우 에러 없이 메인으로 이동
+        if (session.getAttribute("loginMember") != null) {
+            return "redirect:/main";
+        }
+
+        try {
             // 1. 서비스 호출
             MemberVO member = memberService.processKakaoLogin(code);
 
@@ -174,8 +178,14 @@ public class MemberController {
             return "redirect:/main";
 
         } catch (Exception e) {
-            log.error("카카오 로그인 실패", e);
-            model.addAttribute("message", "카카오 로그인에 실패했습니다.");
+            // [방어 로직 2] 카카오 KOE320 에러 (1회용 코드 재사용) 부드럽게 처리
+            if (e.getMessage() != null && e.getMessage().contains("KOE320")) {
+                log.warn("카카오 로그인 중복 요청 방어 (KOE320) - 1회용 인증 코드가 재사용 되었습니다.");
+                model.addAttribute("message", "이미 처리된 요청이거나 만료된 인증입니다. 카카오 로그인을 다시 시도해 주세요.");
+            } else {
+                log.error("카카오 로그인 실패", e); // 진짜 통신 장애일 때만 에러 로그 출력
+                model.addAttribute("message", "카카오 로그인에 실패했습니다.");
+            }
             return "member/login";
         }
     }
