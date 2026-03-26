@@ -70,7 +70,7 @@ public class AdminMngController {
     public Map<String, Object> toggleMaintenance(@RequestParam("mode") boolean mode,
                                                  @RequestParam(value="message", required=false) String message) {
 
-        // [수정] DB 상태 저장 및 메모리 즉시 반영을 위해 Service 호출
+        // DB 상태 저장 및 메모리 즉시 반영을 위해 Service 호출
         systemMngService.setMaintenanceMode(mode);
 
         // 점검 메시지가 함께 넘어올 경우 세팅

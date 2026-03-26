@@ -35,9 +35,8 @@ public class PushMngService {
     public void init() {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
-                // TODO: 적용예정
-                // 프로젝트 설정 > 서비스 계정 에서 다운로드 받은 비공개 키 파일
-                ClassPathResource resource = new ClassPathResource("firebase-service-account.json");
+                // 발급받은 실제 Firebase 키 파일명으로 매핑 (src/main/resources 하위)
+                ClassPathResource resource = new ClassPathResource("myseungyo-firebase-adminsdk-fbsvc-c5a1173f10.json");
 
                 FirebaseOptions options = FirebaseOptions.builder()
                         .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
@@ -46,7 +45,7 @@ public class PushMngService {
                 log.info("🔥 Firebase Admin SDK Initialized Successfully");
             }
         } catch (IOException e) {
-            log.error("❌ Firebase Init Failed: {}", e.getMessage());
+            log.error("❌ Firebase Init Failed: 키 파일 위치 및 이름을 확인해주세요. 에러 = {}", e.getMessage());
         }
     }
 
@@ -86,10 +85,10 @@ public class PushMngService {
         for (Long memberId : targetMemberIds) {
             AlarmVO alarm = new AlarmVO();
             alarm.setMemberId(memberId);
-            alarm.setCategory("SYSTEM"); // VO 변수명 맞춤
-            alarm.setTitle(vo.getTitle()); // 방금 추가한 Title
+            alarm.setCategory("SYSTEM");
+            alarm.setTitle(vo.getTitle());
             alarm.setContent(vo.getContent());
-            alarm.setRedirectUrl(linkUrl); // VO 변수명 맞춤
+            alarm.setRedirectUrl(linkUrl);
             alarmMapper.insertAlarm(alarm);
         }
 
@@ -99,6 +98,7 @@ public class PushMngService {
         int failureCount = 0;
 
         if (tokens != null && !tokens.isEmpty()) {
+            // FCM 정책상 한 번에 최대 500건씩 묶어서 발송해야 함
             List<List<String>> batches = partition(tokens, 500);
 
             for (List<String> batchTokens : batches) {
@@ -109,6 +109,7 @@ public class PushMngService {
                                     .setBody(vo.getContent())
                                     .build())
                             .putData("link", linkUrl)
+                            .putData("url", linkUrl)
                             .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
                             .addAllTokens(batchTokens)
                             .build();
@@ -131,6 +132,7 @@ public class PushMngService {
         pushMngMapper.insertPushLog(vo);
     }
 
+    // 리스트를 지정된 사이즈(500건)로 분할하는 유틸 메서드
     private <T> List<List<T>> partition(List<T> list, int size) {
         List<List<T>> partitions = new ArrayList<>();
         for (int i = 0; i < list.size(); i += size) {

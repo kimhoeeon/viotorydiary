@@ -39,5 +39,5 @@ out/
 # 설정 파일 제외
 application.properties
 
-### Firebase Key ###
-firebase-service-account.json
+# Firebase Secret Key
+*firebase-adminsdk*.json

@@ -25,7 +25,7 @@
         const joinProvider = sessionStorage.getItem('join_provider');
         const isSocial = joinProvider && (joinProvider === 'KAKAO' || joinProvider === 'APPLE');
 
-        // [수정] 소셜 가입자(카카오, 애플)는 비밀번호 입력을 건너뛰므로 예외 처리
+        // 소셜 가입자(카카오, 애플)는 비밀번호 입력을 건너뛰므로 예외 처리
         if (!isSocial && !sessionStorage.getItem('join_pw')) {
             alert('이전 단계가 완료되지 않았습니다.');
             location.replace('/member/join/step3');
