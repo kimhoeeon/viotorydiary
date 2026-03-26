@@ -88,7 +88,7 @@
         </div>
     </div>
 
-    <form id="appleLoginForm" action="https://appleid.apple.com/auth/authorize" method="post">
+    <form id="appleLoginForm" action="https://appleid.apple.com/auth/authorize" method="get">
         <input type="hidden" name="client_id" id="apple_client_id" value="">
         <input type="hidden" name="redirect_uri" id="apple_redirect_uri" value="">
         <input type="hidden" name="response_type" value="code id_token">

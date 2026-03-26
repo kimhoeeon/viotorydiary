@@ -7,10 +7,12 @@ import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.service.*;
+import com.viotory.diary.util.AppleJwtUtils;
 import com.viotory.diary.util.FileUtil;
 import com.viotory.diary.vo.Criteria;
 import com.viotory.diary.vo.MemberVO;
 import com.viotory.diary.vo.TeamVO;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -40,6 +42,7 @@ public class MemberController {
     private final CommentService commentService;
     private final TeamInfoMngService teamInfoMngService;
     private final WinYoService winYoService;
+    private final AppleJwtUtils appleJwtUtils;
 
     // ==========================================
     // 1. 로그인 & 로그아웃
@@ -202,24 +205,32 @@ public class MemberController {
         log.info("Apple Login Callback 진입");
 
         try {
-            // 1. JWT 형식인 id_token에서 payload(중간 부분)를 분리하여 Base64 URL 디코딩
-            String[] jwtParts = idToken.split("\\.");
-            if (jwtParts.length < 2) {
-                throw new Exception("유효하지 않은 Apple id_token 입니다.");
+            // 1. AppleJwtUtils를 사용하여 실시간 서명 검증 및 Claims(페이로드) 추출
+            Claims claims = appleJwtUtils.getClaimsBy(idToken);
+
+            // 2. 검증된 Claims에서 필수 정보(email, sub) 추출
+            String email = claims.get("email", String.class);
+            if (email == null) email = "";
+            String appleUniqueId = claims.getSubject(); // Apple의 고유 ID(sub)
+
+            log.info("Apple Login 서명 검증 완료 - email: {}, sub: {}", email, appleUniqueId);
+
+            // 3. Apple이 최초 로그인 시 1회만 제공하는 user JSON에서 이름 정보 추출
+            String fullName = "";
+            if (userJson != null && !userJson.isEmpty()) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    JsonNode userNode = mapper.readTree(userJson);
+                    if (userNode.has("name")) {
+                        JsonNode nameNode = userNode.get("name");
+                        String lastName = nameNode.has("lastName") ? nameNode.get("lastName").asText() : "";
+                        String firstName = nameNode.has("firstName") ? nameNode.get("firstName").asText() : "";
+                        fullName = lastName + firstName;
+                    }
+                } catch (Exception e) {
+                    log.warn("Apple user JSON parsing error", e);
+                }
             }
-
-            String payloadBase64 = jwtParts[1];
-            String payloadJson = new String(Base64.getUrlDecoder().decode(payloadBase64), StandardCharsets.UTF_8);
-
-            // 2. JSON 파싱
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode payload = mapper.readTree(payloadJson);
-
-            // 3. email, sub(Apple 고유 ID) 추출
-            String email = payload.has("email") ? payload.get("email").asText() : "";
-            String appleUniqueId = payload.get("sub").asText();
-
-            log.info("Apple Login 파싱 완료 - email: {}, sub: {}", email, appleUniqueId);
 
             // 4. DB에서 고유 식별자(SocialUid)를 기준으로 기존 회원 여부 확인
             MemberVO existingMember = memberService.getMemberBySocialId("APPLE", appleUniqueId);
@@ -267,13 +278,18 @@ public class MemberController {
                 newMember.setSocialProvider("APPLE");
                 newMember.setSocialUid(appleUniqueId);
 
+                // 추출한 이름이 존재한다면 닉네임 필드에 기본값으로 세팅
+                if (!fullName.isEmpty()) {
+                    newMember.setNickname(fullName);
+                }
+
                 // 기존 카카오 로직과 호환되게 kakaoInfo 모델 속성을 통해 브릿지 페이지로 전달
                 model.addAttribute("kakaoInfo", newMember);
                 return "member/join_social_bridge";
             }
 
         } catch (Exception e) {
-            log.error("Apple 로그인 처리 중 오류 발생", e);
+            log.error("Apple 로그인 처리 중 오류 발생 (보안 검증 실패 등)", e);
             model.addAttribute("message", "Apple 로그인 처리 중 오류가 발생했습니다.");
             return "member/login";
         }

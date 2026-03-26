@@ -255,6 +255,7 @@
         FROM follows f
          JOIN members m ON f.following_id = m.member_id
         WHERE f.follower_id = #{targetMemberId}
+          AND m.status != 'WITHDRAWN'
         ORDER BY f.created_at DESC
     </select>
 
@@ -273,6 +274,7 @@
         FROM follows f
          JOIN members m ON f.follower_id = m.member_id
         WHERE f.following_id = #{targetMemberId}
+          AND m.status != 'WITHDRAWN'
         ORDER BY f.created_at DESC
     </select>
 
