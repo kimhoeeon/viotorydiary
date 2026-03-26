@@ -255,7 +255,7 @@
         FROM follows f
          JOIN members m ON f.following_id = m.member_id
         WHERE f.follower_id = #{targetMemberId}
-          AND m.status != 'WITHDRAWN'
+          AND m.status = 'ACTIVE'
         ORDER BY f.created_at DESC
     </select>
 
@@ -274,7 +274,7 @@
         FROM follows f
          JOIN members m ON f.follower_id = m.member_id
         WHERE f.following_id = #{targetMemberId}
-          AND m.status != 'WITHDRAWN'
+          AND m.status = 'ACTIVE'
         ORDER BY f.created_at DESC
     </select>
 
@@ -310,7 +310,9 @@
 
         FROM members
         WHERE nickname LIKE CONCAT('%', #{keyword}, '%')
-          AND member_id != #{myMemberId} ORDER BY nickname ASC
+          AND member_id != #{myMemberId}
+          AND status = 'ACTIVE'
+        ORDER BY nickname ASC
     </select>
 
     <select id="countTodayMembers" resultType="int">
@@ -361,7 +363,7 @@
         SELECT m.*
         FROM members m
         WHERE m.game_alarm = 'Y'
-          AND m.status != 'WITHDRAWN'
+          AND m.status = 'ACTIVE'
           AND m.my_team_code IN (#{homeTeam}, #{awayTeam})
           AND (
             EXISTS (SELECT 1 FROM predictions p WHERE p.member_id = m.member_id AND p.game_id = #{gameId})
