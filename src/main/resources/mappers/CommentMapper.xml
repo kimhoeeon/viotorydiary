@@ -37,6 +37,7 @@
         FROM comments c
         JOIN members m ON c.member_id = m.member_id
         WHERE c.diary_id = #{diaryId}
+        AND m.status = 'ACTIVE'
         ORDER BY c.created_at ASC
     </select>
 
