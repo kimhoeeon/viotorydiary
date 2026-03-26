@@ -1,5 +1,8 @@
 package com.viotory.diary.scheduler;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.MulticastMessage;
+import com.google.firebase.messaging.Notification;
 import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.service.AlarmService;
 import com.viotory.diary.service.GameDataService;
@@ -11,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -91,29 +96,103 @@ public class GameScheduleTask {
         }
     }
 
-    // 경기 알림 DB 생성 메서드
+    // =========================================================================
+    // 1. 경기 종료 등 상태 변환 시 알림 (기존 runLiveSync에서 호출됨)
+    // =========================================================================
     private void createGameStatusAlarm(GameVO game, String newStatus) {
         try {
-            String message = "";
-            if ("LIVE".equals(newStatus)) {
-                message = game.getAwayTeamName() + " vs " + game.getHomeTeamName() + " 경기가 시작되었습니다!";
-            } else if ("FINISHED".equals(newStatus)) {
-                message = game.getAwayTeamName() + " vs " + game.getHomeTeamName() + " 경기가 종료되었습니다.";
+            if ("FINISHED".equals(newStatus)) {
+                // [Case 2] 경기 종료 시 : 예측/일기를 남긴 유저만 필터링
+                List<MemberVO> targets = memberMapper.selectGameParticipants(game.getGameId(), game.getHomeTeamCode(), game.getAwayTeamCode());
+                sendAlarmToUsers(targets, "[승요일기] 오늘 경기 끝! 직관 일기를 남겨보세요", "/diary/write?gameId=" + game.getGameId());
             } else if ("CANCELLED".equals(newStatus)) {
-                message = game.getAwayTeamName() + " vs " + game.getHomeTeamName() + " 경기가 취소되었습니다.";
+                String message = game.getAwayTeamName() + " vs " + game.getHomeTeamName() + " 경기가 취소되었습니다.";
+                sendGameAlarmToTeam(game, message, "/main");
             }
-
-            if (message.isEmpty()) return;
-
-            // 해당 경기를 치르는 홈/원정팀을 응원팀으로 설정하고 game_alarm='Y'인 회원 조회
-            List<MemberVO> targetMembers = memberMapper.selectMembersForGameAlarm(game.getHomeTeamCode(), game.getAwayTeamCode());
-
-            for (MemberVO member : targetMembers) {
-                // 기존에 구현된 AlarmService의 sendAlarm 메서드 사용 (VO 직접 생성 X)
-                alarmService.sendAlarm(member.getMemberId(), "GAME", message, "/main");
-            }
+            // LIVE 상태 시 알림은 QA 기획에 없으므로 스팸 방지를 위해 생략
         } catch (Exception e) {
-            log.error("경기 상태 변경 알림 DB 저장 실패", e);
+            log.error("경기 상태 변경 알림 실패", e);
+        }
+    }
+
+    // =========================================================================
+    // 2. 경기 1시간 전, 30분 전 스케줄러 (매 분 0초마다 실행되어 시간 검사)
+    // =========================================================================
+    @Scheduled(cron = "0 * * * * *")
+    public void checkUpcomingGames() {
+        List<GameVO> games = gameService.getOngoingGames(); // 오늘 대상 경기 목록
+
+        if (games == null || games.isEmpty()) return;
+
+        LocalTime now = LocalTime.now();
+
+        for (GameVO game : games) {
+            // 이미 종료되었거나 취소된 경기는 패스
+            if (game.getGameTime() == null || "FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) continue;
+
+            try {
+                LocalTime gameTime = LocalTime.parse(game.getGameTime());
+
+                // [Case 3] 경기 시작 딱 1시간 전
+                if (now.getHour() == gameTime.minusHours(1).getHour() && now.getMinute() == gameTime.getMinute()) {
+                    sendGameAlarmToTeam(game, "[승요일기] 오늘 우리 팀의 스코어를 기록해 보세요!", "/play");
+                }
+                // [Case 1] 경기 시작 딱 30분 전
+                if (now.getHour() == gameTime.minusMinutes(30).getHour() && now.getMinute() == gameTime.minusMinutes(30).getMinute()) {
+                    sendGameAlarmToTeam(game, "[승요일기] 오늘 우리 팀 경기 시작 30분 전이에요", "/play");
+                }
+            } catch (Exception e) {
+                // 시간 파싱 오류 등은 건너뜀
+            }
+        }
+    }
+
+    // =========================================================================
+    // 3. 해당 경기를 치르는 양 팀 팬 전체를 타겟팅하는 헬퍼
+    // =========================================================================
+    private void sendGameAlarmToTeam(GameVO game, String message, String url) {
+        List<MemberVO> targets = memberMapper.selectMembersForGameAlarm(game.getHomeTeamCode(), game.getAwayTeamCode());
+        sendAlarmToUsers(targets, message, url);
+    }
+
+    // =========================================================================
+    // 4. DB 알림 생성 및 FCM 앱 푸시 동시 발송 코어 엔진
+    // =========================================================================
+    private void sendAlarmToUsers(List<MemberVO> users, String message, String linkUrl) {
+        if (users == null || users.isEmpty()) return;
+
+        List<String> tokens = new ArrayList<>();
+        for (MemberVO member : users) {
+
+            // 1. 사용자 앱 내 알림(종 모양) DB 저장 (기존 AlarmService 완벽 호환)
+            alarmService.sendAlarm(member.getMemberId(), "GAME", message, linkUrl);
+
+            // 2. 푸시 발송을 위한 토큰 수집 (푸시 수신 동의자 & fcmToken 보유자만)
+            if ("Y".equals(member.getPushYn()) && member.getFcmToken() != null && !member.getFcmToken().trim().isEmpty()) {
+                tokens.add(member.getFcmToken());
+            }
+        }
+
+        // 3. 수집된 토큰으로 실제 스마트폰 기기 팝업(FCM) 발송
+        if (!tokens.isEmpty()) {
+            try {
+                for (int i = 0; i < tokens.size(); i += 500) { // FCM 최대 전송 제한 500개씩 분할
+                    List<String> batch = tokens.subList(i, Math.min(i + 500, tokens.size()));
+                    MulticastMessage fcmMessage = MulticastMessage.builder()
+                            .setNotification(Notification.builder()
+                                    .setTitle("경기 알림") // 앱 푸시 팝업 상단 타이틀
+                                    .setBody(message)
+                                    .build())
+                            .putData("link", linkUrl)
+                            .putData("url", linkUrl)
+                            .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                            .addAllTokens(batch)
+                            .build();
+                    FirebaseMessaging.getInstance().sendEachForMulticast(fcmMessage);
+                }
+            } catch (Exception e) {
+                log.error("경기 스케줄러 FCM 푸시 발송 오류: ", e);
+            }
         }
     }
 

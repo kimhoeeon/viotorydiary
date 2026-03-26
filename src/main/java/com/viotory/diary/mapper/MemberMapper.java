@@ -118,4 +118,6 @@ public interface MemberMapper {
 
     void insertAccessLog(Long memberId);
 
+    List<MemberVO> selectGameParticipants(@Param("gameId") Long gameId, @Param("homeTeam") String homeTeam, @Param("awayTeam") String awayTeam);
+
 }

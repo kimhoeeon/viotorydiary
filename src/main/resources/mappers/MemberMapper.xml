@@ -355,4 +355,17 @@
         VALUES (#{memberId}, CURDATE(), NOW())
     </insert>
 
+    <select id="selectGameParticipants" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT m.*
+        FROM members m
+        WHERE m.game_alarm = 'Y'
+          AND m.status != 'WITHDRAWN'
+          AND m.my_team_code IN (#{homeTeam}, #{awayTeam})
+          AND (
+            EXISTS (SELECT 1 FROM predictions p WHERE p.member_id = m.member_id AND p.game_id = #{gameId})
+                OR
+            EXISTS (SELECT 1 FROM diaries d WHERE d.member_id = m.member_id AND d.game_id = #{gameId})
+            )
+    </select>
+
 </mapper>
