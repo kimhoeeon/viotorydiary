@@ -125,7 +125,7 @@
                                                     <div class="game-score ${statusClass}">
 
                                                         <div class="left-team-score ${todayGame.scoreAway > todayGame.scoreHome ? 'high' : ''}">
-                                                                ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreAway}
+                                                            ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreAway}
                                                         </div>
 
                                                         <div class="game-info-wrap">

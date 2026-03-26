@@ -469,7 +469,7 @@
 
                 let homeStarterHtml = '';
                 let awayStarterHtml = '';
-                if(game.status !== 'CANCELLED') {
+                if(game.status !== 'CANCELLED' && game.status !== 'FINISHED') {
                     if(game.homeStarter) homeStarterHtml = `<div class="pitcher-name">\${game.homeStarter}</div>`;
                     if(game.awayStarter) awayStarterHtml = `<div class="pitcher-name">\${game.awayStarter}</div>`;
                 }

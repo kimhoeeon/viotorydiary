@@ -563,7 +563,7 @@ public class MemberController {
 
         if (member != null) {
             // 조회 성공 시 정보 전달
-            model.addAttribute("foundEmail", member.getEmail());
+            model.addAttribute("foundEmail", maskEmail(member.getEmail()));
             model.addAttribute("nickname", member.getNickname());
         }
         // 조회 실패 시 foundEmail이 null이므로 JSP에서 분기 처리됨
@@ -607,7 +607,7 @@ public class MemberController {
         try {
             boolean success = memberService.resetAndSendPassword(memberId, cleanNumber);
             if (success) {
-                model.addAttribute("name", memberId);
+                model.addAttribute("name", maskEmail(memberId));
                 return "member/find_password_result";
             } else {
                 model.addAttribute("error", "입력하신 정보와 일치하는 회원이 없습니다.");
@@ -1001,5 +1001,56 @@ public class MemberController {
             return "fail";
         }
     }
-    
+
+    // ==========================================
+    // 9. 이메일 마스킹 처리 유틸
+    // ==========================================
+    /**
+     * 이메일 마스킹 처리 (아이디/비밀번호 찾기 시 노출용)
+     * 조건 1: 아이디(로컬) 부분 4자리 이상일 경우 4자리까지만 노출, 그 외는 마스킹
+     * 조건 2: 도메인 부분 첫 글자와 최상위 도메인(.com 등)만 노출, 중간은 마스킹
+     * ex) abcde1234@gmail.com -> abcd*****@g****.com
+     */
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            return email;
+        }
+
+        try {
+            String[] parts = email.split("@");
+            String localPart = parts[0];
+            String domainPart = parts[1];
+
+            // 1. 아이디(로컬) 마스킹
+            StringBuilder maskedLocal = new StringBuilder();
+            int localVisible = 4;
+            if (localPart.length() < 4) {
+                // 아이디가 4자리 미만일 경우 예외적으로 1~2자리만 보여줌
+                localVisible = Math.max(1, localPart.length() - 1);
+            }
+            maskedLocal.append(localPart.substring(0, localVisible));
+            for (int i = localVisible; i < localPart.length(); i++) {
+                maskedLocal.append("*");
+            }
+
+            // 2. 도메인 마스킹
+            StringBuilder maskedDomain = new StringBuilder();
+            int dotIndex = domainPart.lastIndexOf(".");
+            if (dotIndex > 0) {
+                maskedDomain.append(domainPart.charAt(0));
+                for (int i = 1; i < dotIndex; i++) {
+                    maskedDomain.append("*");
+                }
+                maskedDomain.append(domainPart.substring(dotIndex));
+            } else {
+                maskedDomain.append(domainPart);
+            }
+
+            return maskedLocal.toString() + "@" + maskedDomain.toString();
+        } catch (Exception e) {
+            log.error("이메일 마스킹 처리 중 오류", e);
+            return email;
+        }
+    }
+
 }
