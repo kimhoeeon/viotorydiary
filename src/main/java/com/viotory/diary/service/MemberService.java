@@ -2,6 +2,9 @@ package com.viotory.diary.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.dto.SmsDTO;
 import com.viotory.diary.exception.AlertException;
@@ -500,22 +503,43 @@ public class MemberService {
     }
 
     // 팔로우 알림 발송 메소드
-    private void sendFollowAlarm(Long followerId, Long targetId) {
+    // 알림 및 FCM 기기 푸시 동시 발송
+    private void sendFollowAlarm(Long followerId, Long followeeId) {
         try {
-            // 알림 내용 구성을 위해 팔로워 정보 조회
-            MemberVO follower = memberMapper.selectMemberById(followerId);
-            MemberVO target = memberMapper.selectMemberById(targetId);
+            MemberVO target = memberMapper.selectMemberById(followeeId); // 알림을 받을 사람 (팔로우 당한 사람)
+            MemberVO actor = memberMapper.selectMemberById(followerId);  // 알림을 발생시킨 사람 (팔로우 한 사람)
 
-            // 알림 수신 동의 여부 체크 (friend_alarm = 'Y')
-            if (target != null && "Y".equals(target.getFriendAlarm())) {
-                String content = follower.getNickname() + "님이 회원님을 팔로우했습니다.";
-                String url = "/member/follow/list?tab=follower"; // 팔로워 목록으로 이동
+            if (target == null || actor == null) return;
 
-                alarmService.sendAlarm(targetId, "FRIEND", content, url);
+            // 상대방의 '친구 알림' 수신 설정이 켜져 있는지 확인
+            if ("Y".equals(target.getFriendAlarm())) {
+                String title = "새로운 팔로워";
+                String message = actor.getNickname() + "님이 회원님을 팔로우했습니다.";
+                String linkUrl = "/member/follow/list?tab=follower"; // 알림 클릭 시 이동할 URL
+
+                // 1. 사용자 앱 내 알림(종 모양 아이콘) DB 저장
+                alarmService.sendAlarm(followeeId, "FRIEND", message, linkUrl);
+
+                // 2. FCM 기기 푸시 발송 (전체 푸시 동의 'Y' 및 fcmToken이 존재하는 경우에만)
+                if ("Y".equals(target.getPushYn()) && target.getFcmToken() != null && !target.getFcmToken().trim().isEmpty()) {
+                    Message fcmMessage = Message.builder()
+                            .setToken(target.getFcmToken()) // 단일 유저에게 발송
+                            .setNotification(Notification.builder()
+                                    .setTitle(title)
+                                    .setBody(message)
+                                    .build())
+                            // 앱 딥링크 호환을 위한 데이터 페이로드
+                            .putData("link", linkUrl)
+                            .putData("url", linkUrl)
+                            .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                            .build();
+
+                    FirebaseMessaging.getInstance().send(fcmMessage);
+                    log.info("FCM 푸시 발송 성공 - Target: {}", target.getMemberId());
+                }
             }
         } catch (Exception e) {
-            log.error("팔로우 알림 발송 실패", e);
-            // 알림 실패가 팔로우 트랜잭션을 롤백시키지 않도록 예외 처리
+            log.error("팔로우 알림 발송 중 시스템 오류 발생", e);
         }
     }
 
