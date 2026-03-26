@@ -96,30 +96,38 @@ public class PushMngService {
         List<String> tokens = pushMngMapper.selectTargetFcmTokens(vo.getTargetType(), vo.getTargetTeam());
         int successCount = 0;
         int failureCount = 0;
+        String pushStatus = "SUCCESS";
 
         if (tokens != null && !tokens.isEmpty()) {
-            // FCM 정책상 한 번에 최대 500건씩 묶어서 발송해야 함
-            List<List<String>> batches = partition(tokens, 500);
+            // [핵심 방어 로직] 서버에 JSON 키 파일이 없어서 Firebase가 초기화되지 않았을 때 404/500 에러로 뻗는 것을 원천 차단
+            if (FirebaseApp.getApps().isEmpty()) {
+                log.error("❌ FCM 발송 실패: Firebase가 초기화되지 않았습니다. (키 파일 서버 업로드 누락 확인)");
+                pushStatus = "FAIL(NO_KEY)";
+            } else {
+                List<List<String>> batches = partition(tokens, 500);
 
-            for (List<String> batchTokens : batches) {
-                try {
-                    MulticastMessage message = MulticastMessage.builder()
-                            .setNotification(Notification.builder()
-                                    .setTitle(vo.getTitle())
-                                    .setBody(vo.getContent())
-                                    .build())
-                            .putData("link", linkUrl)
-                            .putData("url", linkUrl)
-                            .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
-                            .addAllTokens(batchTokens)
-                            .build();
+                for (List<String> batchTokens : batches) {
+                    try {
+                        MulticastMessage message = MulticastMessage.builder()
+                                .setNotification(Notification.builder()
+                                        .setTitle(vo.getTitle())
+                                        .setBody(vo.getContent())
+                                        .build())
+                                .putData("link", linkUrl)
+                                .putData("url", linkUrl)
+                                .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                                .addAllTokens(batchTokens)
+                                .build();
 
-                    BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
-                    successCount += response.getSuccessCount();
-                    failureCount += response.getFailureCount();
+                        BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
+                        successCount += response.getSuccessCount();
+                        failureCount += response.getFailureCount();
 
-                } catch (FirebaseMessagingException e) {
-                    log.error("FCM Send Error: ", e);
+                    } catch (Exception e) {
+                        // 좁은 예외가 아닌 Exception 전체를 잡아 어떤 경우에도 웹사이트가 뻗지 않도록 처리
+                        log.error("FCM Send Error: ", e);
+                        pushStatus = "FAIL(ERROR)";
+                    }
                 }
             }
         }
@@ -128,7 +136,7 @@ public class PushMngService {
 
         // 4. 발송 로그 저장
         vo.setSendCount(targetMemberIds.size());
-        vo.setStatus("SUCCESS");
+        vo.setStatus(pushStatus);
         pushMngMapper.insertPushLog(vo);
     }
 
