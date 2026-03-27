@@ -2,9 +2,7 @@ package com.viotory.diary.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.*;
 import com.viotory.diary.dto.FollowDTO;
 import com.viotory.diary.dto.SmsDTO;
 import com.viotory.diary.exception.AlertException;
@@ -516,7 +514,6 @@ public class MemberService {
                 String title = "새로운 팔로워";
                 String message = actor.getNickname() + "님이 회원님을 팔로우했습니다.";
                 String linkUrl = "/member/follow/list?tab=follower"; // 알림 클릭 시 이동할 URL
-                String fcmUrl = "https://myseungyo.com" + linkUrl;   // 아이폰 웹뷰 랜딩 404 방지용 절대경로
 
                 // 1. 사용자 앱 내 알림(종 모양 아이콘) DB 저장
                 alarmService.sendAlarm(followeeId, "FRIEND", title, message, linkUrl);
@@ -529,12 +526,15 @@ public class MemberService {
                                     .setTitle(title)
                                     .setBody(message)
                                     .build())
-                            // 앱 딥링크 호환을 위한 데이터 페이로드
-                            .putData("link", fcmUrl)
-                            .putData("url", fcmUrl)
-                            .putData("link_url", fcmUrl)
-                            .putData("deep_link", fcmUrl)
-                            .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                            // Appify SDK 샘플에 맞춘 페이로드 적용 (link만 전송)
+                            .putData("link", linkUrl)
+                            .setAndroidConfig(AndroidConfig.builder()
+                                    .setPriority(AndroidConfig.Priority.HIGH)
+                                    .setNotification(AndroidNotification.builder()
+                                            .setChannelId("default")
+                                            .setVisibility(AndroidNotification.Visibility.PUBLIC)
+                                            .build())
+                                    .build())
                             .build();
 
                     FirebaseMessaging.getInstance().send(fcmMessage);

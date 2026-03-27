@@ -1,8 +1,6 @@
 package com.viotory.diary.scheduler;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.MulticastMessage;
-import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.*;
 import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.service.AlarmService;
 import com.viotory.diary.service.GameDataService;
@@ -161,8 +159,6 @@ public class GameScheduleTask {
     private void sendAlarmToUsers(List<MemberVO> users, String message, String linkUrl) {
         if (users == null || users.isEmpty()) return;
 
-        String fcmUrl = linkUrl.startsWith("http") ? linkUrl : "https://myseungyo.com" + linkUrl;
-
         List<String> tokens = new ArrayList<>();
         for (MemberVO member : users) {
 
@@ -185,11 +181,15 @@ public class GameScheduleTask {
                                     .setTitle("경기 알림") // 앱 푸시 팝업 상단 타이틀
                                     .setBody(message)
                                     .build())
-                            .putData("link", fcmUrl)
-                            .putData("url", fcmUrl)
-                            .putData("link_url", fcmUrl)
-                            .putData("deep_link", fcmUrl)
-                            .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
+                            // Appify SDK 규격에 맞춘 페이로드 적용
+                            .putData("link", linkUrl)
+                            .setAndroidConfig(AndroidConfig.builder()
+                                    .setPriority(AndroidConfig.Priority.HIGH)
+                                    .setNotification(AndroidNotification.builder()
+                                            .setChannelId("default")
+                                            .setVisibility(AndroidNotification.Visibility.PUBLIC)
+                                            .build())
+                                    .build())
                             .addAllTokens(batch)
                             .build();
                     FirebaseMessaging.getInstance().sendEachForMulticast(fcmMessage);
