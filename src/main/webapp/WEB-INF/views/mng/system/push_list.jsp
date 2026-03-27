@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -184,8 +185,20 @@
                                                         <td><span class="badge badge-light-primary">전체</span></td>
                                                         <td>${item.sendCount}명</td>
                                                         <td>
-                                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="sendDate" type="both"/>
-                                                            <fmt:formatDate value="${sendDate}" pattern="yyyy-MM-dd HH:mm"/>
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.createdAt}">
+                                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                    <c:choose>
+                                                                        <c:when test="${fn:length(cDate) > 19}">
+                                                                            ${fn:substring(cDate, 0, 19)}
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            ${cDate}
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:when>
+                                                                <c:otherwise>-</c:otherwise>
+                                                            </c:choose>
                                                         </td>
                                                         <td><span class="badge badge-light-success">${item.status}</span>
                                                         </td>

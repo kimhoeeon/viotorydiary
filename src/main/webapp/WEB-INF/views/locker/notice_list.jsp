@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <!doctype html>
 <html lang="ko">
@@ -71,8 +72,20 @@
                                             <div class="tit">${item.title}</div>
                                         </div>
                                         <div class="date">
-                                            <fmt:parseDate value="${item.createdAt}" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" type="both"/>
-                                            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd"/>
+                                            <c:choose>
+                                                <c:when test="${not empty item.createdAt}">
+                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                    <c:choose>
+                                                        <c:when test="${fn:length(cDate) > 19}">
+                                                            ${fn:substring(cDate, 0, 19)}
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            ${cDate}
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </c:when>
+                                                <c:otherwise>-</c:otherwise>
+                                            </c:choose>
                                         </div>
                                     </div>
                                 </div>
