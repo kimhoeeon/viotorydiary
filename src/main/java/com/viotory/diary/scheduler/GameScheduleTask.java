@@ -161,6 +161,8 @@ public class GameScheduleTask {
     private void sendAlarmToUsers(List<MemberVO> users, String message, String linkUrl) {
         if (users == null || users.isEmpty()) return;
 
+        String fcmUrl = linkUrl.startsWith("http") ? linkUrl : "https://myseungyo.com" + linkUrl;
+
         List<String> tokens = new ArrayList<>();
         for (MemberVO member : users) {
 
@@ -183,10 +185,10 @@ public class GameScheduleTask {
                                     .setTitle("경기 알림") // 앱 푸시 팝업 상단 타이틀
                                     .setBody(message)
                                     .build())
-                            .putData("link", linkUrl)
-                            .putData("url", linkUrl)
-                            .putData("link_url", linkUrl)
-                            .putData("deep_link", linkUrl)
+                            .putData("link", fcmUrl)
+                            .putData("url", fcmUrl)
+                            .putData("link_url", fcmUrl)
+                            .putData("deep_link", fcmUrl)
                             .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
                             .addAllTokens(batch)
                             .build();

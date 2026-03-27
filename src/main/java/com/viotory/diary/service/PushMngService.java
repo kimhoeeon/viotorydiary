@@ -80,6 +80,7 @@ public class PushMngService {
         log.info(">>>> [ALARM/PUSH START] Title: {}, Target Count: {}", vo.getTitle(), targetMemberIds.size());
 
         String linkUrl = (vo.getLinkUrl() != null && !vo.getLinkUrl().isEmpty()) ? vo.getLinkUrl() : "/";
+        String fcmUrl = linkUrl.startsWith("http") ? linkUrl : "https://myseungyo.com" + linkUrl;
 
         // 2. 웹사이트 DB(알림 리스트)에 저장
         for (Long memberId : targetMemberIds) {
@@ -113,10 +114,10 @@ public class PushMngService {
                                         .setTitle(vo.getTitle())
                                         .setBody(vo.getContent())
                                         .build())
-                                .putData("link", linkUrl)
-                                .putData("url", linkUrl)
-                                .putData("link_url", linkUrl)
-                                .putData("deep_link", linkUrl)
+                                .putData("link", fcmUrl)
+                                .putData("url", fcmUrl)
+                                .putData("link_url", fcmUrl)
+                                .putData("deep_link", fcmUrl)
                                 .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
                                 .addAllTokens(batchTokens)
                                 .build();
