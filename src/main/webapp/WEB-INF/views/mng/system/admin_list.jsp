@@ -131,7 +131,20 @@
                                                             </c:choose>
                                                         </td>
                                                         <td>
-                                                            ${fn:replace(fn:substring(item.createdAt, 0, 16), 'T', ' ')}
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.createdAt}">
+                                                                    <c:set var="cDate" value="${fn:replace(item.createdAt, 'T', ' ')}" />
+                                                                    <c:choose>
+                                                                        <c:when test="${fn:length(cDate) > 19}">
+                                                                            ${fn:substring(cDate, 0, 19)}
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            ${cDate}
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </c:when>
+                                                                <c:otherwise>-</c:otherwise>
+                                                            </c:choose>
                                                         </td>
                                                         <td>
                                                             <a href="/mng/system/admin/form?id=${item.adminId}"
