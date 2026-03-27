@@ -156,7 +156,7 @@
                                                         </div>
 
                                                         <div class="right-team-score ${todayGame.scoreHome > todayGame.scoreAway ? 'high' : ''}">
-                                                                ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreHome}
+                                                            ${todayGame.status == 'SCHEDULED' ? '-' : todayGame.scoreHome}
                                                         </div>
                                                     </div>
 

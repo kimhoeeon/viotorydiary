@@ -59,6 +59,7 @@ public class DiaryController {
 
         boolean isScoreEditable = true; // 기본적으로 스코어 작성 가능 상태
         boolean isVerifyPossible = true; // 기본적으로 직관 인증 가능 상태
+        String verifyRejectReason = ""; // 인증 불가 사유
 
         // 메인에서 '오늘의 경기 기록하기'로 넘어온 경우, 해당 경기 정보를 미리 세팅
         if (gameId != null) {
@@ -83,22 +84,29 @@ public class DiaryController {
                 if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
                     isScoreEditable = false;
                     isVerifyPossible = false; // 이미 종료되거나 취소된 경기는 인증 불가
+                    verifyRejectReason = "종료된 경기";
                 } else {
                     try {
                         String timeStr = game.getGameTime();
                         if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
                         String dateTimeStr = game.getGameDate() + " " + timeStr;
                         LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        LocalDateTime now = LocalDateTime.now();
 
-                        // 경기 시작 1시간 전이 지났으면 스코어 입력 불가
-                        if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                        // 스코어 편집 제어: 경기 시작 1시간 전이 지났으면 스코어 입력 불가
+                        if (now.isAfter(gameStart.minusHours(1))) {
                             isScoreEditable = false;
                         }
 
-                        // 경기 시작 후 1시간이 지났으면 직관 인증 불가
-                        if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
+                        // 직관 인증 제어: 경기 시작 2시간 전 미만이거나 경기 시작 1시간 이후면 불가
+                        if (now.isBefore(gameStart.minusHours(2))) {
                             isVerifyPossible = false;
+                            verifyRejectReason = "인증 시간 전";
+                        } else if (now.isAfter(gameStart.plusHours(1))) {
+                            isVerifyPossible = false;
+                            verifyRejectReason = "인증 시간 초과";
                         }
+
                     } catch (Exception e) {
                         log.error("경기 시작시간 파싱 오류", e);
                     }
@@ -108,6 +116,7 @@ public class DiaryController {
 
         model.addAttribute("isScoreEditable", isScoreEditable);
         model.addAttribute("isVerifyPossible", isVerifyPossible);
+        model.addAttribute("verifyRejectReason", verifyRejectReason);
 
         return "diary/diary_write"; // views/diary/diary_write.jsp
     }
@@ -189,13 +198,14 @@ public class DiaryController {
                     if (timeStr != null && timeStr.length() == 5) timeStr += ":00"; // HH:mm 초단위 예외 처리
                     String dateTimeStr = game.getGameDate() + " " + timeStr;
                     LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                    LocalDateTime now = LocalDateTime.now();
 
-                    if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
+                    if (now.isAfter(gameStart.minusHours(1))) {
                         isScoreEditable = false;
                     }
 
-                    // 경기 시작 후 1시간이 지났으면 직관 인증 불가
-                    if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
+                    // 인증 제어: 2시간 전 미만이거나 1시간 이후면 불가
+                    if (now.isBefore(gameStart.minusHours(2)) || now.isAfter(gameStart.plusHours(1))) {
                         isVerifyPossible = false;
                     }
 
@@ -581,14 +591,17 @@ public class DiaryController {
                 return "fail:game_ended";
             }
 
-            // 1-2. 시간 검증: 경기 시작 1시간 후에는 인증 불가
+            // 1-2. 시간 검증: 경기 시작 2시간 전 ~ 경기 시작 1시간 후까지만 인증 가능
             try {
                 String timeStr = game.getGameTime();
                 if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
                 String dateTimeStr = game.getGameDate() + " " + timeStr;
                 LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                LocalDateTime now = LocalDateTime.now();
 
-                if (LocalDateTime.now().isAfter(gameStart.plusHours(1))) {
+                if (now.isBefore(gameStart.minusHours(2))) {
+                    return "fail:not_yet"; // 경기 시작 2시간 전보다 이름
+                } else if (now.isAfter(gameStart.plusHours(1))) {
                     return "fail:timeout"; // 경기 시작 1시간 초과로 인증 불가
                 }
             } catch (Exception e) {

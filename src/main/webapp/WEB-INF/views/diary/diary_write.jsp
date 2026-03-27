@@ -69,7 +69,9 @@
                           <c:if test="${not empty selectedGame and not isVerifyPossible}">disabled style="background-color:#ccc; border:none; color:#fff; cursor:not-allowed;"</c:if>
                           onclick="certifyLocation()">
                       <c:choose>
-                          <c:when test="${not empty selectedGame and not isVerifyPossible}">인증 시간 초과</c:when>
+                          <c:when test="${not empty selectedGame and not isVerifyPossible}">
+                              ${not empty verifyRejectReason ? verifyRejectReason : '인증 불가'}
+                          </c:when>
                           <c:otherwise>직관 인증하기</c:otherwise>
                       </c:choose>
                   </button>
@@ -268,6 +270,7 @@
       // 1. 경기 선택 팝업 열기
       function openGameSheet() {
           $('#selectSheet').addClass('is-open');
+
           // 팝업 열 때마다 초기화
           tempSelectedGame = null;
           $('#selectSheetApply').prop('disabled', true);
@@ -342,6 +345,7 @@
        */
       function applyGameSelection() {
           if (!tempSelectedGame) return;
+
           const g = tempSelectedGame;
           const myTeamCode = '${sessionScope.loginMember.myTeamCode}';
 
@@ -361,30 +365,44 @@
           $('#homeTeamLogo').attr('src', g.homeLogo || '/img/team_default.svg');
 
           // 4. MY 뱃지 표시 제어
-          if (g.awayCode === myTeamCode) $('#awayMyTeam').show(); else $('#awayMyTeam').hide();
+          if (g.awayCode === myTeamCode) $('#awayMyTeam').show();
+          else $('#awayMyTeam').hide();
           if (g.homeCode === myTeamCode) $('#homeMyTeam').show(); else $('#homeMyTeam').hide();
 
           // 경기 상태에 따른 스코어 입력창 활성/비활성 처리
           let isEditable = true;
           let isVerifyPos = true;
+          let rejectReason = "";
 
           if (g.status === 'FINISHED' || g.status === 'CANCELLED') {
               isEditable = false;
               isVerifyPos = false;
+              rejectReason = "종료된 경기";
           } else {
               if (g.date && g.time) {
                   let t = g.time.length === 5 ? g.time + ':00' : g.time;
                   let start = new Date(g.date + 'T' + t);
+                  let now = new Date();
 
                   // 스코어 제어: 시작 1시간 전
                   let editStart = new Date(start.getTime());
                   editStart.setHours(editStart.getHours() - 1);
-                  if (new Date() > editStart) isEditable = false;
+                  if (now > editStart) isEditable = false;
 
-                  // 인증 제어: 시작 1시간 후
+                  // 인증 제어: 시작 2시간 전 미만이거나 1시간 후면 불가
+                  let verifyStart = new Date(start.getTime());
+                  verifyStart.setHours(verifyStart.getHours() - 2);
+
                   let verifyEnd = new Date(start.getTime());
                   verifyEnd.setHours(verifyEnd.getHours() + 1);
-                  if (new Date() > verifyEnd) isVerifyPos = false;
+
+                  if (now < verifyStart) {
+                      isVerifyPos = false;
+                      rejectReason = "인증 시간 전";
+                  } else if (now > verifyEnd) {
+                      isVerifyPos = false;
+                      rejectReason = "인증 시간 초과";
+                  }
               }
           }
 
@@ -392,14 +410,15 @@
           if (!isVerifyPos) {
               $('#btnVerify').prop('disabled', true)
                   .css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'})
-                  .text('인증 시간 초과');
+                  .text(rejectReason);
           } else {
               $('#btnVerify').prop('disabled', false)
                   .css({'background-color':'', 'border':'', 'color':'', 'cursor':'pointer'})
                   .text('직관 인증하기');
           }
 
-          window.isScoreEditableDynamic = isEditable; // 전역 플래그 업데이트
+          window.isScoreEditableDynamic = isEditable;
+          // 전역 플래그 업데이트
 
           const $scoreAway = $('input[name="predScoreAway"]');
           const $scoreHome = $('input[name="predScoreHome"]');
@@ -495,6 +514,9 @@
                       } else if (res === 'fail:distance') {
                           alert('경기장과 거리가 너무 멀어요! 🏟️\n경기장 근처에서 다시 시도해주세요.');
                           $btn.text(originalText).prop('disabled', false); // 버튼 복구
+                      } else if (res === 'fail:not_yet') {
+                          alert('직관 인증은 경기 시작 2시간 전부터 가능합니다.');
+                          $btn.text('인증 시간 전').prop('disabled', true).css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'});
                       } else if (res === 'fail:timeout') {
                           alert('경기 시작 후 1시간이 지나 직관 인증을 할 수 없습니다.');
                           // 팝업 확인 후 버튼을 아예 막아버림
@@ -574,7 +596,8 @@
           const box = $('#imagePreviewBox');
           box.empty();
           if (selectedFiles.length === 0) {
-              box.hide(); return;
+              box.hide();
+              return;
           }
           box.show();
 
@@ -635,6 +658,7 @@
 
           // 3) 직관 인증 여부 확인 (미인증 시 컨펌)
           const isVerified = $('#isVerified').val();
+
           if (isVerified !== 'true') {
               customConfirm("정말로 직관 인증을 하지 않고 저장하시겠어요?\n인증 시, 승률 계산에 반영돼요!",
                   function() {
