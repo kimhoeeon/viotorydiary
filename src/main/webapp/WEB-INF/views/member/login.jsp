@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <title>승요일기 - 로그인</title>
+
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
 </head>
 
