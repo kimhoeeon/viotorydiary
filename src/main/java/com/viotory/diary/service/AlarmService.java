@@ -21,10 +21,11 @@ public class AlarmService {
 
     // 알림 발송 (다른 서비스에서 호출 가능)
     @Transactional
-    public void sendAlarm(Long memberId, String category, String content, String url) {
+    public void sendAlarm(Long memberId, String category, String title, String content, String url) {
         AlarmVO alarm = new AlarmVO();
         alarm.setMemberId(memberId);
         alarm.setCategory(category);
+        alarm.setTitle(title);
         alarm.setContent(content);
         alarm.setRedirectUrl(url);
         alarmMapper.insertAlarm(alarm);

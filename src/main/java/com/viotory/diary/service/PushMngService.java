@@ -115,6 +115,8 @@ public class PushMngService {
                                         .build())
                                 .putData("link", linkUrl)
                                 .putData("url", linkUrl)
+                                .putData("link_url", linkUrl)
+                                .putData("deep_link", linkUrl)
                                 .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
                                 .addAllTokens(batchTokens)
                                 .build();

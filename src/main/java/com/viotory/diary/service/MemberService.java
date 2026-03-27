@@ -98,7 +98,7 @@ public class MemberService {
             member.setPhoneNumber(cleanPhone); // DB 저장 시 하이픈(-) 제거하여 깔끔하게 저장
         }
 
-        // ⭐비밀번호 암호화 (소셜은 더미값 부여)
+        // 비밀번호 암호화 (소셜은 더미값 부여)
         if (member.getPassword() != null && !member.getPassword().isEmpty()) {
             String encryptedPassword = sha512.hash(member.getPassword());
             member.setPassword(encryptedPassword);
@@ -518,7 +518,7 @@ public class MemberService {
                 String linkUrl = "/member/follow/list?tab=follower"; // 알림 클릭 시 이동할 URL
 
                 // 1. 사용자 앱 내 알림(종 모양 아이콘) DB 저장
-                alarmService.sendAlarm(followeeId, "FRIEND", message, linkUrl);
+                alarmService.sendAlarm(followeeId, "FRIEND", title, message, linkUrl);
 
                 // 2. FCM 기기 푸시 발송 (전체 푸시 동의 'Y' 및 fcmToken이 존재하는 경우에만)
                 if ("Y".equals(target.getPushYn()) && target.getFcmToken() != null && !target.getFcmToken().trim().isEmpty()) {
@@ -531,6 +531,8 @@ public class MemberService {
                             // 앱 딥링크 호환을 위한 데이터 페이로드
                             .putData("link", linkUrl)
                             .putData("url", linkUrl)
+                            .putData("link_url", linkUrl)
+                            .putData("deep_link", linkUrl)
                             .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
                             .build();
 

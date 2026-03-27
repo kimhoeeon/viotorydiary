@@ -53,6 +53,7 @@ public class GameMngService {
     // =========================================
     private void sendGameStatusAlarm(GameVO game) {
         try {
+            String title = "경기 알림";
             String message = "";
             String homeName = getTeamNameKr(game.getHomeTeamCode());
             String awayName = getTeamNameKr(game.getAwayTeamCode());
@@ -71,7 +72,7 @@ public class GameMngService {
             List<MemberVO> targetMembers = memberMapper.selectMembersForGameAlarm(game.getHomeTeamCode(), game.getAwayTeamCode());
 
             for (MemberVO member : targetMembers) {
-                alarmService.sendAlarm(member.getMemberId(), "GAME", message, "/main");
+                alarmService.sendAlarm(member.getMemberId(), "GAME", title, message, "/main");
             }
             log.info("관리자 수동 상태 변경: {} 알림 발송 완료 (대상자 {}명)", game.getStatus(), targetMembers.size());
         } catch (Exception e) {

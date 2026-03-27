@@ -63,10 +63,11 @@ public class CommentService {
                 MemberVO commenter = memberMapper.selectMemberById(comment.getMemberId());
                 String nickname = (commenter != null) ? commenter.getNickname() : "친구";
 
+                String title = "새로운 댓글";
                 String content = nickname + "님이 내 직관일기에 댓글을 남겼습니다.";
                 String redirectUrl = "/diary/detail?diaryId=" + diary.getDiaryId();
 
-                alarmService.sendAlarm(diary.getMemberId(), "FRIEND", content, redirectUrl);
+                alarmService.sendAlarm(diary.getMemberId(), "FRIEND", title, content, redirectUrl);
             }
         } catch (Exception e) {
             log.error("댓글 알림 DB 저장 중 오류 발생", e);

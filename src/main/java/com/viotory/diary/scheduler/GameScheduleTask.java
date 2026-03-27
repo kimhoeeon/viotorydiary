@@ -165,7 +165,7 @@ public class GameScheduleTask {
         for (MemberVO member : users) {
 
             // 1. 사용자 앱 내 알림(종 모양) DB 저장 (기존 AlarmService 완벽 호환)
-            alarmService.sendAlarm(member.getMemberId(), "GAME", message, linkUrl);
+            alarmService.sendAlarm(member.getMemberId(), "GAME", "경기 알림", message, linkUrl);
 
             // 2. 푸시 발송을 위한 토큰 수집 (푸시 수신 동의자 & fcmToken 보유자만)
             if ("Y".equals(member.getPushYn()) && member.getFcmToken() != null && !member.getFcmToken().trim().isEmpty()) {
@@ -185,6 +185,8 @@ public class GameScheduleTask {
                                     .build())
                             .putData("link", linkUrl)
                             .putData("url", linkUrl)
+                            .putData("link_url", linkUrl)
+                            .putData("deep_link", linkUrl)
                             .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
                             .addAllTokens(batch)
                             .build();

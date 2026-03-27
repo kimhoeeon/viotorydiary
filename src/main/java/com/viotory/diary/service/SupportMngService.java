@@ -65,13 +65,14 @@ public class SupportMngService {
 
             if (origin != null) {
                 // 알림 내용 구성
+                String title = "1:1 문의 답변";
                 String content = "문의하신 내용에 답변이 등록되었습니다.";
                 // 사용자 앱 내 문의 내역 페이지 URL (예시)
                 String url = "/member/mypage/inquiry";
 
                 // 알림 발송 (수신자ID, 타입, 내용, URL)
                 // 타입은 'SYSTEM', 'NOTICE' 등 DB에 정의된 코드 사용
-                alarmService.sendAlarm(origin.getMemberId(), "SYSTEM", content, url);
+                alarmService.sendAlarm(origin.getMemberId(), "SYSTEM", title, content, url);
             }
         } catch (Exception e) {
             // 알림 발송 실패가 답변 등록 트랜잭션을 롤백시키지 않도록 로깅만 처리
