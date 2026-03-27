@@ -236,6 +236,13 @@
         });
 
         function confirmSend() {
+            // 외부 링크(절대 경로) 입력 방지 로직 추가
+            const linkValue = $('input[name="linkUrl"]').val().trim();
+            if (linkValue && (linkValue.startsWith("http://") || linkValue.startsWith("https://"))) {
+                alert("이동 링크에는 외부 링크(http:// 또는 https://)를 입력할 수 없습니다.\n반드시 '/'로 시작하는 내부 경로(예: /mng/event/list)만 입력해 주세요.");
+                return false; // 전송 중단
+            }
+
             // 발송 대상에 따른 맞춤형 컨펌 메시지 제공
             const target = $('input[name="targetType"]:checked').val();
             let msg = "";
