@@ -183,6 +183,15 @@ public class LockerController {
     @ResponseBody
     public Map<String, String> extractOgMeta(@RequestParam("url") String url) {
         Map<String, String> result = new HashMap<>();
+
+        // [방어 로직 추가] 파라미터가 비어있거나, 올바른 URL 형식(http/https)이 아니면 조기 차단
+        if (url == null || url.trim().isEmpty() || (!url.startsWith("http://") && !url.startsWith("https://"))) {
+            log.warn("잘못된 URL 형식으로 OG Meta 추출 시도 차단됨: {}", url);
+            result.put("error", "true");
+            result.put("message", "유효한 URL이 아닙니다.");
+            return result; // 서버 뻗음 방지
+        }
+
         try {
             // Jsoup 라이브러리를 사용해 해당 URL의 HTML 메타태그를 스크래핑합니다.
             Document doc = connect(url)
@@ -197,6 +206,7 @@ public class LockerController {
         } catch (Exception e) {
             log.error("OG Meta 추출 실패: {}", url, e);
             result.put("error", "true");
+            result.put("message", "데이터를 가져오는 중 오류가 발생했습니다.");
         }
         return result;
     }
