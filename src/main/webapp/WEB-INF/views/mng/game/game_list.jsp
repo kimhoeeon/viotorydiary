@@ -164,7 +164,7 @@
                                                                 <td class="text-center">
                                                                     <c:choose>
                                                                         <c:when test="${item.dataSource eq 'API'}">
-                                                                            <span class="badge badge-outline badge-primary">API 연동</span>
+                                                                            <span class="badge badge-outline badge-primary">자동 연동</span>
                                                                         </c:when>
                                                                         <c:otherwise>
                                                                             <span class="badge badge-outline badge-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="수동 등록된 경기는 자동 스코어 업데이트가 지원되지 않습니다.">수동 등록</span>
@@ -420,7 +420,7 @@
                     document.getElementById('cancelReason').value = data.cancelReason || '';
 
                     // 팝업 타이틀 동적 변경 (API인지 수동인지 알려줌)
-                    document.getElementById('modalTitle').innerText = (data.dataSource === 'API') ? '경기 수정 (API 동기화)' : '경기 수정 (수동 등록)';
+                    document.getElementById('modalTitle').innerText = (data.dataSource === 'API') ? '경기 수정 (자동 연동)' : '경기 수정 (수동 등록)';
 
                     modal.show();
                 });
