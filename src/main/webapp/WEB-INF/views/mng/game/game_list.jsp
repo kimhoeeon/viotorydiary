@@ -70,6 +70,15 @@
                         <div id="kt_app_content" class="app-content flex-column-fluid">
                             <div id="kt_app_content_container" class="app-container container-xxl pt-10">
 
+                                <div class="alert alert-dismissible bg-light-warning border border-warning border-dashed d-flex flex-column flex-sm-row w-100 p-5 mb-7">
+                                    <i class="ki-duotone ki-information-5 fs-2hx text-warning me-4 mb-5 mb-sm-0"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                    <div class="d-flex flex-column pe-0 pe-sm-10">
+                                        <h5 class="mb-1">🚨 수동 등록 경기 운영 주의사항</h5>
+                                        <span>관리자가 <strong>수동으로 등록한 경기는 API 실시간 스코어 연동 및 상태 변경(진행중, 종료 등)이 자동으로 이루어지지 않습니다.</strong><br>
+                                            수동 등록 경기의 점수와 상태는 반드시 관리자가 직접 수정해 주셔야 합니다.</span>
+                                    </div>
+                                </div>
+
                                 <div class="card mb-7">
                                     <div class="card-body py-4 d-flex justify-content-between align-items-center">
                                         <form action="/mng/game/list" method="get" class="d-flex align-items-center">
@@ -106,124 +115,136 @@
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
                                                 <thead>
-                                                    <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
-                                                        <th class="w-50px text-center">No.</th>
-                                                        <th class="min-w-80px text-center">상태</th>
-                                                        <th class="min-w-100px text-center">경기결과</th>
-                                                        <th class="min-w-150px text-center">대진 (원정 vs 홈)</th>
-                                                        <th class="min-w-100px text-center">날짜/시간</th>
-                                                        <th class="min-w-100px text-center">승리투수</th>
-                                                        <th class="min-w-100px text-center">점수</th>
-                                                        <th class="min-w-50px text-center">경기장소</th>
-                                                        <th class="min-w-125px text-center">직관 일기 작성 수</th>
-                                                        <th class="min-w-80px text-center">관리</th>
-                                                    </tr>
+                                                <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                                                    <th class="w-50px text-center">No.</th>
+                                                    <th class="min-w-80px text-center">상태</th>
+                                                    <th class="min-w-100px text-center">구분</th>
+                                                    <th class="min-w-100px text-center">경기결과</th>
+                                                    <th class="min-w-150px text-center">대진 (원정 vs 홈)</th>
+                                                    <th class="min-w-100px text-center">날짜/시간</th>
+                                                    <th class="min-w-100px text-center">승리투수</th>
+                                                    <th class="min-w-100px text-center">점수</th>
+                                                    <th class="min-w-50px text-center">경기장소</th>
+                                                    <th class="min-w-125px text-center">직관 일기 작성 수</th>
+                                                    <th class="min-w-80px text-center">관리</th>
+                                                </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                    <c:choose>
-                                                        <c:when test="${empty list}">
-                                                            <tr>
-                                                                <td colspan="10" class="text-center py-10">경기 일정이 없습니다.</td>
-                                                            </tr>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <c:forEach var="item" items="${list}" varStatus="status">
-                                                                <tr data-date="${item.gameDate}">
-                                                                    <td class="text-center">${status.count}</td>
+                                                <c:choose>
+                                                    <c:when test="${empty list}">
+                                                        <tr>
+                                                            <td colspan="11" class="text-center py-10">경기 일정이 없습니다.</td>
+                                                        </tr>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <c:forEach var="item" items="${list}" varStatus="status">
+                                                            <tr data-date="${item.gameDate}">
+                                                                <td class="text-center">${status.count}</td>
 
-                                                                    <td class="text-center">
-                                                                        <c:choose>
-                                                                            <c:when test="${item.status eq 'FINISHED'}">
-                                                                                <span class="badge badge-light-dark">종료</span>
-                                                                            </c:when>
-                                                                            <c:when test="${item.status eq 'LIVE'}">
-                                                                                <span class="badge badge-light-primary">진행중</span>
-                                                                            </c:when>
-                                                                            <c:when test="${item.status eq 'CANCELLED' and fn:contains(item.cancelReason, '우천')}">
-                                                                                <span class="badge badge-light-warning">우천취소</span>
-                                                                            </c:when>
-                                                                            <c:when test="${item.status eq 'CANCELLED'}">
-                                                                                <span class="badge badge-light-danger">취소</span>
-                                                                            </c:when>
-                                                                            <c:otherwise>
-                                                                                <span class="badge badge-light-success">예정</span>
-                                                                            </c:otherwise>
-                                                                        </c:choose>
-                                                                    </td>
+                                                                <td class="text-center">
+                                                                    <c:choose>
+                                                                        <c:when test="${item.status eq 'FINISHED'}">
+                                                                            <span class="badge badge-light-dark">종료</span>
+                                                                        </c:when>
+                                                                        <c:when test="${item.status eq 'LIVE'}">
+                                                                            <span class="badge badge-light-primary">진행중</span>
+                                                                        </c:when>
+                                                                        <c:when test="${item.status eq 'CANCELLED' and fn:contains(item.cancelReason, '우천')}">
+                                                                            <span class="badge badge-light-warning">우천취소</span>
+                                                                        </c:when>
+                                                                        <c:when test="${item.status eq 'CANCELLED'}">
+                                                                            <span class="badge badge-light-danger">취소</span>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <span class="badge badge-light-success">예정</span>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </td>
 
-                                                                    <td class="text-center">
-                                                                        <c:choose>
-                                                                            <c:when test="${item.status eq 'FINISHED'}">
-                                                                                <c:choose>
-                                                                                    <c:when test="${item.winningTeam eq 'DRAW'}">
-                                                                                        <span class="badge badge-light-secondary">무승부</span>
-                                                                                    </c:when>
-                                                                                    <c:when test="${item.winningTeam eq item.homeTeamCode}">
-                                                                                        <span class="badge badge-light-info fw-bold">${item.homeTeamName} 승</span>
-                                                                                    </c:when>
-                                                                                    <c:when test="${item.winningTeam eq item.awayTeamCode}">
-                                                                                        <span class="badge badge-light-info fw-bold">${item.awayTeamName} 승</span>
-                                                                                    </c:when>
-                                                                                    <c:otherwise>-</c:otherwise>
-                                                                                </c:choose>
-                                                                            </c:when>
-                                                                            <c:otherwise>-</c:otherwise>
-                                                                        </c:choose>
-                                                                    </td>
+                                                                <td class="text-center">
+                                                                    <c:choose>
+                                                                        <c:when test="${item.dataSource eq 'API'}">
+                                                                            <span class="badge badge-outline badge-primary">API 연동</span>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <span class="badge badge-outline badge-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="수동 등록된 경기는 자동 스코어 업데이트가 지원되지 않습니다.">수동 등록</span>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </td>
 
-                                                                    <td class="text-center">
-                                                                        <span class="text-danger fw-bold fs-6">${item.awayTeamName}</span>
-                                                                        <span class="text-gray-400 mx-2 fs-8">vs</span>
-                                                                        <span class="text-primary fw-bold fs-6">${item.homeTeamName}</span>
-                                                                    </td>
+                                                                <td class="text-center">
+                                                                    <c:choose>
+                                                                        <c:when test="${item.status eq 'FINISHED'}">
+                                                                            <c:choose>
+                                                                                <c:when test="${item.winningTeam eq 'DRAW'}">
+                                                                                    <span class="badge badge-light-secondary">무승부</span>
+                                                                                </c:when>
+                                                                                <c:when test="${item.winningTeam eq item.homeTeamCode}">
+                                                                                    <span class="badge badge-light-info fw-bold">${item.homeTeamName} 승</span>
+                                                                                </c:when>
+                                                                                <c:when test="${item.winningTeam eq item.awayTeamCode}">
+                                                                                    <span class="badge badge-light-info fw-bold">${item.awayTeamName} 승</span>
+                                                                                </c:when>
+                                                                                <c:otherwise>-</c:otherwise>
+                                                                            </c:choose>
+                                                                        </c:when>
+                                                                        <c:otherwise>-</c:otherwise>
+                                                                    </c:choose>
+                                                                </td>
 
-                                                                    <td class="text-center">
-                                                                        <div class="text-gray-800 fw-bold">${item.gameDate}</div>
-                                                                        <div class="text-gray-500 fs-8">${item.gameTime}</div>
-                                                                    </td>
+                                                                <td class="text-center">
+                                                                    <span class="text-danger fw-bold fs-6">${item.awayTeamName}</span>
+                                                                    <span class="text-gray-400 mx-2 fs-8">vs</span>
+                                                                    <span class="text-primary fw-bold fs-6">${item.homeTeamName}</span>
+                                                                </td>
 
-                                                                    <td class="text-center fw-bold text-gray-800">
+                                                                <td class="text-center">
+                                                                    <div class="text-gray-800 fw-bold">${item.gameDate}</div>
+                                                                    <div class="text-gray-500 fs-8">${item.gameTime}</div>
+                                                                </td>
+
+                                                                <td class="text-center fw-bold text-gray-800">
                                                                         ${empty item.mvpPlayer ? '-' : item.mvpPlayer}
-                                                                    </td>
+                                                                </td>
 
-                                                                    <td class="text-center">
-                                                                        <c:choose>
-                                                                            <c:when test="${item.status eq 'SCHEDULED' or item.status eq 'CANCELLED'}">
-                                                                                <span class="text-muted">-</span>
-                                                                            </c:when>
-                                                                            <c:otherwise>
-                                                                                <span class="fs-4 fw-bolder text-dark">${item.scoreAway} : ${item.scoreHome}</span>
-                                                                            </c:otherwise>
-                                                                        </c:choose>
-                                                                    </td>
+                                                                <td class="text-center">
+                                                                    <c:choose>
+                                                                        <c:when test="${item.status eq 'SCHEDULED' or item.status eq 'CANCELLED'}">
+                                                                            <span class="text-muted">-</span>
+                                                                        </c:when>
+                                                                        <c:otherwise>
+                                                                            <span class="fs-4 fw-bolder text-dark">${item.scoreAway} : ${item.scoreHome}</span>
+                                                                        </c:otherwise>
+                                                                    </c:choose>
+                                                                </td>
 
-                                                                    <td class="text-center">${empty item.stadiumName ? '-' : item.stadiumName}</td>
+                                                                <td class="text-center">${empty item.stadiumName ? '-' : item.stadiumName}</td>
 
-                                                                    <td class="text-center">
-                                                                        <span class="fw-bold text-gray-800">${item.diaryCount}</span><span class="fs-8 text-muted fw-normal ms-1">건</span>
-                                                                    </td>
+                                                                <td class="text-center">
+                                                                    <span class="fw-bold text-gray-800">${item.diaryCount}</span><span class="fs-8 text-muted fw-normal ms-1">건</span>
+                                                                </td>
 
-                                                                    <td class="text-center">
-                                                                        <button class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1" onclick="editGame('${item.gameId}')">
-                                                                            <i class="ki-duotone ki-pencil fs-2">
-                                                                                <span class="path1"></span>
-                                                                                <span class="path2"></span>
-                                                                            </i>
-                                                                        </button>
-                                                                        <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm" onclick="deleteGame('${item.gameId}')">
-                                                                            <i class="ki-duotone ki-trash fs-2">
-                                                                                <span class="path1"></span>
-                                                                                <span class="path2"></span>
-                                                                                <span class="path3"></span>
-                                                                                <span class="path4"></span>
-                                                                                <span class="path5"></span>
-                                                                            </i>
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                            </c:forEach>
-                                                        </c:otherwise>
-                                                    </c:choose>
+                                                                <td class="text-center">
+                                                                    <button class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1" onclick="editGame('${item.gameId}')">
+                                                                        <i class="ki-duotone ki-pencil fs-2">
+                                                                            <span class="path1"></span>
+                                                                            <span class="path2"></span>
+                                                                        </i>
+                                                                    </button>
+                                                                    <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm" onclick="deleteGame('${item.gameId}')">
+                                                                        <i class="ki-duotone ki-trash fs-2">
+                                                                            <span class="path1"></span>
+                                                                            <span class="path2"></span>
+                                                                            <span class="path3"></span>
+                                                                            <span class="path4"></span>
+                                                                            <span class="path5"></span>
+                                                                        </i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        </c:forEach>
+                                                    </c:otherwise>
+                                                </c:choose>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -243,15 +264,15 @@
             <div class="modal-content">
                 <form id="gameForm" method="post">
                     <input type="hidden" name="gameId" id="gameId">
-                    <div class="modal-header">
-                        <h2 class="fw-bold" id="modalTitle">경기 등록</h2>
-                        <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
-                            <i class="ki-duotone ki-cross fs-1">
-                                <span class="path1"></span>
-                                <span class="path2"></span>
-                            </i>
-                        </div>
+                    <input type="hidden" name="dataSource" id="dataSource" value="MANUAL"> <div class="modal-header">
+                    <h2 class="fw-bold" id="modalTitle">경기 등록</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="ki-duotone ki-cross fs-1">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                        </i>
                     </div>
+                </div>
                     <div class="modal-body py-10 px-lg-17">
                         <div class="row mb-5">
                             <div class="col-md-6">
@@ -367,7 +388,8 @@
         function openModal() {
             document.getElementById('gameForm').reset();
             document.getElementById('gameId').value = '';
-            document.getElementById('modalTitle').innerText = '경기 등록';
+            document.getElementById('dataSource').value = 'MANUAL'; // 신규 수동 등록
+            document.getElementById('modalTitle').innerText = '경기 수동 등록';
             modal.show();
         }
 
@@ -376,6 +398,7 @@
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('gameId').value = data.gameId;
+                    document.getElementById('dataSource').value = data.dataSource || 'MANUAL'; // 기존 값 유지
                     document.getElementById('gameDate').value = data.gameDate;
                     document.getElementById('gameTime').value = data.gameTime;
                     document.getElementById('awayTeamCode').value = data.awayTeamCode;
@@ -396,7 +419,8 @@
                     document.getElementById('mvpPlayer').value = data.mvpPlayer || '';
                     document.getElementById('cancelReason').value = data.cancelReason || '';
 
-                    document.getElementById('modalTitle').innerText = '경기 수정';
+                    // 팝업 타이틀 동적 변경 (API인지 수동인지 알려줌)
+                    document.getElementById('modalTitle').innerText = (data.dataSource === 'API') ? '경기 수정 (API 동기화)' : '경기 수정 (수동 등록)';
 
                     modal.show();
                 });
@@ -534,7 +558,6 @@
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
-
             // DB 포맷을 모두 커버하기 위한 두 가지 날짜 형태
             const todayStr1 = year + '-' + month + '-' + day; // 예: 2026-03-20
 
@@ -544,19 +567,22 @@
             if ($todayRow.length > 0) {
                 // 오늘 날짜의 모든 행에 옅은 파란색 배경 하이라이트 적용
                 $('tr[data-date*="' + todayStr1 + '"]').css('background-color', '#f0f8ff');
-
                 // 해당 위치로 부드럽게 스크롤 (상단 헤더 높이 150px 정도 빼줌)
                 $('html, body').animate({
                     scrollTop: $todayRow.offset().top - 150
                 }, 500);
-            }/* else {
-                alert('조회하신 월에는 오늘 날짜의 경기가 없습니다.');
-            }*/
+            }
         }
 
-        // 페이지가 로드되면 자동으로 오늘 위치로 이동시킴
+        // 툴팁 활성화
         $(document).ready(function() {
             scrollToToday();
+
+            // Bootstrap 툴팁 활성화
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
         });
     </script>
 </body>
