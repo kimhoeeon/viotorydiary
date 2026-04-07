@@ -51,7 +51,7 @@ public class CommentService {
 
     // 댓글 작성 시 알림 DB 저장 로직 추가
     @Transactional
-    public void writeComment(CommentDTO comment) {
+    public void writeComment(CommentDTO comment) throws Exception {
         // [금칙어 검사 추가]
         if (StringUtil.containsBannedWord(comment.getContent())) {
             throw new AlertException("댓글에 부적절한 단어가 포함되어 있습니다.");
