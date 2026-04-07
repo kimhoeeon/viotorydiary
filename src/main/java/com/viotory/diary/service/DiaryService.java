@@ -6,6 +6,7 @@ import com.viotory.diary.mapper.DiaryMapper;
 import com.viotory.diary.mapper.GameMapper;
 import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.mapper.PredictionMapper;
+import com.viotory.diary.util.StringUtil;
 import com.viotory.diary.vo.DiaryVO;
 import com.viotory.diary.vo.GameVO;
 import com.viotory.diary.vo.MemberVO;
@@ -35,6 +36,13 @@ public class DiaryService {
      */
     @Transactional
     public Long writeDiary(DiaryVO diary) throws Exception {
+        // [금칙어 검사 추가]
+        if (StringUtil.containsBannedWord(diary.getHeroName()) ||
+                StringUtil.containsBannedWord(diary.getOneLineComment()) ||
+                StringUtil.containsBannedWord(diary.getContent())) {
+            throw new AlertException("내용에 부적절한 단어가 포함되어 있습니다.");
+        }
+
         // 1. 필수값 체크
         if (diary.getGameId() == null) throw new AlertException("경기를 선택해주세요.");
 
@@ -105,6 +113,13 @@ public class DiaryService {
      */
     @Transactional
     public void modifyDiary(DiaryVO diary) throws Exception {
+        // [금칙어 검사 추가]
+        if (StringUtil.containsBannedWord(diary.getHeroName()) ||
+                StringUtil.containsBannedWord(diary.getOneLineComment()) ||
+                StringUtil.containsBannedWord(diary.getContent())) {
+            throw new AlertException("내용에 부적절한 단어가 포함되어 있습니다.");
+        }
+
         int result = diaryMapper.updateDiary(diary);
         if (result == 0) {
             throw new AlertException("일기 수정에 실패했습니다. (본인 일기가 아니거나 존재하지 않음)");

@@ -8,6 +8,7 @@ import com.viotory.diary.dto.SmsDTO;
 import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.util.SHA512;
+import com.viotory.diary.util.StringUtil;
 import com.viotory.diary.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,15 @@ public class MemberService {
      */
     @Transactional
     public void registerMember(MemberVO member) throws Exception {
+
+        // [금칙어 검사 추가]
+        if (StringUtil.containsBannedWord(member.getEmail())) {
+            throw new AlertException("이메일에 부적절한 단어가 포함되어 있습니다.");
+        }
+        if (StringUtil.containsBannedWord(member.getNickname())) {
+            throw new AlertException("닉네임에 부적절한 단어가 포함되어 있습니다.");
+        }
+
         // 1. 만 14세 미만 가입 불가 체크
         if (member.getBirthdate() != null) {
             int age = Period.between(member.getBirthdate(), LocalDate.now()).getYears();
@@ -183,6 +193,11 @@ public class MemberService {
      */
     @Transactional
     public void updateMemberInfo(MemberVO member) throws Exception {
+        // [금칙어 검사 추가]
+        if (StringUtil.containsBannedWord(member.getNickname())) {
+            throw new AlertException("닉네임에 부적절한 단어가 포함되어 있습니다.");
+        }
+
         // 1. 닉네임 중복 체크 (기존 닉네임과 다를 경우에만 수행)
         MemberVO currentMember = memberMapper.selectMemberById(member.getMemberId());
         if (currentMember == null) {
@@ -420,6 +435,11 @@ public class MemberService {
      */
     @Transactional
     public void updateNickname(Long memberId, String newNickname) throws Exception {
+        // [금칙어 검사 추가]
+        if (StringUtil.containsBannedWord(newNickname)) {
+            throw new AlertException("닉네임에 부적절한 단어가 포함되어 있습니다.");
+        }
+
         // 1. 기존 닉네임과 동일한지 확인 (DB 조회)
         MemberVO currentMember = memberMapper.selectMemberById(memberId);
         if (currentMember == null) {

@@ -5,6 +5,7 @@ import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.mapper.CommentMapper;
 import com.viotory.diary.mapper.DiaryMapper;
 import com.viotory.diary.mapper.MemberMapper;
+import com.viotory.diary.util.StringUtil;
 import com.viotory.diary.vo.AlarmVO;
 import com.viotory.diary.vo.DiaryVO;
 import com.viotory.diary.vo.MemberVO;
@@ -51,6 +52,11 @@ public class CommentService {
     // 댓글 작성 시 알림 DB 저장 로직 추가
     @Transactional
     public void writeComment(CommentDTO comment) {
+        // [금칙어 검사 추가]
+        if (StringUtil.containsBannedWord(comment.getContent())) {
+            throw new AlertException("댓글에 부적절한 단어가 포함되어 있습니다.");
+        }
+
         // 1. 댓글 저장
         commentMapper.insertComment(comment);
 
