@@ -68,8 +68,7 @@
 
                                 <div class="card mb-7">
                                     <div class="card-body py-4 d-flex justify-content-between align-items-center">
-                                        <form action="/mng/system/admin/list" method="get"
-                                              class="d-flex align-items-center">
+                                        <form action="/mng/system/admin/list" method="get" class="d-flex align-items-center">
                                             <select name="type" class="form-select form-select-solid w-150px me-3">
                                                 <option value="">전체 권한</option>
                                                 <option value="SUPER" ${cri.type eq 'SUPER' ? 'selected' : ''}>최고관리자
@@ -123,7 +122,7 @@
                                                                     <span class="badge badge-light-danger">최고관리자</span>
                                                                 </c:when>
                                                                 <c:when test="${item.role eq 'CLIENT'}">
-                                                                    <span class="badge badge-light-warning">발주사</span>
+                                                                    <span class="badge badge-light-warning">관리자</span>
                                                                 </c:when>
                                                                 <c:otherwise>
                                                                     <span class="badge badge-light-primary">운영자</span>
@@ -154,16 +153,18 @@
                                                                     <span class="path2"></span>
                                                                 </i>
                                                             </a>
-                                                            <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
-                                                                    onclick="deleteAdmin('${item.adminId}')">
-                                                                <i class="ki-duotone ki-trash fs-2">
-                                                                    <span class="path1"></span>
-                                                                    <span class="path2"></span>
-                                                                    <span class="path3"></span>
-                                                                    <span class="path4"></span>
-                                                                    <span class="path5"></span>
-                                                                </i>
-                                                            </button>
+                                                            <c:if test="${item.role ne 'SUPER'}">
+                                                                <button class="btn btn-icon btn-bg-light btn-active-color-danger btn-sm"
+                                                                        onclick="deleteAdmin('${item.adminId}')">
+                                                                    <i class="ki-duotone ki-trash fs-2">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                        <span class="path3"></span>
+                                                                        <span class="path4"></span>
+                                                                        <span class="path5"></span>
+                                                                    </i>
+                                                                </button>
+                                                            </c:if>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>

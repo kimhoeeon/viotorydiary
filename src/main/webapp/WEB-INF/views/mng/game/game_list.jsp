@@ -455,7 +455,7 @@
             // 3. 타입별 로직 분기
             if (type === 'MONTH') {
                 // [월간] 해당 월만 동기화
-                url = '/mng/game/syncMonthly'; // (Backend Controller에 해당 매핑 필요)
+                url = '/mng/game/syncMonthly';
                 confirmMsg = year + '년 ' + month + '월 경기 데이터를 동기화하시겠습니까?\n(해당 월의 데이터만 갱신됩니다)';
                 postData = { year: year, month: month };
 
@@ -468,8 +468,6 @@
 
             // 3. 사용자 확인 및 AJAX 요청 전송
             if (confirm(confirmMsg)) {
-                // 로딩 표시가 필요하다면 여기에 추가 (예: 버튼 비활성화)
-
                 $.post(url, postData, function (res) {
                     if (res === 'ok') {
                         alert(year + '년도 데이터 동기화가 완료되었습니다.');
@@ -532,7 +530,6 @@
                         if (typeof modal !== 'undefined') {
                             modal.hide();
                         } else {
-                            // Bootstrap 5 인스턴스 가져오기 안전장치
                             const myModalEl = document.getElementById('gameModal');
                             const myModal = bootstrap.Modal.getInstance(myModalEl);
                             if (myModal) myModal.hide();
@@ -553,35 +550,44 @@
         }
 
         function scrollToToday() {
-            // 오늘 날짜 구하기 (YYYY-MM-DD 형식)
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
-            // DB 포맷을 모두 커버하기 위한 두 가지 날짜 형태
-            const todayStr1 = year + '-' + month + '-' + day; // 예: 2026-03-20
+            const todayStr1 = year + '-' + month + '-' + day; // 예: 2026-04-07
 
-            // data-date 속성에 오늘 날짜 문자열이 "포함(*=)" 되어 있는 첫 번째 행을 찾음 (시간이 포함되어 있어도 매핑됨)
-            const $todayRow = $('tr[data-date*="' + todayStr1 + '"]').first();
+            // 순수 자바스크립트로 오늘 날짜가 포함된 행을 찾음
+            const targetRows = document.querySelectorAll('tr[data-date*="' + todayStr1 + '"]');
 
-            if ($todayRow.length > 0) {
-                // 오늘 날짜의 모든 행에 옅은 파란색 배경 하이라이트 적용
-                $('tr[data-date*="' + todayStr1 + '"]').css('background-color', '#f0f8ff');
-                // 해당 위치로 부드럽게 스크롤 (상단 헤더 높이 150px 정도 빼줌)
-                $('html, body').animate({
-                    scrollTop: $todayRow.offset().top - 150
-                }, 500);
+            if (targetRows.length > 0) {
+                // 오늘 날짜의 모든 행에 옅은 파란색 하이라이트 적용
+                targetRows.forEach(row => {
+                    row.style.backgroundColor = '#f0f8ff';
+                });
+
+                // 첫 번째 행의 절대 Y 좌표 계산 (스크롤 오프셋 포함)
+                const firstRow = targetRows[0];
+                const absoluteElementTop = firstRow.getBoundingClientRect().top + window.pageYOffset;
+
+                // 네이티브 부드러운 스크롤 실행 (상단 고정 헤더 높이 150px 보정)
+                window.scrollTo({
+                    top: absoluteElementTop - 150,
+                    behavior: 'smooth'
+                });
+            } else {
+                // 오늘 경기가 목록에 없을 경우 친절하게 안내
+                alert('현재 조회된 월에는 오늘 일정이 없습니다.');
             }
         }
 
-        // 툴팁 활성화
-        $(document).ready(function() {
+        // DOM 로딩 완료 시 실행 (제이쿼리 로딩 타이밍 이슈 방지)
+        document.addEventListener('DOMContentLoaded', function() {
             scrollToToday();
 
             // Bootstrap 툴팁 활성화
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
     </script>

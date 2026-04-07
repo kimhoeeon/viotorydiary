@@ -23,19 +23,12 @@
           AND member_id = #{memberId}
     </update>
 
-    <select id="countUnread" resultType="int">
-        SELECT COUNT(*)
-        FROM alarms
-        WHERE member_id = #{memberId}
-          AND is_read = 0
-          AND created_at <![CDATA[>]]> DATE_SUB(NOW(), INTERVAL 7 DAY)
-    </select>
-
     <select id="selectUnreadCount" parameterType="long" resultType="int">
         SELECT COUNT(*)
         FROM alarms
         WHERE member_id = #{memberId}
           AND is_read = 0
+          AND created_at <![CDATA[>]]> DATE_SUB(NOW(), INTERVAL 7 DAY)
     </select>
 
     <delete id="deleteOldAlarms">

@@ -77,13 +77,11 @@
                                                 <div class="col-md-6">
                                                     <label class="required form-label">로그인 ID</label>
                                                     <input type="text" name="loginId" class="form-control"
-                                                           value="${vo.loginId}" ${not empty vo ? 'readonly' : ''}
-                                                           required/>
+                                                           value="${vo.loginId}" ${not empty vo ? 'readonly' : ''} required/>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="required form-label">이름</label>
-                                                    <input type="text" name="name" class="form-control" value="${vo.name}"
-                                                           required/>
+                                                    <input type="text" name="name" class="form-control" value="${vo.name}" required/>
                                                 </div>
                                             </div>
                                             <div class="row mb-5">
@@ -94,17 +92,17 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="required form-label">권한</label>
-                                                    <select name="role" class="form-select" required>
-                                                        <option value="MANAGER" ${vo.role eq 'MANAGER' ? 'selected' : ''}>
-                                                            운영자
-                                                        </option>
-                                                        <option value="CLIENT" ${vo.role eq 'CLIENT' ? 'selected' : ''}>
-                                                            발주사
-                                                        </option>
-                                                        <option value="SUPER" ${vo.role eq 'SUPER' ? 'selected' : ''}>
-                                                            최고관리자
-                                                        </option>
+                                                    <select name="role" class="form-select" required ${vo.role eq 'SUPER' ? 'disabled' : ''}>
+                                                        <option value="MANAGER" ${vo.role eq 'MANAGER' ? 'selected' : ''}>운영자</option>
+                                                        <option value="CLIENT" ${vo.role eq 'CLIENT' ? 'selected' : ''}>발주사</option>
+                                                        <c:if test="${vo.role eq 'SUPER'}">
+                                                            <option value="SUPER" selected>최고관리자</option>
+                                                        </c:if>
                                                     </select>
+                                                    <%-- select disabled일 때 데이터 전송이 안되는 것을 막기 위한 hidden 꼼수 --%>
+                                                    <c:if test="${vo.role eq 'SUPER'}">
+                                                        <input type="hidden" name="role" value="SUPER">
+                                                    </c:if>
                                                 </div>
                                             </div>
 
