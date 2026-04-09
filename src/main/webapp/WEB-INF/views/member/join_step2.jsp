@@ -28,7 +28,12 @@
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
 
-    <title>이메일 입력 | 승요일기</title>
+    <title>이메일 입력 | 승요일기</title>c
+
+    <style>
+        /* [애플 심사 대응] 스크립트 판별 전 이메일 화면이 찰나에 노출되는 현상 원천 차단 */
+        body { display: none; }
+    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -37,6 +42,19 @@
         if (sessionStorage.getItem('join_agree') !== 'Y') {
             alert('약관 동의가 필요합니다.');
             location.replace('/member/join/step1');
+        } else {
+            const provider = sessionStorage.getItem('join_provider');
+            const email = sessionStorage.getItem('join_email');
+
+            // 소셜 가입자(APPLE, KAKAO)가 이미 이메일(임시 이메일 포함)을 가지고 있다면 Step 4로 즉시 스킵
+            if (provider && (provider === 'KAKAO' || provider === 'APPLE') && email && email !== 'null' && email.trim() !== '') {
+                location.replace('/member/join/step4');
+            } else {
+                // 일반 가입자이거나, 소셜 인증 시 이메일 수집을 거부한 특수한 경우에만 화면을 노출시킴
+                document.addEventListener("DOMContentLoaded", function() {
+                    document.body.style.display = "block";
+                });
+            }
         }
     </script>
 </head>
@@ -90,19 +108,11 @@
         const savedEmail = sessionStorage.getItem('join_email');
         const joinProvider = sessionStorage.getItem('join_provider');
 
-        // 1. 소셜 가입자(APPLE, KAKAO)가 이미 정상 이메일을 가지고 있다면 Step 4(본인인증)로 자동 스킵
-        if (joinProvider && (joinProvider === 'KAKAO' || joinProvider === 'APPLE') && savedEmail && savedEmail !== 'null' && savedEmail.trim() !== '') {
-            location.replace('/member/join/step4');
-        }
-        // 2. 카카오 임시 이메일(@kakao.viotory.com)이 감지되면 -> 바로 Step 3로 이동 (기존 로직 유지)
-        else if (savedEmail && savedEmail.indexOf('@kakao.viotory.com') > -1) {
-            location.replace('/member/join/step4');
-        }
-        // 3. 일반 이메일이 저장되어 있는 경우 -> 화면의 입력창에만 채워주기
-        else if(savedEmail && savedEmail !== 'null') {
+        // 상단 <head> 스크립트에서 리다이렉트 되지 않고 여기까지 내려왔다면:
+        // 일반 이메일 유저이거나 뒤로가기로 돌아온 유저입니다. 값이 있으면 인풋창을 채워줍니다.
+        if(savedEmail && savedEmail !== 'null' && savedEmail.trim() !== '') {
             emailInput.value = savedEmail;
-            // 유효성 검사 트리거
-            emailInput.dispatchEvent(new Event('input'));
+            emailInput.dispatchEvent(new Event('input')); // 유효성 검사 트리거
         }
 
         emailInput.addEventListener('input', () => {
