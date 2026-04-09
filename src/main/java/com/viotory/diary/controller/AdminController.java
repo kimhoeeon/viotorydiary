@@ -41,7 +41,8 @@ public class AdminController {
     @GetMapping("/index.do")
     public String loginPage(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session != null && session.getAttribute("adminId") != null) {
+        // adminId 문자열이 아닌, 실제 admin 객체가 제대로 살아있는지 확인
+        if (session != null && session.getAttribute("admin") != null) {
             return "redirect:/mng/main.do";
         }
         return "mng/index";
