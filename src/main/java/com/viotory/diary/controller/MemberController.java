@@ -417,6 +417,11 @@ public class MemberController {
         try {
             String cleanNumber = phoneNumber.replaceAll("-", "");
 
+            // [애플 심사용 매직 넘버 패스] - 실제 문자 발송을 스킵하고 바로 성공 처리
+            if ("01099999999".equals(cleanNumber)) {
+                return "ok";
+            }
+
             // 비밀번호 찾기 시 아이디(이메일)와 연락처 검증 로직 추가
             if ("FIND_PW".equals(type)) {
                 if (memberId == null || memberId.trim().isEmpty()) {
@@ -456,6 +461,12 @@ public class MemberController {
     public String verifySms(@RequestParam("phoneNumber") String phoneNumber,
                             @RequestParam("authCode") String authCode) {
         String cleanNumber = phoneNumber.replaceAll("-", "");
+
+        // [애플 심사용 매직 넘버 패스] - 지정된 번호와 코드(000000) 입력 시 무조건 통과
+        if ("01099999999".equals(cleanNumber) && "000000".equals(authCode)) {
+            return "ok";
+        }
+
         boolean isVerified = smsService.verifyCode(cleanNumber, authCode);
         return isVerified ? "ok" : "fail";
     }

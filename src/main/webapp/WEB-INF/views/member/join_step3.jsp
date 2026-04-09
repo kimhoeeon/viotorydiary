@@ -30,6 +30,11 @@
 
     <title>비밀번호 입력 | 승요일기</title>
 
+    <style>
+        /* 애플 심사 대응: 소셜 로그인 시 비밀번호 화면 깜빡임 방지 */
+        body { display: none; }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -41,6 +46,11 @@
         } else if (!sessionStorage.getItem('join_email')) {
             alert('이전 단계가 완료되지 않았습니다.');
             location.replace('/member/join/step2');
+        } else {
+            // 일반 가입자인 경우에만 body 노출
+            document.addEventListener("DOMContentLoaded", function() {
+                document.body.style.display = "block";
+            });
         }
     </script>
 </head>

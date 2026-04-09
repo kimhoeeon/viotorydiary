@@ -42,7 +42,7 @@
             const msg = "가입된 정보가 없습니다.<br>" + providerName + " 계정으로 회원가입을 진행하시겠습니까?";
 
             // script.js에 정의된 customConfirm 사용
-            customConfirm(msg, function() {
+            /*customConfirm(msg, function() {*/
                 // [확인] 콜백 -> 가입 프로세스 진행
                 sessionStorage.setItem('join_email', '${kakaoInfo.email}');
                 sessionStorage.setItem('join_nickname', '${kakaoInfo.nickname}');
@@ -50,10 +50,10 @@
                 sessionStorage.setItem('join_social_uid', '${kakaoInfo.socialUid}');
 
                 location.replace('/member/join/step1');
-            }, function() {
+            /*}, function() {
                 // [취소] 콜백 -> 로그인 페이지로 복귀
                 location.replace('/member/login');
-            });
+            });*/
         });
     </script>
 </body>
