@@ -21,6 +21,23 @@
     <link href="/assets/plugins/global/plugins.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css"/>
     <link href="/css/mngStyle.css" rel="stylesheet">
+
+    <style>
+        /* 1. 모바일 환경 (기본 설정): 화면이 작으므로 여백을 적당히 줍니다. */
+        #kt_scrolltop {
+            bottom: 20px !important;
+            right: 20px !important;
+            z-index: 105; /* 다른 팝업이나 메뉴에 가려지지 않도록 최상단 배치 */
+        }
+
+        /* 2. 데스크톱/태블릿 환경 (가로 768px 이상): 화면이 크므로 넉넉하게 띄웁니다. */
+        @media (min-width: 768px) {
+            #kt_scrolltop {
+                bottom: 40px !important;
+                right: 40px !important;
+            }
+        }
+    </style>
 </head>
 <body id="kt_app_body"
       data-kt-app-layout="dark-sidebar"
