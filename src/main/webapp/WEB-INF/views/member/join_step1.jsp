@@ -49,13 +49,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        // 이전 페이지가 '로그인 화면'인 경우에만 (즉, 일반 회원가입 버튼을 갓 눌렀을 때) 기존 데이터를 초기화합니다.
-        // (카카오 소셜 가입 브릿지나, 다음 단계에서 '뒤로가기'로 넘어온 경우는 초기화하지 않음)
-        if (document.referrer.indexOf('/login') > -1) {
-            sessionStorage.clear();
-        }
-    </script>
 </head>
 <body class="page-login">
 
@@ -160,6 +153,16 @@
     <script src="/js/app_interface.js"></script>
 
     <script>
+        // [세션 관리] 로그인 페이지에서 직접 왔을 때만 초기화
+        // 소셜 로그인 콜백(appleLoginCallback, kakao/callback)에서 온 경우는 유지해야 함
+        const ref = document.referrer;
+        const isSocialCallback = ref.indexOf('appleLoginCallback') > -1 || ref.indexOf('kakao/callback') > -1;
+
+        if (ref.indexOf('/member/login') > -1 || (ref.indexOf('/member/join') === -1 && !isSocialCallback)) {
+            // 소셜 콜백에서 온 게 아닐 때만 삭제
+            sessionStorage.clear();
+        }
+
         // [기능 1] 다음 단계 이동
         function goNext() {
             // 선택 약관 체크 여부 확인

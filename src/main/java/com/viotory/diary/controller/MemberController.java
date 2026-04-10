@@ -147,7 +147,7 @@ public class MemberController {
 
             // [핵심 변경] 2. 신규 회원(memberId 없음) -> 회원가입 단계로 이동
             if (member.getMemberId() == null) {
-                model.addAttribute("kakaoInfo", member);
+                model.addAttribute("socialInfo", member);
                 return "member/join_social_bridge"; // 정보를 세션스토리지에 담는 중간 페이지
             }
 
@@ -158,7 +158,7 @@ public class MemberController {
                     return "member/login";
                 }
                 // 7일 경과 시 재가입 허용 (신규가입 취급)
-                model.addAttribute("kakaoInfo", member);
+                model.addAttribute("socialInfo", member);
                 return "member/join_social_bridge";
             }
             if ("SUSPENDED".equals(member.getStatus())) {
@@ -253,7 +253,7 @@ public class MemberController {
                         model.addAttribute("message", "탈퇴 후 7일이 지나지 않아 재가입할 수 없습니다.");
                         return "member/login";
                     }
-                    model.addAttribute("kakaoInfo", existingMember);
+                    model.addAttribute("socialInfo", existingMember);
                     return "member/join_social_bridge";
                 }
                 if ("SUSPENDED".equals(existingMember.getStatus())) {
@@ -283,8 +283,8 @@ public class MemberController {
                     newMember.setNickname(fullName);
                 }
 
-                // 기존 카카오 로직과 호환되게 kakaoInfo 모델 속성을 통해 브릿지 페이지로 전달
-                model.addAttribute("kakaoInfo", newMember);
+                // 기존 카카오 로직과 호환되게 socialInfo 모델 속성을 통해 브릿지 페이지로 전달
+                model.addAttribute("socialInfo", newMember);
                 return "member/join_social_bridge";
             }
 
