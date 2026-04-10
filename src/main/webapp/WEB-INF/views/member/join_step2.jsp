@@ -44,10 +44,10 @@
             location.replace('/member/join/step1');
         } else {
             const provider = sessionStorage.getItem('join_provider');
-            const email = sessionStorage.getItem('join_email');
+            //const email = sessionStorage.getItem('join_email');
 
             // 소셜 가입자(APPLE, KAKAO)가 이미 이메일(임시 이메일 포함)을 가지고 있다면 Step 4로 즉시 스킵
-            if (provider && (provider === 'KAKAO' || provider === 'APPLE') && email && email !== 'null' && email.trim() !== '') {
+            if (provider && (provider === 'KAKAO' || provider === 'APPLE')) {
                 location.replace('/member/join/step4');
             } else {
                 // 일반 가입자이거나, 소셜 인증 시 이메일 수집을 거부한 특수한 경우에만 화면을 노출시킴

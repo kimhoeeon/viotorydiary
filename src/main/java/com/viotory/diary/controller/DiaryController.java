@@ -411,10 +411,10 @@ public class DiaryController {
             return "ok";
         } catch (AlertException ae) {
             log.info("댓글 삭제 거부: {}", ae.getMessage());
-            return "fail:" + ae.getMessage(); // 프론트에서 이 메시지를 띄우도록 수정하면 더 좋습니다.
+            return ae.getMessage();
         } catch (Exception e) {
             log.error("댓글 삭제 중 치명적 오류", e);
-            return "fail";
+            return "댓글 삭제 중 오류가 발생했습니다.";
         }
     }
 
@@ -436,9 +436,12 @@ public class DiaryController {
             commentService.writeComment(comment);
 
             return "ok";
+        } catch (AlertException ae) {
+            log.info("댓글 작성 알럿: {}", ae.getMessage());
+            return ae.getMessage();
         } catch (Exception e) {
             log.error("댓글 작성 실패", e);
-            return "fail";
+            return "댓글 작성에 실패했습니다.";
         }
     }
 

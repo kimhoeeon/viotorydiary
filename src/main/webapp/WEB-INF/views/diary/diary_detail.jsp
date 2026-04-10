@@ -378,7 +378,10 @@
                     alert('로그인이 필요합니다.');
                     location.href = '/member/login';
                 } else {
-                    alert('댓글 등록에 실패했습니다.');
+                    // 3. 금칙어 알럿 발생 시 (그 외의 문자열)
+                    alert(res);
+
+                    // 그리고 버튼을 다시 활성화
                     $('#btnCmtSend').prop('disabled', false).text('작성');
                 }
             }).fail(function() {
