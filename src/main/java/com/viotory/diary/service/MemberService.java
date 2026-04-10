@@ -47,6 +47,14 @@ public class MemberService {
     @Transactional
     public void registerMember(MemberVO member) throws Exception {
 
+        // [애플 심사 대응] 소셜 유저인데 이메일이 비어있는 경우(이메일 숨기기 등) 더미 이메일 발급
+        if (member.getSocialProvider() != null && !member.getSocialProvider().equals("NONE")) {
+            if (member.getEmail() == null || member.getEmail().trim().isEmpty()) {
+                String dummyEmail = member.getSocialProvider().toLowerCase() + "_" + member.getSocialUid() + "@dummy.viotory.com";
+                member.setEmail(dummyEmail);
+            }
+        }
+        
         // [금칙어 검사 추가]
         if (StringUtil.containsBannedWord(member.getEmail())) {
             throw new AlertException("이메일에 부적절한 단어가 포함되어 있습니다.");

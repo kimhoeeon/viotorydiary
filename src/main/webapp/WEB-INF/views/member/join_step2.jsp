@@ -28,11 +28,11 @@
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/style.css">
 
-    <title>이메일 입력 | 승요일기</title>c
+    <title>이메일 입력 | 승요일기</title>
 
     <style>
-        /* [애플 심사 대응] 스크립트 판별 전 이메일 화면이 찰나에 노출되는 현상 원천 차단 */
-        body { display: none; }
+        /* [애플 심사 대응] 레이아웃 틀어짐 방지를 위해 opacity 사용 */
+        body { opacity: 0; transition: opacity 0.2s ease-in-out; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
@@ -52,7 +52,7 @@
             } else {
                 // 일반 가입자이거나, 소셜 인증 시 이메일 수집을 거부한 특수한 경우에만 화면을 노출시킴
                 document.addEventListener("DOMContentLoaded", function() {
-                    document.body.style.display = "block";
+                    document.body.style.opacity = "1";
                 });
             }
         }

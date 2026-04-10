@@ -4,6 +4,7 @@ import com.viotory.diary.dto.ResponseDTO;
 import com.viotory.diary.service.ContentMngService;
 import com.viotory.diary.service.LockerService;
 import com.viotory.diary.service.SystemMngService;
+import com.viotory.diary.util.StringUtil;
 import com.viotory.diary.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -147,7 +148,19 @@ public class LockerController {
     public ResponseDTO addComment(@RequestParam("contentId") Long contentId, @RequestParam("content") String content, HttpSession session) {
         ResponseDTO res = new ResponseDTO();
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
-        if (loginMember == null) { res.setResultCode("FAIL"); return res; }
+        if (loginMember == null) {
+            res.setResultCode("FAIL");
+            res.setResultMessage("로그인이 필요합니다.");
+            return res;
+        }
+
+        // [금칙어 필터링 로직 추가]
+        if (StringUtil.containsBannedWord(content)) {
+            res.setResultCode("FAIL");
+            res.setResultMessage("댓글에 부적절한 단어가 포함되어 있습니다.");
+            return res;
+        }
+
         lockerService.addContentComment(contentId, loginMember.getMemberId(), content);
         res.setResultCode("SUCCESS");
         return res;

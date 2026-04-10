@@ -31,8 +31,8 @@
     <title>비밀번호 입력 | 승요일기</title>
 
     <style>
-        /* 애플 심사 대응: 소셜 로그인 시 비밀번호 화면 깜빡임 방지 */
-        body { display: none; }
+        /* 애플 심사 대응: 레이아웃 틀어짐 방지를 위해 opacity 사용 */
+        body { opacity: 0; transition: opacity 0.2s ease-in-out; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
@@ -49,7 +49,7 @@
         } else {
             // 일반 가입자인 경우에만 body 노출
             document.addEventListener("DOMContentLoaded", function() {
-                document.body.style.display = "block";
+                document.body.style.opacity = "1";
             });
         }
     </script>
