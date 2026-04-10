@@ -209,14 +209,25 @@ public class LockerController {
             // Jsoup 라이브러리를 사용해 해당 URL의 HTML 메타태그를 스크래핑합니다.
             Document doc = connect(url)
                     .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-                    .timeout(5000)
+                    .timeout(10000)
                     .get();
 
             result.put("title", getMetaContent(doc, "og:title", doc.title()));
             result.put("image", getMetaContent(doc, "og:image", ""));
             result.put("description", getMetaContent(doc, "og:description", ""));
             result.put("domain", new URL(url).getHost());
+        } catch (java.net.SocketTimeoutException ste) {
+            // 단순 응답 지연: 수십 줄의 로그 대신 한 줄짜리 짧은 경고만 출력
+            log.warn("OG Meta 추출 타임아웃 (응답 지연): {}", url);
+            result.put("error", "true");
+            result.put("message", "해당 사이트의 응답이 지연되어 미리보기를 가져올 수 없습니다.");
+        } catch (org.jsoup.HttpStatusException hse) {
+            // HTTP 접근 권한 에러 (404, 403 등): 차단된 사이트
+            log.warn("OG Meta 추출 HTTP 에러 [{}]: {}", hse.getStatusCode(), url);
+            result.put("error", "true");
+            result.put("message", "해당 사이트의 미리보기 접근이 차단되었습니다.");
         } catch (Exception e) {
+            // 기타 알 수 없는 진짜 에러
             log.error("OG Meta 추출 실패: {}", url, e);
             result.put("error", "true");
             result.put("message", "데이터를 가져오는 중 오류가 발생했습니다.");

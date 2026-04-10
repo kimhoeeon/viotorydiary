@@ -129,9 +129,14 @@ public class MemberService {
         }
 
         // 소셜 제공자가 없는 경우에만 NONE으로 설정 (기존 데이터 보존)
-        if (member.getSocialProvider() == null || member.getSocialProvider().isEmpty()) {
+        String sp = member.getSocialProvider();
+        if (sp == null || sp.trim().isEmpty() || "null".equalsIgnoreCase(sp) || "undefined".equalsIgnoreCase(sp)) {
             member.setSocialProvider("NONE");
+        } else {
+            // DB 제약조건에 걸리지 않도록 공백을 제거하고 대문자로 통일
+            member.setSocialProvider(sp.trim().toUpperCase());
         }
+
         member.setRole("USER");
         member.setStatus("ACTIVE");
 

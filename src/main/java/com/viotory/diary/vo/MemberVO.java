@@ -20,7 +20,7 @@ public class MemberVO {
     private String myTeamCode;      // 응원팀 코드
     private String myTeamName;      // 화면 표시용 팀 이름 (DB join 결과)
     private LocalDateTime teamChangeDate;
-    private String socialProvider;  // 'NONE', 'KAKAO'
+    private String socialProvider;  // 'NONE', 'KAKAO', 'APPLE'
     private String socialUid;
     private String role;            // 'USER', 'ADMIN'
     private String status;          // 'ACTIVE', 'INACTIVE' 등
