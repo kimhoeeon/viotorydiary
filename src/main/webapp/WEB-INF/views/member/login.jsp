@@ -105,6 +105,8 @@
         <input type="hidden" name="response_type" value="code id_token">
         <input type="hidden" name="scope" value="name email">
         <input type="hidden" name="response_mode" value="form_post">
+        <input type="hidden" name="state" id="apple_state" value="">
+        <input type="hidden" name="nonce" id="apple_nonce" value="">
     </form>
 
     <%@ include file="../include/popup.jsp" %>
@@ -200,6 +202,16 @@
             });
         });
 
+        // 난수(랜덤 문자열) 생성 함수
+        function generateRandomString(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+
         // Apple 로그인 연동 함수 추가
         function fn_appleLogin() {
             var clientId = "com.viotory.diary.web"; // 개발자 센터에 등록한 Services ID
@@ -207,6 +219,10 @@
 
             document.getElementById("apple_client_id").value = clientId;
             document.getElementById("apple_redirect_uri").value = redirectUri;
+
+            // 16자리의 랜덤 문자열을 생성하여 state와 nonce에 주입
+            document.getElementById("apple_state").value = generateRandomString(16);
+            document.getElementById("apple_nonce").value = generateRandomString(16);
 
             // 폼을 서밋하여 Apple 로그인 서버로 이동
             document.getElementById("appleLoginForm").submit();
