@@ -97,7 +97,7 @@ public class CommentService {
                             .setAndroidConfig(AndroidConfig.builder()
                                     .setPriority(AndroidConfig.Priority.HIGH)
                                     .setNotification(AndroidNotification.builder()
-                                            .setChannelId("default")
+                                            .setChannelId("victory01")
                                             .setVisibility(AndroidNotification.Visibility.PUBLIC)
                                             .setSound("default")
                                             .build())
