@@ -124,7 +124,7 @@ public class PushMngService {
                                 .setAndroidConfig(AndroidConfig.builder()
                                         .setPriority(AndroidConfig.Priority.HIGH)
                                         .setNotification(AndroidNotification.builder()
-                                                //.setChannelId("default")
+                                                .setChannelId("default")
                                                 .setVisibility(AndroidNotification.Visibility.PUBLIC)
                                                 .setSound("default")
                                                 .build())
