@@ -87,20 +87,27 @@ public class CommentService {
                                     .setTitle(title)
                                     .setBody(content)
                                     .build())
+
+                            // 2. Data 영역 강화: Appify 백그라운드 서비스가 낚아채어 로컬 팝업을 띄우도록 유도
+                            .putData("title", title)
+                            .putData("body", content)
                             .putData("link", redirectUrl)
+
                             // 안드로이드 호환 규격
                             .setAndroidConfig(AndroidConfig.builder()
                                     .setPriority(AndroidConfig.Priority.HIGH)
                                     .setNotification(AndroidNotification.builder()
-                                            .setChannelId("default")
+                                            //.setChannelId("default")
                                             .setVisibility(AndroidNotification.Visibility.PUBLIC)
                                             .setSound("default")
                                             .build())
                                     .build())
                             // 아이폰(iOS) 진동/소리 규격
                             .setApnsConfig(ApnsConfig.builder()
+                                    .putHeader("apns-priority", "10")
                                     .setAps(Aps.builder()
                                             .setSound("default")
+                                            .setContentAvailable(true)
                                             .build())
                                     .build())
                             .build();

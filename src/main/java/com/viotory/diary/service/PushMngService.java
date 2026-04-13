@@ -114,14 +114,17 @@ public class PushMngService {
                                         .setTitle(vo.getTitle())
                                         .setBody(vo.getContent())
                                         .build())
+
                                 // 2. 딥링크 데이터 (Appify 규격에 맞춘 화면 이동 URL)
+                                .putData("title", vo.getTitle())
+                                .putData("body", vo.getContent())
                                 .putData("link", linkUrl)
 
                                 // 3. 안드로이드(Android) 전용 설정 (Appify 필수 규격)
                                 .setAndroidConfig(AndroidConfig.builder()
                                         .setPriority(AndroidConfig.Priority.HIGH)
                                         .setNotification(AndroidNotification.builder()
-                                                .setChannelId("default")
+                                                //.setChannelId("default")
                                                 .setVisibility(AndroidNotification.Visibility.PUBLIC)
                                                 .setSound("default")
                                                 .build())
@@ -129,8 +132,10 @@ public class PushMngService {
 
                                 // 4. 아이폰(iOS) 전용 설정 (진동/소리 강제 활성화)
                                 .setApnsConfig(ApnsConfig.builder()
+                                        .putHeader("apns-priority", "10")
                                         .setAps(Aps.builder()
                                                 .setSound("default") // 아이폰에서 무음으로 오지 않도록 설정
+                                                .setContentAvailable(true) // 백그라운드 앱 깨우기
                                                 .build())
                                         .build())
 
