@@ -34,8 +34,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // [서버 통신] 토큰 DB 저장 (중복 호출 방지)
 function updateServerToken(token) {
-    const oldToken = localStorage.getItem("fcm_token");
-    if (token === oldToken) return;
+    // 기기 캐시(localStorage) 검사 로직 삭제!
+    // 기기는 같아도 로그인한 유저가 다를 수 있으므로 앱 실행 시마다 무조건 서버 갱신을 시도합니다.
+    // (서버의 /member/updateToken 컨트롤러에서 비로그인 상태면 알아서 차단해 주므로 안전합니다.)
 
     $.post('/member/updateToken', { token: token }, function(res) {
         if(res === 'ok') {
