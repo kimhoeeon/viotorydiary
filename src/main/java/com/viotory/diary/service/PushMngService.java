@@ -123,6 +123,7 @@ public class PushMngService {
                                         .setNotification(AndroidNotification.builder()
                                                 .setChannelId("default")
                                                 .setVisibility(AndroidNotification.Visibility.PUBLIC)
+                                                .setSound("default")
                                                 .build())
                                         .build())
 

@@ -94,6 +94,7 @@ public class CommentService {
                                     .setNotification(AndroidNotification.builder()
                                             .setChannelId("default")
                                             .setVisibility(AndroidNotification.Visibility.PUBLIC)
+                                            .setSound("default")
                                             .build())
                                     .build())
                             // 아이폰(iOS) 진동/소리 규격
