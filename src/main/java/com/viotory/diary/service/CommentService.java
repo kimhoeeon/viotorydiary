@@ -92,12 +92,13 @@ public class CommentService {
                             .putData("title", title)
                             .putData("body", content)
                             .putData("link", redirectUrl)
+                            .putData("click_action", "FLUTTER_NOTIFICATION_CLICK")
 
                             // 안드로이드 호환 규격
                             .setAndroidConfig(AndroidConfig.builder()
                                     .setPriority(AndroidConfig.Priority.HIGH)
                                     .setNotification(AndroidNotification.builder()
-                                            .setChannelId("victory01")
+                                            //.setChannelId("victory01")
                                             .setVisibility(AndroidNotification.Visibility.PUBLIC)
                                             .setSound("default")
                                             .build())
