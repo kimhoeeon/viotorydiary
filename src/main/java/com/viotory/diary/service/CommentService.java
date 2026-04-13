@@ -1,5 +1,6 @@
 package com.viotory.diary.service;
 
+import com.google.firebase.messaging.*;
 import com.viotory.diary.dto.CommentDTO;
 import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.mapper.CommentMapper;
@@ -74,9 +75,41 @@ public class CommentService {
                 String redirectUrl = "/diary/detail?diaryId=" + diary.getDiaryId();
 
                 alarmService.sendAlarm(diary.getMemberId(), "FRIEND", title, content, redirectUrl);
+
+                // 스마트폰 실제 배너 푸시(FCM) 발송
+                MemberVO targetOwner = memberMapper.selectMemberById(diary.getMemberId());
+                if (targetOwner != null && "Y".equals(targetOwner.getPushYn())
+                        && targetOwner.getFcmToken() != null && !targetOwner.getFcmToken().trim().isEmpty()) {
+
+                    Message fcmMessage = Message.builder()
+                            .setToken(targetOwner.getFcmToken())
+                            .setNotification(Notification.builder()
+                                    .setTitle(title)
+                                    .setBody(content)
+                                    .build())
+                            .putData("link", redirectUrl)
+                            // 안드로이드 호환 규격
+                            .setAndroidConfig(AndroidConfig.builder()
+                                    .setPriority(AndroidConfig.Priority.HIGH)
+                                    .setNotification(AndroidNotification.builder()
+                                            .setChannelId("default")
+                                            .setVisibility(AndroidNotification.Visibility.PUBLIC)
+                                            .build())
+                                    .build())
+                            // 아이폰(iOS) 진동/소리 규격
+                            .setApnsConfig(ApnsConfig.builder()
+                                    .setAps(Aps.builder()
+                                            .setSound("default")
+                                            .build())
+                                    .build())
+                            .build();
+
+                    FirebaseMessaging.getInstance().send(fcmMessage);
+                    log.info("댓글 푸시 발송 성공 - Target: {}", targetOwner.getMemberId());
+                }
             }
         } catch (Exception e) {
-            log.error("댓글 알림 DB 저장 중 오류 발생", e);
+            log.error("댓글 알림 발송 중 오류 발생", e);
         }
     }
 
