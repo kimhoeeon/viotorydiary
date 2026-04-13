@@ -555,12 +555,17 @@ public class MemberService {
                 if ("Y".equals(target.getPushYn()) && target.getFcmToken() != null && !target.getFcmToken().trim().isEmpty()) {
                     Message fcmMessage = Message.builder()
                             .setToken(target.getFcmToken()) // 단일 유저에게 발송
+
+                            // 1. 공통 알림 내용 (iOS/Android 공통 배너 텍스트)
                             .setNotification(Notification.builder()
                                     .setTitle(title)
                                     .setBody(message)
                                     .build())
-                            // Appify SDK 샘플에 맞춘 페이로드 적용 (link만 전송)
+
+                            // 2. 딥링크 데이터 (Appify 규격에 맞춘 화면 이동 URL)
                             .putData("link", linkUrl)
+
+                            // 3. 안드로이드(Android) 전용 설정 (Appify 필수 규격)
                             .setAndroidConfig(AndroidConfig.builder()
                                     .setPriority(AndroidConfig.Priority.HIGH)
                                     .setNotification(AndroidNotification.builder()
@@ -568,6 +573,14 @@ public class MemberService {
                                             .setVisibility(AndroidNotification.Visibility.PUBLIC)
                                             .build())
                                     .build())
+
+                            // 4. 아이폰(iOS) 전용 설정 (진동/소리 강제 활성화)
+                            .setApnsConfig(ApnsConfig.builder()
+                                    .setAps(Aps.builder()
+                                            .setSound("default") // 아이폰에서 무음으로 오지 않도록 설정
+                                            .build())
+                                    .build())
+
                             .build();
 
                     FirebaseMessaging.getInstance().send(fcmMessage);

@@ -177,12 +177,16 @@ public class GameScheduleTask {
                 for (int i = 0; i < tokens.size(); i += 500) { // FCM 최대 전송 제한 500개씩 분할
                     List<String> batch = tokens.subList(i, Math.min(i + 500, tokens.size()));
                     MulticastMessage fcmMessage = MulticastMessage.builder()
+                            // 1. 공통 알림 내용 (iOS/Android 공통 배너 텍스트)
                             .setNotification(Notification.builder()
                                     .setTitle("경기 알림") // 앱 푸시 팝업 상단 타이틀
                                     .setBody(message)
                                     .build())
-                            // Appify SDK 규격에 맞춘 페이로드 적용
+
+                            // 2. 딥링크 데이터 (Appify 규격에 맞춘 화면 이동 URL)
                             .putData("link", linkUrl)
+
+                            // 3. 안드로이드(Android) 전용 설정 (Appify 필수 규격)
                             .setAndroidConfig(AndroidConfig.builder()
                                     .setPriority(AndroidConfig.Priority.HIGH)
                                     .setNotification(AndroidNotification.builder()
@@ -190,6 +194,14 @@ public class GameScheduleTask {
                                             .setVisibility(AndroidNotification.Visibility.PUBLIC)
                                             .build())
                                     .build())
+
+                            // 4. 아이폰(iOS) 전용 설정 (진동/소리 강제 활성화)
+                            .setApnsConfig(ApnsConfig.builder()
+                                    .setAps(Aps.builder()
+                                            .setSound("default") // 아이폰에서 무음으로 오지 않도록 설정
+                                            .build())
+                                    .build())
+
                             .addAllTokens(batch)
                             .build();
                     FirebaseMessaging.getInstance().sendEachForMulticast(fcmMessage);
