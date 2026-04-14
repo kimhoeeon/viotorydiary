@@ -48,7 +48,7 @@
                             <div class="d-flex flex-column">
                                 <div class="fw-bold d-flex align-items-center fs-5">
                                     <c:choose>
-                                        <c:when test="${sessionScope.admin.role eq 'CLIENT'}">관리자</c:when>
+                                        <c:when test="${sessionScope.admin.role ne 'ROOT'}">관리자</c:when>
                                         <c:otherwise>${sessionScope.admin.name}</c:otherwise>
                                     </c:choose>
                                     <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">${sessionScope.admin.role}</span>

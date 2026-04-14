@@ -124,7 +124,7 @@ public class PushMngService {
                                 .setAndroidConfig(AndroidConfig.builder()
                                         .setPriority(AndroidConfig.Priority.HIGH)
                                         .setNotification(AndroidNotification.builder()
-                                                .setChannelId("victory01")
+                                                .setChannelId("default")
                                                 .setVisibility(AndroidNotification.Visibility.PUBLIC)
                                                 .setSound("default")
                                                 .build())
@@ -141,6 +141,56 @@ public class PushMngService {
 
                                 .addAllTokens(batchTokens)
                                 .build();
+
+                        // ⬇️⬇️⬇️ [여기서부터 복사해서 붙여넣기] ⬇️⬇️⬇️
+                        /*try {
+                            java.util.Map<String, Object> debugPayload = new java.util.HashMap<>();
+                            java.util.Map<String, Object> messageMap = new java.util.HashMap<>();
+
+                            // 1. Notification
+                            java.util.Map<String, String> notiMap = new java.util.HashMap<>();
+                            notiMap.put("title", vo.getTitle());
+                            notiMap.put("body", vo.getContent());
+                            messageMap.put("notification", notiMap);
+
+                            // 2. Data
+                            java.util.Map<String, String> dataMap = new java.util.HashMap<>();
+                            dataMap.put("link", linkUrl);
+                            messageMap.put("data", dataMap);
+
+                            // 3. Android
+                            java.util.Map<String, Object> androidMap = new java.util.HashMap<>();
+                            androidMap.put("priority", "HIGH");
+                            java.util.Map<String, String> androidNotiMap = new java.util.HashMap<>();
+                            androidNotiMap.put("channel_id", "default");
+                            androidNotiMap.put("visibility", "PUBLIC");
+                            androidMap.put("notification", androidNotiMap);
+                            messageMap.put("android", androidMap);
+
+                            // 4. APNs (iOS)
+                            java.util.Map<String, Object> apnsMap = new java.util.HashMap<>();
+                            java.util.Map<String, Object> payloadMap = new java.util.HashMap<>();
+                            java.util.Map<String, Object> apsMap = new java.util.HashMap<>();
+                            apsMap.put("sound", "default");
+                            payloadMap.put("aps", apsMap);
+                            apnsMap.put("payload", payloadMap);
+                            messageMap.put("apns", apnsMap);
+
+                            messageMap.put("token", "발송될_유저의_FCM_토큰_1개");
+                            debugPayload.put("message", messageMap);
+
+                            // JSON 예쁘게 포맷팅해서 출력
+                            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                            mapper.enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT);
+                            String jsonString = mapper.writeValueAsString(debugPayload);
+
+                            log.info("========== [FCM API 전송 BODY 확인] ==========\n{}", jsonString);
+                            log.info("===============================================");
+
+                        } catch (Exception debugEx) {
+                            log.error("디버깅 JSON 변환 오류", debugEx);
+                        }*/
+                        // ⬆️⬆️⬆️ [여기까지] ⬆️⬆️⬆️
 
                         BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
                         successCount += response.getSuccessCount();

@@ -68,7 +68,7 @@
                         <div id="kt_app_content" class="app-content flex-column-fluid">
                             <div id="kt_app_content_container" class="app-container container-xxl pt-10">
 
-                                <c:if test="${sessionScope.admin.role eq 'SUPER'}">
+                                <c:if test="${sessionScope.admin.role eq 'ROOT' or sessionScope.admin.role eq 'SUPER'}">
                                     <div class="card mb-8 bg-light-warning border-warning border-dashed">
                                         <div class="card-body py-5 d-flex align-items-center justify-content-between">
                                             <div class="d-flex align-items-center">

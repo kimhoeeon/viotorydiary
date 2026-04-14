@@ -92,7 +92,7 @@
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label class="required form-label">권한</label>
-                                                    <select name="role" class="form-select" required ${vo.role eq 'SUPER' ? 'disabled' : ''}>
+                                                    <select name="role" class="form-select" required ${vo.role eq 'ROOT' or vo.role eq 'SUPER' ? 'disabled' : ''}>
                                                         <option value="MANAGER" ${vo.role eq 'MANAGER' ? 'selected' : ''}>운영자</option>
                                                         <option value="CLIENT" ${vo.role eq 'CLIENT' ? 'selected' : ''}>발주사</option>
                                                         <c:if test="${vo.role eq 'SUPER'}">
@@ -100,8 +100,8 @@
                                                         </c:if>
                                                     </select>
                                                     <%-- select disabled일 때 데이터 전송이 안되는 것을 막기 위한 hidden 꼼수 --%>
-                                                    <c:if test="${vo.role eq 'SUPER'}">
-                                                        <input type="hidden" name="role" value="SUPER">
+                                                    <c:if test="${vo.role eq 'ROOT' or vo.role eq 'SUPER'}">
+                                                        <input type="hidden" name="role" value="${vo.role}">
                                                     </c:if>
                                                 </div>
                                             </div>

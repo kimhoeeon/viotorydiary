@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <%-- 현재 로그인한 사람이 발주사(CLIENT)가 아닌 개발사인지 확인하는 변수 세팅 --%>
-<c:set var="isDeveloper" value="${sessionScope.admin.role ne 'CLIENT'}" />
+<c:set var="isDeveloper" value="${sessionScope.admin.role eq 'ROOT'}" />
 
 <!DOCTYPE html>
 <html lang="ko">

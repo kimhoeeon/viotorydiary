@@ -571,7 +571,7 @@ public class MemberService {
                             .setAndroidConfig(AndroidConfig.builder()
                                     .setPriority(AndroidConfig.Priority.HIGH)
                                     .setNotification(AndroidNotification.builder()
-                                            .setChannelId("victory01")
+                                            .setChannelId("default")
                                             .setVisibility(AndroidNotification.Visibility.PUBLIC)
                                             .setSound("default")
                                             .build())

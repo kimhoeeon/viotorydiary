@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 <%-- 권한 체크: 현재 로그인한 사람이 발주사가 아닌 개발사인지 확인 --%>
-<c:set var="isDeveloper" value="${sessionScope.admin.role ne 'CLIENT'}" />
+<c:set var="isDeveloper" value="${sessionScope.admin.role eq 'ROOT'}" />
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -157,12 +157,12 @@
                                         <%-- 댓글 목록 --%>
                                         <div class="mb-10">
                                             <c:forEach items="${comments}" var="comment">
-                                                <div class="p-5 mb-5 border rounded ${comment.writerRole eq 'CLIENT' ? 'bg-light' : 'bg-light-info'}">
+                                                <div class="p-5 mb-5 border rounded ${comment.writerRole ne 'ROOT' ? 'bg-light' : 'bg-light-info'}">
                                                     <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
                                                         <div class="d-flex align-items-center">
                                                             <span class="fw-bold text-gray-900 fs-6 me-2">${comment.writerName}</span>
-                                                            <span class="badge ${comment.writerRole eq 'CLIENT' ? 'badge-light-dark' : 'badge-primary'} fs-9">
-                                                                    ${comment.writerRole eq 'CLIENT' ? '관리자' : '개발사'}
+                                                            <span class="badge ${comment.writerRole ne 'ROOT' ? 'badge-light-dark' : 'badge-primary'} fs-9">
+                                                                    ${comment.writerRole ne 'ROOT' ? '관리자' : '개발사'}
                                                             </span>
                                                         </div>
                                                         <div class="text-muted fs-8">${fn:substring(fn:replace(comment.createdAt, 'T', ' '), 0, 16)}</div>

@@ -141,11 +141,10 @@ public class DevMngService {
         DevRequestVO req = devMapper.selectRequestById(vo.getReqId());
 
         // 작성자 역할 확인 (여기선 'role'을 파라미터나 세션에서 받아왔다고 가정하거나 DB조회 필요)
-        // 편의상 writerRole이 'CLIENT'면 관리자에게, 'ADMIN'이면 발주사에게 보냄
-        if ("CLIENT".equals(vo.getWriterRole())) {
-            sendEmailToAdmins(req, "NEW_COMMENT");
-        } else {
+        if ("ROOT".equals(vo.getWriterRole())) {
             sendEmailToWriter(req, "NEW_COMMENT_ADMIN");
+        } else {
+            sendEmailToAdmins(req, "NEW_COMMENT");
         }
     }
 

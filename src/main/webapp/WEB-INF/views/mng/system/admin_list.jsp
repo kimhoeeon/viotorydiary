@@ -71,12 +71,9 @@
                                         <form action="/mng/system/admin/list" method="get" class="d-flex align-items-center">
                                             <select name="type" class="form-select form-select-solid w-150px me-3">
                                                 <option value="">전체 권한</option>
-                                                <option value="SUPER" ${cri.type eq 'SUPER' ? 'selected' : ''}>최고관리자
-                                                </option>
-                                                <option value="MANAGER" ${cri.type eq 'MANAGER' ? 'selected' : ''}>운영자
-                                                </option>
-                                                <option value="CLIENT" ${cri.type eq 'CLIENT' ? 'selected' : ''}>발주사
-                                                </option>
+                                                <option value="SUPER" ${cri.type eq 'SUPER' ? 'selected' : ''}>최고관리자</option>
+                                                <option value="MANAGER" ${cri.type eq 'MANAGER' ? 'selected' : ''}>운영자</option>
+                                                <option value="CLIENT" ${cri.type eq 'CLIENT' ? 'selected' : ''}>발주사</option>
                                             </select>
                                             <div class="position-relative w-md-250px me-3">
                                                 <i class="ki-duotone ki-magnifier fs-3 text-gray-500 position-absolute top-50 translate-middle ms-6">
@@ -123,6 +120,9 @@
                                                                 </c:when>
                                                                 <c:when test="${item.role eq 'CLIENT'}">
                                                                     <span class="badge badge-light-warning">관리자</span>
+                                                                </c:when>
+                                                                <c:when test="${item.role eq 'ROOT'}">
+                                                                    <span class="badge badge-light-info">개발사</span>
                                                                 </c:when>
                                                                 <c:otherwise>
                                                                     <span class="badge badge-light-primary">운영자</span>
