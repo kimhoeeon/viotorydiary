@@ -96,7 +96,7 @@
                                 <c:otherwise>
                                     <c:forEach var="item" items="${list}">
                                         <div class="score_list ${item.gameStatus == 'CANCELLED' ? 'cancel_list' : ''}"
-                                             onclick="location.href='/diary/friend/detail?diaryId=${item.diaryId}'"
+                                             onclick="location.href='/diary/detail?diaryId=${item.diaryId}'"
                                              style="cursor: pointer;">
 
                                             <div class="img">
