@@ -108,6 +108,7 @@
                                                     <th class="min-w-200px">내용 (미리보기)</th>
                                                     <th class="min-w-200px text-center">관람 경기 정보</th>
                                                     <th class="min-w-100px text-center">직관 인증 / 공개</th>
+                                                    <th class="min-w-100px text-center">인기게시물</th>
                                                     <th class="min-w-125px text-center">작성일시</th>
                                                     <th class="min-w-100px text-center">상태</th>
                                                     <th class="min-w-100px text-center">관리</th>
@@ -117,7 +118,7 @@
                                                     <c:choose>
                                                         <c:when test="${empty list}">
                                                             <tr>
-                                                                <td colspan="8" class="text-center p-10">조회된 일기가 없습니다.</td>
+                                                                <td colspan="9" class="text-center p-10">조회된 일기가 없습니다.</td>
                                                             </tr>
                                                         </c:when>
                                                         <c:otherwise>
@@ -229,6 +230,14 @@
                                                                         </div>
                                                                     </td>
 
+                                                                    <td class="text-center">
+                                                                        <button type="button"
+                                                                                class="btn btn-sm ${item.isPopular == 'Y' ? 'btn-primary' : 'btn-light btn-active-light-primary'}"
+                                                                                onclick="togglePopular(${item.diaryId}, '${item.isPopular}')">
+                                                                                ${item.isPopular == 'Y' ? '인기' : '일반'}
+                                                                        </button>
+                                                                    </td>
+
                                                                     <td class="text-center fs-7 text-muted">
                                                                         ${fn:substring(fn:replace(item.createdAt, 'T', ' '), 0, 16)}
                                                                     </td>
@@ -308,6 +317,31 @@
                 actionForm.submit();
             });
         });
+
+        // 인기 게시물 토글 스크립트 추가
+        function togglePopular(diaryId, currentStatus) {
+            if (!confirm('인기 게시물 상태를 변경하시겠습니까?')) return;
+
+            $.ajax({
+                url: '/mng/diary/popular/toggle',
+                type: 'POST',
+                data: {
+                    diaryId: diaryId,
+                    currentStatus: currentStatus
+                },
+                success: function(response) {
+                    if (response.result === 'SUCCESS') {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function() {
+                    alert('서버 통신 중 오류가 발생했습니다.');
+                }
+            });
+        }
     </script>
 </body>
 </html>

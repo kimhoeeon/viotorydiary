@@ -28,4 +28,10 @@ public interface DiaryMngMapper {
     // 관리자 화면 전용 특정 회원의 직관 기록 이력 조회
     List<DiaryVO> selectMemberDiaryHistory(Long memberId);
 
+    // 현재 인기 게시물로 등록된 개수 조회
+    int getPopularDiaryCount();
+
+    // 인기 게시물 상태 업데이트
+    void updatePopularStatus(@Param("diaryId") Long diaryId, @Param("status") String status);
+
 }

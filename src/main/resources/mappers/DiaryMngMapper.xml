@@ -25,6 +25,7 @@
         , d.created_at
         , d.status
         , d.is_public
+        , d.is_popular
         , d.is_verified
         , d.member_id
         , m.nickname AS memberName
@@ -159,5 +160,18 @@
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
         ORDER BY g.game_date DESC, g.game_time DESC
     </select>
+
+    <select id="getPopularDiaryCount" resultType="int">
+        SELECT COUNT(*)
+        FROM diaries
+        WHERE is_popular = 'Y' AND status != 'DELETED'
+    </select>
+
+    <update id="updatePopularStatus">
+        UPDATE diaries
+        SET is_popular = #{status},
+            updated_at = NOW()
+        WHERE diary_id = #{diaryId}
+    </update>
 
 </mapper>

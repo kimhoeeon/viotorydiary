@@ -31,6 +31,7 @@ public class DiaryVO {
 
     private String status;           // PRE_SAVED, COMPLETED...
     private String isPublic;         // PUBLIC, FRIENDS, PRIVATE
+    private String isPopular;        // 인기 게시물 여부 (Y/N)
     private int viewCount;
 
     private LocalDateTime createdAt;

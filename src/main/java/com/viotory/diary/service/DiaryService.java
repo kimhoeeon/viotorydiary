@@ -335,4 +335,28 @@ public class DiaryService {
         return diaryMapper.countDiaryByDate(memberId, gameDate);
     }
 
+    /**
+     * [신규] 메인 화면용 친구/인기 일기 노출 로직 (PPT 요구사항 반영)
+     */
+    public List<DiaryVO> getRecommendedFriendDiaries(Long memberId) {
+        // 1. 친구(팔로우+팔로워) 수 확인
+        int friendCount = diaryMapper.countFollowAndFollower(memberId);
+
+        if (friendCount == 0) {
+            // [Case A] 친구가 없는 경우: 인기 게시물 우선 조회 (최대 4개)
+            List<DiaryVO> recommendedList = new ArrayList<>(diaryMapper.selectPopularDiaries(4));
+
+            // 인기 게시물이 4개 미만이면, 부족한 개수만큼 랜덤 게시물로 채움
+            if (recommendedList.size() < 4) {
+                int remain = 4 - recommendedList.size();
+                recommendedList.addAll(diaryMapper.selectRandomPublicDiaries(remain));
+            }
+            return recommendedList;
+
+        } else {
+            // [Case B] 친구가 있는 경우: 기존 로직(친구가 쓴 일기) 그대로 호출
+            return getFriendDiaryList(memberId);
+        }
+    }
+
 }

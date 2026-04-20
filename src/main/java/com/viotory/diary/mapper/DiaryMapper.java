@@ -68,4 +68,13 @@ public interface DiaryMapper {
     // 사용자가 해당 날짜에 작성한 일기 개수 조회
     int countDiaryByDate(@Param("memberId") Long memberId, @Param("gameDate") String gameDate);
 
+    // 사용자의 팔로우+팔로워 총합 조회
+    int countFollowAndFollower(Long memberId);
+
+    // 인기 게시물 조회 (is_popular = 'Y')
+    List<DiaryVO> selectPopularDiaries(int limit);
+
+    // 랜덤 전체공개 게시물 조회 (is_popular = 'N')
+    List<DiaryVO> selectRandomPublicDiaries(int limit);
+
 }

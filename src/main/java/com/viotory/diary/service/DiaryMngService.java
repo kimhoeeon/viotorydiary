@@ -41,4 +41,13 @@ public class DiaryMngService {
         return diaryMngMapper.selectMemberDiaryHistory(memberId);
     }
 
+    public int getPopularDiaryCount() {
+        return diaryMngMapper.getPopularDiaryCount();
+    }
+
+    @Transactional
+    public void updatePopularStatus(Long diaryId, String status) {
+        diaryMngMapper.updatePopularStatus(diaryId, status);
+    }
+
 }

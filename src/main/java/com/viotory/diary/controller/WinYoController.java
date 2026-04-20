@@ -49,8 +49,8 @@ public class WinYoController {
         List<DiaryVO> myDiaries = myAllDiaries.size() > 4 ? myAllDiaries.subList(0, 4) : myAllDiaries;
         model.addAttribute("myDiaries", myDiaries);
 
-        // 3. 친구들의 일기 (최대 4개)
-        List<DiaryVO> friendDiaries = diaryService.getFriendDiaryList(memberId);
+        // 3. 친구들의 일기 (★ 수정됨: 친구 0명이면 인기/랜덤 노출, 친구 있으면 친구 일기 노출)
+        List<DiaryVO> friendDiaries = diaryService.getRecommendedFriendDiaries(memberId);
         model.addAttribute("friendDiaries", friendDiaries);
 
         // 4. 스코어카드 (구장 방문 현황)
