@@ -79,10 +79,19 @@ public class DiaryMngController {
 
             // 인기 게시물로 지정('Y')하려는 경우에만 개수 체크
             if ("Y".equals(targetStatus)) {
+
+                // 해당 일기가 '전체 공개(PUBLIC)'인지 먼저 확인
+                DiaryVO diary = diaryMngService.getDiary(diaryId);
+                if (!"PUBLIC".equals(diary.getIsPublic())) {
+                    response.put("result", "FAIL");
+                    response.put("message", "전체 공개 상태인 일기만 인기 게시물로 선정할 수 있습니다.");
+                    return response;
+                }
+
                 int count = diaryMngService.getPopularDiaryCount();
                 if (count >= 4) {
                     response.put("result", "FAIL");
-                    response.put("message", "이미 인기 게시물로 선정된 게시물이 있습니다. 취소 후 다시 시도해 주세요");
+                    response.put("message", "인기 게시물 지정은 최대 4개까지 가능합니다. 취소 후 다시 시도해 주세요");
                     return response;
                 }
             }
