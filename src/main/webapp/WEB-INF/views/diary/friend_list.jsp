@@ -42,7 +42,14 @@
         <div class="top_wrap">
             <div class="main-top">
                 <div class="main-title">
-                    친구일기
+                    <c:choose>
+                        <c:when test="${hasFriends}">
+                            친구 일기
+                        </c:when>
+                        <c:otherwise>
+                            추천 직관 일기
+                        </c:otherwise>
+                    </c:choose>
                 </div>
 
                 <button class="noti-btn ${hasUnreadAlarm ? 'has-badge' : ''}" onclick="location.href='/alarm/list'">
@@ -87,7 +94,22 @@
                                         <div class="nodt_wrap">
                                             <div class="cont">
                                                 <img src="/img/ico_not_mark.svg" alt="데이터 비었을 때">
-                                                <div class="nodt_tit">아직 작성한 직관 기록이 없어요.</div>
+                                                <div class="nodt_tit">
+                                                    <c:choose>
+                                                        <c:when test="${!hasFriends and param.tab == 'all'}">
+                                                            추천할 인기 직관 일기가 없습니다.
+                                                        </c:when>
+                                                        <c:when test="${param.tab == 'follower'}">
+                                                            아직 나를 팔로우하는 친구가 없어요.
+                                                        </c:when>
+                                                        <c:when test="${empty param.tab or param.tab == 'following'}">
+                                                            아직 팔로잉 중인 친구가 없어요.
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            등록된 직관 기록이 없어요.
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
