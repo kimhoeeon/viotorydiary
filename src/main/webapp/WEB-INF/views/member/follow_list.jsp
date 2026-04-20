@@ -122,7 +122,7 @@
                                     <c:forEach var="item" items="${list}">
                                         <li>
                                             <div class="diary_write_list nodt_line friend_info_wrap bg-gray">
-                                                <div class="friend_info" onclick="location.href='/diary/friend/view?memberId=${item.memberId}'" style="cursor:pointer;">
+                                                <div class="friend_info">
                                                     <div class="friend_item ${item.mutual ? 'follow-back' : ''}">
                                                         <div class="name">${item.nickname}</div>
                                                         <c:if test="${not empty item.myTeamName}">
