@@ -337,6 +337,8 @@ public class DiaryService {
 
     /**
      * [신규] 메인 화면용 친구/인기 일기 노출 로직 (PPT 요구사항 반영)
+     * - 친구(팔로우/팔로워)가 0명이면 인기 게시물 노출 (부족하면 랜덤 채움)
+     * - 친구가 1명이라도 있으면 기존 방식대로 친구들의 일기 노출
      */
     public List<DiaryVO> getRecommendedFriendDiaries(Long memberId) {
         // 1. 친구(팔로우+팔로워) 수 확인
@@ -357,6 +359,10 @@ public class DiaryService {
             // [Case B] 친구가 있는 경우: 기존 로직(친구가 쓴 일기) 그대로 호출
             return getFriendDiaryList(memberId);
         }
+    }
+
+    public int getFriendCount(Long memberId) {
+        return diaryMapper.countFollowAndFollower(memberId);
     }
 
 }

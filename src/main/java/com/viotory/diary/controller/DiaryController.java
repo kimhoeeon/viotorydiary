@@ -520,21 +520,32 @@ public class DiaryController {
 
     // 친구 일기 목록 (피드)
     @GetMapping("/friend/list")
-    public String friendDiaryList(@RequestParam(value = "tab", defaultValue = "following") String tab,
+    public String friendDiaryList(@RequestParam(value = "tab", defaultValue = "all") String tab,
                                   @RequestParam(value = "targetMemberId", required = false) Long targetMemberId,
                                   HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
-        List<DiaryVO> list;
+        Long memberId = loginMember.getMemberId();
 
+        // 친구 유무 플래그 전달
+        int friendCount = diaryService.getFriendCount(memberId);
+        model.addAttribute("hasFriends", friendCount > 0);
+
+        List<DiaryVO> list;
         if (targetMemberId != null) {
             // [CASE 1] 특정 친구의 일기만 모아보기
             list = diaryService.getMemberPublicDiaries(targetMemberId);
             model.addAttribute("pageTitle", "친구의 직관일기");
         } else {
-            // [CASE 2] 탭별 피드 조회
-            list = diaryService.getFeedDiaries(loginMember.getMemberId(), tab);
+            // [CASE 2] 탭별 피드 조회 분기 처리
+            if ("all".equals(tab)) {
+                // '전체' 탭: 친구가 0명이면 인기 게시물 노출, 아니면 전체 피드 노출
+                list = diaryService.getRecommendedFriendDiaries(loginMember.getMemberId());
+            } else {
+                // '팔로잉/팔로워' 탭: 인기 게시물 없이, 해당 탭 조건에 맞는 사람의 피드만 순수하게 노출
+                list = diaryService.getFeedDiaries(loginMember.getMemberId(), tab);
+            }
             model.addAttribute("pageTitle", "친구들의 직관");
         }
 

@@ -40,6 +40,11 @@ public class WinYoController {
 
         Long memberId = loginMember.getMemberId();
 
+        // 1. 친구 수 확인 및 플래그 설정
+        int friendCount = diaryService.getFriendCount(memberId);
+        boolean hasFriends = (friendCount > 0);
+        model.addAttribute("hasFriends", hasFriends); // JSP에서 사용할 플래그
+
         // 1. 승요력 통계 (Fire Card)
         WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(memberId);
         model.addAttribute("winYo", winYo);
@@ -49,7 +54,8 @@ public class WinYoController {
         List<DiaryVO> myDiaries = myAllDiaries.size() > 4 ? myAllDiaries.subList(0, 4) : myAllDiaries;
         model.addAttribute("myDiaries", myDiaries);
 
-        // 3. 친구들의 일기 (★ 수정됨: 친구 0명이면 인기/랜덤 노출, 친구 있으면 친구 일기 노출)
+        // 3. 친구들의 일기
+        // ★ 수정됨: 무조건 친구 일기를 가져오는 getFriendDiaryList 대신 조건부 로직 호출
         List<DiaryVO> friendDiaries = diaryService.getRecommendedFriendDiaries(memberId);
         model.addAttribute("friendDiaries", friendDiaries);
 

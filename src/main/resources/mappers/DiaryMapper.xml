@@ -516,9 +516,13 @@
     </select>
 
     <select id="selectPopularDiaries" resultType="com.viotory.diary.vo.DiaryVO">
-        SELECT d.*, m.nickname, m.profile_image AS profileImage,
-               g.game_date AS gameDate, g.game_time AS gameTime,
-               t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName
+        SELECT d.diary_id, d.member_id, d.content, d.one_line_comment, d.image_url,
+               d.created_at, d.status, d.is_public, d.is_popular, d.is_verified, d.snapshot_team_code,
+               m.nickname AS memberName,
+               m.profile_image AS profileImage,
+               g.game_date AS gameDate,
+               t1.name_kr AS homeTeamName,
+               t2.name_kr AS awayTeamName
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  LEFT JOIN games g ON d.game_id = g.game_id
@@ -532,9 +536,13 @@
     </select>
 
     <select id="selectRandomPublicDiaries" resultType="com.viotory.diary.vo.DiaryVO">
-        SELECT d.*, m.nickname, m.profile_image AS profileImage,
-               g.game_date AS gameDate, g.game_time AS gameTime,
-               t1.name_kr AS homeTeamName, t2.name_kr AS awayTeamName
+        SELECT d.diary_id, d.member_id, d.content, d.one_line_comment, d.image_url,
+               d.created_at, d.status, d.is_public, d.is_popular, d.is_verified, d.snapshot_team_code,
+               m.nickname AS memberName,
+               m.profile_image AS profileImage,
+               g.game_date AS gameDate,
+               t1.name_kr AS homeTeamName,
+               t2.name_kr AS awayTeamName
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  LEFT JOIN games g ON d.game_id = g.game_id

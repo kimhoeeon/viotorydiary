@@ -243,7 +243,16 @@
                         <div class="card_wrap friend">
                             <div class="card_item gap-16">
                                 <div class="row history-head">
-                                    <div class="tit friend_tit">친구들의 직관 일기는?</div>
+                                    <div class="tit friend_tit">
+                                        <c:choose>
+                                            <c:when test="${hasFriends}">
+                                                <h3>친구들의 직관 일기는?</h3>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <h3>요즘 인기 있는 직관 일기 🔥</h3>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
                                     <a href="/diary/friend/list">
                                         <img src="/img/ico_next_arrow.svg" alt="모두 보기">
                                     </a>
