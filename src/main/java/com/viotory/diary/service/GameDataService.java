@@ -184,7 +184,7 @@ public class GameDataService {
                     .queryParam("categoryId", "kbo")
                     .queryParam("fromDate", fromDate)
                     .queryParam("toDate", toDate)
-                    .queryParam("size", "500")
+                    .queryParam("size", "200")
                     .build()
                     .toUri();
 
