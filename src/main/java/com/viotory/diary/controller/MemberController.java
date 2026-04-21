@@ -989,10 +989,16 @@ public class MemberController {
      */
     @PostMapping("/updateToken")
     @ResponseBody
-    public String updateToken(@RequestParam("token") String token, HttpSession session) {
+    public String updateToken(@RequestParam(value = "token", required = false) String token, HttpSession session) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) {
             return "fail:not_login"; // 로그인 안 된 상태면 패스
+        }
+
+        // 토큰이 안 넘어왔을 때의 방어 로직 추가
+        if (token == null || token.trim().isEmpty()) {
+            log.warn("앱에서 넘어온 푸시 토큰 값이 없습니다.");
+            return "fail:empty_token";
         }
 
         try {
