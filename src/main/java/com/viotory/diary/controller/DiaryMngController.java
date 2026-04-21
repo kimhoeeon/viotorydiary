@@ -82,9 +82,9 @@ public class DiaryMngController {
 
                 // 해당 일기가 '전체 공개(PUBLIC)'인지 먼저 확인
                 DiaryVO diary = diaryMngService.getDiary(diaryId);
-                if (!"PUBLIC".equals(diary.getIsPublic())) {
+                if (!"PUBLIC".equals(diary.getIsPublic()) || !"COMPLETED".equals(diary.getStatus())) {
                     response.put("result", "FAIL");
-                    response.put("message", "전체 공개 상태인 일기만 인기 게시물로 선정할 수 있습니다.");
+                    response.put("message", "전체 공개 및 정상 등록된 일기만 인기 게시물로 선정할 수 있습니다.");
                     return response;
                 }
 

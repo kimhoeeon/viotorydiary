@@ -76,9 +76,9 @@
 
             <c:if test="${empty targetMemberId}">
                 <div class="tab-pill">
-                    <button type="button" class="tab-pill_btn ${param.tab == 'all' ? 'on' : ''}" onclick="location.href='?tab=all'">전체</button>
-                    <button type="button" class="tab-pill_btn ${param.tab == 'follower' ? 'on' : ''}" onclick="location.href='?tab=follower'">나를 팔로우</button>
-                    <button type="button" class="tab-pill_btn ${empty param.tab || param.tab == 'following' ? 'on' : ''}" onclick="location.href='?tab=following'">내가 팔로잉</button>
+                    <button type="button" class="tab-pill_btn ${(param.tab == 'all' or empty tab or not hasFriends) ? 'on' : ''}" onclick="location.href='?tab=all'">전체</button>
+                    <button type="button" class="tab-pill_btn ${(hasFriends and param.tab == 'follower') ? 'on' : ''}" onclick="location.href='?tab=follower'">나를 팔로우</button>
+                    <button type="button" class="tab-pill_btn ${(hasFriends and param.tab == 'following') ? 'on' : ''}" onclick="location.href='?tab=following'">내가 팔로잉</button>
                 </div>
             </c:if>
 

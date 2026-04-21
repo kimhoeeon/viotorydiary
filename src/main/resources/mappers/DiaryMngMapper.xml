@@ -164,7 +164,9 @@
     <select id="getPopularDiaryCount" resultType="int">
         SELECT COUNT(*)
         FROM diaries
-        WHERE is_popular = 'Y' AND status != 'DELETED'
+        WHERE is_popular = 'Y'
+          AND is_public = 'PUBLIC'
+          AND status = 'COMPLETED'
     </select>
 
     <update id="updatePopularStatus">

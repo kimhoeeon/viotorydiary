@@ -325,6 +325,7 @@
             $.ajax({
                 url: '/mng/diary/popular/toggle',
                 type: 'POST',
+                cache: false,
                 data: {
                     diaryId: diaryId,
                     currentStatus: currentStatus
