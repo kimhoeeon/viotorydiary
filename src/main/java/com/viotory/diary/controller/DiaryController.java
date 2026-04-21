@@ -428,7 +428,7 @@ public class DiaryController {
         if (loginMember == null) return "fail:login";
 
         try {
-            com.viotory.diary.dto.CommentDTO comment = new com.viotory.diary.dto.CommentDTO();
+            CommentDTO comment = new CommentDTO();
             comment.setDiaryId(diaryId);
             comment.setMemberId(loginMember.getMemberId());
             comment.setContent(content);
@@ -456,7 +456,7 @@ public class DiaryController {
         model.addAttribute("list", list);
 
         // 2. 승요력 분석 데이터 조회
-        com.viotory.diary.dto.WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(loginMember.getMemberId());
+        WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(loginMember.getMemberId());
         model.addAttribute("winYo", winYo);
 
         return "diary/diary_list";
