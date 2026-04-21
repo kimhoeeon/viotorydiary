@@ -72,8 +72,7 @@
 
                                 <div class="card mb-7">
                                     <div class="card-body">
-                                        <form id="searchForm" action="/mng/diary/list" method="get"
-                                              class="d-flex align-items-center">
+                                        <form id="searchForm" action="/mng/diary/list" method="get" class="d-flex align-items-center">
                                             <input type="hidden" name="pageNum" value="1">
                                             <input type="hidden" name="amount" value="${pageMaker.cri.amount}">
 
@@ -83,15 +82,23 @@
                                                     <span class="path2"></span>
                                                 </i>
                                                 <input type="text" class="form-control form-control-solid ps-10"
-                                                       name="keyword" value="${pageMaker.cri.keyword}"
+                                                       name="keyword" value="${fn:trim(pageMaker.cri.keyword)}"
                                                        placeholder="내용 또는 작성자 검색"/>
                                             </div>
-                                            <select name="status" class="form-select form-select-solid w-150px me-3">
+
+                                            <select name="isPopular" class="form-select form-select-solid w-150px me-3" onchange="this.form.submit()">
+                                                <option value="" ${empty pageMaker.cri.isPopular ? 'selected' : ''}>전체 게시물</option>
+                                                <option value="Y" ${pageMaker.cri.isPopular eq 'Y' ? 'selected' : ''}>인기 게시물 (Y)</option>
+                                                <option value="N" ${pageMaker.cri.isPopular eq 'N' ? 'selected' : ''}>일반 게시물 (N)</option>
+                                            </select>
+
+                                            <select name="status" class="form-select form-select-solid w-150px me-3" onchange="this.form.submit()">
                                                 <option value="" ${empty pageMaker.cri.status ? 'selected' : ''}>전체 상태</option>
                                                 <option value="COMPLETED" ${pageMaker.cri.status eq 'COMPLETED' ? 'selected' : ''}>등록</option>
                                                 <option value="BLIND" ${pageMaker.cri.status eq 'BLIND' ? 'selected' : ''}>블라인드</option>
                                                 <option value="DELETED" ${pageMaker.cri.status eq 'DELETED' ? 'selected' : ''}>삭제됨</option>
                                             </select>
+
                                             <button type="submit" class="btn btn-primary">검색</button>
                                         </form>
                                     </div>

@@ -12,6 +12,8 @@ public class Criteria {
     private String category;
     private String status;  // 필터 (ACTIVE, SUSPENDED, WITHDRAWN)
 
+    private String isPopular;
+
     public Criteria() {
         this(1, 10);
     }
