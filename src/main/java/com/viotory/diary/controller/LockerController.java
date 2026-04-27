@@ -1,9 +1,8 @@
 package com.viotory.diary.controller;
 
 import com.viotory.diary.dto.ResponseDTO;
-import com.viotory.diary.service.ContentMngService;
-import com.viotory.diary.service.LockerService;
-import com.viotory.diary.service.SystemMngService;
+import com.viotory.diary.dto.WinYoAnalysisDTO;
+import com.viotory.diary.service.*;
 import com.viotory.diary.util.StringUtil;
 import com.viotory.diary.vo.*;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +31,10 @@ public class LockerController {
     private final ContentMngService contentMngService; // 이벤트/구단콘텐츠
     private final SystemMngService systemMngService; // 공지사항
 
+    private final WinYoService winYoService;
+    private final DiaryService diaryService;
+    private final GameService gameService;
+
     // ==========================================
     // 1. 라커룸 메인 (대시보드)
     // ==========================================
@@ -40,6 +43,33 @@ public class LockerController {
     public String lockerMain(HttpSession session, Model model) {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
+
+        Long memberId = loginMember.getMemberId();
+
+        // [이동된 로직] 승요력 통계 및 직관 인증하기 버튼 처리
+        WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(memberId);
+        model.addAttribute("winYo", winYo);
+
+        boolean hasTodayGame = false;
+        Long todayDiaryId = null;
+
+        List<GameVO> todayGames = gameService.getAllGamesToday(memberId);
+        if (todayGames != null && !todayGames.isEmpty()) {
+            for (GameVO game : todayGames) {
+                if (!"CANCELLED".equals(game.getStatus())) {
+                    hasTodayGame = true;
+                    // 해당 경기에 대해 작성한 일기가 있는지 확인
+                    DiaryVO todayDiary = diaryService.getDiaryByMemberAndGame(memberId, game.getGameId());
+                    if (todayDiary != null) {
+                        todayDiaryId = todayDiary.getDiaryId();
+                        break;
+                    }
+                    break;
+                }
+            }
+        }
+        model.addAttribute("hasTodayGame", hasTodayGame);
+        model.addAttribute("todayDiaryId", todayDiaryId);
 
         // 1. 이벤트 리스트
         List<EventVO> events = contentMngService.getActiveEventList();

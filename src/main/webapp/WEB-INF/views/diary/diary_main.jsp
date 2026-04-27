@@ -71,7 +71,7 @@
                 <div class="history">
                     <div class="history-list">
 
-                        <div class="card_wrap clover">
+                        <%--<div class="card_wrap clover">
                             <div class="card_item gap-16">
                                 <div class="tit clover_tit">
                                     <c:choose>
@@ -153,7 +153,7 @@
                                     </li>
                                 </ul>
                             </div>
-                        </div>
+                        </div>--%>
 
                         <div class="card_wrap diary_card">
                             <div class="card_item gap-16">

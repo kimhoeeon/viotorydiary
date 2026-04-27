@@ -45,9 +45,9 @@ public class WinYoController {
         boolean hasFriends = (friendCount > 0);
         model.addAttribute("hasFriends", hasFriends); // JSP에서 사용할 플래그
 
-        // 1. 승요력 통계 (Fire Card)
-        WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(memberId);
-        model.addAttribute("winYo", winYo);
+        // 1. 승요력 통계 (Fire Card) - LockerController Main 으로 이동
+        /*WinYoAnalysisDTO winYo = winYoService.analyzeWinYoPower(memberId);
+        model.addAttribute("winYo", winYo);*/
 
         // 2. 나의 최신 일기 (최대 4개)
         List<DiaryVO> myAllDiaries = diaryService.getMyDiaryList(memberId);
@@ -66,8 +66,8 @@ public class WinYoController {
         model.addAttribute("stadiumStatus", stadiumStatus);
         model.addAttribute("visitedCount", visitedCount);
 
-        // 오늘 경기 존재 여부 확인 (취소된 경기 제외)
-        boolean hasTodayGame = false;
+        // 오늘 경기 존재 여부 확인 (취소된 경기 제외) - LockerController Main 으로 이동
+        /*boolean hasTodayGame = false;
         Long todayDiaryId = null;
 
         List<GameVO> todayGames = gameService.getAllGamesToday(memberId);
@@ -86,7 +86,7 @@ public class WinYoController {
             }
         }
         model.addAttribute("hasTodayGame", hasTodayGame);
-        model.addAttribute("todayDiaryId", todayDiaryId);
+        model.addAttribute("todayDiaryId", todayDiaryId);*/
 
         return "diary/diary_main";
     }

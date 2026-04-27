@@ -57,6 +57,90 @@
                 <div class="history">
                     <div class="history-list">
 
+                        <div class="card_wrap clover">
+                            <div class="card_item gap-16">
+                                <div class="tit clover_tit">
+                                    <c:choose>
+                                        <c:when test="${not empty winYo.rateMessage}">
+                                            ${winYo.rateMessage}
+                                        </c:when>
+                                        <c:otherwise>승요력 데이터가 필요해요! 직관을 기록해보세요.</c:otherwise>
+                                    </c:choose>
+                                </div>
+                                <c:if test="${not empty winYo.countMessage}">
+                                    <div style="font-size: 14px; font-weight: 500; color: #555;">
+                                        ${winYo.countMessage}
+                                    </div>
+                                </c:if>
+                                <div class="live-certify">
+                                    <c:if test="${hasTodayGame}">
+                                        <c:choose>
+                                            <c:when test="${not empty todayDiaryId}">
+                                                <a href="/diary/detail?diaryId=${todayDiaryId}" class="btn btn-primary" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">
+                                                    일기 보기
+                                                </a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="/diary/write" class="btn btn-primary">
+                                                    직관 인증하기<span><img src="/img/ico_right_arrow.svg" alt=""></span>
+                                                </a>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:if>
+                                </div>
+
+                                <ul class="live-score">
+                                    <li>
+                                        <div>
+                                            <p>나의 직관 승률</p>
+                                            <div class="data">
+                                                <fmt:formatNumber value="${winYo.winRate}" pattern="#,##0"/>%
+                                            </div>
+                                        </div>
+                                        <c:choose>
+                                            <c:when test="${winYo.winRate < 50}">
+                                                <img src="/img/score_character01-2.svg" alt="스코어 캐릭터(패배)">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img src="/img/score_character01.svg" alt="스코어 캐릭터(승리)">
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </li>
+
+                                    <li>
+                                        <div>
+                                            <p>나의 직관 경기</p>
+                                            <div class="data">${winYo.totalGames}경기</div>
+                                        </div>
+                                        <img src="/img/score_character02.svg" alt="스코어 캐릭터">
+                                    </li>
+
+                                    <li>
+                                        <div>
+                                            <p>우리팀 전적</p>
+                                            <div class="data">${winYo.winGames}승 <c:if test="${winYo.drawGames > 0}">${winYo.drawGames}무 </c:if>${winYo.loseGames}패</div>
+                                         </div>
+                                        <c:choose>
+                                            <c:when test="${winYo.winRate < 50}">
+                                                <img src="/img/score_character03-2.svg" alt="스코어 캐릭터(패배)">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <img src="/img/score_character03.svg" alt="스코어 캐릭터(승리)">
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </li>
+
+                                    <li>
+                                        <div>
+                                            <p>최다 방문 구장</p>
+                                            <div class="data">${not empty winYo.topStadium ? winYo.topStadium : '-'}</div>
+                                        </div>
+                                        <img src="/img/score_character04.svg" alt="스코어 캐릭터">
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
                         <div class="card_wrap ev">
                             <div class="card_item">
                                 <div class="row history-head">
