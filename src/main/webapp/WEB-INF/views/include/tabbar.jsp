@@ -50,7 +50,7 @@
         <span style="${isPlay ? 'color:#000; font-weight:700;' : 'color:#999;'}">경기</span>
     </a>
 
-    <a class="app-tabbar_item ${isDiary ? 'active' : ''}" href="/diary/winyo" ${isDiary ? 'aria-current="page"' : ''}>
+    <a class="app-tabbar_item ${isDiary ? 'active' : ''}" href="/diary/all" ${isDiary ? 'aria-current="page"' : ''}>
         <span aria-hidden="true">
             <img src="/img/tabbar_note${isDiary ? '_active' : ''}.svg" alt="일기 아이콘">
         </span>

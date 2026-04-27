@@ -55,7 +55,8 @@
     <div class="app">
 
         <header class="app-header">
-            <button class="app-header_btn app-header_back" type="button" onclick="location.href='/diary/winyo'">
+            <button class="app-header_btn app-header_back" type="button"
+                    onclick="if(document.referrer) { history.back(); } else { location.href='/diary/all'; }">
                 <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
             </button>
         </header>

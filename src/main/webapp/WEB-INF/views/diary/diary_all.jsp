@@ -75,9 +75,9 @@
                         <div class="card_item">
                             <div class="row history-head">
                                 <div class="tit content_tit">이번 주 HOT 직관 일기</div>
-                                <a href="/diary/list">
+                                <%--<a href="/diary/list">
                                     <img src="/img/ico_next_arrow.svg" alt="모두 보기">
-                                </a>
+                                </a>--%>
                             </div>
                             <c:choose>
                                 <c:when test="${not empty popularDiaries}">
@@ -122,14 +122,14 @@
 
                     <div class="card schedule-picker mt-24">
                         <div class="schedule-header">
-                            <button type="button" class="week-btn" id="prevWeek" aria-label="저번 주">
+                            <button type="button" class="week-btn" id="diaryPrevWeek" aria-label="저번 주">
                                 <img src="/img/picker_prev.svg" alt="저번 주">
                             </button>
-                            <div class="week-label" id="weekLabel"></div>
-                            <button type="button" class="week-btn" id="nextWeek" aria-label="다음 주">
+                            <div class="week-label" id="diaryWeekLabel"></div>
+                            <button type="button" class="week-btn" id="diaryNextWeek" aria-label="다음 주">
                                 <img src="/img/picker_next.svg" alt="다음 주">
                             </button>
-                            <button class="picker-popup" id="openMonthPicker">
+                            <button class="picker-popup" id="diaryOpenMonthPicker">
                                 <img src="/img/ico_picker.svg" alt="달력 모달">
                             </button>
                         </div>
@@ -138,25 +138,24 @@
                             <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
                         </div>
 
-                        <div class="schedule-grid" id="dateGrid">
+                        <div class="schedule-grid" id="diaryDateGrid">
                         </div>
-                        <input type="hidden" id="selectedDate" value="">
                     </div>
 
-                    <div class="sheet-backdrop" id="monthPickerSheet">
-                        <div class="sheet month-sheet" role="dialog" aria-modal="true" aria-labelledby="monthSheetTitle">
+                    <div class="sheet-backdrop" id="diaryMonthPickerSheet">
+                        <div class="sheet month-sheet" role="dialog" aria-modal="true">
                             <div class="month-sheet_header">
-                                <button type="button" class="month-sheet_close" id="monthCloseBtn" aria-label="닫기">
+                                <button type="button" class="month-sheet_close" id="diaryMonthCloseBtn" aria-label="닫기">
                                     <img src="/img/ico_close.svg" alt="닫기">
                                 </button>
                             </div>
 
                             <div class="month-sheet_nav">
-                                <button type="button" class="month-nav_btn" id="monthPrev" aria-label="이전 달">
+                                <button type="button" class="month-nav_btn" id="diaryMonthPrev" aria-label="이전 달">
                                     <img src="/img/picker_prev.svg" alt="이전 달">
                                 </button>
-                                <div class="month-label" id="monthLabel"></div>
-                                <button type="button" class="month-nav_btn" id="monthNext" aria-label="다음 달">
+                                <div class="month-label" id="diaryMonthLabel"></div>
+                                <button type="button" class="month-nav_btn" id="diaryMonthNext" aria-label="다음 달">
                                     <img src="/img/picker_next.svg" alt="다음 달">
                                 </button>
                             </div>
@@ -165,13 +164,13 @@
                                 <span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span>
                             </div>
                             <div class="month-grid-wrap">
-                                <div class="month-grid" id="monthGrid">
+                                <div class="month-grid" id="diaryMonthGrid">
                                 </div>
                             </div>
                             <div class="match-notice">날짜를 선택하면 그날의 직관일기를 볼 수 있어요.</div>
 
                             <div class="month-sheet_footer">
-                                <button type="button" class="btn btn-primary" id="monthApplyBtn" disabled>
+                                <button type="button" class="btn btn-primary" id="diaryMonthApplyBtn" disabled>
                                     보기
                                 </button>
                             </div>
@@ -215,77 +214,78 @@
     <script src="/js/app_interface.js"></script>
 
     <script>
-        // 1. 오늘 날짜 기본 설정
+        // 전역 변수 설정: 오늘 날짜 기본 세팅
         let currentDate = new Date();
-        let currentSelectedDateStr = formatDate(currentDate); // "YYYY-MM-DD" 포맷
+        let currentSelectedDateStr = formatYMD(currentDate); // 오늘 날짜 포맷
         const myTeamCode = '${myTeamCode}';
         let currentPage = 1;
         const pageSize = 5; // 한 번에 5개씩 노출
 
         $(document).ready(function() {
-            // 진입 시 오늘 날짜 기준으로 달력 렌더링 및 데이터 로드
+            // 진입 시 오늘 날짜 기준으로 화면 렌더링
             renderWeekCalendar(currentDate);
             loadDiaryList(currentSelectedDateStr, true);
 
-            // 우리팀 필터 변경
+            // 우리팀 필터
             $('#myTeamFilter').on('change', function() {
-                if(currentSelectedDateStr) {
-                    loadDiaryList(currentSelectedDateStr, true);
-                }
+                if(currentSelectedDateStr) loadDiaryList(currentSelectedDateStr, true);
             });
 
-            // 더보기 버튼 클릭
+            // 더보기 (페이징)
             $('#loadMoreBtn').on('click', function() {
                 currentPage++;
                 fetchDiaryData(currentSelectedDateStr, $('#myTeamFilter').is(':checked'), currentPage, true);
             });
 
-            // 주간 달력 화살표 이동
-            $('#prevWeek').click(function() {
+            // 주간 화살표
+            $('#diaryPrevWeek').click(function() {
                 currentDate.setDate(currentDate.getDate() - 7);
                 renderWeekCalendar(currentDate);
             });
-            $('#nextWeek').click(function() {
+            $('#diaryNextWeek').click(function() {
                 currentDate.setDate(currentDate.getDate() + 7);
                 renderWeekCalendar(currentDate);
             });
 
-            // 모달(팝업) 달력 열기/닫기
-            $('#openMonthPicker').click(function() {
-                $('#monthPickerSheet').addClass('is-open');
+            // 모달 열기/닫기
+            $('#diaryOpenMonthPicker').click(function() {
+                $('#diaryMonthPickerSheet').addClass('is-open');
                 renderMonthCalendar(currentDate);
             });
-            $('#monthCloseBtn').click(function() {
-                $('#monthPickerSheet').removeClass('is-open');
+            $('#diaryMonthCloseBtn').click(function() {
+                $('#diaryMonthPickerSheet').removeClass('is-open');
+            });
+            // 딤(배경) 클릭 시 닫기
+            $('#diaryMonthPickerSheet').click(function(e) {
+                if(e.target.id === 'diaryMonthPickerSheet') {
+                    $(this).removeClass('is-open');
+                }
             });
 
-            // 모달 내 달 변경
-            $('#monthPrev').click(function() {
+            // 모달 달 변경
+            $('#diaryMonthPrev').click(function() {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 renderMonthCalendar(currentDate);
             });
-            $('#monthNext').click(function() {
+            $('#diaryMonthNext').click(function() {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 renderMonthCalendar(currentDate);
             });
 
-            // 모달 내 '보기' 버튼 클릭 (날짜 적용)
-            $('#monthApplyBtn').click(function() {
-                // is-selected 클래스로 찾기
-                let tempDate = $('#monthGrid button.is-selected').attr('data-date');
+            // 모달 적용 (보기 버튼)
+            $('#diaryMonthApplyBtn').click(function() {
+                let tempDate = $('#diaryMonthGrid button.is-selected').attr('data-date');
                 if(tempDate) {
                     currentDate = new Date(tempDate);
                     currentSelectedDateStr = tempDate;
                     renderWeekCalendar(currentDate);
                     loadDiaryList(tempDate, true);
-                    $('#monthPickerSheet').removeClass('is-open');
+                    $('#diaryMonthPickerSheet').removeClass('is-open');
                 }
             });
         });
 
-        // ==========================================
-        // 리스트 조회 (AJAX)
-        // ==========================================
+        // 리스트 호출 함수
         function loadDiaryList(dateStr, isReset) {
             currentSelectedDateStr = dateStr;
             if(isReset) currentPage = 1;
@@ -294,11 +294,7 @@
         }
 
         function fetchDiaryData(dateStr, isMyTeamOnly, page, isAppend) {
-            let reqData = {
-                date: dateStr,
-                page: page,
-                limit: pageSize // 서버에 5개 요청
-            };
+            let reqData = { date: dateStr, page: page, limit: pageSize };
             if(isMyTeamOnly) reqData.teamCode = myTeamCode;
 
             $.ajax({
@@ -310,36 +306,33 @@
                         list.forEach(diary => {
                             let imgUrl = diary.imageUrl ? diary.imageUrl.split(',')[0] : '/img/card_defalut.svg';
                             let winMark = (diary.gameResult === 'WIN') ? `<div class="score_win"><img src="/img/ico_check.svg" alt="승리"></div>` : '';
-
                             html += `
-                            <div class="score_list" onclick="location.href='/diary/detail?diaryId=\${diary.diaryId}'" style="cursor:pointer;">
-                                <div class="img">
-                                    <img src="\${imgUrl}" alt="스코어카드 이미지" onerror="this.src='/img/card_defalut.svg'" style="width:100%; height:100%; object-fit:cover;">
-                                </div>
-                                <div class="score_txt">
-                                    <div class="txt_box">
-                                        <div class="tit">\${diary.awayTeamName} \${diary.scoreAway} vs \${diary.scoreHome} \${diary.homeTeamName}</div>
-                                        <div class="userName">\${diary.nickname}</div>
-                                        <div class="date">\${dateStr}</div>
+                                <div class="score_list" onclick="location.href='/diary/detail?diaryId=\${diary.diaryId}'" style="cursor:pointer;">
+                                    <div class="img">
+                                        <img src="\${imgUrl}" alt="스코어카드" onerror="this.src='/img/card_defalut.svg'" style="width:100%; height:100%; object-fit:cover;">
                                     </div>
-                                    \${winMark}
+                                    <div class="score_txt">
+                                        <div class="txt_box">
+                                            <div class="tit">\${diary.awayTeamName} \${diary.scoreAway} vs \${diary.scoreHome} \${diary.homeTeamName}</div>
+                                            <div class="userName">\${diary.nickname}</div>
+                                            <div class="date">\${dateStr}</div>
+                                        </div>
+                                        \${winMark}
+                                    </div>
                                 </div>
-                            </div>
-                        `;
+                            `;
                         });
-
                         if(isAppend) $('#diaryListContainer').append(html);
                         else $('#diaryListContainer').html(html);
 
-                        // 5개 이상이면 더보기 버튼 노출
                         if(list.length >= pageSize) $('#loadMoreBtnWrap').show();
                         else $('#loadMoreBtnWrap').hide();
                     } else {
                         if(!isAppend) {
                             $('#diaryListContainer').html(`
-                            <div class="nodt_wrap only_txt" style="width:100%;">
-                                <div class="cont"><div class="nodt_txt">해당 날짜에 등록된 일기가 없습니다.</div></div>
-                            </div>`);
+                                <div class="nodt_wrap only_txt" style="width:100%;">
+                                    <div class="cont"><div class="nodt_txt">해당 날짜에 등록된 일기가 없습니다.</div></div>
+                                </div>`);
                         }
                         $('#loadMoreBtnWrap').hide();
                     }
@@ -348,13 +341,11 @@
         }
 
         // ==========================================
-        // 달력 렌더링 로직 ( play.jsp 방식 적용 )
+        // UI 렌더링 (date-picker.js CSS 100% 호환)
         // ==========================================
-
-        // 주간 달력 렌더링
         function renderWeekCalendar(baseDate) {
-            $('#weekLabel').text(getWeekLabel(baseDate));
-            let startOfWeek = getStartOfWeek(baseDate);
+            $('#diaryWeekLabel').text(getWeekLabel(baseDate));
+            let startOfWeek = getSundayOfWeek(baseDate);
             let monthStr = baseDate.getFullYear() + "-" + String(baseDate.getMonth() + 1).padStart(2, '0');
 
             $.ajax({
@@ -362,96 +353,101 @@
                 data: { month: monthStr },
                 success: function(activeDates) {
                     let html = '';
+                    let ctxMonth = baseDate.getMonth();
+
                     for(let i=0; i<7; i++) {
-                        let curD = new Date(startOfWeek);
-                        curD.setDate(curD.getDate() + i);
-                        let dateStr = formatDate(curD);
+                        let d = new Date(startOfWeek);
+                        d.setDate(d.getDate() + i);
+                        let dateStr = formatYMD(d);
 
-                        let hasData = activeDates.includes(dateStr) ? '<div class="dot"></div>' : '';
-                        // is-selected 적용
                         let isSelected = (dateStr === currentSelectedDateStr) ? 'is-selected' : '';
+                        let isToday = (dateStr === formatYMD(new Date())) ? 'is-today' : '';
+                        let isOtherMonth = (d.getMonth() !== ctxMonth) ? 'is-other-month' : '';
+                        let hasData = activeDates.includes(dateStr) ? '<div class="dot"></div>' : '';
 
                         html += `
-                        <button type="button" class="date-btn \${isSelected}" data-date="\${dateStr}" onclick="selectDate(this)">
-                            <span>\${curD.getDate()}</span>
-                            \${hasData}
-                        </button>
-                    `;
+                            <button type="button" class="schedule-day \${isSelected} \${isToday} \${isOtherMonth}" data-date="\${dateStr}" onclick="selectDate(this)">
+                                <span>\${d.getDate()}</span>\${hasData}
+                            </button>
+                        `;
                     }
-                    $('#dateGrid').html(html);
+                    $('#diaryDateGrid').html(html);
                 }
             });
         }
 
-        // 월간 팝업 달력 렌더링
         function renderMonthCalendar(baseDate) {
-            $('#monthLabel').text(baseDate.getFullYear() + "년 " + (baseDate.getMonth() + 1) + "월");
-            let monthStr = baseDate.getFullYear() + "-" + String(baseDate.getMonth() + 1).padStart(2, '0');
+            let year = baseDate.getFullYear();
+            let month = baseDate.getMonth();
+            $('#diaryMonthLabel').text(`\${year}년 \${month + 1}월`);
+            let monthStr = year + "-" + String(month + 1).padStart(2, '0');
 
             $.ajax({
                 url: '/diary/api/calendar-dates',
                 data: { month: monthStr },
                 success: function(activeDates) {
-                    let firstDay = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1).getDay();
-                    let lastDate = new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 0).getDate();
+                    let firstDow = new Date(year, month, 1).getDay();
+                    let lastDay = new Date(year, month + 1, 0).getDate();
 
                     let html = '';
-                    for(let i=0; i<firstDay; i++) { html += `<span></span>`; }
-                    for(let i=1; i<=lastDate; i++) {
-                        let curD = new Date(baseDate.getFullYear(), baseDate.getMonth(), i);
-                        let dateStr = formatDate(curD);
+                    for(let i=0; i<firstDow; i++) { html += `<div class="month-day is-empty"></div>`; }
+                    for(let d=1; d<=lastDay; d++) {
+                        let curD = new Date(year, month, d);
+                        let dateStr = formatYMD(curD);
 
-                        let hasData = activeDates.includes(dateStr) ? '<div class="dot"></div>' : '';
-                        // is-selected 적용
                         let isSelected = (dateStr === currentSelectedDateStr) ? 'is-selected' : '';
+                        let isToday = (dateStr === formatYMD(new Date())) ? 'is-today' : '';
+                        let isSun = (curD.getDay() === 0) ? 'is-sun' : '';
+                        let isSat = (curD.getDay() === 6) ? 'is-sat' : '';
+                        let hasDataClass = activeDates.includes(dateStr) ? 'is-mark' : '';
 
                         html += `
-                        <button type="button" class="\${isSelected}" data-date="\${dateStr}" onclick="selectMonthDate(this)">
-                            <span>\${i}</span>\${hasData}
-                        </button>
-                    `;
+                            <button type="button" class="month-day \${isSelected} \${isToday} \${isSun} \${isSat} \${hasDataClass}" data-date="\${dateStr}" onclick="selectMonthDate(this)">
+                                <span>\${d}</span>
+                            </button>
+                        `;
                     }
-                    $('#monthGrid').html(html);
+                    $('#diaryMonthGrid').html(html);
 
-                    // 모달 켰을 때 이미 선택된 날짜가 있으면 '보기' 버튼 활성화
-                    if($('#monthGrid button.is-selected').length > 0) $('#monthApplyBtn').prop('disabled', false);
-                    else $('#monthApplyBtn').prop('disabled', true);
+                    if($('#diaryMonthGrid button.is-selected').length > 0) $('#diaryMonthApplyBtn').prop('disabled', false);
+                    else $('#diaryMonthApplyBtn').prop('disabled', true);
                 }
             });
         }
 
-        // 날짜 클릭 이벤트 (배경색 즉시 적용)
         function selectDate(btn) {
-            $('#dateGrid button').removeClass('is-selected'); // is-selected 적용
+            $('#diaryDateGrid button').removeClass('is-selected');
             $(btn).addClass('is-selected');
             let dateStr = $(btn).attr('data-date');
             loadDiaryList(dateStr, true);
         }
 
-        // 모달 내 날짜 클릭 이벤트 (배경색 즉시 적용)
         function selectMonthDate(btn) {
-            $('#monthGrid button').removeClass('is-selected'); // is-selected 적용
+            $('#diaryMonthGrid button').removeClass('is-selected');
             $(btn).addClass('is-selected');
-            $('#monthApplyBtn').prop('disabled', false);
+            $('#diaryMonthApplyBtn').prop('disabled', false);
         }
 
         // 유틸 함수
-        function formatDate(d) {
-            let month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
-            if (month.length < 2) month = '0' + month;
-            if (day.length < 2) day = '0' + day;
-            return [year, month, day].join('-');
+        function formatYMD(date) {
+            let y = date.getFullYear();
+            let m = String(date.getMonth() + 1).padStart(2, '0');
+            let d = String(date.getDate()).padStart(2, '0');
+            return `\${y}-\${m}-\${d}`;
         }
-
-        function getStartOfWeek(date) {
-            const d = new Date(date);
-            const day = d.getDay();
-            d.setDate(d.getDate() - day);
-            return d;
+        function getSundayOfWeek(date) {
+            let copy = new Date(date);
+            copy.setDate(copy.getDate() - copy.getDay());
+            return copy;
         }
-
-        function getWeekLabel(d) {
-            return String(d.getFullYear()).slice(-2) + "년 " + (d.getMonth() + 1) + "월";
+        function getWeekLabel(date) {
+            let year = date.getFullYear();
+            let month = date.getMonth();
+            let day = date.getDate();
+            let yy = String(year).slice(-2);
+            let firstDow = new Date(year, month, 1).getDay();
+            let weekIndex = Math.floor((firstDow + day - 1) / 7) + 1;
+            return `\${yy}년 \${month + 1}월 \${weekIndex}주`;
         }
     </script>
 </body>
