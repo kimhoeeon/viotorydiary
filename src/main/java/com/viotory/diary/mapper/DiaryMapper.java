@@ -72,10 +72,10 @@ public interface DiaryMapper {
     int countFollowAndFollower(Long memberId);
 
     // 인기 게시물 조회 (is_popular = 'Y')
-    List<DiaryVO> selectPopularDiaries(int limit);
+    List<DiaryVO> selectPopularDiaries(@Param("limit") int limit);
 
     // 랜덤 전체공개 게시물 조회 (is_popular = 'N')
-    List<DiaryVO> selectRandomPublicDiaries(int limit);
+    List<DiaryVO> selectRandomPublicDiaries(@Param("limit") int limit);
 
     // [추가] 특정 날짜 및 팀 필터링 기반 일기 조회 (페이징 포함)
     List<DiaryVO> selectDiariesByDateAndTeam(@Param("date") String date,

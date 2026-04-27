@@ -521,8 +521,8 @@
                m.nickname AS memberName,
                m.profile_image AS profileImage,
                g.game_date AS gameDate,
-               t1.name_kr AS homeTeamName,
-               t2.name_kr AS awayTeamName
+               t1.short_name AS homeTeamName,
+               t2.short_name AS awayTeamName
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  LEFT JOIN games g ON d.game_id = g.game_id
@@ -541,8 +541,8 @@
                m.nickname AS memberName,
                m.profile_image AS profileImage,
                g.game_date AS gameDate,
-               t1.name_kr AS homeTeamName,
-               t2.name_kr AS awayTeamName
+               t1.short_name AS homeTeamName,
+               t2.short_name AS awayTeamName
         FROM diaries d
                  JOIN members m ON d.member_id = m.member_id
                  LEFT JOIN games g ON d.game_id = g.game_id
