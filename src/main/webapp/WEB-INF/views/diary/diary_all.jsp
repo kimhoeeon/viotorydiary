@@ -215,32 +215,32 @@
     <script src="/js/app_interface.js"></script>
 
     <script>
-        // 1. 전역 변수 설정: 오늘 날짜를 기본값으로 세팅
+        // 1. 오늘 날짜 기본 설정
         let currentDate = new Date();
-        let currentSelectedDateStr = formatDate(new Date()); // 오늘 날짜를 YYYY-MM-DD 형식으로 초기화
+        let currentSelectedDateStr = formatDate(currentDate); // "YYYY-MM-DD" 포맷
         const myTeamCode = '${myTeamCode}';
         let currentPage = 1;
-        const pageSize = 5; // 기본 노출 개수 5개 설정
+        const pageSize = 5; // 한 번에 5개씩 노출
 
         $(document).ready(function() {
-            // 초기 로드 시 오늘 날짜 기준으로 달력과 목록 표시
+            // 진입 시 오늘 날짜 기준으로 달력 렌더링 및 데이터 로드
             renderWeekCalendar(currentDate);
             loadDiaryList(currentSelectedDateStr, true);
 
-            // 우리팀 필터 변경 시
+            // 우리팀 필터 변경
             $('#myTeamFilter').on('change', function() {
                 if(currentSelectedDateStr) {
                     loadDiaryList(currentSelectedDateStr, true);
                 }
             });
 
-            // 더보기 버튼 클릭 시
+            // 더보기 버튼 클릭
             $('#loadMoreBtn').on('click', function() {
                 currentPage++;
                 fetchDiaryData(currentSelectedDateStr, $('#myTeamFilter').is(':checked'), currentPage, true);
             });
 
-            // 주간 이동 버튼
+            // 주간 달력 화살표 이동
             $('#prevWeek').click(function() {
                 currentDate.setDate(currentDate.getDate() - 7);
                 renderWeekCalendar(currentDate);
@@ -250,22 +250,32 @@
                 renderWeekCalendar(currentDate);
             });
 
-            // 팝업 달력 열기
+            // 모달(팝업) 달력 열기/닫기
             $('#openMonthPicker').click(function() {
                 $('#monthPickerSheet').addClass('is-open');
                 renderMonthCalendar(currentDate);
             });
-
             $('#monthCloseBtn').click(function() {
                 $('#monthPickerSheet').removeClass('is-open');
             });
 
-            // 팝업 달력 내 적용 버튼
+            // 모달 내 달 변경
+            $('#monthPrev').click(function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderMonthCalendar(currentDate);
+            });
+            $('#monthNext').click(function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderMonthCalendar(currentDate);
+            });
+
+            // 모달 내 '보기' 버튼 클릭 (날짜 적용)
             $('#monthApplyBtn').click(function() {
-                let tempDate = $('#monthGrid button.on').attr('data-date');
+                // is-selected 클래스로 찾기
+                let tempDate = $('#monthGrid button.is-selected').attr('data-date');
                 if(tempDate) {
                     currentDate = new Date(tempDate);
-                    currentSelectedDateStr = tempDate; // 선택 날짜 업데이트
+                    currentSelectedDateStr = tempDate;
                     renderWeekCalendar(currentDate);
                     loadDiaryList(tempDate, true);
                     $('#monthPickerSheet').removeClass('is-open');
@@ -273,6 +283,9 @@
             });
         });
 
+        // ==========================================
+        // 리스트 조회 (AJAX)
+        // ==========================================
         function loadDiaryList(dateStr, isReset) {
             currentSelectedDateStr = dateStr;
             if(isReset) currentPage = 1;
@@ -284,7 +297,7 @@
             let reqData = {
                 date: dateStr,
                 page: page,
-                limit: pageSize // 서버에 5개씩 요청
+                limit: pageSize // 서버에 5개 요청
             };
             if(isMyTeamOnly) reqData.teamCode = myTeamCode;
 
@@ -301,7 +314,7 @@
                             html += `
                             <div class="score_list" onclick="location.href='/diary/detail?diaryId=\${diary.diaryId}'" style="cursor:pointer;">
                                 <div class="img">
-                                    <img src="\${imgUrl}" alt="스코어카드" onerror="this.src='/img/card_defalut.svg'" style="width:100%; height:100%; object-fit:cover;">
+                                    <img src="\${imgUrl}" alt="스코어카드 이미지" onerror="this.src='/img/card_defalut.svg'" style="width:100%; height:100%; object-fit:cover;">
                                 </div>
                                 <div class="score_txt">
                                     <div class="txt_box">
@@ -318,7 +331,7 @@
                         if(isAppend) $('#diaryListContainer').append(html);
                         else $('#diaryListContainer').html(html);
 
-                        // 5개 이상 데이터가 더 있을 가능성이 있으면 더보기 노출
+                        // 5개 이상이면 더보기 버튼 노출
                         if(list.length >= pageSize) $('#loadMoreBtnWrap').show();
                         else $('#loadMoreBtnWrap').hide();
                     } else {
@@ -334,7 +347,11 @@
             });
         }
 
-        // 주간 달력 그리기 (클릭된 날짜 배경색 유지 로직 포함)
+        // ==========================================
+        // 달력 렌더링 로직 ( play.jsp 방식 적용 )
+        // ==========================================
+
+        // 주간 달력 렌더링
         function renderWeekCalendar(baseDate) {
             $('#weekLabel').text(getWeekLabel(baseDate));
             let startOfWeek = getStartOfWeek(baseDate);
@@ -350,9 +367,9 @@
                         curD.setDate(curD.getDate() + i);
                         let dateStr = formatDate(curD);
 
-                        // 현재 선택된 날짜인 경우 'on' 클래스를 붙여 배경색 처리
-                        let isSelected = (dateStr === currentSelectedDateStr) ? 'on' : '';
                         let hasData = activeDates.includes(dateStr) ? '<div class="dot"></div>' : '';
+                        // is-selected 적용
+                        let isSelected = (dateStr === currentSelectedDateStr) ? 'is-selected' : '';
 
                         html += `
                         <button type="button" class="date-btn \${isSelected}" data-date="\${dateStr}" onclick="selectDate(this)">
@@ -366,7 +383,7 @@
             });
         }
 
-        // 팝업 달력 그리기 (클릭 배경색 처리 로직 포함)
+        // 월간 팝업 달력 렌더링
         function renderMonthCalendar(baseDate) {
             $('#monthLabel').text(baseDate.getFullYear() + "년 " + (baseDate.getMonth() + 1) + "월");
             let monthStr = baseDate.getFullYear() + "-" + String(baseDate.getMonth() + 1).padStart(2, '0');
@@ -383,10 +400,10 @@
                     for(let i=1; i<=lastDate; i++) {
                         let curD = new Date(baseDate.getFullYear(), baseDate.getMonth(), i);
                         let dateStr = formatDate(curD);
-                        let hasData = activeDates.includes(dateStr) ? '<div class="dot"></div>' : '';
 
-                        // 팝업 내에서도 현재 선택된 날짜 강조
-                        let isSelected = (dateStr === currentSelectedDateStr) ? 'on' : '';
+                        let hasData = activeDates.includes(dateStr) ? '<div class="dot"></div>' : '';
+                        // is-selected 적용
+                        let isSelected = (dateStr === currentSelectedDateStr) ? 'is-selected' : '';
 
                         html += `
                         <button type="button" class="\${isSelected}" data-date="\${dateStr}" onclick="selectMonthDate(this)">
@@ -396,29 +413,29 @@
                     }
                     $('#monthGrid').html(html);
 
-                    // 선택된 날짜가 현재 달에 있다면 '보기' 버튼 즉시 활성화
-                    if($('#monthGrid button.on').length > 0) $('#monthApplyBtn').prop('disabled', false);
+                    // 모달 켰을 때 이미 선택된 날짜가 있으면 '보기' 버튼 활성화
+                    if($('#monthGrid button.is-selected').length > 0) $('#monthApplyBtn').prop('disabled', false);
                     else $('#monthApplyBtn').prop('disabled', true);
                 }
             });
         }
 
-        // 주간 날짜 클릭 이벤트
+        // 날짜 클릭 이벤트 (배경색 즉시 적용)
         function selectDate(btn) {
-            $('#dateGrid button').removeClass('on');
-            $(btn).addClass('on'); // 배경색 적용 (on 클래스)
+            $('#dateGrid button').removeClass('is-selected'); // is-selected 적용
+            $(btn).addClass('is-selected');
             let dateStr = $(btn).attr('data-date');
             loadDiaryList(dateStr, true);
         }
 
-        // 팝업 내 날짜 클릭 이벤트
+        // 모달 내 날짜 클릭 이벤트 (배경색 즉시 적용)
         function selectMonthDate(btn) {
-            $('#monthGrid button').removeClass('on');
-            $(btn).addClass('on'); // 배경색 적용 (on 클래스)
+            $('#monthGrid button').removeClass('is-selected'); // is-selected 적용
+            $(btn).addClass('is-selected');
             $('#monthApplyBtn').prop('disabled', false);
         }
 
-        // 공통 함수: YYYY-MM-DD 포맷팅
+        // 유틸 함수
         function formatDate(d) {
             let month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
             if (month.length < 2) month = '0' + month;
