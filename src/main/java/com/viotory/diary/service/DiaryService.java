@@ -365,4 +365,48 @@ public class DiaryService {
         return diaryMapper.countFollowAndFollower(memberId);
     }
 
+    /**
+     * 인기 게시물 조회 (HOT 직관 일기)
+     * 관리자가 명시적으로 설정한 인기글을 우선으로 가져오고, 4개가 안 될 경우 일반 전체공개글 중 무작위로 부족분을 채웁니다.
+     */
+    @Transactional(readOnly = true)
+    public List<DiaryVO> getPopularDiaries() {
+        // 1. 관리자 지정 인기 게시물 (최대 4개)
+        List<DiaryVO> popularList = diaryMapper.selectPopularDiaries(4);
+
+        // 2. 4개가 부족할 경우 무작위로 부족분 채우기
+        if (popularList.size() < 4) {
+            int needed = 4 - popularList.size();
+            List<DiaryVO> randomList = diaryMapper.selectRandomPublicDiaries(needed);
+            popularList.addAll(randomList);
+        }
+        return popularList;
+    }
+
+    /**
+     * 달력: 특정 날짜 및 팀 필터링 기반 일기 목록 조회 (페이징 포함)
+     */
+    @Transactional(readOnly = true)
+    public List<DiaryVO> getDiariesByDate(String date, String teamCode, int page) {
+        int limit = 10;
+        int offset = (page - 1) * limit;
+        return diaryMapper.selectDiariesByDateAndTeam(date, teamCode, limit, offset);
+    }
+
+    /**
+     * 오버로딩: 페이지 파라미터가 없을 경우 기본 1페이지로 조회
+     */
+    @Transactional(readOnly = true)
+    public List<DiaryVO> getDiariesByDate(String date, String teamCode) {
+        return getDiariesByDate(date, teamCode, 1);
+    }
+
+    /**
+     * 달력: 특정 월(YYYY-MM)에 일기가 작성된 날짜 리스트 조회 (달력 도트 표시용)
+     */
+    @Transactional(readOnly = true)
+    public List<String> getDiaryDatesByMonth(String month) {
+        return diaryMapper.selectDiaryDatesByMonth(month);
+    }
+
 }

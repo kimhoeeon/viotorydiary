@@ -77,4 +77,12 @@ public interface DiaryMapper {
     // 랜덤 전체공개 게시물 조회 (is_popular = 'N')
     List<DiaryVO> selectRandomPublicDiaries(int limit);
 
+    // [추가] 특정 날짜 및 팀 필터링 기반 일기 조회 (페이징 포함)
+    List<DiaryVO> selectDiariesByDateAndTeam(@Param("date") String date,
+                                             @Param("teamCode") String teamCode,
+                                             @Param("limit") int limit,
+                                             @Param("offset") int offset);
+
+    // [추가] 특정 월에 일기가 작성된 날짜 리스트 조회
+    List<String> selectDiaryDatesByMonth(String month);
 }

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -89,5 +91,51 @@ public class WinYoController {
         model.addAttribute("todayDiaryId", todayDiaryId);*/
 
         return "diary/diary_main";
+    }
+
+    /**
+     * [추가] 전체 보기 탭 메인
+     * URL: /diary/all
+     */
+    @GetMapping("/all")
+    public String diaryAll(HttpSession session, Model model) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        // 알림 뱃지 플래그 (기존 레이아웃 유지용)
+        model.addAttribute("hasUnreadAlarm", false); // 실제 알림 서비스 연동 필요
+
+        // 내 팀 코드 전달 (JSP 필터링용)
+        model.addAttribute("myTeamCode", loginMember.getMyTeamCode());
+
+        // 이번 주 HOT 직관 일기 (인기 게시물) 조회
+        List<DiaryVO> popularDiaries = diaryService.getPopularDiaries();
+        model.addAttribute("popularDiaries", popularDiaries);
+
+        return "diary/diary_all";
+    }
+
+    /**
+     * [추가] 달력: 날짜별 직관 일기 목록 (AJAX)
+     */
+    @GetMapping("/api/list-by-date")
+    @ResponseBody
+    public List<DiaryVO> getDiariesByDate(
+            @RequestParam("date") String date,
+            @RequestParam(value="teamCode", required=false) String teamCode,
+            @RequestParam(value="page", defaultValue="1") int page) {
+
+        // 페이징 처리 로직 (필요 시 구현, 현재는 날짜+팀코드로 조회)
+        return diaryService.getDiariesByDate(date, teamCode, page);
+    }
+
+    /**
+     * [추가] 달력: 월별 일기가 존재하는 날짜 목록 조회 (AJAX)
+     */
+    @GetMapping("/api/calendar-dates")
+    @ResponseBody
+    public List<String> getCalendarDates(@RequestParam("month") String month) {
+        // month 포맷: "2026-04"
+        return diaryService.getDiaryDatesByMonth(month);
     }
 }

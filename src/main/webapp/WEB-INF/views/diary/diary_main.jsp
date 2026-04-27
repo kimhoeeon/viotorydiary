@@ -56,6 +56,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
 
                 <div class="tab-pill" style="margin-bottom: 0; margin-top: 0;">
+                    <button type="button" class="tab-pill_btn" onclick="location.href='/diary/all'">전체 보기</button>
                     <button type="button" class="tab-pill_btn on" onclick="location.href='/diary/winyo'">나의 기록</button>
                     <button type="button" class="tab-pill_btn" onclick="location.href='/diary/friend/list'">친구 일기</button>
                 </div>
