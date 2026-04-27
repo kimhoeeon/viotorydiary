@@ -100,8 +100,9 @@
                                                             ${diary.awayTeamName} vs ${diary.homeTeamName}
                                                         </div>
                                                         <div class="date">
-                                                            <fmt:parseDate value="${diary.gameDate}" pattern="yyyy-MM-dd" var="pDate" type="date"/>
-                                                            <fmt:formatDate value="${pDate}" pattern="yyyy-MM-dd"/>
+                                                            <c:if test="${not empty diary.gameDate}">
+                                                                ${fn:substring(diary.gameDate, 0, 10)}
+                                                            </c:if>
                                                         </div>
                                                     </div>
                                                 </div>
