@@ -62,12 +62,39 @@
 
             <div class="login-form gap-50">
                 <div class="login-field_wrap">
-                    <div class="dob-wrap">
+                    <%--<div class="dob-wrap">
                         <div class="dob-picker" id="picker">
                             <div class="dob-picker_value" id="dobValue" style="color: #999;">YYYY.MM.DD</div>
                         </div>
                         <input type="hidden" id="birthdateInput">
-                    </div>
+                    </div>--%>
+
+                        <div class="login-date">
+                            <select name="birth_year" id="birthYear" class="birth_select">
+                                <option value="">연</option>
+                            </select>
+
+                            <select name="birth_month" id="birthMonth" class="birth_select">
+                                <option value="">월</option>
+                                <option value="1">1월</option>
+                                <option value="2">2월</option>
+                                <option value="3">3월</option>
+                                <option value="4">4월</option>
+                                <option value="5">5월</option>
+                                <option value="6">6월</option>
+                                <option value="7">7월</option>
+                                <option value="8">8월</option>
+                                <option value="9">9월</option>
+                                <option value="10">10월</option>
+                                <option value="11">11월</option>
+                                <option value="12">12월</option>
+                            </select>
+
+                            <select name="birth_day" id="birthDay" class="birth_select">
+                                <option value="">일</option>
+                            </select>
+                        </div>
+
                     <ul class="word">
                         <li>* 만 14세 이상 가입 가능합니다.</li>
                     </ul>
@@ -81,83 +108,114 @@
         </div>
     </div>
 
-    <div class="dob-wrap_pop" id="dobPopup">
-        <div class="dob-pop-dim"></div>
-        <div class="dob-pop-inner">
-            <div class="dob-pop-picker">
-                <div class="dob-pop-wheel" data-type="year"></div>
-                <div class="dob-pop-wheel" data-type="month"></div>
-                <div class="dob-pop-wheel" data-type="day"></div>
-            </div>
-            <div class="dob-pop-footer">
-                <button type="button" class="btn-cancel" id="pickerCancel">취소</button>
-                <button type="button" class="btn-apply" id="pickerApply">적용</button>
-            </div>
-        </div>
-    </div>
-
     <%@ include file="../include/popup.jsp" %>
 
     <script src="/js/script.js"></script>
-    <script src="/js/date-picker.js"></script>
     <script src="/js/app_interface.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const applyBtn = document.getElementById('pickerApply');
-            const cancelBtn = document.getElementById('pickerCancel');
-            const popup = document.getElementById('dobPopup');
-            const dobValueDiv = document.getElementById('dobValue');
-            const hiddenInput = document.getElementById('birthdateInput');
+            const yearSelect = document.getElementById('birthYear');
+            const monthSelect = document.getElementById('birthMonth');
+            const daySelect = document.getElementById('birthDay');
             const nextBtn = document.getElementById('nextBtn');
 
-            // 1. [적용] 버튼 클릭 시 선택된 날짜 처리
-            if (applyBtn) {
-                applyBtn.addEventListener('click', () => {
-                    // date-picker.js에서 선택된 값 추출 (클래스 기반)
-                    const year = document.querySelector('.dob-pop-wheel[data-type="year"] .is-selected')?.dataset.value;
-                    const month = document.querySelector('.dob-pop-wheel[data-type="month"] .is-selected')?.dataset.value;
-                    const day = document.querySelector('.dob-pop-wheel[data-type="day"] .is-selected')?.dataset.value;
+            // 1. 연도 동적 생성 (현재 연도부터 1920년까지)
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= 1920; i--) {
+                let option = document.createElement('option');
+                option.value = i;
+                option.text = i + '년';
+                yearSelect.appendChild(option);
+            }
 
-                    if (year && month && day) {
-                        // 화면 표시용 (예: 2000.01.01)
-                        const fullDateStr = year + '.' + month.padStart(2, '0') + '.' + day.padStart(2, '0');
-                        dobValueDiv.textContent = fullDateStr;
-                        dobValueDiv.style.color = '#000'; // 입력 완료 색상
+            // 2. 월/연도 선택에 따른 '일(Day)' 동적 생성 (윤년 등 계산)
+            function updateDays() {
+                const y = yearSelect.value;
+                const m = monthSelect.value;
+                const currentDay = daySelect.value; // 기존에 선택된 일 유지용
 
-                        // 저장용 값 설정 (YYYY-MM-DD)
-                        hiddenInput.value = year + '-' + month.padStart(2, '0') + '-' + day.padStart(2, '0');
+                daySelect.innerHTML = '<option value="">일</option>'; // 초기화
 
-                        // '다음' 버튼 활성화
-                        nextBtn.disabled = false;
-
-                        // 팝업 닫기
-                        popup.classList.remove('is-open');
+                if (y && m) {
+                    // 선택한 연/월에 해당하는 마지막 일수 계산
+                    const daysInMonth = new Date(y, m, 0).getDate();
+                    for (let i = 1; i <= daysInMonth; i++) {
+                        let option = document.createElement('option');
+                        option.value = i;
+                        option.text = i + '일';
+                        daySelect.appendChild(option);
                     }
-                });
+                    // 월이 바뀌었을 때 선택했던 '일'이 새 월의 일수 범위 내에 있으면 유지
+                    if (currentDay && currentDay <= daysInMonth) {
+                        daySelect.value = currentDay;
+                    }
+                }
+                checkValidity();
             }
 
-            // 2. [취소] 및 딤 영역 클릭 시 닫기
-            if (cancelBtn) {
-                cancelBtn.addEventListener('click', () => popup.classList.remove('is-open'));
+            yearSelect.addEventListener('change', updateDays);
+            monthSelect.addEventListener('change', updateDays);
+            daySelect.addEventListener('change', checkValidity);
+
+            // 3. 값 입력 여부 확인하여 '다음' 버튼 활성화
+            function checkValidity() {
+                if (yearSelect.value && monthSelect.value && daySelect.value) {
+                    nextBtn.disabled = false;
+                } else {
+                    nextBtn.disabled = true;
+                }
             }
 
-            // 3. 기존 저장된 값이 있다면 불러오기 (뒤로가기 시 데이터 유지)
+            // 4. 기존 저장된 값이 있다면 불러오기 (뒤로가기 시 데이터 유지)
             const savedBirth = sessionStorage.getItem('join_birth');
             if (savedBirth) {
-                hiddenInput.value = savedBirth;
-                dobValueDiv.textContent = savedBirth.replace(/-/g, '.'); // 2000-01-01 -> 2000.01.01
-                dobValueDiv.style.color = '#000';
-                nextBtn.disabled = false;
+                const parts = savedBirth.split('-'); // YYYY-MM-DD 파싱
+                if (parts.length === 3) {
+                    yearSelect.value = parseInt(parts[0], 10);
+                    monthSelect.value = parseInt(parts[1], 10);
+                    updateDays(); // 연/월 세팅 후 해당 월의 일수 목록 생성
+                    daySelect.value = parseInt(parts[2], 10);
+                    checkValidity();
+                }
             }
         });
 
-        // 다음 단계 이동 함수
+        // 5. 만 14세 이상 체크 함수
+        function isOver14(year, month, day) {
+            const today = new Date();
+            const birthDate = new Date(year, month - 1, day);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const mDiff = today.getMonth() - birthDate.getMonth();
+
+            // 아직 생일이 지나지 않았으면 1살 빼기
+            if (mDiff < 0 || (mDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age >= 14;
+        }
+
+        // 6. 다음 단계 이동 함수
         function goNext() {
-            const birthValue = document.getElementById('birthdateInput').value;
-            if (!birthValue) {
-                alert('생년월일을 선택해주세요.');
+            const y = document.getElementById('birthYear').value;
+            const m = document.getElementById('birthMonth').value;
+            const d = document.getElementById('birthDay').value;
+
+            if (!y || !m || !d) {
+                alert('생년월일을 모두 선택해주세요.');
                 return;
             }
+
+            // 만 14세 이상 검증 로직 반영
+            if (!isOver14(y, m, d)) {
+                alert('만 14세 이상만 가입 가능합니다.');
+                return;
+            }
+
+            // 포맷 맞추기: YYYY-MM-DD
+            const formattedMonth = m.padStart(2, '0');
+            const formattedDay = d.padStart(2, '0');
+            const birthValue = `${y}-${formattedMonth}-${formattedDay}`;
+
             // 세션 스토리지에 저장 후 이동
             sessionStorage.setItem('join_birth', birthValue);
             location.href = '/member/join/step5';

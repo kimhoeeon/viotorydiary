@@ -156,7 +156,7 @@
                                                         <%-- Case 3: 승리 (경기 종료 & 승리) --%>
                                                         <c:when test="${item.gameStatus eq 'FINISHED' and item.gameResult eq 'WIN'}">
                                                             <div class="score_win">
-                                                                <img src="/img/ico_check.svg" alt="승리">
+                                                                <img src="/img/thumbs-up.svg" alt="승리">
                                                             </div>
                                                         </c:when>
                                                     </c:choose>
