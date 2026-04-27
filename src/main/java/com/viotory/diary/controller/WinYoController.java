@@ -123,10 +123,10 @@ public class WinYoController {
     public List<DiaryVO> getDiariesByDate(
             @RequestParam("date") String date,
             @RequestParam(value="teamCode", required=false) String teamCode,
-            @RequestParam(value="page", defaultValue="1") int page) {
+            @RequestParam(value="page", defaultValue="1") int page,
+            @RequestParam(value="limit", defaultValue="5") int limit) { // limit 추가
 
-        // 페이징 처리 로직 (필요 시 구현, 현재는 날짜+팀코드로 조회)
-        return diaryService.getDiariesByDate(date, teamCode, page);
+        return diaryService.getDiariesByDate(date, teamCode, page, limit);
     }
 
     /**

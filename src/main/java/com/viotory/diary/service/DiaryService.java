@@ -387,8 +387,7 @@ public class DiaryService {
      * 달력: 특정 날짜 및 팀 필터링 기반 일기 목록 조회 (페이징 포함)
      */
     @Transactional(readOnly = true)
-    public List<DiaryVO> getDiariesByDate(String date, String teamCode, int page) {
-        int limit = 10;
+    public List<DiaryVO> getDiariesByDate(String date, String teamCode, int page, int limit) {
         int offset = (page - 1) * limit;
         return diaryMapper.selectDiariesByDateAndTeam(date, teamCode, limit, offset);
     }
@@ -398,7 +397,7 @@ public class DiaryService {
      */
     @Transactional(readOnly = true)
     public List<DiaryVO> getDiariesByDate(String date, String teamCode) {
-        return getDiariesByDate(date, teamCode, 1);
+        return getDiariesByDate(date, teamCode, 1, 5); // 기본값 5개
     }
 
     /**
