@@ -169,7 +169,7 @@
                                                 <c:if test="${diary.awayTeamCode eq writer.myTeamCode}">
                                                     <div class="my-team">MY</div>
                                                 </c:if>
-                                                <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                                <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" onerror="this.src='/img/team_default.svg'">
                                                 <div class="team-name mt-4">${diary.awayTeamName}</div>
                                             </div>
 
@@ -187,7 +187,7 @@
                                                 <c:if test="${diary.homeTeamCode eq writer.myTeamCode}">
                                                     <div class="my-team">MY</div>
                                                 </c:if>
-                                                <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                                <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" onerror="this.src='/img/team_default.svg'">
                                                 <div class="team-name mt-4">${diary.homeTeamName}</div>
                                             </div>
                                         </div>

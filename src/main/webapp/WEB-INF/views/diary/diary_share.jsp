@@ -143,7 +143,7 @@
                                 <div class="inquiry_game">
                                     <div class="row row-center gap-6">
                                         <div class="team">
-                                            <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                            <img src="${diary.awayTeamLogo}" alt="${diary.awayTeamName}" onerror="this.src='/img/team_default.svg'">
                                             <div class="team-name mt-4">${diary.awayTeamName}</div>
                                             <div class="pitcher-name">${diary.awayStarter}</div>
                                         </div>
@@ -172,7 +172,7 @@
                                             <div class="right-team-score ${diary.scoreHome > diary.scoreAway ? 'high' : ''}">${diary.scoreHome}</div>
                                         </div>
                                         <div class="team">
-                                            <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                            <img src="${diary.homeTeamLogo}" alt="${diary.homeTeamName}" onerror="this.src='/img/team_default.svg'">
                                             <div class="team-name mt-4">${diary.homeTeamName}</div>
                                             <div class="pitcher-name">${diary.homeStarter}</div>
                                         </div>

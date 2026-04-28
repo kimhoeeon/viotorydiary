@@ -87,7 +87,7 @@
                                             <img src="${item.logoImageUrl}" alt="${item.nameKr}">
                                         </c:when>
                                         <c:otherwise>
-                                            <img src="/img/logo/default.svg" alt="${item.nameKr}">
+                                            <img src="/img/team_default.svg" alt="${item.nameKr}">
                                         </c:otherwise>
                                     </c:choose>
                                 </div>

@@ -124,7 +124,7 @@
                                                 <div class="row row-center gap-6">
 
                                                     <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreAway > todayGame.scoreHome ? 'win' : ''}">
-                                                        <img src="${todayGame.awayTeamLogo}" alt="${todayGame.awayTeamName}" onerror="this.src='/img/logo/default.svg'">
+                                                        <img src="${todayGame.awayTeamLogo}" alt="${todayGame.awayTeamName}" onerror="this.src='/img/team_default.svg'">
                                                     </div>
 
                                                     <c:set var="statusClass" value="schedule"/>
@@ -162,7 +162,7 @@
 
                                                     <div class="team ${todayGame.status == 'FINISHED' && todayGame.scoreHome > todayGame.scoreAway ? 'win' : ''}">
                                                         <img src="${todayGame.homeTeamLogo}" alt="${todayGame.homeTeamName}"
-                                                             onerror="this.src='/img/logo/default.svg'">
+                                                             onerror="this.src='/img/team_default.svg'">
                                                     </div>
 
                                                 </div>
