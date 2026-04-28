@@ -120,7 +120,7 @@
                                     <div class="card-body p-9 pt-0">
                                         <div class="d-flex justify-content-between mb-8 text-muted fs-7 border-bottom pb-4">
                                             <div>
-                                                <span class="fw-bold text-gray-800 me-2">${vo.writerName}</span>
+                                                <span class="fw-bold text-gray-800 me-2">${vo.writerRole ne 'ROOT' ? '관리자' : '개발사'}</span>
                                                 <span>| 작성일: ${fn:substring(fn:replace(vo.createdAt, 'T', ' '), 0, 16)}</span>
                                             </div>
                                             <div>
@@ -136,7 +136,7 @@
                                                 <div class="d-flex flex-wrap gap-2">
                                                     <c:forEach items="${vo.fileList}" var="f">
                                                         <a href="${f.filePath}${f.saveFileName}" download="${f.orgFileName}" class="btn btn-sm btn-light btn-active-light-primary">
-                                                                ${f.orgFileName}
+                                                            ${f.orgFileName}
                                                         </a>
                                                     </c:forEach>
                                                 </div>
@@ -160,9 +160,9 @@
                                                 <div class="p-5 mb-5 border rounded ${comment.writerRole ne 'ROOT' ? 'bg-light' : 'bg-light-info'}">
                                                     <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
                                                         <div class="d-flex align-items-center">
-                                                            <span class="fw-bold text-gray-900 fs-6 me-2">${comment.writerName}</span>
-                                                            <span class="badge ${comment.writerRole ne 'ROOT' ? 'badge-light-dark' : 'badge-primary'} fs-9">
-                                                                    ${comment.writerRole ne 'ROOT' ? '관리자' : '개발사'}
+                                                            <%--<span class="fw-bold text-gray-900 fs-6 me-2">${comment.writerName}</span>--%>
+                                                            <span class="fw-bold fs-6 badge ${comment.writerRole ne 'ROOT' ? 'badge-light-dark' : 'badge-primary'}">
+                                                                ${comment.writerRole ne 'ROOT' ? '관리자' : '개발사'}
                                                             </span>
                                                         </div>
                                                         <div class="text-muted fs-8">${fn:substring(fn:replace(comment.createdAt, 'T', ' '), 0, 16)}</div>

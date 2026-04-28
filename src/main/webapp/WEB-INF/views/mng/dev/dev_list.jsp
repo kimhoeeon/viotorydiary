@@ -204,7 +204,7 @@
                                                                 </c:if>
                                                             </a>
                                                         </td>
-                                                        <td class="text-center">${item.writerName}</td>
+                                                        <td class="text-center">${item.writerRole ne 'ROOT' ? '관리자' : '개발사'}</td>
                                                         <td class="text-center">
                                                             <c:choose>
                                                                 <c:when test="${not empty item.createdAt}">
