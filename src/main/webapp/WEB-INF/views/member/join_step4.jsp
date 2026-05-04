@@ -214,7 +214,7 @@
             // 포맷 맞추기: YYYY-MM-DD
             const formattedMonth = m.padStart(2, '0');
             const formattedDay = d.padStart(2, '0');
-            const birthValue = `${y}-${formattedMonth}-${formattedDay}`;
+            const birthValue = y + '-' + formattedMonth + '-' + formattedDay;
 
             // 세션 스토리지에 저장 후 이동
             sessionStorage.setItem('join_birth', birthValue);
