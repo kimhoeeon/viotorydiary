@@ -77,6 +77,11 @@ public class DevMngService {
         DevRequestVO origin = devMapper.selectRequestById(vo.getReqId());
         String oldStatus = (origin != null) ? origin.getStatus() : "";
 
+        // dueDate가 비어있으면 기존 DB에 있던 날짜를 유지
+        if (vo.getDueDate() != null && vo.getDueDate().trim().isEmpty()) {
+            vo.setDueDate(origin != null ? origin.getDueDate() : null);
+        }
+
         devMapper.updateRequestStatus(vo);
 
         // 완료(DONE)로 새롭게 변경된 경우에만 발주사에게 알림
