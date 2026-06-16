@@ -76,7 +76,7 @@ public class GameScheduleTask {
                     // 상태 변경 감지 시 (ex. SCHEDULED -> LIVE -> FINISHED)
                     if (!game.getStatus().equals(updatedGame.getStatus())) {
                         log.info(">>> [상태 변경 감지] {} vs {}, 상태 : {} -> {}",
-                                updatedGame.getHomeTeamName(), updatedGame.getAwayTeamName(), game.getStatus(), updatedGame.getStatus());
+                                updatedGame.getHomeTeamCode(), updatedGame.getAwayTeamCode(), game.getStatus(), updatedGame.getStatus());
 
                         // 2. 알림 발송
                         createGameStatusAlarm(updatedGame, updatedGame.getStatus());
