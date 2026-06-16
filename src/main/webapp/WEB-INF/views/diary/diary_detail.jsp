@@ -439,39 +439,77 @@
         function shareDiary() {
             // 공유 기능 구현
             $.post('/diary/share/create', { diaryId: '${diary.diaryId}' }, async function(uuid) {
-                if(uuid && uuid.startsWith('fail')) {
-                    alert('오류가 발생했습니다.'); return;
+
+                // 1. 서버에서 공유를 거절한 경우 (원인을 정확히 파악하여 알림)
+                if (uuid && uuid.startsWith('fail')) {
+                    if (uuid === 'fail:login') alert('로그인이 필요합니다. (다시 로그인해 주세요)');
+                    else if (uuid === 'fail:permission') alert('작성자 본인만 공유할 수 있습니다.');
+                    else if (uuid === 'fail:private') alert('비공개 일기는 공유할 수 없습니다.');
+                    else if (uuid === 'fail:not_found') alert('해당 일기를 찾을 수 없습니다.');
+                    else alert('공유 링크 생성 중 오류가 발생했습니다.');
+                    return;
                 }
+
                 const shareUrl = window.location.origin + '/share/diary/' + uuid;
                 const shareTitle = '${diary.nickname}님의 승요일기';
                 const shareText = '오늘의 직관 기록을 확인해보세요!';
 
                 try {
+                    // 2. 앱(Appify Webview) 환경인 경우
                     if (typeof appify !== 'undefined' && appify.isWebview) {
                         await appify.share.systemShare({
                             title: shareTitle, message: shareText, url: shareUrl
                         });
-                    } else if (navigator.share) {
-                        await navigator.share({
-                            title: shareTitle, text: shareText, url: shareUrl
-                        });
-                    } else {
+                    }
+                    // 3. 일반 모바일 브라우저 환경 (Share API)
+                    else if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
+                        try {
+                            await navigator.share({
+                                title: shareTitle, text: shareText, url: shareUrl
+                            });
+                        } catch (err) {
+                            // 사용자가 취소한 것이 아니라, 비동기 통신(Ajax) 지연으로 인해
+                            // 브라우저가 공유 창 호출을 보안상 강제 차단했다면 클립보드 복사로 자동 전환
+                            if (err.name !== 'AbortError') {
+                                copyToClipboard(shareUrl);
+                            }
+                        }
+                    }
+                    // 4. PC 브라우저 등 API 미지원 환경
+                    else {
                         copyToClipboard(shareUrl);
                     }
                 } catch (e) {
-                    console.error(e);
+                    console.error("공유 실행 중 예외 발생:", e);
+                    copyToClipboard(shareUrl);
                 }
+            }).fail(function() {
+                alert("서버와 통신 중 오류가 발생했습니다.");
             });
         }
 
+        // ==========================================
+        // 클립보드 복사 로직 (execCommand 제거, 최신 API 적용)
+        // ==========================================
         async function copyToClipboard(text) {
-             if (typeof appify !== 'undefined' && appify.isWebview) {
+            // 1. 앱(Webview) 클립보드 브릿지
+            if (typeof appify !== 'undefined' && appify.isWebview) {
                 const success = await appify.clipboard.setText(text);
                 if(success) alert('공유 링크가 복사되었습니다!');
-            } else {
-                navigator.clipboard.writeText(text).then(() => {
+            }
+            // 2. 최신 웹 표준 Clipboard API (HTTPS 환경 필수)
+            else if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
                     alert('공유 링크가 복사되었습니다!');
-                });
+                } catch (err) {
+                    // 브라우저 설정으로 클립보드 접근이 막힌 경우 가장 안전한 Prompt 창 제공
+                    prompt("아래 링크를 복사하여 공유해주세요.", text);
+                }
+            }
+            // 3. HTTP 로컬 환경 등 최신 API가 동작하지 않는 경우 (execCommand 대체안)
+            else {
+                prompt("아래 링크를 복사하여 공유해주세요.", text);
             }
         }
 
@@ -602,14 +640,47 @@
             }
         }
 
-        // 다운로드 헬퍼 함수
+        // 다운로드 헬퍼 함수 (모바일 호환성 개선)
         function downloadURI(uri, name) {
+            // 1. 긴 Base64(URI)를 안전한 Blob(파일) 객체로 변환
+            fetch(uri)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], name, { type: 'image/png' });
+
+                    // 2. 모바일 기기인 경우 (iOS, Android) - 네이티브 공유/저장 팝업 띄우기
+                    if (navigator.canShare && navigator.canShare({ files: [file] }) && /Mobi|Android/i.test(navigator.userAgent)) {
+                        navigator.share({
+                            files: [file],
+                            title: '승요일기 직관기록'
+                        }).catch(err => {
+                            // 사용자가 공유 창을 닫았을 때 발생하는 에러 무시
+                            console.log("공유 취소됨:", err);
+                        });
+                    }
+                    // 3. PC 브라우저이거나 Share API를 지원하지 않는 경우 - 안전한 강제 다운로드
+                    else {
+                        forceDownload(blob, name);
+                    }
+                });
+        }
+
+        // 안전한 파일 다운로드를 실행하는 함수 (Blob URL 사용)
+        function forceDownload(blob, name) {
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
+            link.style.display = "none";
+            link.href = url;
             link.download = name;
-            link.href = uri;
+
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+
+            // 사용한 객체 URL 메모리 정리
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }, 100);
         }
 
         /*function deleteDiary(diaryId) {
