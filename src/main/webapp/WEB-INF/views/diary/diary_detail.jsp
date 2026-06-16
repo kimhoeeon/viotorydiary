@@ -43,6 +43,20 @@
         .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger); border-color: #FEE8E8; }
         .result-badge.draw { background-color: #F1F1F1; color: #666; border-color: #F1F1F1; }
         .result-badge.none { background-color: #f5f5f5; color: #999; }
+
+         /* 로딩 스피너 애니메이션 CSS */
+         .capture-spinner {
+             width: 40px;
+             height: 40px;
+             border: 4px solid rgba(255, 255, 255, 0.3);
+             border-top: 4px solid #ffffff;
+             border-radius: 50%;
+             animation: capture-spin 1s linear infinite;
+         }
+        @keyframes capture-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 
     <!-- swiper 외부 라이브러리 -->
@@ -347,6 +361,11 @@
         </div>
     </div>
 
+    <div id="captureLoading" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; color: white;">
+        <div class="capture-spinner"></div>
+        <p style="margin-top: 15px; font-size: 16px; font-weight: bold; letter-spacing: -0.5px;">이미지를 생성 중입니다...</p>
+    </div>
+
     <%@ include file="../include/popup.jsp" %>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -513,101 +532,99 @@
             }
         }
 
-        // [가운데 정렬 완벽 보존 + 꿀렁임 원천 차단(복제 기법)]
+        // [가운데 정렬 완벽 보존 + 꿀렁임 원천 차단(복제 기법)] + [로딩 인디케이터 적용]
         async function captureCard() {
             const originalTarget = document.querySelector('.inquiry_item');
             if(!originalTarget) return;
 
-            // 2. [핵심 1: 꿀렁임 방지] 현재 화면을 100% 똑같이 복제하여 안 보이는 곳에 숨깁니다.
-            // (원본 화면은 단 1픽셀도 조작하지 않으므로 화면 덜컹거림이 아예 발생하지 않습니다!)
-            const captureWrapper = document.createElement('div');
-            captureWrapper.style.cssText = 'position: fixed; top: -9999px; left: -9999px; z-index: -9999;';
+            // 1. 캡쳐 시작 전 로딩 화면 즉시 노출
+            const loadingOverlay = document.getElementById("captureLoading");
+            if (loadingOverlay) loadingOverlay.style.display = "flex";
 
-            const clone = originalTarget.cloneNode(true);
-            clone.style.width = originalTarget.offsetWidth + 'px'; // 플렉스 레이아웃 붕괴 방지
-            clone.style.backgroundColor = '#ffffff';
-
-            captureWrapper.appendChild(clone);
-            document.body.appendChild(captureWrapper);
-
-            // 3. 복제본(clone) 내부의 방해 요소 제거 (화면에 안 보이므로 마음껏 조작 가능)
-            clone.querySelectorAll('.page-down, .capture-hide-btn, .more-btn, .swiper_btn, .more_box, a[onclick*="captureCard"]').forEach(el => {
-                el.style.setProperty('display', 'none', 'important');
-            });
-
-            // 4. 복제본의 숨겨진 일기 꽉 펼치기
-            const diaryDesc = clone.querySelector('.diary_desc');
-            if (diaryDesc) {
-                diaryDesc.style.cssText += 'padding: 16px !important; margin-top: 16px !important; border-top: 1px solid #e1e1e1 !important; transition: none !important; max-height: none !important; height: auto !important; overflow: visible !important; display: block !important;';
-            }
-            const txtGameList = clone.querySelector('.txt_game_list');
-            if (txtGameList) {
-                txtGameList.style.cssText += 'max-height: none !important; height: auto !important;';
-            }
-
-            // 5. 말줄임표(..) 해제 (원본 들여쓰기 보존)
-            clone.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge), .player').forEach(el => {
-                el.style.cssText += '-webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; max-height: none !important;';
-            });
-
-            // 6. 팀 로고 SVG 쏠림 자물쇠 (완벽히 성공했던 정렬 코드 적용)
-            clone.querySelectorAll('.team, .game-info-wrap').forEach(wrap => {
-                wrap.style.cssText += 'display: grid !important; justify-items: center !important; align-items: center !important; text-align: center !important;';
-            });
-            clone.querySelectorAll('.team img').forEach(img => {
-                img.setAttribute('width', '48');
-                img.setAttribute('height', '48');
-                img.style.cssText += 'width: 48px !important; height: 48px !important; display: block !important; margin: 0 auto !important;';
-            });
-
-            // 7. [핵심 2: 쏠림 방지] 복제본에서 쏠림의 주범인 Swiper를 완전히 삭제하고 '순정 액자'로 교체합니다.
-            const swiperBox = clone.querySelector('.swiper_box');
-            const inquiryImg = clone.querySelector('.inquiry_img');
-
-            if (swiperBox && inquiryImg) {
-                const activeImg = swiperBox.querySelector('.swiper-slide-active img') || swiperBox.querySelector('.swiper-slide img');
-                if (activeImg) {
-                    // 복잡한 transform과 margin을 가진 Swiper를 복제본에서 완전히 뜯어냅니다.
-                    swiperBox.remove();
-
-                    // 사용자님이 가장 마음에 들어하셨던, 1픽셀도 쏠리지 않는 완벽한 '정중앙 액자' 생성
-                    const perfectWrapper = document.createElement('div');
-                    perfectWrapper.style.cssText = `
-                        width: 100% !important;
-                        height: 200px !important;
-                        border: 1px solid #E0E3E8 !important;
-                        border-radius: 8px !important;
-                        overflow: hidden !important;
-                        display: block !important;
-                        margin: 0 auto !important;
-                        background-color: #25282F !important;
-                        box-sizing: border-box !important;
-                    `;
-
-                    // 순수 사진은 액자 안에 100% 꽉 차게 삽입 (늘어남 방지)
-                    const perfectImg = document.createElement('img');
-                    perfectImg.src = activeImg.src;
-                    perfectImg.style.cssText = `
-                        width: 100% !important;
-                        height: 100% !important;
-                        object-fit: cover !important;
-                        display: block !important;
-                        margin: 0 !important;
-                        padding: 0 !important;
-                        border: none !important;
-                        transform: none !important;
-                    `;
-
-                    perfectWrapper.appendChild(perfectImg);
-                    inquiryImg.appendChild(perfectWrapper);
-                }
-            }
-
-            // 화면 안정화 0.3초 대기 (사용자 화면은 아무 변화 없음)
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // 2. 브라우저가 화면에 로딩 UI를 그릴 시간을 벌어줍니다. (메인 스레드 블로킹 방지)
+            await new Promise(resolve => setTimeout(resolve, 100));
 
             try {
-                // 8. 캡쳐 실행 (오류가 수정된 복제본을 캡쳐!)
+                // [기존 코드 동일] 화면을 똑같이 복제하여 안 보이는 곳에 숨김
+                const captureWrapper = document.createElement('div');
+                captureWrapper.style.cssText = 'position: fixed; top: -9999px; left: -9999px; z-index: -9999;';
+
+                const clone = originalTarget.cloneNode(true);
+                clone.style.width = originalTarget.offsetWidth + 'px';
+                clone.style.backgroundColor = '#ffffff';
+
+                captureWrapper.appendChild(clone);
+                document.body.appendChild(captureWrapper);
+
+                // [기존 코드 동일] 복제본 내부 방해 요소 제거
+                clone.querySelectorAll('.page-down, .capture-hide-btn, .more-btn, .swiper_btn, .more_box, a[onclick*="captureCard"]').forEach(el => {
+                    el.style.setProperty('display', 'none', 'important');
+                });
+
+                // [기존 코드 동일] 숨겨진 일기 펼치기 및 말줄임표 해제
+                const diaryDesc = clone.querySelector('.diary_desc');
+                if (diaryDesc) {
+                    diaryDesc.style.cssText += 'padding: 16px !important; margin-top: 16px !important; border-top: 1px solid #e1e1e1 !important; transition: none !important; max-height: none !important; height: auto !important; overflow: visible !important; display: block !important;';
+                }
+                const txtGameList = clone.querySelector('.txt_game_list');
+                if (txtGameList) {
+                    txtGameList.style.cssText += 'max-height: none !important; height: auto !important;';
+                }
+                clone.querySelectorAll('.txt_game > div:not(.inquiry_badge), .diary_desc > div:not(.inquiry_badge), .player').forEach(el => {
+                    el.style.cssText += '-webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; max-height: none !important;';
+                });
+
+                // [기존 코드 동일] 팀 로고 정렬 보정
+                clone.querySelectorAll('.team, .game-info-wrap').forEach(wrap => {
+                    wrap.style.cssText += 'display: grid !important; justify-items: center !important; align-items: center !important; text-align: center !important;';
+                });
+                clone.querySelectorAll('.team img').forEach(img => {
+                    img.setAttribute('width', '48');
+                    img.setAttribute('height', '48');
+                    img.style.cssText += 'width: 48px !important; height: 48px !important; display: block !important; margin: 0 auto !important;';
+                });
+
+                // [기존 코드 동일] Swiper를 순정 액자로 교체
+                const swiperBox = clone.querySelector('.swiper_box');
+                const inquiryImg = clone.querySelector('.inquiry_img');
+
+                if (swiperBox && inquiryImg) {
+                    const activeImg = swiperBox.querySelector('.swiper-slide-active img') || swiperBox.querySelector('.swiper-slide img');
+                    if (activeImg) {
+                        swiperBox.remove();
+                        const perfectWrapper = document.createElement('div');
+                        perfectWrapper.style.cssText = `
+                            width: 100% !important;
+                            height: 200px !important;
+                            border: 1px solid #E0E3E8 !important;
+                            border-radius: 8px !important;
+                            overflow: hidden !important;
+                            display: block !important;
+                            margin: 0 auto !important;
+                            background-color: #25282F !important;
+                            box-sizing: border-box !important;
+                        `;
+                        const perfectImg = document.createElement('img');
+                        perfectImg.src = activeImg.src;
+                        perfectImg.style.cssText = `
+                            width: 100% !important;
+                            height: 100% !important;
+                            object-fit: cover !important;
+                            display: block !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            border: none !important;
+                            transform: none !important;
+                        `;
+                        perfectWrapper.appendChild(perfectImg);
+                        inquiryImg.appendChild(perfectWrapper);
+                    }
+                }
+
+                // 캡쳐 실행 전 레이아웃 안정화
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                // [기존 코드 동일] 캡쳐 실행 (오류가 수정된 복제본을 캡쳐)
                 const imgData = await htmlToImage.toPng(clone, {
                     pixelRatio: 2,
                     backgroundColor: '#ffffff',
@@ -615,7 +632,10 @@
                     style: { transform: 'none' }
                 });
 
-                // 파일명 및 다운로드
+                // 메모리에서 복제본 삭제
+                captureWrapper.remove();
+
+                // 파일 다운로드 로직
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
                 const awayTeam = '${diary.awayTeamName}';
                 const homeTeam = '${diary.homeTeamName}';
@@ -631,12 +651,13 @@
                 } else {
                     downloadURI(imgData, fileName);
                 }
+
             } catch (err) {
                 console.error("Capture Error:", err);
                 alert("이미지 생성 중 오류가 발생했습니다.");
             } finally {
-                // 9. 캡쳐가 끝나면 메모리에서 복제본 완전 삭제
-                captureWrapper.remove();
+                // 3. 성공하든 에러가 나든 작업이 끝나면 무조건 로딩 화면 숨김
+                if (loadingOverlay) loadingOverlay.style.display = "none";
             }
         }
 
