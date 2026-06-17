@@ -532,7 +532,7 @@
             }
         }
 
-        // [가운데 정렬 완벽 보존 + 꿀렁임 원천 차단(복제 기법)] + [로딩 인디케이터 적용]
+        // [가운데 정렬 완벽 보존 + 꿀렁임 원천 차단(복제 기법)] + [로딩/안드로이드 대응]
         async function captureCard() {
             const originalTarget = document.querySelector('.inquiry_item');
             if(!originalTarget) return;
@@ -541,13 +541,17 @@
             const loadingOverlay = document.getElementById("captureLoading");
             if (loadingOverlay) loadingOverlay.style.display = "flex";
 
-            // 2. 브라우저가 화면에 로딩 UI를 그릴 시간을 벌어줍니다. (메인 스레드 블로킹 방지)
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // 2. 브라우저 렌더링 및 로딩 UI 노출을 위한 대기
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            // [안드로이드 무한로딩 해결 핵심] 복제본을 감싸는 wrapper를 참조할 변수
+            let captureWrapper = null;
 
             try {
-                // [기존 코드 동일] 화면을 똑같이 복제하여 안 보이는 곳에 숨김
-                const captureWrapper = document.createElement('div');
-                captureWrapper.style.cssText = 'position: fixed; top: -9999px; left: -9999px; z-index: -9999;';
+                // 3. 복제본 생성
+                captureWrapper = document.createElement('div');
+                // 안드로이드가 렌더링을 포기하지 않도록 top/left는 0으로 두되, 화면 맨 뒤(z-index: -9999)로 숨깁니다.
+                captureWrapper.style.cssText = 'position: absolute; top: 0; left: 0; z-index: -9999; pointer-events: none;';
 
                 const clone = originalTarget.cloneNode(true);
                 clone.style.width = originalTarget.offsetWidth + 'px';
@@ -556,12 +560,12 @@
                 captureWrapper.appendChild(clone);
                 document.body.appendChild(captureWrapper);
 
-                // [기존 코드 동일] 복제본 내부 방해 요소 제거
+                // 방해 요소 제거
                 clone.querySelectorAll('.page-down, .capture-hide-btn, .more-btn, .swiper_btn, .more_box, a[onclick*="captureCard"]').forEach(el => {
                     el.style.setProperty('display', 'none', 'important');
                 });
 
-                // [기존 코드 동일] 숨겨진 일기 펼치기 및 말줄임표 해제
+                // 숨겨진 일기 펼치기 및 말줄임표 해제
                 const diaryDesc = clone.querySelector('.diary_desc');
                 if (diaryDesc) {
                     diaryDesc.style.cssText += 'padding: 16px !important; margin-top: 16px !important; border-top: 1px solid #e1e1e1 !important; transition: none !important; max-height: none !important; height: auto !important; overflow: visible !important; display: block !important;';
@@ -574,7 +578,7 @@
                     el.style.cssText += '-webkit-line-clamp: unset !important; -webkit-box-orient: unset !important; max-height: none !important;';
                 });
 
-                // [기존 코드 동일] 팀 로고 정렬 보정
+                // 팀 로고 정렬 보정
                 clone.querySelectorAll('.team, .game-info-wrap').forEach(wrap => {
                     wrap.style.cssText += 'display: grid !important; justify-items: center !important; align-items: center !important; text-align: center !important;';
                 });
@@ -584,7 +588,7 @@
                     img.style.cssText += 'width: 48px !important; height: 48px !important; display: block !important; margin: 0 auto !important;';
                 });
 
-                // [기존 코드 동일] Swiper를 순정 액자로 교체
+                // Swiper를 순정 액자로 교체
                 const swiperBox = clone.querySelector('.swiper_box');
                 const inquiryImg = clone.querySelector('.inquiry_img');
 
@@ -624,16 +628,13 @@
                 // 캡쳐 실행 전 레이아웃 안정화
                 await new Promise(resolve => setTimeout(resolve, 300));
 
-                // [기존 코드 동일] 캡쳐 실행 (오류가 수정된 복제본을 캡쳐)
+                // 4. 캡쳐 실행
                 const imgData = await htmlToImage.toPng(clone, {
                     pixelRatio: 2,
                     backgroundColor: '#ffffff',
                     useCORS: true,
                     style: { transform: 'none' }
                 });
-
-                // 메모리에서 복제본 삭제
-                captureWrapper.remove();
 
                 // 파일 다운로드 로직
                 const gameDate = '${diary.gameDate}'.replace(/-/g, '');
@@ -654,39 +655,52 @@
 
             } catch (err) {
                 console.error("Capture Error:", err);
-                alert("이미지 생성 중 오류가 발생했습니다.");
+                alert("이미지 캡처 중 오류가 발생했습니다.");
             } finally {
-                // 3. 성공하든 에러가 나든 작업이 끝나면 무조건 로딩 화면 숨김
-                if (loadingOverlay) loadingOverlay.style.display = "none";
+                // 5. 캡처가 끝나거나 에러가 나면 무조건 실행됨
+                if (captureWrapper) captureWrapper.remove(); // 찌꺼기 DOM 삭제
+                if (loadingOverlay) loadingOverlay.style.display = "none"; // 로딩바 닫기
             }
         }
 
-        // 다운로드 헬퍼 함수 (모바일 호환성 개선)
-        function downloadURI(uri, name) {
-            // 1. 긴 Base64(URI)를 안전한 Blob(파일) 객체로 변환
-            fetch(uri)
-                .then(res => res.blob())
-                .then(blob => {
-                    const file = new File([blob], name, { type: 'image/png' });
-
-                    // 2. 모바일 기기인 경우 (iOS, Android) - 네이티브 공유/저장 팝업 띄우기
-                    if (navigator.canShare && navigator.canShare({ files: [file] }) && /Mobi|Android/i.test(navigator.userAgent)) {
-                        navigator.share({
-                            files: [file],
-                            title: '승요일기 직관기록'
-                        }).catch(err => {
-                            // 사용자가 공유 창을 닫았을 때 발생하는 에러 무시
-                            console.log("공유 취소됨:", err);
-                        });
-                    }
-                    // 3. PC 브라우저이거나 Share API를 지원하지 않는 경우 - 안전한 강제 다운로드
-                    else {
-                        forceDownload(blob, name);
-                    }
-                });
+        // [안드로이드 대응] 순수 자바스크립트를 이용한 안전한 Blob 변환 함수
+        function dataURItoBlob(dataURI) {
+            const byteString = atob(dataURI.split(',')[1]);
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
         }
 
-        // 안전한 파일 다운로드를 실행하는 함수 (Blob URL 사용)
+        // 다운로드 헬퍼 함수 (모바일 호환성 및 fetch 에러 해결)
+        function downloadURI(uri, name) {
+            try {
+                // fetch 대신 안전한 전용 함수로 Blob 변환
+                const blob = dataURItoBlob(uri);
+                const file = new File([blob], name, { type: 'image/png' });
+
+                // 모바일 기기 (iOS, Android) - 네이티브 공유 팝업
+                if (navigator.canShare && navigator.canShare({ files: [file] }) && /Mobi|Android/i.test(navigator.userAgent)) {
+                    navigator.share({
+                        files: [file],
+                        title: '승요일기 직관기록'
+                    }).catch(err => {
+                        console.log("공유 취소됨:", err);
+                    });
+                } else {
+                    forceDownload(blob, name);
+                }
+            } catch (e) {
+                console.error("파일 변환 및 다운로드 실패:", e);
+                // 최후의 수단으로 직접 다운로드 트리거 시도
+                forceDownload(dataURItoBlob(uri), name);
+            }
+        }
+
+        // 안전한 파일 다운로드를 실행하는 함수 (Blob URL 사용) - 기존 코드 유지
         function forceDownload(blob, name) {
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -697,33 +711,11 @@
             document.body.appendChild(link);
             link.click();
 
-            // 사용한 객체 URL 메모리 정리
             setTimeout(() => {
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(url);
             }, 100);
         }
-
-        /*function deleteDiary(diaryId) {
-            if (!confirm('정말로 이 일기를 삭제하시겠습니까?')) return;
-
-            $.post('/diary/delete', { diaryId: diaryId }, function(res) {
-                if (res === 'ok') {
-                    alert('삭제되었습니다.');
-                    location.href = '/diary/list';
-                } else if (res.startsWith('fail:')) {
-                    alert(res.substring(5)); // 서버에서 보낸 거절 사유 노출
-                } else {
-                    alert('삭제에 실패했습니다.');
-                }
-            }).fail(function() {
-                alert('서버 통신 중 오류가 발생했습니다.');
-            });
-        }
-
-        function editDiary() {
-            location.href = '/diary/update?diaryId=${diary.diaryId}';
-        }*/
     </script>
 </body>
 </html>
