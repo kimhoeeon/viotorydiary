@@ -644,11 +644,25 @@
 
                 if (typeof appify !== 'undefined' && appify.isWebview) {
                     try {
-                        if (appify.download && appify.download.base64Image) {
-                            const result = await appify.download.base64Image(imgData, fileName);
-                            if (result) alert("갤러리에 저장되었습니다. 📸");
-                        } else downloadURI(imgData, fileName);
-                    } catch (e) { downloadURI(imgData, fileName); }
+                        let isSuccess = false;
+                        const pureBase64 = imgData.split(',')[1];
+
+                        if (appify.download) {
+                            if (typeof appify.download.base64Image === 'function') {
+                                isSuccess = await appify.download.base64Image(pureBase64, fileName);
+                            } else if (typeof appify.download.image === 'function') {
+                                isSuccess = await appify.download.image(pureBase64);
+                            }
+                        }
+
+                        if (isSuccess) {
+                            alert("갤러리에 저장되었습니다. 📸");
+                        } else {
+                            downloadURI(imgData, fileName);
+                        }
+                    } catch (e) {
+                        downloadURI(imgData, fileName);
+                    }
                 } else {
                     downloadURI(imgData, fileName);
                 }
@@ -675,46 +689,141 @@
             return new Blob([ab], { type: mimeString });
         }
 
-        // 다운로드 헬퍼 함수 (모바일 호환성 및 fetch 에러 해결)
+        // 다운로드 헬퍼 함수
         function downloadURI(uri, name) {
             try {
-                // fetch 대신 안전한 전용 함수로 Blob 변환
                 const blob = dataURItoBlob(uri);
                 const file = new File([blob], name, { type: 'image/png' });
 
-                // 모바일 기기 (iOS, Android) - 네이티브 공유 팝업
+                // 네이티브 공유 팝업 시도
                 if (navigator.canShare && navigator.canShare({ files: [file] }) && /Mobi|Android/i.test(navigator.userAgent)) {
                     navigator.share({
                         files: [file],
                         title: '승요일기 직관기록'
                     }).catch(err => {
-                        console.log("공유 취소됨:", err);
+                        console.warn("공유 API 차단됨, 강제 다운로드 우회:", err);
+                        forceDownload(uri, name, blob); // base64 원본(uri)도 함께 넘김
                     });
                 } else {
-                    forceDownload(blob, name);
+                    forceDownload(uri, name, blob);
                 }
             } catch (e) {
                 console.error("파일 변환 및 다운로드 실패:", e);
-                // 최후의 수단으로 직접 다운로드 트리거 시도
-                forceDownload(dataURItoBlob(uri), name);
+                forceDownload(uri, name, null);
             }
         }
 
-        // 안전한 파일 다운로드를 실행하는 함수 (Blob URL 사용) - 기존 코드 유지
-        function forceDownload(blob, name) {
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.style.display = "none";
-            link.href = url;
-            link.download = name;
+        // [핵심] 안드로이드 웹뷰 침묵 버그 우회용 강제 다운로드
+        function forceDownload(uri, name, blob) {
+            // 앱 웹뷰이거나 안드로이드 기기인 경우 a태그(Blob) 다운로드가 무시될 확률이 99%이므로 모달로 대체
+            if ((typeof appify !== 'undefined' && appify.isWebview) || /Android/i.test(navigator.userAgent)) {
+                showImagePreviewModal(uri);
+                return;
+            }
 
-            document.body.appendChild(link);
-            link.click();
+            // 그 외 일반 PC/웹 브라우저 환경 (기존 a태그 방식)
+            try {
+                const blobObj = blob || dataURItoBlob(uri);
+                const url = window.URL.createObjectURL(blobObj);
+                const link = document.createElement("a");
+                link.style.display = "none";
+                link.href = url;
+                link.download = name;
 
-            setTimeout(() => {
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-            }, 100);
+                document.body.appendChild(link);
+                link.click();
+
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+            } catch (e) {
+                showImagePreviewModal(uri);
+            }
+        }
+
+        // 안드로이드 웹뷰 최후의 보루 (미리보기 및 안전한 우회 모달)
+        function showImagePreviewModal(base64Data) {
+            const modalId = "capturePreviewModal";
+            if (document.getElementById(modalId)) return;
+
+            const modal = document.createElement('div');
+            modal.id = modalId;
+            modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; touch-action:auto; pointer-events:auto;';
+
+            // 1. 안전한 닫기 버튼
+            const closeBtn = document.createElement('button');
+            closeBtn.innerText = '✕ 닫기';
+            closeBtn.style.cssText = 'position:absolute; top:20px; right:20px; padding:12px 20px; background:#333; color:#fff; border:2px solid #666; border-radius:8px; font-size:16px; cursor:pointer; font-weight:bold; z-index:1000000;';
+            closeBtn.onclick = function(e) {
+                e.preventDefault();
+                const m = document.getElementById(modalId);
+                if (m) document.body.removeChild(m);
+            };
+
+            // 2. 생성된 이미지
+            const img = document.createElement('img');
+            img.src = base64Data;
+            img.style.cssText = 'max-width:90%; max-height:60%; object-fit:contain; border-radius:12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); margin-bottom: 20px; pointer-events:none;';
+
+            // 3. 안내 문구 영역 (에러 시 이 부분이 빨간색으로 강렬하게 바뀝니다)
+            const msg = document.createElement('div');
+            msg.innerHTML = '<span style="color:#aaa; font-size:13px; font-weight:normal;">저장/공유 버튼이 작동하지 않으면 <b>화면을 캡처</b>해 주세요.</span>';
+            msg.style.cssText = 'margin-top:15px; text-align:center; line-height:1.4;';
+
+            // 4. 저장/공유 버튼
+            const saveBtn = document.createElement('button');
+            saveBtn.innerText = '기기에 저장 / 공유하기 🚀';
+            saveBtn.style.cssText = 'padding:15px 30px; background:#007BFF; color:#fff; border:none; border-radius:12px; font-size:16px; font-weight:bold; cursor:pointer; z-index:1000000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.3s;';
+
+            saveBtn.onclick = async function(e) {
+                e.preventDefault();
+
+                // 로딩 상태 표시
+                saveBtn.innerText = '처리 중...';
+                saveBtn.style.opacity = '0.7';
+
+                try {
+                    const byteString = atob(base64Data.split(',')[1]);
+                    const mimeString = base64Data.split(',')[0].split(':')[1].split(';')[0];
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    const blob = new Blob([ab], { type: mimeString });
+                    const file = new File([blob], 'seungyo_diary.png', { type: 'image/png' });
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: '승요일기 직관기록'
+                        });
+                        // 성공 시 버튼 복구
+                        saveBtn.innerText = '기기에 저장 / 공유하기 🚀';
+                        saveBtn.style.opacity = '1';
+                    } else {
+                        // 강제 에러 발생시켜 catch문으로 이동
+                        throw new Error("Share API not supported or blocked");
+                    }
+                } catch (err) {
+                    console.error("Share error:", err);
+
+                    // alert 팝업 대신 버튼과 텍스트를 빨간색 경고창으로 직접 변경!
+                    saveBtn.innerText = '⚠️ 앱 설정으로 공유 차단됨';
+                    saveBtn.style.background = '#FF3B30'; // 버튼을 빨간색으로 변경
+                    saveBtn.style.opacity = '1';
+                    saveBtn.style.pointerEvents = 'none'; // 더 이상 못 누르게 차단
+
+                    msg.innerHTML = '<span style="color:#FF3B30; font-size:16px; font-weight:bold;">지금 화면을 캡처(스크린샷)하여 보관해 주세요 📸</span>';
+                }
+            };
+
+            modal.appendChild(closeBtn);
+            modal.appendChild(img);
+            modal.appendChild(saveBtn);
+            modal.appendChild(msg);
+            document.body.appendChild(modal);
         }
     </script>
 </body>
