@@ -648,4 +648,67 @@ public class DiaryController {
         }
     }
 
+    // ==========================================
+    // [앱 호환용] 임시 이미지 생성 API (Base64 -> File URL)
+    // ==========================================
+    @PostMapping("/api/temp-image")
+    @ResponseBody
+    public String createTempImage(@RequestParam("base64Data") String base64Data, javax.servlet.http.HttpServletRequest request) {
+        try {
+            // 1. 순수 Base64 데이터 추출
+            String pureBase64 = base64Data;
+            if (base64Data.contains(",")) {
+                pureBase64 = base64Data.split(",")[1];
+            }
+            byte[] decodedBytes = java.util.Base64.getDecoder().decode(pureBase64);
+
+            // 2. 임시 파일명 생성 및 시스템 임시 폴더에 저장
+            String fileName = "seungyo_temp_" + UUID.randomUUID().toString() + ".png";
+            File tempFile = new File(System.getProperty("java.io.tmpdir"), fileName);
+            java.nio.file.Files.write(tempFile.toPath(), decodedBytes);
+
+            // 앱이 다운로드할 시간을 주기 위해 60초 뒤에 파일을 스스로 삭제하는 타이머 실행 (용량 차지 X)
+            new Thread(() -> {
+                try { Thread.sleep(60000); } catch (Exception e) {}
+                if (tempFile.exists()) tempFile.delete();
+            }).start();
+
+            // 3. 앱에서 접근할 수 있는 절대 경로 URL 생성 반환
+            String scheme = request.getScheme();
+            String serverName = request.getServerName();
+            int serverPort = request.getServerPort();
+            String url = scheme + "://" + serverName + (serverPort != 80 && serverPort != 443 ? ":" + serverPort : "") + "/diary/api/temp-image/" + fileName;
+
+            return url;
+        } catch (Exception e) {
+            log.error("임시 이미지 생성 실패", e);
+            return "fail";
+        }
+    }
+
+    // ==========================================
+    // [앱 호환용] 임시 이미지 다운로드/조회용 API
+    // ==========================================
+    @GetMapping("/api/temp-image/{fileName}")
+    public void getTempImage(@PathVariable String fileName, javax.servlet.http.HttpServletResponse response) {
+        File tempFile = new File(System.getProperty("java.io.tmpdir"), fileName);
+        if (!tempFile.exists()) {
+            response.setStatus(javax.servlet.http.HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        response.setContentType("image/png");
+        try (java.io.InputStream is = new java.io.FileInputStream(tempFile);
+             java.io.OutputStream os = response.getOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+            os.flush();
+        } catch (Exception e) {
+            log.error("임시 이미지 전송 오류", e);
+        }
+    }
+
 }
