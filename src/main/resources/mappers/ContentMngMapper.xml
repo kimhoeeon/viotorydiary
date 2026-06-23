@@ -11,7 +11,7 @@
         SELECT * FROM events
         WHERE status = 'ACTIVE'
           AND CURDATE() BETWEEN start_date AND end_date
-        ORDER BY created_at DESC
+        ORDER BY start_date DESC
     </select>
 
     <select id="selectEventById" resultType="com.viotory.diary.vo.EventVO">

@@ -586,3 +586,6 @@
 .userName{margin-top: 4px; font-size: 14px;}
 .add_btn{margin: 0 auto;}
 .add_btn img{width: 24px;}
+
+.card_wrap.event .swiper_box{height: 100%;}
+.swiperMainEvt{height: 100%;}

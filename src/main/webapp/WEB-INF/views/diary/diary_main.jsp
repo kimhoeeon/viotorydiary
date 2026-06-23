@@ -22,6 +22,9 @@
     <meta property="og:url" content="https://myseungyo.com/">
     <meta property="og:image" content="https://myseungyo.com/img/og_img.jpg">
 
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+
     <link rel="icon" href="/favicon.ico" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="manifest" href="/site.webmanifest" />

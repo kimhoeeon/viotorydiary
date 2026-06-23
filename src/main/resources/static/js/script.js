@@ -476,9 +476,30 @@ if (document.querySelector('.swiperMainCnt')) {
         preventClicksPropagation: false,
         autoHeight: false,
         navigation: {
+            nextEl: '.swiperMainCntNext',
             prevEl: '.swiperMainCntPrev',
-            nextEl: '.swiperMainCntNext'
         },
+        breakpoints: {
+            1199: {
+                spaceBetween: 0,
+            },
+        },
+    });
+}
+
+if (document.querySelector('.swiperMainEvt')) {
+    const swiperMainEvt = new Swiper('.swiperMainEvt', {
+        slidesPerView: 'auto',
+        spaceBetween: 20,
+        direction: getDirection(),
+        loop: true,
+        speed: 700,
+        preventClicks: false,
+        autoplay: {
+            delay: 2000,
+        },
+        preventClicksPropagation: false,
+        autoHeight: false,
         breakpoints: {
             1199: {
                 spaceBetween: 0,
