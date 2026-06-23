@@ -102,9 +102,6 @@ public class WinYoController {
         MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
         if (loginMember == null) return "redirect:/member/login";
 
-        // 알림 뱃지 플래그 (기존 레이아웃 유지용)
-        model.addAttribute("hasUnreadAlarm", false); // 실제 알림 서비스 연동 필요
-
         // 내 팀 코드 전달 (JSP 필터링용)
         model.addAttribute("myTeamCode", loginMember.getMyTeamCode());
 

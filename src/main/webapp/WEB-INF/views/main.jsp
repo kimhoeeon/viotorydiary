@@ -56,22 +56,6 @@
             object-fit: cover;
         }
 
-        /* 알림 배지 */
-        .noti-btn .noti-dot {
-            display: none;
-        }
-
-        .noti-btn.has-badge .noti-dot {
-            display: block;
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 4px;
-            height: 4px;
-            background: #FF4D4D;
-            border-radius: 50%;
-        }
-
         /* 구단 콘텐츠 배너 스타일 */
         .banner-card {
             margin-bottom: 24px;
@@ -206,19 +190,29 @@
                                 </div>
                             </div>
 
-                            <c:if test="${not empty latestEvent}">
-                                <c:choose>
-                                    <c:when test="${latestEvent.linkType eq 'EXTERNAL'}">
-                                        <div class="card_wrap event" onclick="window.open('${latestEvent.linkUrl}')" style="cursor:pointer;">
-                                    </c:when>
-                                    <c:otherwise>
-                                        <div class="card_wrap event"
-                                             onclick="location.href='/locker/event/detail?eventId=${latestEvent.eventId}'"
-                                             style="cursor:pointer;">
-                                    </c:otherwise>
-                                </c:choose>
-                                            <img src="${not empty latestEvent.imageUrl ? latestEvent.imageUrl : '/img/card_event.png'}" alt="이벤트 이미지" style="width:100%; object-fit:cover; border-radius:12px;">
+                            <c:if test="${not empty events}">
+                                <div class="card_wrap event">
+                                    <div class="swiper_box">
+                                        <div class="swiper swiperMainEvt">
+                                            <div class="swiper-wrapper">
+                                                <c:forEach var="event" items="${events}">
+                                                <div class="swiper-slide item">
+                                                    <c:choose>
+                                                        <c:when test="${event.linkType eq 'EXTERNAL'}">
+                                                            <div onclick="if(typeof appify !== 'undefined' && appify.isWebview) { appify.linking.inappBrowser('${event.linkUrl}'); } else { window.open('${event.linkUrl}'); }" style="cursor:pointer; width: 100%; height: 100%;">
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <div onclick="location.href='/locker/event/detail?eventId=${event.eventId}'" style="cursor:pointer; width: 100%; height: 100%;">
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                        <img src="${not empty event.imageUrl ? event.imageUrl : '/img/card_event.png'}" alt="이벤트 이미지" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                                                    </div>
+                                                </div>
+                                                </c:forEach>
+                                            </div>
                                         </div>
+                                    </div>
+                                </div>
                             </c:if>
 
                             <div class="card_wrap live">
@@ -284,79 +278,79 @@
                             </div>
 
                             <div class="card_wrap score_card">
-                            <div class="card_item">
-                                <div class="row history-head">
-                                    <div class="tit score_card_tit">직관 일기 다시 보기</div>
-                                    <a href="/diary/winyo">
-                                        <img src="/img/ico_next_arrow.svg" alt="모두 보기">
-                                    </a>
-                                </div>
-                                <div class="score_wrap">
-                                    <c:choose>
-                                        <c:when test="${not empty diaries}">
-                                            <c:forEach var="diary" items="${diaries}">
-                                                <div class="score_list"
-                                                     onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'">
+                                <div class="card_item">
+                                    <div class="row history-head">
+                                        <div class="tit score_card_tit">직관 일기 다시 보기</div>
+                                        <a href="/diary/winyo">
+                                            <img src="/img/ico_next_arrow.svg" alt="모두 보기">
+                                        </a>
+                                    </div>
+                                    <div class="score_wrap">
+                                        <c:choose>
+                                            <c:when test="${not empty diaries}">
+                                                <c:forEach var="diary" items="${diaries}">
+                                                    <div class="score_list"
+                                                         onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'">
 
-                                                    <c:set var="firstImage" value=""/>
-                                                    <c:if test="${not empty diary.imageUrl}">
-                                                        <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}"/>
-                                                        <c:set var="firstImage" value="${imgArr[0]}"/>
-                                                    </c:if>
-                                                    <div class="img">
-                                                        <img src="${not empty firstImage ? firstImage : '/img/card_defalut.svg'}"
-                                                             alt="썸네일"
-                                                             onerror="this.src='/img/card_defalut.svg'">
+                                                        <c:set var="firstImage" value=""/>
+                                                        <c:if test="${not empty diary.imageUrl}">
+                                                            <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}"/>
+                                                            <c:set var="firstImage" value="${imgArr[0]}"/>
+                                                        </c:if>
+                                                        <div class="img">
+                                                            <img src="${not empty firstImage ? firstImage : '/img/card_defalut.svg'}"
+                                                                 alt="썸네일"
+                                                                 onerror="this.src='/img/card_defalut.svg'">
+                                                        </div>
+
+                                                        <div class="score_txt">
+                                                            <div class="txt_box">
+                                                                <div class="tit">
+                                                                    ${diary.scoreAway} ${diary.awayTeamName} vs ${diary.homeTeamName} ${diary.scoreHome}
+                                                                </div>
+                                                                <div class="date">${diary.gameDate}</div>
+                                                            </div>
+                                                            <c:choose>
+                                                                <%-- 1. 경기중 --%>
+                                                                <c:when test="${diary.gameStatus eq 'LIVE'}">
+                                                                    <div class="during">
+                                                                        <div class="badge">경기중</div>
+                                                                    </div>
+                                                                </c:when>
+
+                                                                <%-- 2. 취소된 경기 --%>
+                                                                <c:when test="${diary.gameStatus eq 'CANCELLED'}">
+                                                                    <div class="cancel">
+                                                                        <div class="badge">
+                                                                            취소(${not empty diary.cancelReason ? diary.cancelReason : '우천'})
+                                                                        </div>
+                                                                    </div>
+                                                                </c:when>
+
+                                                                <%-- 3. 승리한 경기 --%>
+                                                                <c:when test="${diary.gameStatus eq 'FINISHED' and diary.gameResult eq 'WIN'}">
+                                                                    <div class="score_win">
+                                                                        <img src="/img/thumbs-up.svg" alt="승리">
+                                                                    </div>
+                                                                </c:when>
+                                                            </c:choose>
+                                                        </div>
                                                     </div>
-
+                                                </c:forEach>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div class="score_list empty">
                                                     <div class="score_txt">
                                                         <div class="txt_box">
-                                                            <div class="tit">
-                                                                ${diary.scoreAway} ${diary.awayTeamName} vs ${diary.homeTeamName} ${diary.scoreHome}
-                                                            </div>
-                                                            <div class="date">${diary.gameDate}</div>
+                                                            <div class="tit">작성된 일기가 없어요</div>
                                                         </div>
-                                                        <c:choose>
-                                                            <%-- 1. 경기중 --%>
-                                                            <c:when test="${diary.gameStatus eq 'LIVE'}">
-                                                                <div class="during">
-                                                                    <div class="badge">경기중</div>
-                                                                </div>
-                                                            </c:when>
-
-                                                            <%-- 2. 취소된 경기 --%>
-                                                            <c:when test="${diary.gameStatus eq 'CANCELLED'}">
-                                                                <div class="cancel">
-                                                                    <div class="badge">
-                                                                        취소(${not empty diary.cancelReason ? diary.cancelReason : '우천'})
-                                                                    </div>
-                                                                </div>
-                                                            </c:when>
-
-                                                            <%-- 3. 승리한 경기 --%>
-                                                            <c:when test="${diary.gameStatus eq 'FINISHED' and diary.gameResult eq 'WIN'}">
-                                                                <div class="score_win">
-                                                                    <img src="/img/thumbs-up.svg" alt="승리">
-                                                                </div>
-                                                            </c:when>
-                                                        </c:choose>
                                                     </div>
                                                 </div>
-                                            </c:forEach>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="score_list empty">
-                                                <div class="score_txt">
-                                                    <div class="txt_box">
-                                                        <div class="tit">작성된 일기가 없어요</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </c:otherwise>
-                                    </c:choose>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
                             <div class="card_wrap clip">
                                 <div class="card_item">

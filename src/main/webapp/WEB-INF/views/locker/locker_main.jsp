@@ -33,7 +33,9 @@
 
     <title>라커룸 | 승요일기</title>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 </head>
 
 <body>
@@ -149,19 +151,28 @@
 
                                 <c:choose>
                                     <c:when test="${not empty events}">
-                                        <c:forEach var="event" items="${events}">
-                                            <c:choose>
-                                                <c:when test="${event.linkType eq 'EXTERNAL'}">
-                                                    <div class="img" onclick="if(typeof appify !== 'undefined' && appify.isWebview) { appify.linking.inappBrowser('${event.linkUrl}'); } else { window.open('${event.linkUrl}'); }" style="cursor:pointer;">
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <div class="img" onclick="location.href='/locker/event/detail?eventId=${event.eventId}'" style="cursor:pointer;">
-                                                </c:otherwise>
-                                            </c:choose>
-                                                <img src="${not empty event.imageUrl ? event.imageUrl : '/img/card_sample02.jpg'}"
-                                                     alt="이벤트 배너" style="border-radius: 12px;">
+                                        <div class="card_wrap event">
+                                            <div class="swiper_box">
+                                                <div class="swiper swiperMainEvt">
+                                                    <div class="swiper-wrapper">
+                                                        <c:forEach var="event" items="${events}">
+                                                            <div class="swiper-slide item">
+                                                                <c:choose>
+                                                                    <c:when test="${event.linkType eq 'EXTERNAL'}">
+                                                                        <div class="img" onclick="if(typeof appify !== 'undefined' && appify.isWebview) { appify.linking.inappBrowser('${event.linkUrl}'); } else { window.open('${event.linkUrl}'); }" style="cursor:pointer; width:100%; height:100%;">
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <div class="img" onclick="location.href='/locker/event/detail?eventId=${event.eventId}'" style="cursor:pointer; width:100%; height:100%;">
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                                    <img src="${not empty event.imageUrl ? event.imageUrl : '/img/card_sample02.jpg'}" alt="이벤트 배너" style="width:100%; height:100%; object-fit:cover; border-radius: 12px;">
+                                                                </div>
+                                                            </div>
+                                                        </c:forEach>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </c:forEach>
+                                        </div>
                                     </c:when>
                                     <c:otherwise>
                                         <div class="nodt_wrap only_txt">

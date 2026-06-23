@@ -87,7 +87,7 @@ public class MainController {
             // 4. [이벤트] 최신글 1개
             List<EventVO> events = contentMngService.getActiveEventList();
             if (!events.isEmpty()) {
-                model.addAttribute("latestEvent", events.get(0));
+                model.addAttribute("events", events);
             }
 
             // 5. [직관 일기] 최근 일기 3개
