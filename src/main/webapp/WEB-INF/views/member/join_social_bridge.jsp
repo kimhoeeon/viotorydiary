@@ -18,7 +18,7 @@
     <%@ include file="../include/popup.jsp" %>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/js/script.js"></script>
+    <script src="/js/script.js?v=1.1"></script>
 
     <script>
         // 브라우저 URL에 남아있는 1회용 인증 코드를 숨겨 새로고침 시 중복 요청(KOE320 에러) 방지
@@ -34,7 +34,7 @@
             window.history.replaceState({}, document.title, "/member/join_social_bridge");
 
             <c:if test="${not empty socialInfo}">
-                // script.js에 정의된 customConfirm 사용
+                // script.js?v=1.1에 정의된 customConfirm 사용
                 // [확인] 콜백 -> 가입 프로세스 진행
                 sessionStorage.setItem('join_email', '${socialInfo.email}');
                 sessionStorage.setItem('join_nickname', '${socialInfo.nickname}');

@@ -97,7 +97,7 @@
 
     <%@ include file="../include/popup.jsp" %>
 
-    <script src="/js/script.js"></script>
+    <script src="/js/script.js?v=1.1"></script>
     <script src="/js/app_interface.js"></script>
     <script>
         const emailInput = document.getElementById('loginId');

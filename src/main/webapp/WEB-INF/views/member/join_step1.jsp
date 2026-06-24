@@ -149,7 +149,7 @@
         </div>
     </div>
 
-    <script src="/js/script.js"></script>
+    <script src="/js/script.js?v=1.1"></script>
     <script src="/js/app_interface.js"></script>
 
     <script>

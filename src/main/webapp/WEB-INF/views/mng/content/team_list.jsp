@@ -510,7 +510,7 @@
                             modal.hide();
                         }
 
-                        // 커스텀 alert 호출 (script.js에 오버라이딩 된 alert 사용)
+                        // 커스텀 alert 호출 (script.js?v=1.1에 오버라이딩 된 alert 사용)
                         alert('콘텐츠가 등록되었습니다.', function() {
                             location.reload(); // 확인 클릭 시 새로고침
                         });
