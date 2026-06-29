@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       wheel.scrollTop = targetScrollTop;
 
-      //console.log(selected.offsetTop, wheel.clientHeight, selected.offsetHeight, wheel.scrollTop);
+      console.log(selected.offsetTop, wheel.clientHeight, selected.offsetHeight, wheel.scrollTop);
     }
 
     function markSelected(wheel) {
@@ -561,19 +561,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 날짜별 경기정보
     const matchData = {
-      '2026-01-06': ['06(화) 13:00 LG vs 두산','06(화) 13:00 LG vs 두산'],
-      '2026-01-07': ['07(수) 13:00 LG vs 두산','07(수) 13:00 LG vs 두산' ],
-      '2026-01-08': ['08(목) 13:00 LG vs 두산','08(목) 13:00 LG vs 두산' ],
-      '2026-01-09': ['09(금) 13:00 LG vs 두산','09(금) 13:00 LG vs 두산' ],
-      '2026-01-10': ['10(토) 13:00 LG vs 두산' ],
-      '2026-01-11': ['11(일) 13:00 LG vs 두산' ],
-      '2026-01-13': ['13(화) 13:00 LG vs 두산' ],
-      '2026-01-14': ['14(수) 13:00 LG vs 두산' ],
-      '2026-01-15': ['15(목) 13:00 LG vs 두산' ],
-      '2026-01-16': ['16(금) 13:00 LG vs 두산' ],
-      '2026-01-17': ['17(토) 13:00 LG vs 두산' ],
-      '2026-01-18': ['18(일) 13:00 LG vs 두산' ],
-      '2026-01-20': ['20(화) 13:00 LG vs 두산' ],
+      '2026-01-18': [
+        {
+          homeTeam: 'LG',
+          homeLogo: '/img/logo_kt.svg',
+          awayTeam: '두산',
+          awayLogo: '/img/logo_kt.svg'
+        },
+        {
+          homeTeam: '기아',
+          homeLogo: '/img/logo_kt.svg',
+          awayTeam: '삼성',
+          awayLogo: '/img/logo_kt.svg'
+        },
+        {
+          homeTeam: '한화',
+          homeLogo: '/img/logo_kt.svg',
+          awayTeam: 'SSG',
+          awayLogo: '/img/logo_kt.svg'
+        },
+        {
+          homeTeam: '롯데',
+          homeLogo: '/img/logo_kt.svg',
+          awayTeam: 'NC',
+          awayLogo: '/img/logo_kt.svg'
+        },
+        {
+          homeTeam: '키움',
+          homeLogo: '/img/logo_kt.svg',
+          awayTeam: 'KT',
+          awayLogo: '/img/logo_kt.svg'
+        }
+      ],
     };
 
     // 응원하는 팀 정보
@@ -640,7 +659,17 @@ document.addEventListener('DOMContentLoaded', function () {
         monthMatchLabel.textContent = '오늘의 경기';
 
         const lis = matches
-          .map(text => `<li class="month-match_item">${text}</li>`)
+          .map(match => `
+            <li class="month-match_item">
+              <div class="month-match_team">
+                <img src="${match.homeLogo}" alt="${match.homeTeam}">
+              </div>
+              <div class="month-match_vs">vs</div>
+              <div class="month-match_team">
+                <img src="${match.awayLogo}" alt="${match.awayTeam}">
+              </div>
+            </li>
+            `)
           .join('');
 
         monthMatchText.innerHTML = `<ul class="month-match_list">${lis}</ul>`;
@@ -837,12 +866,19 @@ document.addEventListener('DOMContentLoaded', function () {
       updateMonthApplyBtn();
       updateMonthMatchInfo(popupSelectedDateStr || '');
 
-      monthSheetBackdrop.classList.add('is-open');
+      monthSheetBackdrop.style.display = 'flex';
+      requestAnimationFrame(() => {
+        monthSheetBackdrop.classList.add('is-open');
+      });
     }
 
     function closeMonthSheet() {
       if (!monthSheetBackdrop) return;
       monthSheetBackdrop.classList.remove('is-open');
+
+      setTimeout(() => {
+        monthSheetBackdrop.style.display = 'none';
+      }, 250);
     }
 
     pickerPopupBtn?.addEventListener('click', () => {

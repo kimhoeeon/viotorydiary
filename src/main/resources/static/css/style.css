@@ -591,3 +591,6 @@
 .swiperMainEvt{height: 100%;}
 
 .notice_view_body .txt{ word-break: break-all;}
+
+#monthPickerSheet {display: none;}
+#monthPickerSheet.is-open {display: flex;}
