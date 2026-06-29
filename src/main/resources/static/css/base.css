@@ -105,7 +105,7 @@
     );
 }
 .app-main.center{display: flex; flex-direction: column; justify-content: center; padding-top: 56px;}
-.app-tabbar {position: fixed;left: 0;right: 0;bottom: 0;z-index: 30;height: calc(var(--tabbar-h) + var(--safe-bottom));padding-bottom: var(--safe-bottom);background: rgba(255, 255, 255, 0.95);border-top: 1px solid #f1f1f1;-webkit-backdrop-filter: blur(10px) saturate(1.2);  backdrop-filter: blur(10px) saturate(1.2);display: grid;grid-template-columns: repeat(5, 1fr);max-width: 460px;width: 100%;margin: 0 auto;-webkit-transform: translateZ(0);transform: translateZ(0);}
+.app-tabbar {position: fixed;left: 0;right: 0;bottom: 0;z-index: 30;height: calc(var(--tabbar-h) + var(--safe-bottom));padding-bottom: var(--safe-bottom);background: rgba(255, 255, 255, 0.95);border-top: 1px solid #f1f1f1;-webkit-backdrop-filter: blur(10px) saturate(1.2);  backdrop-filter: blur(10px) saturate(1.2);display: grid;grid-template-columns: repeat(5, 1fr);max-width: 460px;width: 100%;margin: 0 auto;}
 .app-tabbar_item {height: var(--tabbar-h);display: flex;flex-direction: column;align-items: center;justify-content: center;gap: 2px;font-size: 12px;color:#6F7380; }
 .app-tabbar_item[aria-current="page"] { color:var(--color-primary);}
 
@@ -207,7 +207,7 @@
 
 /* 스플래쉬 */
 .splash {position: fixed;inset: 0;z-index: 9999;display: flex;align-items: center;justify-content: center;background: var(--color-bg);}
-.splash-logo {width: 50%;max-width: 12rem;height: 100dvh;object-fit: contain;user-select: none;}
+.splash-logo {width: 100%;max-width: 100%;height: 100dvh;object-fit: cover;user-select: none;}
 body.no-scroll {overflow: hidden;height: 100%;touch-action: none;}
 
 /* 뱃지 */

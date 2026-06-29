@@ -34,7 +34,7 @@
 <body>
 
     <div class="splash" id="splash">
-        <img src="/img/logo.svg" alt="로고" class="splash-logo">
+        <img src="/img/splash.png" alt="로고" class="splash-logo">
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

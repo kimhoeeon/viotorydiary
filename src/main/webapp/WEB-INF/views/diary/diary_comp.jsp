@@ -37,12 +37,8 @@
 <body>
     <div class="app comp-bg">
         <div class="app-main center">
-            <div class="comp gap-24">
-                <img src="/img/ico_diary_comp.svg" alt="직관 일기 완료">
-                <div class="comp-txt">
-                    <div class="comp_title">오늘의 한 수, 남겼어요</div>
-                    <p>이제 경기를 즐기면 돼요.</p>
-                </div>
+            <div class="comp">
+                <img id="randomCompImg" src="" alt="직관 일기 작성 완료">
             </div>
         </div>
 
@@ -61,5 +57,15 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js?v=1.1"></script>
     <script src="/js/app_interface.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 1부터 5까지의 랜덤 숫자 생성
+            const randomNum = Math.floor(Math.random() * 5) + 1;
+
+            // 이미지 src 동적 할당 (파일명은 comp_1.png ~ comp_5.png)
+            $('#randomCompImg').attr('src', '/img/comp_' + randomNum + '.png');
+        });
+    </script>
 </body>
 </html>
