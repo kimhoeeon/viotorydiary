@@ -81,6 +81,15 @@
                             </div>
                             <c:choose>
                                 <c:when test="${not empty popularDiaries}">
+                                    <%-- 1. 구단 선택 여부에 따라 디폴트 이미지 경로를 미리 세팅해 둡니다. --%>
+                                    <c:choose>
+                                        <c:when test="${not empty loginMember.myTeamCode}">
+                                            <c:set var="defaultImgPath" value="/img/card_default_${loginMember.myTeamCode}.png" />
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:set var="defaultImgPath" value="/img/card_default_none.svg" />
+                                        </c:otherwise>
+                                    </c:choose>
                                     <div class="score_wrap">
                                         <c:forEach var="diary" items="${popularDiaries}">
                                             <div class="score_list" onclick="location.href='/diary/detail?diaryId=${diary.diaryId}'" style="cursor:pointer;">
@@ -90,8 +99,8 @@
                                                         <c:set var="imgArr" value="${fn:split(diary.imageUrl, ',')}" />
                                                         <c:set var="firstImage" value="${imgArr[0]}" />
                                                     </c:if>
-                                                    <img src="${not empty firstImage ? firstImage : '/img/card_defalut.svg'}"
-                                                         alt="스코어카드 이미지" onerror="this.src='/img/card_defalut.svg'"
+                                                    <img src="${not empty firstImage ? firstImage : defaultImgPath}"
+                                                         alt="스코어카드 이미지" onerror="this.src='/img/card_default_none.svg'"
                                                          style="width:100%; height:100%; object-fit:cover;">
                                                 </div>
                                                 <div class="score_txt">
@@ -304,12 +313,15 @@
                     let html = '';
                     if(list.length > 0) {
                         list.forEach(diary => {
-                            let imgUrl = diary.imageUrl ? diary.imageUrl.split(',')[0] : '/img/card_defalut.svg';
+                            let teamCode = (typeof myTeamCode !== 'undefined' && myTeamCode) ? myTeamCode : 'none';
+                            let defaultImg = (teamCode === 'none') ? '/img/card_default_none.svg' : '/img/card_default_' + teamCode + '.png';
+
+                            let imgUrl = diary.imageUrl ? diary.imageUrl.split(',')[0] : defaultImg;
                             let winMark = (diary.gameResult === 'WIN') ? `<div class="score_win"><img src="/img/ico_check.svg" alt="승리"></div>` : '';
                             html += `
                                 <div class="score_list" onclick="location.href='/diary/detail?diaryId=\${diary.diaryId}'" style="cursor:pointer;">
                                     <div class="img">
-                                        <img src="\${imgUrl}" alt="스코어카드" onerror="this.src='/img/card_defalut.svg'" style="width:100%; height:100%; object-fit:cover;">
+                                        <img src="\${imgUrl}" alt="스코어카드" onerror="this.src='/img/card_default_none.svg'" style="width:100%; height:100%; object-fit:cover;">
                                     </div>
                                     <div class="score_txt">
                                         <div class="txt_box">

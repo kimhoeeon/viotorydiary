@@ -131,8 +131,17 @@
                                                         </c:forEach>
                                                     </c:when>
                                                     <c:otherwise>
+                                                        <%-- 1. 구단 선택 여부에 따라 디폴트 이미지 경로를 미리 세팅해 둡니다. --%>
+                                                        <c:choose>
+                                                            <c:when test="${not empty loginMember.myTeamCode}">
+                                                                <c:set var="defaultImgPath" value="/img/card_default_${loginMember.myTeamCode}.png" />
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <c:set var="defaultImgPath" value="/img/card_default_none.svg" />
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                         <div class="swiper-slide item">
-                                                            <img src="/img/card_defalut.svg" alt="top banner img">
+                                                            <img src="${defaultImgPath}" alt="top banner img">
                                                         </div>
                                                     </c:otherwise>
                                                 </c:choose>
