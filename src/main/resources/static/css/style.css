@@ -589,3 +589,5 @@
 
 .card_wrap.event .swiper_box{height: 100%;}
 .swiperMainEvt{height: 100%;}
+
+.notice_view_body .txt{ word-break: break-all;}
