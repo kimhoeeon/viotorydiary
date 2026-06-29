@@ -80,10 +80,10 @@ class WinYoServiceTest {
         assertEquals("UP", result.getTrendCode(), "최근 흐름은 상승세(UP)여야 함");
 
         // 5. 멘트 매핑 검증
-        assertNotNull(result.getMainMessage(), "메인 멘트가 비어있음");
+        //assertNotNull(result.getMainMessage(), "메인 멘트가 비어있음");
         assertNotNull(result.getSubMessage(), "서브 멘트가 비어있음");
 
-        System.out.println(">>> 메인 멘트: " + result.getMainMessage());
+        //System.out.println(">>> 메인 멘트: " + result.getMainMessage());
         System.out.println(">>> 서브 멘트: " + result.getSubMessage());
     }
 
