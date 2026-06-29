@@ -204,11 +204,11 @@
                                                                 <img src="${content.imageUrl}"
                                                                      alt="콘텐츠 이미지"
                                                                      style="width:100%; height:100px; object-fit:cover;"
-                                                                     onerror="this.src='/img/card_defalut.svg'">
+                                                                     onerror="this.src='/img/card_default.svg'">
                                                             </c:when>
                                                             <%-- 2. 기본 이미지 --%>
                                                             <c:otherwise>
-                                                                <img src="/img/card_defalut.svg"
+                                                                <img src="/img/card_default.svg"
                                                                      alt="기본 콘텐츠 이미지"
                                                                      style="width:100%; height:100px; object-fit:cover;">
                                                             </c:otherwise>
@@ -251,7 +251,7 @@
                                             <c:forEach var="notice" items="${notices}">
                                                 <div class="notice_list" onclick="location.href='/locker/notice/detail?noticeId=${notice.noticeId}'" style="cursor:pointer;">
                                                     <div class="notice_thum">
-                                                        <img src="${not empty notice.imageUrl ? notice.imageUrl : '/img/card_defalut.svg'}" alt="공지 썸네일">
+                                                        <img src="${not empty notice.imageUrl ? notice.imageUrl : '/img/card_default.svg'}" alt="공지 썸네일">
                                                     </div>
                                                     <div class="notice_item">
                                                         <div class="notice_txt">

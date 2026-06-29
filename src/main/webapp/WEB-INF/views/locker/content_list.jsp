@@ -64,7 +64,7 @@
                                      onclick="location.href='/locker/content/detail?contentId=${item.contentId}'"
                                      style="cursor:pointer;">
                                     <div class="img">
-                                        <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_defalut.svg'}"
+                                        <img src="${not empty item.imageUrl ? item.imageUrl : '/img/card_default.svg'}"
                                              alt="콘텐츠 이미지">
                                     </div>
                                     <div class="score_txt">

@@ -380,11 +380,11 @@
                                                                 <%-- 1. 유효한 이미지 URL (http로 시작하거나 /로 시작)인 경우 --%>
                                                                 <c:when test="${not empty content.imageUrl and (fn:startsWith(content.imageUrl, 'http') or fn:startsWith(content.imageUrl, '/'))}">
                                                                     <img src="${content.imageUrl}" alt="썸네일"
-                                                                         onerror="this.src='/img/card_defalut.svg'">
+                                                                         onerror="this.src='/img/card_default.svg'">
                                                                 </c:when>
                                                                 <%-- 2. 그 외 (URL이 없거나 잘못된 데이터) --%>
                                                                 <c:otherwise>
-                                                                    <img src="/img/card_defalut.svg" alt="기본 썸네일">
+                                                                    <img src="/img/card_default.svg" alt="기본 썸네일">
                                                                 </c:otherwise>
                                                             </c:choose>
                                                         </div>
