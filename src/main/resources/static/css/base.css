@@ -129,6 +129,11 @@
 /* .card_wrap.content .content_tit::before{content: ''; background: url(/img/ico_content.svg) no-repeat; width: 24px; height: 24px; display: block;} */
 /* .card_wrap.notice .notice_tit::before{content: ''; background: url(/img/ico_notice.svg) no-repeat; width: 24px; height: 24px; display: block;} */
 
+.card_wrap.game .game_tit{display: flex;}
+.card_wrap.clover .clover_tit{display: flex;}
+.card_wrap.ev .ev_tit{display: flex;}
+.card_wrap.fire .fire_tit{display: flex;}
+
 .card_wrap.game .card_item{gap: 16px;}
 .card_wrap.score_card .card_item{gap: 16px;}
 .card_wrap.clip .card_item{gap: 16px;}
