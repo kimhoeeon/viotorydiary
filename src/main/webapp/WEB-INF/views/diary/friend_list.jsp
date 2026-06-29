@@ -77,9 +77,9 @@
 
             <c:if test="${empty targetMemberId}">
                 <div class="tab-pill">
-                    <button type="button" class="tab-pill_btn ${(param.tab == 'all' or empty tab or not hasFriends) ? 'on' : ''}" onclick="location.href='?tab=all'">전체</button>
-                    <button type="button" class="tab-pill_btn ${(hasFriends and param.tab == 'follower') ? 'on' : ''}" onclick="location.href='?tab=follower'">나를 팔로우</button>
-                    <button type="button" class="tab-pill_btn ${(hasFriends and param.tab == 'following') ? 'on' : ''}" onclick="location.href='?tab=following'">내가 팔로잉</button>
+                    <button type="button" class="tab-pill_btn ${(tab == 'all' or not hasFriends) ? 'on' : ''}" onclick="location.href='?tab=all'">전체</button>
+                    <button type="button" class="tab-pill_btn ${(hasFriends and tab == 'follower') ? 'on' : ''}" onclick="location.href='?tab=follower'">나를 팔로우</button>
+                    <button type="button" class="tab-pill_btn ${(hasFriends and tab == 'following') ? 'on' : ''}" onclick="location.href='?tab=following'">내가 팔로잉</button>
                 </div>
             </c:if>
 
@@ -97,13 +97,13 @@
                                                 <img src="/img/ico_not_mark.svg" alt="데이터 비었을 때">
                                                 <div class="nodt_tit">
                                                     <c:choose>
-                                                        <c:when test="${!hasFriends and param.tab == 'all'}">
+                                                        <c:when test="${!hasFriends and tab == 'all'}">
                                                             추천할 인기 직관 일기가 없습니다.
                                                         </c:when>
-                                                        <c:when test="${param.tab == 'follower'}">
+                                                        <c:when test="${tab == 'follower'}">
                                                             아직 나를 팔로우하는 친구가 없어요.
                                                         </c:when>
-                                                        <c:when test="${empty param.tab or param.tab == 'following'}">
+                                                        <c:when test="${tab == 'following'}">
                                                             아직 팔로잉 중인 친구가 없어요.
                                                         </c:when>
                                                         <c:otherwise>
