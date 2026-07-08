@@ -73,11 +73,11 @@
                     <!-- 이번 주 HOT 직관 일기 -->
                     <div class="card_wrap content">
                         <div class="card_item">
+                            <div class="live-certify">
+                                <a href="/diary/write" class="btn btn-primary">일기 쓰기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>
+                            </div>
                             <div class="row history-head">
                                 <div class="tit content_tit">이번 주 HOT 직관 일기</div>
-                                <%--<a href="/diary/list">
-                                    <img src="/img/ico_next_arrow.svg" alt="모두 보기">
-                                </a>--%>
                             </div>
                             <c:choose>
                                 <c:when test="${not empty popularDiaries}">
@@ -106,12 +106,10 @@
                                                 <div class="score_txt">
                                                     <div class="txt_box">
                                                         <div class="tit">
-                                                            ${diary.awayTeamName} vs ${diary.homeTeamName}
+                                                            ${diary.content}
                                                         </div>
-                                                        <div class="date">
-                                                            <c:if test="${not empty diary.gameDate}">
-                                                                ${fn:substring(diary.gameDate, 0, 10)}
-                                                            </c:if>
+                                                        <div class="score_team">
+                                                            ${diary.awayTeamName} vs ${diary.homeTeamName}
                                                         </div>
                                                     </div>
                                                 </div>

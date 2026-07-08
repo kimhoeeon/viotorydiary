@@ -2,6 +2,7 @@ package com.viotory.diary.mapper;
 
 import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.vo.DiaryVO;
+import com.viotory.diary.vo.MemberVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -77,12 +78,31 @@ public interface DiaryMapper {
     // 랜덤 전체공개 게시물 조회 (is_popular = 'N')
     List<DiaryVO> selectRandomPublicDiaries(@Param("limit") int limit);
 
-    // [추가] 특정 날짜 및 팀 필터링 기반 일기 조회 (페이징 포함)
+    // 특정 날짜 및 팀 필터링 기반 일기 조회 (페이징 포함)
     List<DiaryVO> selectDiariesByDateAndTeam(@Param("date") String date,
                                              @Param("teamCode") String teamCode,
                                              @Param("limit") int limit,
                                              @Param("offset") int offset);
 
-    // [추가] 특정 월에 일기가 작성된 날짜 리스트 조회
+    // 특정 월에 일기가 작성된 날짜 리스트 조회
     List<String> selectDiaryDatesByMonth(String month);
+
+    // ==========================================
+    // [동행인 / 친구 태그 관련 신규 메서드]
+    // ==========================================
+
+    // 1. 태그할 친구 목록 조회 (내가 팔로우하는 친구 기준)
+    List<MemberVO> selectMyFriendsForTag(Long memberId);
+
+    // 2. 태그된 친구 상세 정보 목록 조회 (콤마로 구분된 ID 리스트를 in 쿼리로 탐색)
+    List<MemberVO> selectTaggedMembers(@Param("ids") List<Long> ids);
+
+    // 내 승요력 랭킹 조회 (필터 추가)
+    WinYoAnalysisDTO selectMyWinYoRanking(@Param("memberId") Long memberId,
+                                          @Param("season") String season,
+                                          @Param("teamCode") String teamCode);
+
+    // 전체 승요력 TOP 100 랭킹 조회 (필터 추가)
+    List<WinYoAnalysisDTO> selectWinYoRankingTop100(@Param("season") String season,
+                                                    @Param("teamCode") String teamCode);
 }

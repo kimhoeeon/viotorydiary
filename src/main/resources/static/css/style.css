@@ -146,6 +146,7 @@
 .row_wrap .score_list{display: grid;grid-template-columns: repeat(2, 1fr);    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15); gap: 16px; background: #fff; padding: 16px; border-radius: 20px;}
 .score_list .tit{font-size: var(--fs-14);margin-bottom: 0;}
 .score_list .date{color: #A6A9B0; font-size: var(--fs-12);margin-top: 4px;}
+.score_list .score_team{color: #A6A9B0; font-size: var(--fs-12);margin-top: 4px;}
 .score_list .score_txt{display: flex; justify-content: space-between; margin-top: 8px;}
 .score_list .score_txt .score_win img{max-width: 24px;}
 .score_list .img{border-radius: 15px; overflow: hidden;}
@@ -196,6 +197,7 @@
 .diary_write_list .game-board{background: #fff;}
 .diary_write_list.diary_character::after{content: ''; background: url(/img/diary_character01.svg) no-repeat; width: 90px; height: 60px; z-index: 0; position: absolute; top: 0; right: 14px;}
 .diary_write_list.diary_character.yellow::after{content: ''; background: url(/img/diary_character02.svg) no-repeat; width: 97px; height: 60px; z-index: 0; position: absolute; top: 0; right: 30px;}
+.diary_write_list .tit span{color: #A6ADBB; font-size: var(--fs-12);}
 
 .select-field{background: #fff; border: 1px solid #e1e1e1; color: #000; font-size: var(--fs-14);padding: 10px 30px 10px 8px; text-align: left; position: relative;}
 .select-field::after{content: ''; background: url(/img/ico_back_down_arrow.svg) no-repeat; width: 16px; height: 16px; position: absolute;top: 50%; right: 8px; transform: translateY(-50%);}
@@ -594,3 +596,40 @@
 
 #monthPickerSheet {display: none;}
 #monthPickerSheet.is-open {display: flex;}
+
+/* 랭킹 */
+.rank_select{display: flex; gap: 5px;}
+.rank_select select{border: 1px solid #A6ADBB; border-radius: 8px; color: #6F7380; font-size: var(--fs-12); line-height: var(--fs-12); display:block; padding: 6px 22px 6px 10px;appearance:none;-webkit-appearance:none;-moz-appearance:none;background:url('/img/select_arrow.svg')no-repeat right 5px top 5px; background-size:13px}
+.comment.regular{font-weight: 400;}
+.card_item.rank-item{padding: 20px 16px;position: relative;border-radius: 10px;}
+.rank-board .tit{margin-bottom: 10px;font-size: 1rem;}
+.rank-board .flex{display: flex;align-items: center; justify-content: space-between;width: 100%;}
+.rank-board .rank_team{display: flex; align-items: center; gap: 10px;}
+.rank-board .rank_team .rank-profile{display: flex; align-items: center; gap: 10px;}
+.rank-board .rank_team .rank-profile img{height: 50px;}
+.rank-board .rank_team .rank-profile div{flex-shrink: 0;}
+.rank-board .rank_team .rank-profile .name{font-size: var(--fs-14);margin-bottom: 5px; text-align: center;}
+.rank-board .rank_team .rank-profile .match{border: 1px solid #A6ADBB; color: #717986; font-size: var(--fs-12);border-radius: 18px; padding: 3px 8px;}
+.rank-board .rank_team .rank-badge{color: #6F7380; background: #F5F5F5; border: 1px solid #ddd; font-size: var(--fs-12); padding: 4px 10px; border-radius: 10px; text-align: center; min-width: 44px;}
+.rank-board .rank_rate{text-align: center;}
+.rank-board .rank_rate .txt{color: #6F7380;font-size: var(--fs-14);}
+.rank-board .rank_rate .rate_number{font-weight: 600; font-size: 1.5rem; color:#717986}
+.rank-board .rank_first .rank_rate .rate_number{color: #00C3A2;}
+.rank-board .rank_second .rank_rate .rate_number{color: #789F99;}
+.rank-board .rank_third .rank_rate .rate_number{color: #A49678;}
+
+.rank-board .rank_first .rank_team .rank-badge{background: #00C3A2; border: 0; color: #fff;}
+.rank-board .rank_second .rank_team .rank-badge{background: #B1B2B2;border: 0; color: #fff}
+.rank-board .rank_third .rank_team .rank-badge{background: #AC986E;border: 0; color: #fff}
+
+.rank-board .rank_all{padding: 12px 0; border-bottom: 1px solid #D0D2D7;}
+.rank-board .rank_all:first-child{padding-top: 0;}
+.rank-board .rank_all:last-child{border-bottom: 0;padding-bottom: 0;}
+.rank-board .rank_all .rank_team .rank-profile img{height: 28px;}
+.rank-board .rank_all .rank_team .rank-profile div{display: flex; align-items: center;}
+.rank-board .rank_all .rank_team .rank-profile .match{border: 0;}
+.rank-board .rank_all .rank_rate .rate_number{font-size: 1.125rem;}
+
+.card_item.rank-item.my-rank{padding-left: 24px;}
+.card_item.rank-item.my-rank::before{content: '';background: #65E7D1;height: calc(100% + 2px);width: 8px;position: absolute;left: -1px;top: -1px;border-top-left-radius: 10px;border-bottom-left-radius: 10px;}
+

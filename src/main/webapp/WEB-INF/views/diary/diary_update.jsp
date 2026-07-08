@@ -134,23 +134,23 @@
                                     </div>
                                 </div>
 
-                                <div class="diary_write_list clr">
-                                    <div class="tit">오늘의 히어로는 누구일까?</div>
-                                    <input type="text" name="heroName" id="heroName" value="${diary.heroName}" maxlength="100" placeholder="최대 100자까지 입력하실 수 있습니다.">
+                                <div class="diary_write_list req">
+                                    <div class="tit">오늘의 수훈선수는?</div>
+                                    <input type="text" name="heroName" id="heroName" value="${diary.heroName}" maxlength="100" placeholder="선수 이름을 입력해 주세요.">
+                                </div>
+
+                                <div class="diary_write_list req">
+                                    <div class="tit">경기 한 줄 요약</div>
+                                    <input type="text" name="oneLineComment" id="oneLine" value="${diary.oneLineComment}" maxlength="100" placeholder="오늘 경기의 한 줄 요약을 남겨보세요.">
+                                </div>
+
+                                <div class="diary_write_list req">
+                                    <div class="tit">오늘의 직관 일기</div>
+                                    <textarea name="content" maxlength="1000" placeholder="오늘의 직관 이야기를 들려주세요!">${diary.content}</textarea>
                                 </div>
 
                                 <div class="diary_write_list clr">
-                                    <div class="tit">오늘의 경기를 한 마디로 평가한다면?!</div>
-                                    <input type="text" name="oneLineComment" id="oneLine" value="${diary.oneLineComment}" maxlength="100" placeholder="최대 100자까지 입력하실 수 있습니다.">
-                                </div>
-
-                                <div class="diary_write_list clr">
-                                    <div class="tit">오늘의 경기를 기록해 보세요</div>
-                                    <textarea name="content" maxlength="1000" placeholder="최대 1,000자까지 입력하실 수 있습니다.">${diary.content}</textarea>
-                                </div>
-
-                                <div class="diary_write_list clr">
-                                    <div class="tit">오늘 경기 사진을 올려보세요</div>
+                                    <div class="tit">직관 사진을 올려주세요 <span>(선택)</span></div>
                                     <button type="button" class="btn btn-primary gap-4" onclick="document.getElementById('fileUpload').click();">
                                         사진 변경하기 (최대 4장)
                                         <span><img src="/img/ico_plus.svg" alt="플러스 아이콘"></span>
@@ -161,29 +161,42 @@
                                     <div class="file-mes"><img src="/img/ico_not_mark_blue.svg" alt="주의 아이콘">최대 10MB 의 JPG, PNG만 등록 가능합니다.</div>
                                 </div>
 
-                                <div class="diary_write_list">
-                                    <ul class="disClose">
-                                        <li>
-                                            <label class="check">
-                                                <input type="radio" name="isPublic" value="PUBLIC" ${diary.isPublic eq 'PUBLIC' ? 'checked' : ''}>
-                                                전체공개
-                                            </label>
-                                        </li>
-                                        <li>
-                                            <label class="check">
-                                                <input type="radio" name="isPublic" value="FRIENDS" ${diary.isPublic eq 'FRIENDS' ? 'checked' : ''}>
-                                                맞팔 공개
-                                            </label>
-                                        </li>
-                                        <li>
-                                            <label class="check">
-                                                <input type="radio" name="isPublic" value="PRIVATE" ${diary.isPublic eq 'PRIVATE' ? 'checked' : ''}>
-                                                비공개
-                                            </label>
-                                        </li>
-                                    </ul>
+                                <div class="diary_write_list clr">
+                                    <div class="tit">누구와 함께했나요? <span>(선택)</span></div>
+                                    <div class="check_box">
+                                        <ul>
+                                            <li><label class="${diary.companionType eq 'ALONE' ? 'check' : ''}" onclick="selectCompanion('ALONE', this)"><img src="${diary.companionType eq 'ALONE' ? '/img/check_together01_on.svg' : '/img/check_together01.svg'}" alt=""><button type="button">혼자</button></label></li>
+                                            <li><label class="${diary.companionType eq 'FRIEND' ? 'check' : ''}" onclick="selectCompanion('FRIEND', this)"><img src="${diary.companionType eq 'FRIEND' ? '/img/check_together02_on.svg' : '/img/check_together02.svg'}" alt=""><button type="button">친구</button></label></li>
+                                            <li><label class="${diary.companionType eq 'FAMILY' ? 'check' : ''}" onclick="selectCompanion('FAMILY', this)"><img src="${diary.companionType eq 'FAMILY' ? '/img/check_together03_on.svg' : '/img/check_together03.svg'}" alt=""><button type="button">가족</button></label></li>
+                                            <li><label class="${diary.companionType eq 'COUPLE' ? 'check' : ''}" onclick="selectCompanion('COUPLE', this)"><img src="${diary.companionType eq 'COUPLE' ? '/img/check_together04_on.svg' : '/img/check_together04.svg'}" alt=""><button type="button">연인</button></label></li>
+                                            <li><label class="${diary.companionType eq 'COLLEAGUE' ? 'check' : ''}" onclick="selectCompanion('COLLEAGUE', this)"><img src="${diary.companionType eq 'COLLEAGUE' ? '/img/check_together05_on.svg' : '/img/check_together05.svg'}" alt=""><button type="button">직장동료</button></label></li>
+                                            <li><label class="${diary.companionType eq 'ETC' ? 'check' : ''}" onclick="selectCompanion('ETC', this)"><img src="${diary.companionType eq 'ETC' ? '/img/check_together06_on.svg' : '/img/check_together06.svg'}" alt=""><button type="button">기타</button></label></li>
+                                        </ul>
+                                    </div>
+                                    <div class="tag_box mt-16">
+                                        <div class="flex" style="justify-content: space-between; align-items: center;">
+                                            <div id="taggedFriendsDisplay">
+                                                <c:choose>
+                                                    <c:when test="${not empty diary.taggedMemberList}">
+                                                        <c:forEach var="friend" items="${diary.taggedMemberList}">
+                                                            <span class="tag-badge">@${friend.nickname} <button type="button" onclick="removeTag(${friend.memberId})">✕</button></span>
+                                                        </c:forEach>
+                                                    </c:when>
+                                                    <c:otherwise>함께한 친구를 태그해보세요!</c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                            <a href="javascript:void(0);" class="tag_link" onclick="openFriendTagLayer()">
+                                                <img src="/img/check_tag.svg" alt="">친구 태그하기
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
 
+                                <ul class="disClose">
+                                    <li><label class="check"><input type="radio" name="isPublic" value="PUBLIC" ${diary.isPublic eq 'PUBLIC' ? 'checked' : ''}>전체공개</label></li>
+                                    <li><label class="check"><input type="radio" name="isPublic" value="FRIENDS" ${diary.isPublic eq 'FRIENDS' ? 'checked' : ''}>맞팔 공개</label></li>
+                                    <li><label class="check"><input type="radio" name="isPublic" value="PRIVATE" ${diary.isPublic eq 'PRIVATE' ? 'checked' : ''}>비공개</label></li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -199,12 +212,151 @@
 
     </div>
 
+    <div id="friendTagLayer" class="app" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:#fff; flex-direction:column;">
+
+        <header class="app-header" style="flex-shrink: 0;">
+            <button class="app-header_btn app-header_back" type="button" onclick="closeFriendTagLayer()">
+                <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
+            </button>
+        </header>
+
+        <div class="app-main column" style="flex: 1; overflow-y: auto;">
+            <div class="app-tit">
+                <div class="page-tit">친구 태그하기</div>
+            </div>
+            <div class="page-main_wrap">
+                <div class="history-list mt-24">
+                    <ul class="diary_write_form" id="friendListUl" style="padding-bottom: 20px;">
+                        <li style="text-align:center; padding:30px; color:#999;">로딩 중입니다...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-action bottom-main" style="flex-shrink: 0; background: #fff;">
+            <button type="button" class="btn btn-primary" id="btnCompleteTag" onclick="completeFriendSelection()">
+                선택 완료
+            </button>
+        </div>
+
+    </div>
+
     <%@ include file="../include/popup.jsp" %>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js?v=1.1"></script>
     <script src="/js/app_interface.js"></script>
 
     <script>
+
+        // ----------------------------------------------------
+        // [업데이트] 동행인 UI 관련 및 친구 태그 스크립트
+        // ----------------------------------------------------
+        let selectedFriends = [];
+
+        // 기존에 선택되었던 친구가 있다면 자바스크립트 배열에도 세팅해줍니다.
+        <c:if test="${not empty diary.taggedMemberList}">
+            <c:forEach var="friend" items="${diary.taggedMemberList}">
+                selectedFriends.push({id: ${friend.memberId}, name: '${friend.nickname}'});
+            </c:forEach>
+        </c:if>
+
+        function selectCompanion(type, element) {
+            $('#companionType').val(type);
+            $('.check_box label img').each(function() {
+                let src = $(this).attr('src');
+                if(src.includes('_on.svg')) $(this).attr('src', src.replace('_on.svg', '.svg'));
+            });
+            $('.check_box label').removeClass('check');
+            $(element).addClass('check');
+            let $img = $(element).find('img');
+            $img.attr('src', $img.attr('src').replace('.svg', '_on.svg'));
+        }
+
+        function openFriendTagLayer() {
+            // 디스플레이를 flex로 변경하여 앱 레이아웃 구조(app) 유지
+            $('#friendTagLayer').css('display', 'flex');
+            loadFriends();
+        }
+
+        function closeFriendTagLayer() {
+            $('#friendTagLayer').hide();
+        }
+
+        function loadFriends() {
+            $.get('/diary/api/friends', function(data) {
+                let html = '';
+                if(!data || data.length === 0) {
+                    html = '<li style="text-align:center; padding:30px; color:#999;">팔로우한 친구가 없습니다.</li>';
+                } else {
+                    data.forEach(f => {
+                        let isSelected = selectedFriends.find(x => x.id == f.memberId);
+                        // style.css / base.css에 정의된 .btn.follow 및 .btn.not-follow 규칙 적용
+                        let btnClass = isSelected ? 'btn not-follow w-auto' : 'btn follow w-auto';
+                        let btnText = isSelected ? '선택됨' : '선택';
+
+                        // API에 winRate 필드가 존재할 경우 방어코드 추가 처리
+                        let winRateHtml = (f.winRate !== undefined && f.winRate !== null)
+                            ? `<div class="win_rate">승요력 \${f.winRate}%</div>` : '';
+
+                        html += `<li>
+                            <div class="diary_write_list nodt_line friend_info_wrap bg-gray">
+                                <div class="friend_info">
+                                    <div class="friend_item">
+                                        <div class="name">\${f.nickname}</div>
+                                        <div class="friend_team">\${f.myTeamCode}</div>
+                                    </div>
+                                    \${winRateHtml}
+                                </div>
+                                <div class="follow-btn">
+                                    <button class="\${btnClass}" type="button"
+                                            data-id="\${f.memberId}" data-name="\${f.nickname}"
+                                            onclick="toggleFriendSelect(this)">
+                                        \${btnText}
+                                    </button>
+                                </div>
+                            </div>
+                        </li>`;
+                    });
+                }
+                $('#friendListUl').html(html);
+            });
+        }
+
+        function toggleFriendSelect(btn) {
+            let id = $(btn).data('id');
+            let name = $(btn).data('name');
+
+            if ($(btn).hasClass('not-follow')) {
+                // 선택 해제 상태로 변경
+                $(btn).removeClass('not-follow').addClass('follow').text('선택');
+                selectedFriends = selectedFriends.filter(x => x.id != id);
+            } else {
+                // 선택 상태로 변경
+                $(btn).removeClass('follow').addClass('not-follow').text('선택됨');
+                selectedFriends.push({id: id, name: name});
+            }
+        }
+
+        function completeFriendSelection() {
+            $('#taggedMembers').val(selectedFriends.map(x => x.id).join(','));
+            let tagHtml = '';
+            if (selectedFriends.length > 0) {
+                selectedFriends.forEach(f => {
+                    tagHtml += `<span class="tag-badge">@\${f.name} <button type="button" onclick="removeTag(\${f.id})">✕</button></span>`;
+                });
+                $('#taggedFriendsDisplay').html(tagHtml);
+            } else {
+                $('#taggedFriendsDisplay').html('함께한 친구를 태그해보세요!');
+            }
+            closeFriendTagLayer();
+        }
+
+        function removeTag(id) {
+            selectedFriends = selectedFriends.filter(x => x.id != id);
+            completeFriendSelection(); // UI 강제 업데이트 동기화
+        }
+        // ----------------------------------------------------
+
         let existingImages = [];
         // 서버에서 받아온 콤마 구분자 이미지를 배열에 초기 세팅
         <c:if test="${not empty diary.imageUrl}">

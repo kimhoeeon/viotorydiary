@@ -76,7 +76,7 @@
                       </c:choose>
                   </button>
                   <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete" style="display:none;">
-                      직관 인증완료!
+                      인증 완료
                   </button>
               </div>
           </div>
@@ -153,23 +153,23 @@
                                   </div>
                               </div>
 
-                              <div class="diary_write_list">
-                                  <div class="tit">오늘의 히어로는 누구일까?</div>
-                                  <input type="text" name="heroName" id="heroName" maxlength="100" placeholder="최대 100자까지 입력하실 수 있습니다.">
+                              <div class="diary_write_list req">
+                                  <div class="tit">오늘의 수훈선수는?</div>
+                                  <input type="text" name="heroName" id="heroName" maxlength="100" placeholder="선수 이름을 입력해 주세요.">
                               </div>
 
-                              <div class="diary_write_list">
-                                  <div class="tit">오늘의 경기를 한 마디로 평가한다면?!</div>
-                                  <input type="text" name="oneLineComment" id="oneLine" maxlength="100" placeholder="최대 100자까지 입력하실 수 있습니다.">
+                              <div class="diary_write_list req">
+                                  <div class="tit">경기 한 줄 요약</div>
+                                  <input type="text" name="oneLineComment" id="oneLine" maxlength="100" placeholder="오늘 경기의 한 줄 요약을 남겨보세요.">
                               </div>
 
-                              <div class="diary_write_list">
-                                  <div class="tit">오늘의 경기를 기록해 보세요</div>
-                                  <textarea name="content" maxlength="1000" placeholder="최대 1,000자까지 입력하실 수 있습니다."></textarea>
+                              <div class="diary_write_list req">
+                                  <div class="tit">오늘의 직관 일기</div>
+                                  <textarea name="content" maxlength="1000" placeholder="오늘의 직관 이야기를 들려주세요!"></textarea>
                               </div>
 
-                              <div class="diary_write_list">
-                                  <div class="tit">오늘 경기 사진을 올려보세요</div>
+                              <div class="diary_write_list clr">
+                                  <div class="tit">직관 사진을 올려주세요 <span>(선택)</span></div>
                                   <button type="button" class="btn btn-primary gap-4" onclick="document.getElementById('fileUpload').click();">
                                       사진 올리기 (최대 4장)
                                       <span><img src="/img/ico_plus.svg" alt="플러스 아이콘"></span>
@@ -180,25 +180,32 @@
                                   <div class="file-mes"><img src="/img/ico_not_mark_blue.svg" alt="주의 아이콘">최대 10MB 의 JPG, PNG만 등록 가능합니다.</div>
                               </div>
 
+                              <div class="diary_write_list clr">
+                                  <div class="tit">누구와 함께했나요? <span>(선택)</span></div>
+                                  <div class="check_box">
+                                      <ul>
+                                          <li><label class="check" onclick="selectCompanion('ALONE', this)"><img src="/img/check_together01.svg" alt=""><button type="button">혼자</button></label></li>
+                                          <li><label onclick="selectCompanion('FRIEND', this)"><img src="/img/check_together02.svg" alt=""><button type="button">친구</button></label></li>
+                                          <li><label onclick="selectCompanion('FAMILY', this)"><img src="/img/check_together03.svg" alt=""><button type="button">가족</button></label></li>
+                                          <li><label onclick="selectCompanion('COUPLE', this)"><img src="/img/check_together04.svg" alt=""><button type="button">연인</button></label></li>
+                                          <li><label onclick="selectCompanion('COLLEAGUE', this)"><img src="/img/check_together05.svg" alt=""><button type="button">직장동료</button></label></li>
+                                          <li><label onclick="selectCompanion('ETC', this)"><img src="/img/check_together06.svg" alt=""><button type="button">기타</button></label></li>
+                                      </ul>
+                                  </div>
+                                  <div class="tag_box">
+                                      <div class="flex">
+                                          <div id="taggedFriendsDisplay">함께한 친구를 태그해보세요!</div>
+                                          <a href="javascript:void(0);" class="tag_link" onclick="openFriendTagLayer()">
+                                              <img src="/img/check_tag.svg" alt="">친구 태그하기
+                                          </a>
+                                      </div>
+                                  </div>
+                              </div>
+
                               <ul class="disClose">
-                                  <li>
-                                      <label class="check">
-                                          <input type="radio" name="isPublic" value="PUBLIC" checked>
-                                          전체공개
-                                      </label>
-                                  </li>
-                                  <li>
-                                      <label class="check">
-                                          <input type="radio" name="isPublic" value="FRIENDS">
-                                          맞팔 공개
-                                      </label>
-                                  </li>
-                                  <li>
-                                      <label class="check">
-                                          <input type="radio" name="isPublic" value="PRIVATE">
-                                          비공개
-                                      </label>
-                                  </li>
+                                  <li><label class="check"><input type="radio" name="isPublic" value="PUBLIC" checked>전체공개</label></li>
+                                  <li><label class="check"><input type="radio" name="isPublic" value="FRIENDS">맞팔 공개</label></li>
+                                  <li><label class="check"><input type="radio" name="isPublic" value="PRIVATE">비공개</label></li>
                               </ul>
                           </div>
                       </div>
@@ -226,11 +233,38 @@
 
               <div class="select-sheet_footer">
                   <button type="button" class="btn btn-gray" onclick="closeGameSheet()">취소</button>
-                  <button type="button" class="btn btn-primary" id="selectSheetApply" disabled
-                          onclick="applyGameSelection()">저장
-                  </button>
+                  <button type="button" class="btn btn-primary" id="selectSheetApply" disabled onclick="applyGameSelection()">저장</button>
               </div>
           </div>
+      </div>
+
+  </div>
+
+  <div id="friendTagLayer" class="app" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:#fff; flex-direction:column;">
+
+      <header class="app-header" style="flex-shrink: 0;">
+          <button class="app-header_btn app-header_back" type="button" onclick="closeFriendTagLayer()">
+              <img src="/img/ico_back_arrow.svg" alt="뒤로가기">
+          </button>
+      </header>
+
+      <div class="app-main column" style="flex: 1; overflow-y: auto;">
+          <div class="app-tit">
+              <div class="page-tit">친구 태그하기</div>
+          </div>
+          <div class="page-main_wrap">
+              <div class="history-list mt-24">
+                  <ul class="diary_write_form" id="friendListUl" style="padding-bottom: 20px;">
+                      <li style="text-align:center; padding:30px; color:#999;">로딩 중입니다...</li>
+                  </ul>
+              </div>
+          </div>
+      </div>
+
+      <div class="bottom-action bottom-main" style="flex-shrink: 0; background: #fff;">
+          <button type="button" class="btn btn-primary" id="btnCompleteTag" onclick="completeFriendSelection()">
+              선택 완료
+          </button>
       </div>
 
   </div>
@@ -243,7 +277,6 @@
   <script>
       // 임시 저장용 변수 (팝업 내 선택값)
       let tempSelectedGame = null;
-
       $(document).ready(function () {
           // 초기 로드 시 선택된 경기 UI 세팅
           if ('${targetGameId}' !== '') {
@@ -266,6 +299,95 @@
               $('#btnNext').prop('disabled', false);
           }
       });
+
+      // 동행인 유형 UI 선택 처리
+      function selectCompanion(type, element) {
+          $('#companionType').val(type);
+          $('.check_box label img').each(function() {
+              let src = $(this).attr('src');
+              if(src.includes('_on.svg')) $(this).attr('src', src.replace('_on.svg', '.svg'));
+          });
+          $('.check_box label').removeClass('check');
+          $(element).addClass('check');
+          let $img = $(element).find('img');
+          $img.attr('src', $img.attr('src').replace('.svg', '_on.svg'));
+      }
+
+      // ----------------------------------------------------
+      // 친구 태그 레이어 팝업 로직
+      // ----------------------------------------------------
+      let selectedFriends = [];
+
+      function openFriendTagLayer() {
+          $('#friendTagLayer').show();
+          loadFriends();
+      }
+      function closeFriendTagLayer() {
+          $('#friendTagLayer').hide();
+      }
+
+      function loadFriends() {
+          $.get('/diary/api/friends', function(data) {
+              let html = '';
+              if(!data || data.length === 0) {
+                  html = '<li style="text-align:center; padding:30px; color:#999;">팔로우한 친구가 없습니다.</li>';
+              } else {
+                  data.forEach(f => {
+                      let isSelected = selectedFriends.find(x => x.id == f.memberId);
+                      html += `<li>
+                          <div class="diary_write_list nodt_line friend_info_wrap bg-gray">
+                              <div class="friend_info">
+                                  <div class="friend_item">
+                                      <div class="name">\${f.nickname}</div>
+                                      <div class="friend_team">\${f.myTeamCode}</div>
+                                  </div>
+                              </div>
+                              <div class="follow-btn">
+                                  <button class="btn w-auto \${isSelected ? 'following' : 'follow'}" type="button"
+                                          data-id="\${f.memberId}" data-name="\${f.nickname}"
+                                          onclick="toggleFriendSelect(this)">
+                                      \${isSelected ? '선택됨' : '선택'}
+                                  </button>
+                              </div>
+                          </div>
+                      </li>`;
+                  });
+              }
+              $('#friendListUl').html(html);
+          });
+      }
+
+      function toggleFriendSelect(btn) {
+          let id = $(btn).data('id');
+          let name = $(btn).data('name');
+          if ($(btn).hasClass('following')) {
+              $(btn).removeClass('following').addClass('follow').text('선택');
+              selectedFriends = selectedFriends.filter(x => x.id != id);
+          } else {
+              $(btn).removeClass('follow').addClass('following').text('선택됨');
+              selectedFriends.push({id: id, name: name});
+          }
+      }
+
+      function completeFriendSelection() {
+          $('#taggedMembers').val(selectedFriends.map(x => x.id).join(','));
+          let tagHtml = '';
+          if (selectedFriends.length > 0) {
+              selectedFriends.forEach(f => {
+                  tagHtml += `<span class="tag-badge">@\${f.name} <button type="button" onclick="removeTag(\${f.id})">✕</button></span>`;
+              });
+              $('#taggedFriendsDisplay').html(tagHtml);
+          } else {
+              $('#taggedFriendsDisplay').html('함께한 친구를 태그해보세요!');
+          }
+          closeFriendTagLayer();
+      }
+
+      function removeTag(id) {
+          selectedFriends = selectedFriends.filter(x => x.id != id);
+          completeFriendSelection(); // UI 동기화
+      }
+      // ----------------------------------------------------
 
       // 1. 경기 선택 팝업 열기
       function openGameSheet() {
@@ -398,7 +520,7 @@
 
                   if (now < verifyStart) {
                       isVerifyPos = false;
-                      rejectReason = "인증 시간 전";
+                      rejectReason = "시간 전";
                   } else if (now > verifyEnd) {
                       isVerifyPos = false;
                       rejectReason = "인증 시간 초과";
@@ -516,7 +638,7 @@
                           $btn.text(originalText).prop('disabled', false); // 버튼 복구
                       } else if (res === 'fail:not_yet') {
                           alert('직관 인증은 경기 시작 2시간 전부터 가능합니다.');
-                          $btn.text('인증 시간 전').prop('disabled', true).css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'});
+                          $btn.text('시간 전').prop('disabled', true).css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'});
                       } else if (res === 'fail:timeout') {
                           alert('경기 시작 후 1시간이 지나 직관 인증을 할 수 없습니다.');
                           // 팝업 확인 후 버튼을 아예 막아버림

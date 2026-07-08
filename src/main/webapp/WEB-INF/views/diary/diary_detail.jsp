@@ -86,11 +86,6 @@
                 </c:if>
             </div>
 
-            <ul class="comment">
-                <li>내가 작성한 직관일기를 저장할 수 있어요.</li>
-                <li>이미지로 저장해 친구들과 공유해보세요!</li>
-            </ul>
-
             <div class="page-main_wrap">
                 <div class="history">
                     <div class="history-list mt-24">
@@ -98,23 +93,37 @@
 
                             <div class="card_item inquiry_item">
                                 <div class="location-certify">
-                                    <button class="btn btn-inquiry w-auto" type="button">
-                                        내가 직관한 경기
-                                    </button>
 
-                                    <c:if test="${diary.verified}">
-                                        <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete">
-                                            직관 인증완료!
-                                        </button>
-                                    </c:if>
+                                    <div class="follow">
+                                        <div class="name">${diary.nickname}</div>
 
-                                    <c:if test="${isOwner}">
-                                        <div class="page-down">
-                                            <a href="javascript:void(0);" onclick="captureCard();" class="capture-hide-btn">
-                                                <img src="/img/ico_pagedown.svg" alt="페이지 캡쳐 다운로드">
-                                            </a>
-                                        </div>
-                                    </c:if>
+                                        <c:if test="${!isOwner and not empty sessionScope.loginMember}">
+                                            <c:choose>
+                                                <c:when test="${isFollowing}">
+                                                    <!-- 팔로우 후 -->
+                                                    <button class="btn btn-following w-auto" type="button" onclick="toggleFollow(${diary.memberId}, this)">팔로잉</button>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <!-- 팔로우 전 -->
+                                                    <button class="btn btn-follow w-auto" type="button" onclick="toggleFollow(${diary.memberId}, this)">팔로우</button>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </c:if>
+
+                                        <c:if test="${diary.verified}">
+                                            <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete">
+                                                인증 완료
+                                            </button>
+                                        </c:if>
+
+                                        <c:if test="${isOwner}">
+                                            <div class="page-down">
+                                                <a href="javascript:void(0);" onclick="captureCard();" class="capture-hide-btn">
+                                                    <img src="/img/ico_pagedown.svg" alt="페이지 캡쳐 다운로드">
+                                                </a>
+                                            </div>
+                                        </c:if>
+                                    </div>
                                 </div>
 
                                 <div class="inquiry_img">

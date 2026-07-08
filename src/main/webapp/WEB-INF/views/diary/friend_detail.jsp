@@ -48,6 +48,9 @@
         .result-badge.lose { background-color: #FEE8E8; color: var(--color-danger, #FF4D4D); }
         .result-badge.draw { background-color: #F1F1F1; color: #666; }
         .result-badge.none { background-color: #f5f5f5; color: #999; }
+
+        /* 태그된 친구 뱃지 스타일 추가 */
+        .tag-badge { display: inline-flex; align-items: center; padding: 6px 12px; background: #E8F3FF; color: #2c7fff; border-radius: 6px; font-size: 14px; font-weight: 600; margin-right: 6px; margin-top: 6px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@nolraunsoft/appify-sdk@latest/dist/appify-sdk.min.js"></script>
@@ -195,23 +198,23 @@
                                 </div>
                             </div>
 
-                            <div class="diary_write_list">
-                                <div class="tit">오늘의 히어로는 누구일까?</div>
-                                <input type="text" value="${diary.heroName}" placeholder="최대 100자까지 입력하실 수 있습니다." disabled>
+                            <div class="diary_write_list req">
+                                <div class="tit">오늘의 수훈선수는?</div>
+                                <input type="text" value="${diary.heroName}" placeholder="선수 이름을 입력해 주세요." disabled>
                             </div>
 
-                            <div class="diary_write_list">
-                                <div class="tit">오늘의 경기를 한 마디로 평가한다면?!</div>
-                                <input type="text" value="${diary.oneLineComment}" placeholder="최대 100자까지 입력하실 수 있습니다." disabled>
+                            <div class="diary_write_list req">
+                                <div class="tit">경기 한 줄 요약</div>
+                                <input type="text" value="${diary.oneLineComment}" placeholder="오늘 경기의 한 줄 요약을 남겨보세요." disabled>
                             </div>
 
-                            <div class="diary_write_list">
-                                <div class="tit">오늘의 경기를 기록해 보세요</div>
-                                <textarea placeholder="최대 1,000자까지 입력하실 수 있습니다." disabled style="height: auto; min-height: 120px; background-color: #f9f9f9;">${diary.content}</textarea>
+                            <div class="diary_write_list req">
+                                <div class="tit">오늘의 직관 일기</div>
+                                <textarea placeholder="오늘의 직관 이야기를 들려주세요!" disabled style="height: auto; min-height: 120px; background-color: #f9f9f9;">${diary.content}</textarea>
                             </div>
 
-                            <div class="diary_write_list">
-                                <div class="tit">오늘 경기 사진</div>
+                            <div class="diary_write_list clr">
+                                <div class="tit">직관 사진을 올려주세요 <span>(선택)</span></div>
                                 <c:choose>
                                     <c:when test="${not empty diary.imageUrl}">
                                         <div style="display:flex; flex-direction:column; gap:16px; width:100%;">
@@ -230,6 +233,33 @@
                                     </c:otherwise>
                                 </c:choose>
                             </div>
+
+                            <%-- 동행인 및 태그된 친구 정보 출력 영역 추가 --%>
+                            <c:if test="${not empty diary.companionType or not empty diary.taggedMemberList}">
+                                <div class="diary_write_list clr">
+                                    <div class="tit">누구와 함께했나요?</div>
+                                    <div class="mt-8" style="font-size:14px; color:#333;">
+                                        <c:choose>
+                                            <c:when test="${diary.companionType eq 'ALONE'}">혼자</c:when>
+                                            <c:when test="${diary.companionType eq 'FRIEND'}">친구</c:when>
+                                            <c:when test="${diary.companionType eq 'FAMILY'}">가족</c:when>
+                                            <c:when test="${diary.companionType eq 'COUPLE'}">연인</c:when>
+                                            <c:when test="${diary.companionType eq 'COLLEAGUE'}">직장동료</c:when>
+                                            <c:when test="${diary.companionType eq 'ETC'}">기타</c:when>
+                                        </c:choose>
+
+                                        <c:if test="${not empty diary.taggedMemberList}">
+                                            <div class="tagged-friends-list mt-8">
+                                                <c:forEach var="friend" items="${diary.taggedMemberList}">
+                                                    <span class="tag-badge">
+                                                        @${friend.nickname}
+                                                    </span>
+                                                </c:forEach>
+                                            </div>
+                                        </c:if>
+                                    </div>
+                                </div>
+                            </c:if>
                         </div>
 
                         <div class="card_wrap play_wrap gap-16">

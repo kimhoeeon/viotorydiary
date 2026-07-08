@@ -2,6 +2,7 @@ package com.viotory.diary.vo;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class DiaryVO {
@@ -13,6 +14,9 @@ public class DiaryVO {
     private String memberEmail;
     private String profileImage;    // 작성자 프로필 이미지
     private String snapshotTeamCode; // 작성 당시 응원팀
+    private String companionType;
+    private String taggedMembers;
+    private List<MemberVO> taggedMemberList; // 화면 출력용 조인 리스트
 
     private String imageUrl;
 

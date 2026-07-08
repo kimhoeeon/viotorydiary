@@ -1,6 +1,7 @@
 package com.viotory.diary.service;
 
 import com.viotory.diary.dto.StadiumVisitDTO;
+import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.exception.AlertException;
 import com.viotory.diary.mapper.DiaryMapper;
 import com.viotory.diary.mapper.GameMapper;
@@ -193,10 +194,34 @@ public class DiaryService {
     }
 
     /**
-     * 일기 상세 조회
+     * 일기 상세 조회 (동행인 및 태그된 친구 리스트 매핑 로직 누락분 복구)
      */
+    @Transactional(readOnly = true)
     public DiaryVO getDiary(Long diaryId) {
-        return diaryMapper.selectDiaryById(diaryId);
+        DiaryVO diary = diaryMapper.selectDiaryById(diaryId);
+
+        if (diary != null) {
+            // [태그된 친구 로직] 문자열로 저장된 ID(ex: "10, 15, 23")를 파싱하여 MemberVO 객체 리스트로 매핑
+            String taggedStrs = diary.getTaggedMembers();
+            if (taggedStrs != null && !taggedStrs.trim().isEmpty()) {
+                String[] idsArray = taggedStrs.split(",");
+                List<Long> idsList = new ArrayList<>();
+                for (String idStr : idsArray) {
+                    try {
+                        idsList.add(Long.parseLong(idStr.trim()));
+                    } catch (NumberFormatException e) {
+                        log.error("태그된 친구 ID 파싱 오류 - ID: {}", idStr);
+                    }
+                }
+
+                // 파싱된 ID가 존재하면 DB에서 멤버 정보를 조회하여 세팅
+                if (!idsList.isEmpty()) {
+                    List<MemberVO> taggedFriends = diaryMapper.selectTaggedMembers(idsList);
+                    diary.setTaggedMemberList(taggedFriends);
+                }
+            }
+        }
+        return diary;
     }
 
     // 조회수 증가 처리
@@ -205,20 +230,24 @@ public class DiaryService {
         diaryMapper.updateViewCount(diaryId);
     }
 
+    @Transactional(readOnly = true)
     public List<DiaryVO> getRecentDiaries(Long memberId) {
         return diaryMapper.selectRecentDiaries(memberId);
     }
 
+    @Transactional(readOnly = true)
     public List<DiaryVO> getMyDiaryList(Long memberId) {
         return diaryMapper.selectDiaryList(memberId);
     }
 
     // 친구 일기 조회
+    @Transactional(readOnly = true)
     public List<DiaryVO> getFriendDiaryList(Long memberId) {
         return diaryMapper.selectFriendDiaryList(memberId);
     }
 
     // 방문 구장 현황 (총 9개 구장 기준 방문 여부 boolean 리스트 반환)
+    @Transactional(readOnly = true)
     public List<StadiumVisitDTO> getStadiumVisitStatus(Long memberId) {
         // 1. 내가 방문한(인증된) 구장 ID 목록 조회
         List<Long> visitedIds = diaryMapper.selectVisitedStadiumIds(memberId);
@@ -252,6 +281,7 @@ public class DiaryService {
     }
 
     // 방문한 구장 개수
+    @Transactional(readOnly = true)
     public int getVisitedStadiumCount(Long memberId) {
         return diaryMapper.selectVisitedStadiumIds(memberId).size();
     }
@@ -272,6 +302,7 @@ public class DiaryService {
     }
 
     // 친구 일기 전체 조회
+    @Transactional(readOnly = true)
     public List<DiaryVO> getAllFriendDiaries(Long memberId) {
         return diaryMapper.selectAllFriendDiaries(memberId);
     }
@@ -294,19 +325,23 @@ public class DiaryService {
     }
 
     // 공유 일기 조회 (UUID 기반)
+    @Transactional(readOnly = true)
     public DiaryVO getSharedDiary(String uuid) {
         return diaryMapper.selectDiaryByUuid(uuid);
     }
 
+    @Transactional(readOnly = true)
     public int countTotalDiaries() {
         return diaryMapper.countTotalDiaries();
     }
 
+    @Transactional(readOnly = true)
     public int countTodayDiaries() {
         return diaryMapper.countTodayDiaries();
     }
 
     // 피드 목록 조회 (탭 분기)
+    @Transactional(readOnly = true)
     public List<DiaryVO> getFeedDiaries(Long memberId, String tab) {
         if ("follower".equals(tab)) {
             // 나를 팔로우하는 사람들의 일기
@@ -321,22 +356,25 @@ public class DiaryService {
     }
 
     // 특정 멤버의 공개 일기 조회
+    @Transactional(readOnly = true)
     public List<DiaryVO> getMemberPublicDiaries(Long targetMemberId) {
         return diaryMapper.selectMemberPublicDiaries(targetMemberId);
     }
 
     // 특정 경기와 멤버의 직관일기 단건 조회 (작성 여부 체크용)
+    @Transactional(readOnly = true)
     public DiaryVO getDiaryByMemberAndGame(Long memberId, Long gameId) {
         return diaryMapper.selectDiaryByMemberAndGame(memberId, gameId);
     }
 
     //화면 진입 단계에서 하루 1개 제한 체크
+    @Transactional(readOnly = true)
     public int countDiaryByDate(Long memberId, String gameDate) {
         return diaryMapper.countDiaryByDate(memberId, gameDate);
     }
 
     /**
-     * [신규] 메인 화면용 친구/인기 일기 노출 로직 (PPT 요구사항 반영)
+     * 메인 화면용 친구/인기 일기 노출 로직 (PPT 요구사항 반영)
      * - 친구(팔로우/팔로워)가 0명이면 인기 게시물 노출 (부족하면 랜덤 채움)
      * - 친구가 1명이라도 있으면 기존 방식대로 친구들의 일기 노출
      */
@@ -357,10 +395,27 @@ public class DiaryService {
 
         } else {
             // [Case B] 친구가 있는 경우: 기존 로직(친구가 쓴 일기) 그대로 호출
-            return getFriendDiaryList(memberId);
+            return diaryMapper.selectFriendDiaryList(memberId);
         }
     }
 
+    /**
+     * 내 승요력 랭킹 조회 (필터 추가)
+     */
+    @Transactional(readOnly = true)
+    public WinYoAnalysisDTO getMyWinYoRanking(Long memberId, String season, String teamCode) {
+        return diaryMapper.selectMyWinYoRanking(memberId, season, teamCode);
+    }
+
+    /**
+     * 전체 승요력 TOP 100 랭킹 조회 (필터 추가)
+     */
+    @Transactional(readOnly = true)
+    public List<WinYoAnalysisDTO> getWinYoRankingTop100(String season, String teamCode) {
+        return diaryMapper.selectWinYoRankingTop100(season, teamCode);
+    }
+
+    @Transactional(readOnly = true)
     public int getFriendCount(Long memberId) {
         return diaryMapper.countFollowAndFollower(memberId);
     }
@@ -408,4 +463,8 @@ public class DiaryService {
         return diaryMapper.selectDiaryDatesByMonth(month);
     }
 
+    @Transactional(readOnly = true)
+    public List<MemberVO> getMyFriendsForTag(Long memberId) {
+        return diaryMapper.selectMyFriendsForTag(memberId);
+    }
 }

@@ -101,7 +101,7 @@ public class DiaryController {
                         // 직관 인증 제어: 경기 시작 2시간 전 미만이거나 경기 시작 1시간 이후면 불가
                         if (now.isBefore(gameStart.minusHours(2))) {
                             isVerifyPossible = false;
-                            verifyRejectReason = "인증 시간 전";
+                            verifyRejectReason = "시간 전";
                         } else if (now.isAfter(gameStart.plusHours(1))) {
                             isVerifyPossible = false;
                             verifyRejectReason = "인증 시간 초과";
@@ -387,12 +387,19 @@ public class DiaryController {
             }
         }
 
+        // [추가 구현] 팔로우 여부 확인 (로그인 상태이며, 본인 글이 아닐 경우에만 수행)
+        boolean isFollowing = false;
+        if (loginMember != null && !isOwner) {
+            isFollowing = memberService.isFollowing(loginMember.getMemberId(), diary.getMemberId());
+        }
+
         model.addAttribute("diary", diary);
         model.addAttribute("comments", comments);
         model.addAttribute("isOwner", isOwner);
         model.addAttribute("isEditable", isEditable);
         model.addAttribute("isScoreEditable", isScoreEditable);
         model.addAttribute("lockReason", lockReason);
+        model.addAttribute("isFollowing", isFollowing);
 
         return "diary/diary_detail";
     }
@@ -646,6 +653,14 @@ public class DiaryController {
             log.error("GPS 인증 처리 중 오류", e);
             return "fail:error";
         }
+    }
+
+    @GetMapping("/api/friends")
+    @ResponseBody
+    public List<MemberVO> getMyFriendsForTag(HttpSession session) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return new java.util.ArrayList<>();
+        return diaryService.getMyFriendsForTag(loginMember.getMemberId());
     }
 
     // ==========================================

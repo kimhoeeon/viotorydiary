@@ -60,6 +60,8 @@
             pred_score_home  = #{predScoreHome},
             pred_score_away  = #{predScoreAway},
             image_url        = #{imageUrl},
+            companion_type   = #{companionType},
+            tagged_members   = #{taggedMembers},
             updated_at       = NOW()
         WHERE diary_id = #{diaryId}
           AND member_id = #{memberId}
@@ -73,8 +75,8 @@
                (SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) /
                 NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)) * 100 AS winRate
         FROM diaries d
-                 JOIN games g ON d.game_id = g.game_id
-                 JOIN members m ON d.member_id = m.member_id
+        JOIN games g ON d.game_id = g.game_id
+        JOIN members m ON d.member_id = m.member_id
         WHERE d.is_verified = 1
           AND g.status = 'FINISHED'
           AND d.status != 'INVALID'
@@ -84,6 +86,75 @@
         ORDER BY winGames DESC, winRate DESC
         LIMIT 10
         ]]>
+    </select>
+
+    <select id="selectWinYoRankingTop100" resultType="com.viotory.diary.dto.WinYoAnalysisDTO">
+        SELECT
+            m.member_id AS memberId,
+            m.nickname,
+            m.my_team_code AS myTeamCode,
+            m.profile_image AS profileImage,
+            SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) THEN 1 ELSE 0 END) AS totalGames,
+            IFNULL(ROUND((
+                SUM(CASE WHEN g.winning_team = d.snapshot_team_code THEN 1 ELSE 0 END) /
+                NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)
+            ) * 100, 1), 0) AS winRate,
+            RANK() OVER (
+                ORDER BY IFNULL(ROUND((
+                    SUM(CASE WHEN g.winning_team = d.snapshot_team_code THEN 1 ELSE 0 END) /
+                    NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)
+                ) * 100, 1), 0) DESC,
+                SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) THEN 1 ELSE 0 END) DESC
+            ) AS ranking
+        FROM members m
+        JOIN diaries d ON m.member_id = d.member_id AND d.status = 'COMPLETED' AND d.is_verified = 1
+        JOIN games g ON d.game_id = g.game_id AND g.status = 'FINISHED'
+        WHERE m.status = 'ACTIVE'
+        <if test="season != null and season != ''">
+            AND g.game_date LIKE CONCAT(#{season}, '%')
+        </if>
+        <if test="teamCode != null and teamCode != ''">
+            AND m.my_team_code = #{teamCode}
+        </if>
+        GROUP BY m.member_id, m.nickname, m.my_team_code, m.profile_image
+        HAVING SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) THEN 1 ELSE 0 END) > 0
+        ORDER BY ranking ASC
+        LIMIT 100
+    </select>
+
+    <select id="selectMyWinYoRanking" resultType="com.viotory.diary.dto.WinYoAnalysisDTO">
+        WITH RankingData AS (
+            SELECT
+                m.member_id AS memberId,
+                m.nickname,
+                m.my_team_code AS myTeamCode,
+                m.profile_image AS profileImage,
+                SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) THEN 1 ELSE 0 END) AS totalGames,
+                IFNULL(ROUND((
+                    SUM(CASE WHEN g.winning_team = d.snapshot_team_code THEN 1 ELSE 0 END) /
+                    NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)
+                ) * 100, 1), 0) AS winRate,
+                RANK() OVER (
+                    ORDER BY IFNULL(ROUND((
+                        SUM(CASE WHEN g.winning_team = d.snapshot_team_code THEN 1 ELSE 0 END) /
+                        NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)
+                    ) * 100, 1), 0) DESC,
+                    SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) THEN 1 ELSE 0 END) DESC
+                ) AS ranking
+            FROM members m
+            JOIN diaries d ON m.member_id = d.member_id AND d.status = 'COMPLETED' AND d.is_verified = 1
+            JOIN games g ON d.game_id = g.game_id AND g.status = 'FINISHED'
+            WHERE m.status = 'ACTIVE'
+            <if test="season != null and season != ''">
+                AND g.game_date LIKE CONCAT(#{season}, '%')
+            </if>
+            <if test="teamCode != null and teamCode != ''">
+                AND m.my_team_code = #{teamCode}
+            </if>
+            GROUP BY m.member_id, m.nickname, m.my_team_code, m.profile_image
+            HAVING SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) THEN 1 ELSE 0 END) > 0
+        )
+        SELECT * FROM RankingData WHERE memberId = #{memberId}
     </select>
 
     <select id="selectRecentDiaries" resultType="com.viotory.diary.vo.DiaryVO">
@@ -132,11 +203,13 @@
                              pred_score_home, pred_score_away, pred_hero, hero_name,
                              content, one_line_comment, rating,
                              image_url,
+                             companion_type, tagged_members,
                              is_verified, verified_at, status, is_public, created_at, updated_at)
         VALUES (#{memberId}, #{gameId}, #{snapshotTeamCode},
                 #{predScoreHome}, #{predScoreAway}, #{predHero}, #{heroName},
                 #{content}, #{oneLineComment}, #{rating},
                 #{imageUrl},
+                #{companionType}, #{taggedMembers},
                 #{isVerified}, #{verifiedAt}, 'COMPLETED', IFNULL(#{isPublic}, 'PUBLIC'), NOW(), NOW())
     </insert>
 
@@ -598,6 +671,23 @@
         WHERE g.game_date LIKE CONCAT(#{month}, '%')
           AND d.is_public = 'PUBLIC'
           AND d.status = 'COMPLETED'
+    </select>
+
+    <select id="selectMyFriendsForTag" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT m.member_id, m.nickname, m.my_team_code
+        FROM follows f
+        JOIN members m ON f.following_id = m.member_id
+        WHERE f.follower_id = #{memberId} AND m.status = 'ACTIVE'
+        ORDER BY m.nickname ASC
+    </select>
+
+    <select id="selectTaggedMembers" resultType="com.viotory.diary.vo.MemberVO">
+        SELECT member_id, nickname, my_team_code
+        FROM members
+        WHERE member_id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
 </mapper>

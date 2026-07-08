@@ -156,8 +156,7 @@
                                                 </div>
                                                 <div class="btn-wrap">
                                                     <%-- 일기 작성 여부 체크 (diaryId가 있으면 작성한 것으로 간주) --%>
-                                                    <c:set var="isWritten"
-                                                           value="${not empty todayGame.diaryId and todayGame.diaryId > 0}"/>
+                                                    <c:set var="isWritten" value="${not empty todayGame.diaryId and todayGame.diaryId > 0}"/>
 
                                                     <c:choose>
                                                         <c:when test="${isWritten}">
@@ -170,7 +169,7 @@
                                                         <c:otherwise>
                                                             <a href="/diary/write?gameId=${todayGame.gameId}"
                                                                class="btn btn-primary">
-                                                                직관 인증하기<span><img src="/img/ico_right_arrow.svg" alt=""></span>
+                                                                일기 쓰기<span><img src="/img/ico_right_arrow.svg" alt=""></span>
                                                             </a>
                                                         </c:otherwise>
                                                     </c:choose>

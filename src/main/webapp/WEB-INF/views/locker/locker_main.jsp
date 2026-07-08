@@ -74,22 +74,6 @@
                                         ${winYo.countMessage}
                                     </div>
                                 </c:if>
-                                <div class="live-certify">
-                                    <c:if test="${hasTodayGame}">
-                                        <c:choose>
-                                            <c:when test="${not empty todayDiaryId}">
-                                                <a href="/diary/detail?diaryId=${todayDiaryId}" class="btn btn-primary" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">
-                                                    일기 보기
-                                                </a>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <a href="/diary/write" class="btn btn-primary">
-                                                    직관 인증하기<span><img src="/img/ico_right_arrow.svg" alt=""></span>
-                                                </a>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </c:if>
-                                </div>
 
                                 <ul class="live-score">
                                     <li>
@@ -140,6 +124,10 @@
                                         <img src="/img/score_character04.svg" alt="스코어 캐릭터">
                                     </li>
                                 </ul>
+
+                                <div class="live-certify">
+                                    <a href="/locker/ranking" class="btn btn-primary" id="">내 승요력 순위 보기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>
+                                </div>
                             </div>
                         </div>
 

@@ -94,7 +94,7 @@ public class WinYoController {
     }
 
     /**
-     * [추가] 전체 보기 탭 메인
+     * 전체 보기 탭 메인
      * URL: /diary/all
      */
     @GetMapping("/all")
@@ -113,7 +113,7 @@ public class WinYoController {
     }
 
     /**
-     * [추가] 달력: 날짜별 직관 일기 목록 (AJAX)
+     * 달력: 날짜별 직관 일기 목록 (AJAX)
      */
     @GetMapping("/api/list-by-date")
     @ResponseBody
@@ -127,7 +127,7 @@ public class WinYoController {
     }
 
     /**
-     * [추가] 달력: 월별 일기가 존재하는 날짜 목록 조회 (AJAX)
+     * 달력: 월별 일기가 존재하는 날짜 목록 조회 (AJAX)
      */
     @GetMapping("/api/calendar-dates")
     @ResponseBody

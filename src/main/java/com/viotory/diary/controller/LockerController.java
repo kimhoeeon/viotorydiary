@@ -95,6 +95,37 @@ public class LockerController {
         return "locker/locker_main";
     }
 
+    // 승요 랭킹 페이지 이동
+    @GetMapping("/ranking")
+    public String rankingPage(
+            @RequestParam(value = "season", required = false) String season,
+            @RequestParam(value = "teamCode", required = false) String teamCode,
+            HttpSession session, Model model) {
+
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "redirect:/member/login";
+
+        // 기본값 설정 (시즌 필터가 없을 경우 현재 연도인 2026을 기본으로 설정)
+        if (season == null) {
+            season = "2026";
+        }
+
+        // 1. 내 랭킹 조회
+        WinYoAnalysisDTO myRanking = diaryService.getMyWinYoRanking(loginMember.getMemberId(), season, teamCode);
+
+        // 2. 전체 TOP 100 랭킹 조회
+        List<WinYoAnalysisDTO> top100List = diaryService.getWinYoRankingTop100(season, teamCode);
+
+        model.addAttribute("myRanking", myRanking);
+        model.addAttribute("top100List", top100List);
+
+        // 화면에서 선택 상태를 유지하기 위해 파라미터 다시 전달
+        model.addAttribute("selectedSeason", season);
+        model.addAttribute("selectedTeamCode", teamCode);
+
+        return "locker/ranking";
+    }
+
     // ==========================================
     // 2. 공지사항 (Notice)
     // ==========================================

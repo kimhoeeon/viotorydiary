@@ -106,7 +106,7 @@
 
                                         <c:if test="${diary.verified}">
                                             <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete">
-                                                직관 인증완료!
+                                                인증 완료
                                             </button>
                                         </c:if>
                                     </div>

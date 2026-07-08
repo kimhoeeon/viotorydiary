@@ -506,7 +506,7 @@
                 if (isWritten) {
                     diaryBtnHtml = `<a href="/diary/detail?diaryId=\${game.diaryId}" class="btn btn-primary mt-8" style="background-color:#EBF4FF; color:#1A7CFF; border:none;">일기 보기</a>`;
                 } else {
-                    diaryBtnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn btn-primary mt-8">직관 인증하기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>`;
+                    diaryBtnHtml = `<a href="/diary/write?gameId=\${game.gameId}" class="btn btn-primary mt-8">일기 쓰기<span><img src="/img/ico_right_arrow.svg" alt=""></span></a>`;
                 }
 
                 btnHtml = diaryBtnHtml;
