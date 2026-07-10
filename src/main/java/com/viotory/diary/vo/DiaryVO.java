@@ -62,4 +62,5 @@ public class DiaryVO {
 
     private String homeTeamLogo;
     private String awayTeamLogo;
+
 }

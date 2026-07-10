@@ -639,6 +639,10 @@ public class MemberService {
         // 2) 사용자 정보 조회
         MemberVO kakaoUser = getKakaoUserInfo(accessToken);
 
+        // 2-1) [신규 추가] 카카오톡 채널 추가 여부 조회 (마케팅 수신 동의)
+        String marketingAgree = getKakaoChannelStatus(accessToken);
+        kakaoUser.setMarketingAgree(marketingAgree);
+
         // 3) DB 조회: 이미 가입된 소셜 계정인지 확인
         MemberVO member = memberMapper.selectBySocialId("KAKAO", kakaoUser.getSocialUid());
 
@@ -652,6 +656,9 @@ public class MemberService {
                 if (existingMember.getProfileImage() == null) {
                     existingMember.setProfileImage(kakaoUser.getProfileImage());
                 }
+                // 채널 동의 여부 업데이트
+                existingMember.setMarketingAgree(marketingAgree);
+
                 memberMapper.updateSocialInfo(existingMember);
                 member = existingMember;
             } else {
@@ -662,7 +669,15 @@ public class MemberService {
                 member.setEmail(kakaoUser.getEmail());
                 member.setNickname(kakaoUser.getNickname());
                 member.setProfileImage(kakaoUser.getProfileImage());
+                member.setMarketingAgree(marketingAgree);
             }
+        }else{
+            // [신규 보완] 이미 가입된 소셜 유저가 로그인할 때마다
+            // 프로필 이미지와 카톡 채널 차단/추가 상태를 최신화하여 동기화
+            member.setProfileImage(kakaoUser.getProfileImage());
+            member.setMarketingAgree(marketingAgree);
+
+            memberMapper.updateSocialInfo(member);
         }
 
         return member;
@@ -709,10 +724,6 @@ public class MemberService {
 
         try {
             ResponseEntity<String> response = rt.exchange(reqUrl, HttpMethod.POST, request, String.class);
-
-            // 응답 데이터 로그 출력
-            //log.info("카카오 사용자 정보 응답(Body): {}", response.getBody());
-
             ObjectMapper mapper = new ObjectMapper();
             JsonNode body = mapper.readTree(response.getBody());
 
@@ -740,6 +751,41 @@ public class MemberService {
             log.error("카카오 사용자 정보 조회 실패", e);
             throw new RuntimeException("사용자 정보를 가져오는데 실패했습니다.");
         }
+    }
+
+    // 4. 카카오톡 채널 추가 여부 확인 요청
+    private String getKakaoChannelStatus(String token) {
+        String reqUrl = "https://kapi.kakao.com/v1/api/talk/plusfriends";
+        RestTemplate rt = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + token);
+
+        HttpEntity<String> request = new HttpEntity<>(headers);
+        String marketingAgree = "N"; // 기본값
+
+        try {
+            ResponseEntity<String> response = rt.exchange(reqUrl, HttpMethod.GET, request, String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.getBody());
+            JsonNode plusFriendsNode = root.path("plus_friends");
+
+            // plus_friends 배열을 순회하며 채널 추가 상태 확인
+            if (plusFriendsNode != null && plusFriendsNode.isArray() && plusFriendsNode.size() > 0) {
+                for (JsonNode pf : plusFriendsNode) {
+                    if ("ADDED".equals(pf.path("relation").asText())) {
+                        marketingAgree = "Y";
+                        break;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // 권한이 없거나 미동의 상태인 경우 403 Forbidden 등이 발생할 수 있음
+            // 정상적인 거절/미동의 흐름이므로 N 처리 상태로 넘어감
+            log.warn("카카오 채널 조회 권한 없음 또는 미동의: {}", e.getMessage());
+        }
+
+        return marketingAgree;
     }
 
     /**

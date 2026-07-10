@@ -105,4 +105,13 @@ public interface DiaryMapper {
     // 전체 승요력 TOP 100 랭킹 조회 (필터 추가)
     List<WinYoAnalysisDTO> selectWinYoRankingTop100(@Param("season") String season,
                                                     @Param("teamCode") String teamCode);
+
+    // 사용자가 작성한 완료된 일기 총 개수 (리뷰 조건 체크용)
+    int countMyDiaries(Long memberId);
+
+    // 직관 인증 기록 저장
+    void insertAttendance(@Param("memberId") Long memberId, @Param("gameId") Long gameId);
+
+    // 직관 인증 여부 확인
+    int checkAttendance(@Param("memberId") Long memberId, @Param("gameId") Long gameId);
 }

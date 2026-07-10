@@ -53,49 +53,15 @@ public class DiaryService {
             throw new AlertException("이미 이 경기에 대한 일기를 작성하셨습니다.");
         }
 
-        // 1-2. 하루 최대 1개 작성 제한 체크
-        // 방금 선택한 경기의 날짜 정보를 가져옵니다.
-        GameVO targetGame = gameMapper.selectGameById(diary.getGameId());
-        if (targetGame != null && targetGame.getGameDate() != null) {
-            int dailyCount = diaryMapper.countDiaryByDate(diary.getMemberId(), targetGame.getGameDate());
-            if (dailyCount >= 1) { // 1개 이상이면 차단
-                throw new AlertException("직관 일기는 하루에 1개 경기만 작성할 수 있어요!");
-            }
-
-            // 스코어 입력 가능 시간 백엔드 2중 검증
-            boolean isScoreEditable = true;
-            if ("FINISHED".equals(targetGame.getStatus()) || "CANCELLED".equals(targetGame.getStatus())) {
-                isScoreEditable = false;
-            } else {
-                try {
-                    String timeStr = targetGame.getGameTime();
-                    if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
-                    String dateTimeStr = targetGame.getGameDate() + " " + timeStr;
-                    LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-                    // 경기 시작 1시간 전이 지났으면 스코어 수정 불가
-                    if (LocalDateTime.now().isAfter(gameStart.minusHours(1))) {
-                        isScoreEditable = false;
-                    }
-                } catch (Exception e) {
-                    log.error("경기 시작시간 파싱 오류", e);
-                }
-            }
-
-            // 만약 종료된 경기거나 1시간 지났다면 강제로 스코어 초기화
-            // 1시간 전이 지나서 작성 불가 상태라면, 넘어온 스코어 값을 강제로 Null 처리
-            if (!isScoreEditable) {
-                diary.setPredScoreHome(null);
-                diary.setPredScoreAway(null);
-            }
+        // 일기 저장 직전, attendance 테이블을 뒤져서 인증 이력이 있으면 자동으로 맵핑
+        int isAttended = diaryMapper.checkAttendance(diary.getMemberId(), diary.getGameId());
+        if (isAttended > 0) {
+            diary.setVerified(true);
+            diary.setVerifiedAt(LocalDateTime.now()); // 또는 DB의 verified_at 가져오기
+        } else {
+            diary.setVerified(false);
         }
 
-        // 직관 인증 시, 인증 시간 저장
-        if (diary.isVerified()) {
-            diary.setVerifiedAt(LocalDateTime.now());
-        }
-        
-        // 2. 작성 당시 응원팀 스냅샷 저장
         if (diary.getSnapshotTeamCode() == null) {
             throw new AlertException("응원팀 정보가 없습니다.");
         }
@@ -466,5 +432,19 @@ public class DiaryService {
     @Transactional(readOnly = true)
     public List<MemberVO> getMyFriendsForTag(Long memberId) {
         return diaryMapper.selectMyFriendsForTag(memberId);
+    }
+
+    /**
+     * 사용자의 총 완료 일기 수 조회 (앱 리뷰 팝업 조건용)
+     */
+    @Transactional(readOnly = true)
+    public int getMyDiaryCount(Long memberId) {
+        return diaryMapper.countMyDiaries(memberId);
+    }
+
+    // 직관 인증 내역을 독립 테이블에 저장
+    @Transactional
+    public void saveAttendance(Long memberId, Long gameId) {
+        diaryMapper.insertAttendance(memberId, gameId);
     }
 }

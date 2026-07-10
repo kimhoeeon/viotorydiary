@@ -58,65 +58,17 @@ public class DiaryController {
         }
 
         boolean isScoreEditable = true; // 기본적으로 스코어 작성 가능 상태
-        boolean isVerifyPossible = true; // 기본적으로 직관 인증 가능 상태
-        String verifyRejectReason = ""; // 인증 불가 사유
 
         // 메인에서 '오늘의 경기 기록하기'로 넘어온 경우, 해당 경기 정보를 미리 세팅
         if (gameId != null) {
             GameVO game = gameService.getGameById(gameId);
-
             if (game != null) {
-
-                // 화면 진입 단계에서 하루 1개 제한 체크
-                int dailyCount = diaryService.countDiaryByDate(loginMember.getMemberId(), game.getGameDate());
-                if (dailyCount >= 1) {
-                    response.setContentType("text/html; charset=UTF-8");
-                    PrintWriter out = response.getWriter();
-                    out.println("<script>alert('직관 일기는 하루에 1개 경기만 작성할 수 있어요!'); history.back();</script>");
-                    out.flush();
-                    return null;
-                }
-
                 model.addAttribute("selectedGame", game);
                 model.addAttribute("targetGameId", gameId);
-
-                // 신규 작성 시에도 경기 종료/취소 또는 시작 1시간 이후면 스코어 입력 차단
-                if ("FINISHED".equals(game.getStatus()) || "CANCELLED".equals(game.getStatus())) {
-                    isScoreEditable = false;
-                    isVerifyPossible = false; // 이미 종료되거나 취소된 경기는 인증 불가
-                    verifyRejectReason = "종료된 경기";
-                } else {
-                    try {
-                        String timeStr = game.getGameTime();
-                        if (timeStr != null && timeStr.length() == 5) timeStr += ":00";
-                        String dateTimeStr = game.getGameDate() + " " + timeStr;
-                        LocalDateTime gameStart = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        LocalDateTime now = LocalDateTime.now();
-
-                        // 스코어 편집 제어: 경기 시작 1시간 전이 지났으면 스코어 입력 불가
-                        if (now.isAfter(gameStart.minusHours(1))) {
-                            isScoreEditable = false;
-                        }
-
-                        // 직관 인증 제어: 경기 시작 2시간 전 미만이거나 경기 시작 1시간 이후면 불가
-                        if (now.isBefore(gameStart.minusHours(2))) {
-                            isVerifyPossible = false;
-                            verifyRejectReason = "시간 전";
-                        } else if (now.isAfter(gameStart.plusHours(1))) {
-                            isVerifyPossible = false;
-                            verifyRejectReason = "인증 시간 초과";
-                        }
-
-                    } catch (Exception e) {
-                        log.error("경기 시작시간 파싱 오류", e);
-                    }
-                }
             }
         }
 
         model.addAttribute("isScoreEditable", isScoreEditable);
-        model.addAttribute("isVerifyPossible", isVerifyPossible);
-        model.addAttribute("verifyRejectReason", verifyRejectReason);
 
         return "diary/diary_write"; // views/diary/diary_write.jsp
     }
@@ -313,10 +265,19 @@ public class DiaryController {
 
     // 3. 작성 완료 페이지
     @GetMapping("/complete")
-    public String completePage(@RequestParam("diaryId") Long diaryId, Model model) {
+    public String completePage(@RequestParam("diaryId") Long diaryId, HttpSession session, Model model) {
         // 방금 쓴 일기 정보 조회 (한줄평 등 표시용)
         DiaryVO diary = diaryService.getDiary(diaryId);
         model.addAttribute("diary", diary);
+
+        // 앱 리뷰 노출 조건을 위한 총 일기 횟수 조회
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember != null) {
+            int totalDiaryCount = diaryService.getMyDiaryCount(loginMember.getMemberId());
+            model.addAttribute("totalDiaryCount", totalDiaryCount);
+        } else {
+            model.addAttribute("totalDiaryCount", 0);
+        }
         return "diary/diary_comp";
     }
 
@@ -601,11 +562,22 @@ public class DiaryController {
     @ResponseBody
     public String verifyGps(@RequestParam("gameId") Long gameId,
                             @RequestParam("lat") Double userLat,
-                            @RequestParam("lon") Double userLon) {
+                            @RequestParam("lon") Double userLon,
+                            HttpSession session) {
+
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "fail:login";
+
         try {
             // 1. 경기 정보 조회
             GameVO game = gameService.getGameById(gameId);
             if (game == null) return "fail:game_not_found";
+
+            // 내 응원팀 경기인지 검증
+            String myTeam = loginMember.getMyTeamCode();
+            if (!game.getHomeTeamCode().equals(myTeam) && !game.getAwayTeamCode().equals(myTeam)) {
+                return "fail:not_my_team";
+            }
 
             // 1-1. 취소/종료된 경기는 인증 불가
             if ("CANCELLED".equals(game.getStatus()) || "FINISHED".equals(game.getStatus())) {
@@ -621,9 +593,9 @@ public class DiaryController {
                 LocalDateTime now = LocalDateTime.now();
 
                 if (now.isBefore(gameStart.minusHours(2))) {
-                    return "fail:not_yet"; // 경기 시작 2시간 전보다 이름
-                } else if (now.isAfter(gameStart.plusHours(1))) {
-                    return "fail:timeout"; // 경기 시작 1시간 초과로 인증 불가
+                    return "fail:not_yet"; // 2시간 전보다 이름
+                } else if (now.isAfter(gameStart.plusHours(2))) {
+                    return "fail:timeout"; // 2시간 초과
                 }
             } catch (Exception e) {
                 log.error("GPS 인증 - 경기 시간 파싱 오류", e);
@@ -644,6 +616,8 @@ public class DiaryController {
                     gameId, userLat, userLon, stadium.getName(), String.format("%.2f", distance));
 
             if (distance <= 2.0) { // 2km 이내
+                // 인증 성공 시 game_attendances 테이블에 저장
+                diaryService.saveAttendance(loginMember.getMemberId(), gameId);
                 return "ok"; // 인증 성공
             } else {
                 return "fail:distance"; // 거리가 멉니다

@@ -102,7 +102,16 @@
 
                             <div class="card_wrap game">
                                 <div class="card_item">
-                                    <div class="tit game_tit">오늘 우리팀 경기는?</div>
+                                    <div class="tit game_tit">오늘 우리팀 경기는?
+                                        <c:if test="${not empty todayGames}">
+                                            <div class="location-certify">
+                                                <button class="btn btn-certify w-auto" type="button" id="btnVerifyMain_${todayGames[0].gameId}"
+                                                        onclick="certifyLocationMain(${todayGames[0].gameId})">
+                                                    직관 인증하기
+                                                </button>
+                                            </div>
+                                        </c:if>
+                                    </div>
 
                                     <c:choose>
                                         <c:when test="${not empty todayGames}">
@@ -424,5 +433,114 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/script.js?v=1.1"></script>
     <script src="/js/app_interface.js"></script>
+
+    <script>
+        // [직관 인증 함수]
+        async function certifyLocationMain(gameId) {
+            if (!gameId) {
+                alert('오늘 예정된 경기가 없습니다.');
+                return;
+            }
+
+            // 고유 ID를 통해 특정 게임의 버튼만 상태를 변경
+            const $btn = $('#btnVerifyMain_' + gameId);
+            const originalText = $btn.text();
+
+            // 클릭 즉시 로딩 상태로 변경하여 중복 터치 방지
+            $btn.text('위치 확인 중...').prop('disabled', true).css('opacity', '0.7');
+
+            let lat = 0, lon = 0;
+
+            try {
+                // ----------------------------------------------------
+                // [1] GPS 좌표 획득 로직
+                // ----------------------------------------------------
+                if (typeof appify !== 'undefined' && appify.isWebview) {
+                    const permStatus = await appify.permission.check('location');
+                    if (permStatus === 'denied') {
+                        customConfirm("위치 권한이 필요합니다. 설정으로 이동하시겠습니까?", async function() {
+                            await appify.linking.openSettings();
+                        });
+                        $btn.text(originalText).prop('disabled', false).css('opacity', '1');
+                        return;
+                    } else if (permStatus === 'undetermined') {
+                        const reqStatus = await appify.permission.request('location');
+                        if (reqStatus !== 'granted') throw new Error("권한 요청 거부됨");
+                    }
+
+                    const position = await appify.location.getCurrentPosition();
+                    lat = position.latitude;
+                    lon = position.longitude;
+                } else {
+                    if (!navigator.geolocation) {
+                        alert("위치 정보를 사용할 수 없는 브라우저입니다.");
+                        throw new Error("Geolocation 미지원");
+                    }
+                    const position = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
+                    });
+                    lat = position.coords.latitude;
+                    lon = position.coords.longitude;
+                }
+
+                console.log('좌표 획득 성공: ', lat, lon);
+
+                // ----------------------------------------------------
+                // [2] 백엔드에 인증 요청 (방안 B 테이블 분리 로직 기반)
+                // ----------------------------------------------------
+                $.ajax({
+                    url: '/diary/verify/gps',
+                    type: 'POST',
+                    data: { gameId: gameId, lat: lat, lon: lon },
+                    success: function(res) {
+                        if (res === 'ok') {
+                            alert('직관 인증 성공! 🎉\n나중에 자유롭게 일기를 작성해보세요.');
+
+                            // 성공 시 텍스트 변경 및 회색 비활성화
+                            $btn.text('인증 완료')
+                                .css({'background-color': '#ccc', 'color': '#fff', 'border': 'none', 'cursor': 'not-allowed'})
+                                .prop('disabled', true);
+
+                        } else if (res === 'fail:not_my_team') {
+                            alert('내 응원팀의 경기만 인증할 수 있습니다.');
+                            $btn.text(originalText).prop('disabled', false).css('opacity', '1');
+                        } else if (res === 'fail:distance') {
+                            alert('경기장과 거리가 너무 멀어요! 🏟️\n경기장 근처에서 다시 시도해주세요.');
+                            $btn.text(originalText).prop('disabled', false).css('opacity', '1');
+                        } else if (res === 'fail:not_yet') {
+                            alert('직관 인증은 경기 시작 2시간 전부터 가능합니다.');
+
+                            // 시간 전일 경우 텍스트 변경 및 회색 비활성화
+                            $btn.text('시간 전')
+                                .css({'background-color': '#ccc', 'color': '#fff', 'border': 'none', 'cursor': 'not-allowed'})
+                                .prop('disabled', true);
+
+                        } else if (res === 'fail:timeout') {
+                            alert('경기 시작 후 2시간이 지나 인증이 마감되었습니다.');
+
+                            // 시간 초과 시 텍스트 변경 및 회색 비활성화
+                            $btn.text('시간 초과')
+                                .css({'background-color': '#ccc', 'color': '#fff', 'border': 'none', 'cursor': 'not-allowed'})
+                                .prop('disabled', true);
+
+                        } else {
+                            alert('인증 처리에 실패했습니다.');
+                            $btn.text(originalText).prop('disabled', false).css('opacity', '1');
+                        }
+                    },
+                    error: function() {
+                        alert('서버 통신 중 오류가 발생했습니다.');
+                        $btn.text(originalText).prop('disabled', false).css('opacity', '1');
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+                if (error.message !== "권한 거부됨") {
+                    alert("위치 정보를 가져올 수 없습니다.\n스마트폰의 GPS 기능이 켜져 있는지 확인해주세요.");
+                }
+                $btn.text(originalText).prop('disabled', false).css('opacity', '1');
+            }
+        }
+    </script>
 </body>
 </html>

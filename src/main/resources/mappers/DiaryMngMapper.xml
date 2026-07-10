@@ -29,13 +29,12 @@
         , d.status
         , d.is_public
         , d.is_popular
-        , d.is_verified
+        , IF(ga.attendance_id IS NOT NULL, 1, 0) AS isVerified
+        , ga.verified_at AS verifiedAt
         , d.member_id
         , m.nickname AS memberName
         , m.email AS memberEmail
         , m.profile_image AS profileImage
-
-        -- 경기 관련 정보
         , g.game_date
         , g.status AS gameStatus
         , g.cancel_reason AS cancelReason
@@ -43,8 +42,6 @@
         , g.score_away AS scoreAway
         , t1.name_kr AS homeTeamName
         , t2.name_kr AS awayTeamName
-
-        -- 승요 판별 정보 (타팀 경기 제외 조건 유지)
         , d.snapshot_team_code AS snapshotTeamCode
         , CASE
         WHEN d.snapshot_team_code NOT IN (g.home_team_code, g.away_team_code) THEN 'NONE'
@@ -53,16 +50,14 @@
         WHEN g.winning_team IS NOT NULL THEN 'LOSE'
         ELSE 'NONE'
         END AS gameResult
-
-        -- 예측 관련 정보 (재미용)
         , d.pred_score_home AS predScoreHome
         , d.pred_score_away AS predScoreAway
-
         FROM diaries d
         JOIN members m ON d.member_id = m.member_id
         LEFT JOIN games g ON d.game_id = g.game_id
         LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
         LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+        LEFT JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
         <include refid="criteria"/>
         ORDER BY d.created_at DESC
         LIMIT #{amount} OFFSET ${(pageNum - 1) * amount}
@@ -86,6 +81,8 @@
             g.cancel_reason AS cancelReason,
             g.score_home AS scoreHome,
             g.score_away AS scoreAway,
+            IF(ga.attendance_id IS NOT NULL, 1, 0) AS isVerified,
+            ga.verified_at AS verifiedAt,
             IFNULL(s.short_name, s.name) AS stadiumName,
             t1.name_kr AS homeTeamName,
             t2.name_kr AS awayTeamName,
@@ -105,6 +102,7 @@
                  LEFT JOIN stadiums s ON g.stadium_id = s.stadium_id
                  LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
                  LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+                 LEFT JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
         WHERE d.diary_id = #{diaryId}
     </select>
 
@@ -149,15 +147,22 @@
                    WHEN g.winning_team = 'DRAW' THEN 'DRAW'
                    WHEN g.winning_team IS NOT NULL THEN 'LOSE'
                    ELSE 'NONE'
-                   END AS gameResult
+                   END AS gameResult,
+
+               -- [추가] 인증 상태 컬럼 (DiaryVO 매핑용)
+               IF(ga.attendance_id IS NOT NULL, 1, 0) AS isVerified,
+               ga.verified_at AS verifiedAt
 
         FROM diaries d
                  INNER JOIN games g ON d.game_id = g.game_id
                  INNER JOIN stadiums s ON g.stadium_id = s.stadium_id
                  LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
                  LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
+            -- [추가] 직관 인증 테이블 조인
+                 LEFT JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
         WHERE d.member_id = #{memberId}
-          AND d.is_verified = 1
+          -- [수정] d.is_verified = 1 대신 인증 테이블 데이터 존재 여부 검사
+          AND ga.attendance_id IS NOT NULL
           AND g.status = 'FINISHED'
           AND d.status = 'COMPLETED'
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')

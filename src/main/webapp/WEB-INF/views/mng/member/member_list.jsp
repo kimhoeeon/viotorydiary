@@ -176,6 +176,11 @@
                                                                                     <c:choose>
                                                                                         <c:when test="${item.socialProvider eq 'KAKAO'}">
                                                                                             <span class="badge fs-9 ms-2" style="background-color: #f8df00; color: #3c1e1e;">${item.socialProvider}</span>
+
+                                                                                            <c:if test="${item.marketingAgree eq 'Y'}">
+                                                                                                <span class="badge badge-light-success fs-9 ms-1">채널</span>
+                                                                                            </c:if>
+
                                                                                         </c:when>
                                                                                         <c:when test="${item.socialProvider eq 'APPLE'}">
                                                                                             <span class="badge fs-9 ms-2" style="background-color: #000000; color: #FFFFFF;">${item.socialProvider}</span>

@@ -63,22 +63,6 @@
 
           <div class="app-tit">
               <div class="page-tit">직관일기</div>
-
-              <div class="location-certify">
-                  <button class="btn btn-certify w-auto" type="button" id="btnVerify"
-                          <c:if test="${not empty selectedGame and not isVerifyPossible}">disabled style="background-color:#ccc; border:none; color:#fff; cursor:not-allowed;"</c:if>
-                          onclick="certifyLocation()">
-                      <c:choose>
-                          <c:when test="${not empty selectedGame and not isVerifyPossible}">
-                              ${not empty verifyRejectReason ? verifyRejectReason : '인증 불가'}
-                          </c:when>
-                          <c:otherwise>직관 인증하기</c:otherwise>
-                      </c:choose>
-                  </button>
-                  <button class="btn btn-certify-comp w-auto" type="button" id="verifyComplete" style="display:none;">
-                      인증 완료
-                  </button>
-              </div>
           </div>
 
           <ul class="comment">
@@ -97,7 +81,7 @@
                           <div class="diary_write_form">
 
                               <div class="diary_write_list req clr diary_character">
-                                  <div class="tit">오늘, 직관 가세요?</div>
+                                  <div class="tit">경기 선택하기</div>
                                   <button type="button" class="select-field"
                                           <c:if test="${not isScoreEditable}">disabled style="background-color:#f5f5f5; cursor:not-allowed;"</c:if>
                                           <c:if test="${isScoreEditable}">onclick="openGameSheet()"</c:if> >
@@ -114,7 +98,7 @@
                                   </button>
                               </div>
 
-                              <div class="diary_write_list req clr diary_character yellow" id="scoreInputWrap">
+                              <%--<div class="diary_write_list req clr diary_character yellow" id="scoreInputWrap">
                                   <div class="tit">오늘의 스코어 예상해 본다면?</div>
                                   <div class="card_item">
                                       <div class="game-board">
@@ -130,8 +114,8 @@
                                               <div class="game-score schedule">
                                                   <div class="left-team-score">
                                                       <input type="number" name="predScoreAway" min="0" max="99"
-                                                             <c:if test="${not isScoreEditable}">readonly placeholder="-" style="background-color:transparent; color:#999;"</c:if>
-                                                             <c:if test="${isScoreEditable}">oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0"</c:if> >
+                                                         <c:if test="${not isScoreEditable}">readonly placeholder="-" style="background-color:transparent; color:#999;"</c:if>
+                                                         <c:if test="${isScoreEditable}">oninput="if(this.value > 99) this.value = 99; if(this.value !== '' && this.value < 0) this.value = 0;" placeholder="0"</c:if> >
                                                   </div>
                                                   <div class="game-info-wrap">VS</div>
                                                   <div class="right-team-score">
@@ -151,7 +135,7 @@
                                           </div>
                                       </div>
                                   </div>
-                              </div>
+                              </div>--%>
 
                               <div class="diary_write_list req">
                                   <div class="tit">오늘의 수훈선수는?</div>
@@ -487,184 +471,19 @@
           $('#homeTeamLogo').attr('src', g.homeLogo || '/img/team_default.svg');
 
           // 4. MY 뱃지 표시 제어
-          if (g.awayCode === myTeamCode) $('#awayMyTeam').show();
-          else $('#awayMyTeam').hide();
+          if (g.awayCode === myTeamCode) $('#awayMyTeam').show(); else $('#awayMyTeam').hide();
           if (g.homeCode === myTeamCode) $('#homeMyTeam').show(); else $('#homeMyTeam').hide();
 
-          // 경기 상태에 따른 스코어 입력창 활성/비활성 처리
-          let isEditable = true;
-          let isVerifyPos = true;
-          let rejectReason = "";
-
-          if (g.status === 'FINISHED' || g.status === 'CANCELLED') {
-              isEditable = false;
-              isVerifyPos = false;
-              rejectReason = "종료된 경기";
-          } else {
-              if (g.date && g.time) {
-                  let t = g.time.length === 5 ? g.time + ':00' : g.time;
-                  let start = new Date(g.date + 'T' + t);
-                  let now = new Date();
-
-                  // 스코어 제어: 시작 1시간 전
-                  let editStart = new Date(start.getTime());
-                  editStart.setHours(editStart.getHours() - 1);
-                  if (now > editStart) isEditable = false;
-
-                  // 인증 제어: 시작 2시간 전 미만이거나 1시간 후면 불가
-                  let verifyStart = new Date(start.getTime());
-                  verifyStart.setHours(verifyStart.getHours() - 2);
-
-                  let verifyEnd = new Date(start.getTime());
-                  verifyEnd.setHours(verifyEnd.getHours() + 1);
-
-                  if (now < verifyStart) {
-                      isVerifyPos = false;
-                      rejectReason = "시간 전";
-                  } else if (now > verifyEnd) {
-                      isVerifyPos = false;
-                      rejectReason = "인증 시간 초과";
-                  }
-              }
-          }
-
-          // 인증 버튼 UI 동적 변경
-          if (!isVerifyPos) {
-              $('#btnVerify').prop('disabled', true)
-                  .css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'})
-                  .text(rejectReason);
-          } else {
-              $('#btnVerify').prop('disabled', false)
-                  .css({'background-color':'', 'border':'', 'color':'', 'cursor':'pointer'})
-                  .text('직관 인증하기');
-          }
-
-          window.isScoreEditableDynamic = isEditable;
-          // 전역 플래그 업데이트
-
+          // 모든 시간 및 날짜 제약 로직 완전히 제거 (언제든 스코어 입력 및 작성 가능)
+          // 주석 처리된 UI지만 추후 부활 시 정상 작동을 위해 readonly 속성 해제
           const $scoreAway = $('input[name="predScoreAway"]');
           const $scoreHome = $('input[name="predScoreHome"]');
-
-          if (!isEditable) {
-              $scoreAway.prop('readonly', true).css({'background-color':'transparent', 'color':'#999'}).val('').attr('placeholder', '-');
-              $scoreHome.prop('readonly', true).css({'background-color':'transparent', 'color':'#999'}).val('').attr('placeholder', '-');
-              // 스코어 수정 불가 시 띠를 회색으로 변경
-              $('#scoreInputWrap').removeClass('clr');
-          } else {
-              $scoreAway.prop('readonly', false).css({'background-color':'', 'color':'#000'}).val('').attr('placeholder', '0');
-              $scoreHome.prop('readonly', false).css({'background-color':'', 'color':'#000'}).val('').attr('placeholder', '0');
-              // 스코어 수정 가능 시 띠를 초록색으로 복구
-              $('#scoreInputWrap').addClass('clr');
-          }
+          $scoreAway.prop('readonly', false).css({'background-color':'', 'color':'#000'});
+          $scoreHome.prop('readonly', false).css({'background-color':'', 'color':'#000'});
+          $('#scoreInputWrap').addClass('clr');
 
           $('#btnNext').prop('disabled', false);
           closeGameSheet();
-      }
-
-      // [직관 인증 함수]
-      async function certifyLocation() {
-          // 1. 경기 선택 여부 확인
-          const gameId = $('#gameId').val();
-          if (!gameId) {
-              alert('먼저 경기를 선택해주세요.');
-              openGameSheet();
-              return;
-          }
-
-          // UI 로딩 처리
-          const $btn = $('#btnVerify');
-          const originalText = $btn.text();
-          $btn.text('위치 확인 중...').prop('disabled', true);
-
-          let lat = 0;
-          let lon = 0;
-
-          try {
-              // ----------------------------------------------------
-              // [CASE 1] Appify 앱 환경
-              // ----------------------------------------------------
-              if (typeof appify !== 'undefined' && appify.isWebview) {
-                  // 1) 권한 통합 체크 (문서 19.txt)
-                  const permStatus = await appify.permission.check('location');
-                  if (permStatus === 'denied') {
-                      customConfirm("위치 권한이 필요합니다. 설정으로 이동하시겠습니까?", async function() {
-                          await appify.linking.openSettings();
-                      });
-                      // 팝업이 뜨는 동안 버튼 상태를 원래대로 복구하고 함수 종료 (에러 throw 대신)
-                      $btn.text(originalText).prop('disabled', false);
-                      return;
-                  } else if (permStatus === 'undetermined') {
-                      const reqStatus = await appify.permission.request('location');
-                      if (reqStatus !== 'granted') throw new Error("권한 요청 거부됨");
-                  }
-
-                  // 2) 위치 정보 가져오기 (문서 12.txt)
-                  const position = await appify.location.getCurrentPosition();
-                  lat = position.latitude;
-                  lon = position.longitude;
-              }
-                  // ----------------------------------------------------
-                  // [CASE 2] 일반 모바일 웹 (표준 API)
-              // ----------------------------------------------------
-              else {
-                  if (!navigator.geolocation) {
-                      alert("위치 정보를 사용할 수 없는 브라우저입니다.");
-                      throw new Error("Geolocation 미지원");
-                  }
-                  const position = await new Promise((resolve, reject) => {
-                      navigator.geolocation.getCurrentPosition(resolve, reject, {
-                          enableHighAccuracy: true, timeout: 10000
-                      });
-                  });
-                  lat = position.coords.latitude;
-                  lon = position.coords.longitude;
-              }
-
-              console.log('좌표 획득 성공: ', lat, lon);
-
-              // 3. 서버 검증 요청 (기존 로직 유지)
-              $.ajax({
-                  url: '/diary/verify/gps',
-                  type: 'POST',
-                  data: { gameId: gameId, lat: lat, lon: lon },
-                  success: function(res) {
-                      if (res === 'ok') {
-                          alert('직관 인증 성공! 🎉');
-                          $('#btnVerify').hide();
-                          $('#verifyComplete').show();
-                          $('#isVerified').val('true');
-                      } else if (res === 'fail:distance') {
-                          alert('경기장과 거리가 너무 멀어요! 🏟️\n경기장 근처에서 다시 시도해주세요.');
-                          $btn.text(originalText).prop('disabled', false); // 버튼 복구
-                      } else if (res === 'fail:not_yet') {
-                          alert('직관 인증은 경기 시작 2시간 전부터 가능합니다.');
-                          $btn.text('시간 전').prop('disabled', true).css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'});
-                      } else if (res === 'fail:timeout') {
-                          alert('경기 시작 후 1시간이 지나 직관 인증을 할 수 없습니다.');
-                          // 팝업 확인 후 버튼을 아예 막아버림
-                          $btn.text('인증 시간 초과').prop('disabled', true).css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'});
-                      } else if (res === 'fail:game_ended') {
-                          alert('이미 종료되거나 취소된 경기입니다.');
-                          $btn.text('인증 불가').prop('disabled', true).css({'background-color':'#ccc', 'border':'none', 'color':'#fff', 'cursor':'not-allowed'});
-                      } else {
-                          alert('인증 실패: ' + res);
-                          $btn.text(originalText).prop('disabled', false);
-                      }
-                  },
-                  error: function() {
-                      alert('서버 통신 오류가 발생했습니다.');
-                      $btn.text(originalText).prop('disabled', false);
-                  }
-              });
-
-          } catch (error) {
-              console.error(error);
-              // 앱이 아니거나 단순 오류일 경우 메시지 처리
-              if (error.message !== "권한 거부됨") {
-                  alert("위치 정보를 가져올 수 없습니다.\nGPS가 켜져 있는지 확인해주세요.");
-              }
-              $btn.text(originalText).prop('disabled', false);
-          }
       }
 
       // 3. 이미지 미리보기
@@ -756,21 +575,6 @@
               return;
           }
 
-          // 2) 필수값 체크: 스코어 (작성 가능 기간일 때만 필수 검사)
-          const isScoreEditable = window.isScoreEditableDynamic !== undefined ? window.isScoreEditableDynamic : ${isScoreEditable};
-          if (isScoreEditable) {
-              var scoreHome = $('input[name="predScoreHome"]');
-              var scoreAway = $('input[name="predScoreAway"]');
-
-              if (scoreHome.val() === '' || scoreAway.val() === '') {
-                  alert('예상 스코어를 입력해주세요!', function() {
-                      if(scoreHome.val() === '') scoreHome.focus();
-                      else scoreAway.focus();
-                  });
-                  return;
-              }
-          }
-
           // 폼 전송 직전, 배열에 모아둔 파일들을 실제 input에 옮겨 담기
           const dataTransfer = new DataTransfer();
           selectedFiles.forEach(file => {
@@ -778,24 +582,8 @@
           });
           document.getElementById('fileUpload').files = dataTransfer.files;
 
-          // 3) 직관 인증 여부 확인 (미인증 시 컨펌)
-          const isVerified = $('#isVerified').val();
-
-          if (isVerified !== 'true') {
-              customConfirm("정말로 직관 인증을 하지 않고 저장하시겠어요?\n인증 시, 승률 계산에 반영돼요!",
-                  function() {
-                      // [확인] 제출 진행
-                      $('#diaryForm').submit();
-                  },
-                  function() {
-                      // [취소] 인증 버튼으로 포커스 이동
-                      $('#btnVerify').focus();
-                  }
-              );
-          } else {
-              // 인증된 상태면 바로 제출
-              $('#diaryForm').submit();
-          }
+          // 바로 제출 처리 (DB에서 알아서 인증 여부 매핑됨)
+          $('#diaryForm').submit();
       }
   </script>
 </body>

@@ -343,7 +343,7 @@
         SET social_provider = #{socialProvider},
             social_uid = #{socialUid},
             profile_image = CASE WHEN profile_image IS NULL THEN #{profileImage} ELSE profile_image END,
-            updated_at = NOW()
+            marketing_agree = #{marketingAgree},  updated_at = NOW()
         WHERE email = #{email}
     </update>
 

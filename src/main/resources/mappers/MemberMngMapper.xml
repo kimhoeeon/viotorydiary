@@ -26,6 +26,7 @@
         m.status,
         m.created_at AS createdAt,
         m.social_provider AS socialProvider,
+        m.marketing_agree AS marketingAgree,
 
         -- 1. 직관 횟수 (이번달)
         (SELECT COUNT(d.diary_id)
@@ -86,6 +87,7 @@
                m.status,
                m.created_at                                                                  AS createdAt,
                m.social_provider                                                             AS socialProvider,
+               m.marketing_agree                                                             AS marketingAgree,
 
                (SELECT COUNT(d.diary_id) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
                (SELECT COUNT(d.diary_id) FROM diaries d WHERE d.member_id = m.member_id AND d.is_verified = 1 AND d.status = 'COMPLETED') AS totalAttendanceCount,
