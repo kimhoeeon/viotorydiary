@@ -10,7 +10,12 @@ import java.util.Map;
 @Mapper
 public interface StatsMngMapper {
     // 승률 랭킹 조회 (직관 수 많은 순 or 승률 높은 순)
-    List<UserStatsVO> selectWinRateRanking();
+    List<UserStatsVO> selectWinRateRanking(@Param("sortCol") String sortCol,
+                                           @Param("sortDir") String sortDir,
+                                           @Param("limit") int limit,
+                                           @Param("offset") int offset);
+
+    int getTotalRankingCount();
 
     // [추가] 수동 승률 업데이트 쿼리
     void updateManualWinRate(@Param("memberId") Long memberId, @Param("winRate") Double winRate);

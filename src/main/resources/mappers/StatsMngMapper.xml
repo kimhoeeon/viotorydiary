@@ -4,15 +4,16 @@
 <mapper namespace="com.viotory.diary.mapper.StatsMngMapper">
 
     <select id="selectWinRateRanking" resultType="com.viotory.diary.vo.UserStatsVO">
-        <![CDATA[
         SELECT
-            m.member_id,
+            m.member_id AS memberId,
+            m.email,
             m.nickname,
-            m.my_team_code,
+            m.my_team_code AS myTeamCode,
+            m.manual_win_rate AS manualWinRate,
+            m.updated_at AS updatedAt,
             t.name_kr AS myTeamName,
 
             COUNT(d.diary_id) AS totalGames,
-            -- 타팀 직관 경기는 승무패 카운트에서 완전 제외
             SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) AS winGames,
             SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' AND d.snapshot_team_code != g.winning_team THEN 1 ELSE 0 END) AS loseGames,
             SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team = 'DRAW' THEN 1 ELSE 0 END) AS drawGames
@@ -21,18 +22,54 @@
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
                  LEFT JOIN teams t ON m.my_team_code = t.team_code
-                 -- [추가] 직관 인증 테이블 조인
                  JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
         WHERE d.status = 'COMPLETED'
-          -- [수정] d.is_verified = 1 조건 제거 (JOIN으로 대체)
           AND g.status = 'FINISHED'
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
-        GROUP BY m.member_id
-        HAVING totalGames > 0
-        ORDER BY winGames DESC, totalGames DESC
-        LIMIT 100
-        ]]>
+        GROUP BY
+            m.member_id,
+            m.email,
+            m.nickname,
+            m.my_team_code,
+            m.manual_win_rate,
+            m.updated_at,
+            t.name_kr
+        HAVING totalGames <![CDATA[>]]> 0
+
+        <choose>
+            <when test="sortCol == 'totalGames'">
+                ORDER BY totalGames ${sortDir}, IFNULL(m.manual_win_rate, (winGames / totalGames * 100)) DESC
+            </when>
+            <when test="sortCol == 'winGames'">
+                ORDER BY winGames ${sortDir}, IFNULL(m.manual_win_rate, (winGames / totalGames * 100)) DESC
+            </when>
+            <when test="sortCol == 'winRate'">
+                ORDER BY IFNULL(m.manual_win_rate, (winGames / totalGames * 100)) ${sortDir}, totalGames DESC
+            </when>
+            <otherwise>
+                ORDER BY IFNULL(m.manual_win_rate, (winGames / totalGames * 100)) DESC, totalGames DESC
+            </otherwise>
+        </choose>
+
+        LIMIT #{limit} OFFSET #{offset}
     </select>
+
+    <select id="getTotalRankingCount" resultType="int">
+        SELECT COUNT(DISTINCT m.member_id)
+        FROM diaries d
+        JOIN members m ON d.member_id = m.member_id
+        JOIN games g ON d.game_id = g.game_id
+        JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
+        WHERE d.status = 'COMPLETED'
+          AND g.status = 'FINISHED'
+          AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
+    </select>
+
+    <update id="updateManualWinRate">
+        UPDATE members
+        SET manual_win_rate = #{winRate}, updated_at = NOW()
+        WHERE member_id = #{memberId}
+    </update>
 
     <select id="selectDau" resultType="int">
         SELECT COUNT(DISTINCT member_id)
@@ -50,16 +87,18 @@
 
     <select id="selectTotalAvgWinRate" resultType="double">
         <![CDATA[
-        SELECT
-            IFNULL(
-                    (SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) * 100.0
-                        / NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0))
-                , 0) AS avgWinRate
+        SELECT IFNULL((SUM(CASE
+                               WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND
+                                    d.snapshot_team_code = g.winning_team THEN 1
+                               ELSE 0 END) * 100.0 / NULLIF(SUM(CASE
+                                                                    WHEN d.snapshot_team_code IN
+                                                                         (g.home_team_code, g.away_team_code) AND
+                                                                         g.winning_team IS NOT NULL AND
+                                                                         g.winning_team != 'DRAW' THEN 1
+                                                                    ELSE 0 END), 0)), 0) AS avgWinRate
         FROM diaries d
                  INNER JOIN games g ON d.game_id = g.game_id
-                 -- [추가] 직관 인증 테이블 조인
                  JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
-        -- [수정] d.is_verified = 1 조건 제거 (JOIN으로 대체)
         WHERE g.status = 'FINISHED'
           AND d.status = 'COMPLETED'
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
@@ -79,8 +118,7 @@
 
     <select id="selectWeeklyAccessStats" resultType="map">
         <![CDATA[
-        SELECT DATE_FORMAT(login_date, '%Y-%m-%d') as logDate,
-               COUNT(member_id) as cnt
+        SELECT DATE_FORMAT(login_date, '%Y-%m-%d') as logDate, COUNT(member_id) as cnt
         FROM access_logs
         WHERE login_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
         GROUP BY login_date
@@ -89,20 +127,18 @@
     </select>
 
     <select id="selectMemberStatusStats" resultType="map">
-        SELECT
-            COUNT(*) as total,
-            SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END) as activeCnt,
-            SUM(CASE WHEN status = 'SUSPENDED' THEN 1 ELSE 0 END) as suspendedCnt,
-            SUM(CASE WHEN status = 'WITHDRAWN' THEN 1 ELSE 0 END) as withdrawnCnt
+        SELECT COUNT(*)                                              as total,
+               SUM(CASE WHEN status = 'ACTIVE' THEN 1 ELSE 0 END)    as activeCnt,
+               SUM(CASE WHEN status = 'SUSPENDED' THEN 1 ELSE 0 END) as suspendedCnt,
+               SUM(CASE WHEN status = 'WITHDRAWN' THEN 1 ELSE 0 END) as withdrawnCnt
         FROM members
     </select>
 
     <select id="selectDiaryStatusStats" resultType="map">
-        SELECT
-            COUNT(*) as total,
-            SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completedCnt,
-            SUM(CASE WHEN status = 'DELETED' THEN 1 ELSE 0 END) as deletedCnt,
-            SUM(CASE WHEN status = 'BLIND' THEN 1 ELSE 0 END) as blindCnt
+        SELECT COUNT(*)                                              as total,
+               SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completedCnt,
+               SUM(CASE WHEN status = 'DELETED' THEN 1 ELSE 0 END)   as deletedCnt,
+               SUM(CASE WHEN status = 'BLIND' THEN 1 ELSE 0 END)     as blindCnt
         FROM diaries
     </select>
 

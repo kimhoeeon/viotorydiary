@@ -70,12 +70,21 @@
                         <div id="kt_app_content" class="app-content flex-column-fluid">
                             <div id="kt_app_content_container" class="app-container container-xxl pt-10">
 
-                                <div class="card mb-7">
-                                    <div class="card-body py-4">
-                                        <h3 class="card-title m-0">🏆 직관 승률 랭킹 (TOP 100)</h3>
-                                        <div class="text-muted fs-7 mt-1">회원들의 직관 기록을 바탕으로 집계된 순위입니다. (승리 횟수 우선)</div>
+                                <form id="searchForm" action="/mng/stats/ranking" method="get">
+                                    <input type="hidden" name="pageNum" id="pageNum" value="${page.pageNum}">
+                                    <input type="hidden" name="sortCol" id="sortCol" value="${sortCol}">
+                                    <input type="hidden" name="sortDir" id="sortDir" value="${sortDir}">
+
+                                    <div class="d-flex justify-content-between align-items-center mb-5">
+                                        <h3 class="card-title m-0 fw-bolder">🏆 직관 랭킹 리스트 (총 ${page.total}명)</h3>
+                                        <select name="amount" class="form-select form-select-sm form-select-solid w-125px" onchange="$('#pageNum').val(1); $('#searchForm').submit();">
+                                            <option value="10" ${amount == 10 ? 'selected' : ''}>10개씩 보기</option>
+                                            <option value="30" ${amount == 30 ? 'selected' : ''}>30개씩 보기</option>
+                                            <option value="50" ${amount == 50 ? 'selected' : ''}>50개씩 보기</option>
+                                            <option value="100" ${amount == 100 ? 'selected' : ''}>100개씩 보기</option>
+                                        </select>
                                     </div>
-                                </div>
+                                </form>
 
                                 <div class="card">
                                     <div class="card-body py-4">
@@ -84,48 +93,37 @@
                                                 <thead>
                                                 <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
                                                     <th class="w-80px text-center">순위</th>
-                                                    <th class="min-w-150px">닉네임</th>
-                                                    <th class="min-w-125px text-center">응원 구단</th>
-                                                    <th class="min-w-100px text-center">총 직관</th>
-                                                    <th class="min-w-80px text-center text-primary">승</th>
-                                                    <th class="min-w-80px text-center text-muted">무</th>
-                                                    <th class="min-w-80px text-center text-danger">패</th>
-                                                    <th class="min-w-100px text-center">승률</th>
-                                                    <th class="w-80px text-center">관리</th>
+                                                    <th class="min-w-125px text-center">구단</th>
+                                                    <th class="min-w-150px">아이디</th>
+                                                    <th class="min-w-125px">닉네임</th>
+                                                    <th class="min-w-100px text-center cursor-pointer text-hover-primary" onclick="sortData('totalGames')">
+                                                        직관 경기 수 <i class="ki-duotone ki-arrow-${sortCol == 'totalGames' ? (sortDir == 'ASC' ? 'up' : 'down') : 'up-down'} fs-6 ms-1"></i>
+                                                    </th>
+                                                    <th class="min-w-100px text-center cursor-pointer text-hover-primary" onclick="sortData('winGames')">
+                                                        승리 경기 수 <i class="ki-duotone ki-arrow-${sortCol == 'winGames' ? (sortDir == 'ASC' ? 'up' : 'down') : 'up-down'} fs-6 ms-1"></i>
+                                                    </th>
+                                                    <th class="min-w-100px text-center cursor-pointer text-hover-primary" onclick="sortData('winRate')">
+                                                        승요율 <i class="ki-duotone ki-arrow-${sortCol == 'winRate' ? (sortDir == 'ASC' ? 'up' : 'down') : 'up-down'} fs-6 ms-1"></i>
+                                                    </th>
+                                                    <th class="min-w-125px text-center">수정일시</th>
+                                                    <th class="w-125px text-center">관리</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
-                                                <c:forEach var="item" items="${list}" varStatus="status">
-
+                                                <c:forEach var="item" items="${list}">
                                                     <tr class="hover-elevate-up">
                                                         <td class="text-center">
                                                             <c:choose>
-                                                                <c:when test="${status.count == 1}">
-                                                                    <span class="badge badge-circle w-35px h-35px fs-5 text-white shadow-sm" style="background-color: #FFD700;">1</span>
-                                                                </c:when>
-                                                                <c:when test="${status.count == 2}">
-                                                                    <span class="badge badge-circle w-35px h-35px fs-5 text-white shadow-sm" style="background-color: #C0C0C0;">2</span>
-                                                                </c:when>
-                                                                <c:when test="${status.count == 3}">
-                                                                    <span class="badge badge-circle w-35px h-35px fs-5 text-white shadow-sm" style="background-color: #CD7F32;">3</span>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <span class="fw-bold text-gray-800 fs-5">${status.count}</span>
-                                                                </c:otherwise>
+                                                                <c:when test="${item.ranking == 1}"><span class="badge badge-circle w-35px h-35px fs-5 text-white" style="background-color: #FFD700;">1</span></c:when>
+                                                                <c:when test="${item.ranking == 2}"><span class="badge badge-circle w-35px h-35px fs-5 text-white" style="background-color: #C0C0C0;">2</span></c:when>
+                                                                <c:when test="${item.ranking == 3}"><span class="badge badge-circle w-35px h-35px fs-5 text-white" style="background-color: #CD7F32;">3</span></c:when>
+                                                                <c:otherwise><span class="fw-bold text-gray-800 fs-5">${item.ranking}</span></c:otherwise>
                                                             </c:choose>
-                                                        </td>
-
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <span class="text-gray-800 fw-bold fs-6">${item.nickname}</span>
-                                                            </div>
                                                         </td>
 
                                                         <td class="text-center">
                                                             <c:choose>
-                                                                <c:when test="${empty item.myTeamCode or item.myTeamCode eq 'NONE'}">
-                                                                    <span class="badge badge-light-secondary fw-bold">미설정</span>
-                                                                </c:when>
+                                                                <c:when test="${empty item.myTeamCode or item.myTeamCode eq 'NONE'}"><span class="badge badge-light-secondary fw-bold">미설정</span></c:when>
                                                                 <c:otherwise>
                                                                     <div class="d-flex align-items-center justify-content-center">
                                                                         <div class="symbol symbol-30px symbol-circle me-2 border border-1 border-gray-300">
@@ -137,13 +135,11 @@
                                                             </c:choose>
                                                         </td>
 
-                                                        <td class="text-center">
-                                                            <span class="fw-bold text-dark fs-5">${item.totalGames}</span><span class="text-muted fs-8 ms-1">회</span>
-                                                        </td>
+                                                        <td><span class="text-muted">${item.email}</span></td>
+                                                        <td><span class="text-gray-800 fw-bold fs-6">${item.nickname}</span></td>
 
+                                                        <td class="text-center"><span class="fw-bold text-dark fs-5">${item.totalGames}</span></td>
                                                         <td class="text-center fw-bolder text-primary fs-5">${item.winGames}</td>
-                                                        <td class="text-center fw-bolder text-muted fs-5">${item.drawGames}</td>
-                                                        <td class="text-center fw-bolder text-danger fs-5">${item.loseGames}</td>
 
                                                         <td class="text-center">
                                                             <c:choose>
@@ -161,33 +157,40 @@
                                                             </c:choose>
                                                         </td>
 
+                                                        <td class="text-center text-muted">
+                                                            <fmt:formatDate value="${item.updatedAt}" pattern="yyyy.MM.dd HH:mm"/>
+                                                        </td>
+
                                                         <td class="text-center">
-                                                            <a href="/mng/members/detail?memberId=${item.memberId}"
-                                                               class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm" title="회원 상세조회">
-                                                                <i class="ki-duotone ki-magnifier fs-2">
-                                                                    <span class="path1"></span>
-                                                                    <span class="path2"></span>
-                                                                </i>
-                                                            </a>
-                                                            <button type="button" class="btn btn-icon btn-bg-light btn-active-color-info btn-sm ms-1"
-                                                                    title="승요율 수동 입력"
-                                                                    onclick="openWinRateModal('${item.memberId}', '${item.email}', '${item.nickname}', '${item.myTeamCode}', '${item.myTeamName}', '${item.winRate}')">
-                                                                <i class="ki-duotone ki-pencil fs-2">
-                                                                    <span class="path1"></span><span class="path2"></span>
-                                                                </i>
-                                                            </button>
+                                                            <a href="/mng/members/detail?memberId=${item.memberId}" class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm"><i class="ki-duotone ki-magnifier fs-2"><span class="path1"></span><span class="path2"></span></i></a>
+                                                            <button type="button" class="btn btn-icon btn-bg-light btn-active-color-info btn-sm ms-1" onclick="openWinRateModal('${item.memberId}', '${item.email}', '${item.nickname}', '${item.myTeamCode}', '${item.myTeamName}', '${item.winRate}')"><i class="ki-duotone ki-pencil fs-2"><span class="path1"></span><span class="path2"></span></i></button>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>
-
                                                 <c:if test="${empty list}">
-                                                    <tr>
-                                                        <td colspan="9" class="text-center py-10 text-muted">랭킹 데이터가 없습니다.</td>
-                                                    </tr>
+                                                    <tr><td colspan="9" class="text-center py-10 text-muted">랭킹 데이터가 없습니다.</td></tr>
                                                 </c:if>
                                                 </tbody>
                                             </table>
                                         </div>
+
+                                        <c:if test="${not empty list}">
+                                            <div class="d-flex flex-stack flex-wrap pt-10">
+                                                <div class="fs-6 fw-semibold text-gray-700"></div>
+                                                <ul class="pagination">
+                                                    <c:if test="${page.prev}">
+                                                        <li class="page-item previous"><a href="javascript:goPage(${page.startPage - 1})" class="page-link"><i class="previous"></i></a></li>
+                                                    </c:if>
+                                                    <c:forEach var="num" begin="${page.startPage}" end="${page.endPage}">
+                                                        <li class="page-item ${page.pageNum == num ? 'active' : ''}"><a href="javascript:goPage(${num})" class="page-link">${num}</a></li>
+                                                    </c:forEach>
+                                                    <c:if test="${page.next}">
+                                                        <li class="page-item next"><a href="javascript:goPage(${page.endPage + 1})" class="page-link"><i class="next"></i></a></li>
+                                                    </c:if>
+                                                </ul>
+                                            </div>
+                                        </c:if>
+
                                     </div>
                                 </div>
 
@@ -209,45 +212,32 @@
                     </div>
                 </div>
                 <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
-                    <form id="winRateForm" class="form" action="#">
-                        <input type="hidden" id="modalMemberId" name="memberId">
+                    <form id="winRateForm">
+                        <input type="hidden" id="modalMemberId">
                         <div class="mb-13 text-start">
                             <h2 class="mb-3 text-gray-900 fw-bolder">승요율 입력</h2>
                             <div class="separator mt-4 mb-5 border-gray-200"></div>
-
-                            <div class="d-flex align-items-center mb-5">
-                                <div class="w-100px text-muted fw-semibold fs-6">아이디</div>
-                                <div class="fw-bold text-gray-800 fs-6" id="modalEmail">ssg_victory</div>
-                            </div>
-                            <div class="d-flex align-items-center mb-5">
-                                <div class="w-100px text-muted fw-semibold fs-6">닉네임</div>
-                                <div class="fw-bold text-gray-800 fs-6" id="modalNickname">랜더스V</div>
-                            </div>
+                            <div class="d-flex align-items-center mb-5"><div class="w-100px text-muted fw-semibold fs-6">아이디</div><div class="fw-bold text-gray-800 fs-6" id="modalEmail"></div></div>
+                            <div class="d-flex align-items-center mb-5"><div class="w-100px text-muted fw-semibold fs-6">닉네임</div><div class="fw-bold text-gray-800 fs-6" id="modalNickname"></div></div>
                             <div class="d-flex align-items-center mb-5">
                                 <div class="w-100px text-muted fw-semibold fs-6">구단</div>
                                 <div class="d-flex align-items-center">
-                                    <div class="symbol symbol-20px symbol-circle me-2">
-                                        <img id="modalTeamLogo" src="/img/logo/logo_ssg.svg" alt="로고">
-                                    </div>
-                                    <span class="fw-bold text-gray-800 fs-6" id="modalTeamName">SSG 랜더스</span>
+                                    <div class="symbol symbol-20px symbol-circle me-2"><img id="modalTeamLogo" src="" alt="로고"></div>
+                                    <span class="fw-bold text-gray-800 fs-6" id="modalTeamName"></span>
                                 </div>
                             </div>
-
                             <div class="separator mt-5 mb-5 border-gray-200"></div>
-
                             <div class="d-flex align-items-center">
                                 <div class="w-100px text-muted fw-semibold fs-6">승요율</div>
                                 <div class="input-group input-group-sm input-group-solid border border-gray-300 rounded" style="width: 150px; background-color: #fff;">
-                                    <input type="number" class="form-control form-control-sm text-end pe-2 fs-6 fw-bold text-gray-800 bg-white" id="modalWinRate" min="0" max="100" step="0.1" value="61.1">
+                                    <input type="number" class="form-control form-control-sm text-end pe-2 fs-6 fw-bold text-gray-800 bg-white" id="modalWinRate" min="0" max="100" step="0.1">
                                     <span class="input-group-text bg-light text-gray-600 border-start border-gray-300">%</span>
                                 </div>
                             </div>
                         </div>
                         <div class="text-center d-flex justify-content-center gap-3">
                             <button type="button" class="btn btn-light w-50" data-bs-dismiss="modal">취소</button>
-                            <button type="button" class="btn w-50 text-white" style="background-color: #0095E8;" onclick="submitWinRate()">
-                                <span class="indicator-label fw-bold">저장</span>
-                            </button>
+                            <button type="button" class="btn w-50 text-white" style="background-color: #0095E8;" onclick="submitWinRate()">저장</button>
                         </div>
                     </form>
                 </div>
@@ -259,6 +249,28 @@
     <script src="/assets/js/scripts.bundle.js"></script>
 
     <script>
+        // 정렬 이벤트
+        function sortData(col) {
+            let form = $('#searchForm');
+            let currentSortCol = form.find('#sortCol').val();
+            let currentSortDir = form.find('#sortDir').val();
+
+            if (currentSortCol === col) {
+                form.find('#sortDir').val(currentSortDir === 'ASC' ? 'DESC' : 'ASC');
+            } else {
+                form.find('#sortCol').val(col);
+                form.find('#sortDir').val('DESC'); // 새 컬럼 선택시 무조건 DESC(가장 높은순)부터
+            }
+            form.find('#pageNum').val(1);
+            form.submit();
+        }
+
+        // 페이지 이동
+        function goPage(page) {
+            $('#pageNum').val(page);
+            $('#searchForm').submit();
+        }
+
         // 모달 열기 및 데이터 세팅
         function openWinRateModal(memberId, email, nickname, teamCode, teamName, currentRate) {
             $('#modalMemberId').val(memberId);

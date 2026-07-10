@@ -6,6 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/mng/stats")
 @RequiredArgsConstructor
@@ -15,8 +17,21 @@ public class StatsMngController {
 
     // 직관 랭킹 페이지
     @GetMapping("/ranking")
-    public String rankingList(Model model) {
-        model.addAttribute("list", statsMngService.getRankingList());
+    public String rankingList(
+            @RequestParam(value = "pageNum", defaultValue = "1") int pageNum,
+            @RequestParam(value = "amount", defaultValue = "10") int amount,
+            @RequestParam(value = "sortCol", defaultValue = "winRate") String sortCol,
+            @RequestParam(value = "sortDir", defaultValue = "DESC") String sortDir,
+            Model model) {
+
+        Map<String, Object> result = statsMngService.getRankingList(pageNum, amount, sortCol, sortDir);
+
+        model.addAttribute("list", result.get("list"));
+        model.addAttribute("page", result.get("page"));
+        model.addAttribute("sortCol", sortCol);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("amount", amount);
+
         return "mng/stats/ranking_list";
     }
 
