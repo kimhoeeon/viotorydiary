@@ -4,8 +4,7 @@ import com.viotory.diary.service.StatsMngService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/mng/stats")
@@ -19,5 +18,18 @@ public class StatsMngController {
     public String rankingList(Model model) {
         model.addAttribute("list", statsMngService.getRankingList());
         return "mng/stats/ranking_list";
+    }
+
+    // 관리자 승요율 수동 입력/수정
+    @PostMapping("/update-win-rate")
+    @ResponseBody
+    public String updateManualWinRate(@RequestParam("memberId") Long memberId,
+                                      @RequestParam("winRate") Double winRate) {
+        try {
+            statsMngService.updateManualWinRate(memberId, winRate);
+            return "ok";
+        } catch (Exception e) {
+            return "fail";
+        }
     }
 }

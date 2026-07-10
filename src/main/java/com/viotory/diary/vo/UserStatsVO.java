@@ -16,4 +16,7 @@ public class UserStatsVO {
 
     private double winRate;      // 승률 (%)
     private int ranking;         // 순위
+
+    private String email;          // 아이디 (이메일)
+    private Double manualWinRate;  // 수동 입력 승요율
 }

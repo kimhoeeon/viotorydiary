@@ -61,7 +61,7 @@
                         <option value="2024" ${selectedSeason eq '2024' ? 'selected' : ''}>2024 시즌</option>
                     </select>
                     <select name="teamCode" id="teamSelect" onchange="filterRanking()">
-                        <option value="" ${empty selectedTeamCode ? 'selected' : ''}>전체 구단</option>
+                        <option value="" ${empty selectedTeamCode ? 'selected' : ''}>전체보기</option>
                         <option value="SAMSUNG" ${selectedTeamCode eq 'SAMSUNG' ? 'selected' : ''}>삼성</option>
                         <option value="LG" ${selectedTeamCode eq 'LG' ? 'selected' : ''}>LG</option>
                         <option value="DOOSAN" ${selectedTeamCode eq 'DOOSAN' ? 'selected' : ''}>두산</option>
@@ -119,38 +119,40 @@
                                 </div>
                             </c:forEach>
 
-                            <div class="card_item rank-item my-rank">
-                                <div class="rank-board">
-                                    <div class="tit">나의 승요랭킹</div>
-                                    <c:choose>
-                                        <c:when test="${not empty myRanking and myRanking.ranking > 0}">
-                                            <div class="row">
-                                                <div class="rank_team">
-                                                    <div class="rank-badge">${myRanking.ranking}위</div>
-                                                    <div class="rank-profile">
-                                                        <img src="/img/logo_${fn:toLowerCase(myRanking.myTeamCode)}.svg" alt="${myRanking.myTeamCode}" onerror="this.src='/img/team_default.svg'">
-                                                        <div>
-                                                            <div class="name">${myRanking.nickname}</div>
-                                                            <div class="match">직관 ${myRanking.totalGames}경기</div>
+                            <c:if test="${empty selectedTeamCode or selectedTeamCode eq sessionScope.loginMember.myTeamCode}">
+                                <div class="card_item rank-item my-rank">
+                                    <div class="rank-board">
+                                        <div class="tit">나의 승요랭킹</div>
+                                        <c:choose>
+                                            <c:when test="${not empty myRanking and myRanking.ranking > 0}">
+                                                <div class="row">
+                                                    <div class="rank_team">
+                                                        <div class="rank-badge">${myRanking.ranking}위</div>
+                                                        <div class="rank-profile">
+                                                            <img src="/img/logo_${fn:toLowerCase(myRanking.myTeamCode)}.svg" alt="${myRanking.myTeamCode}" onerror="this.src='/img/team_default.svg'">
+                                                            <div>
+                                                                <div class="name">${myRanking.nickname}</div>
+                                                                <div class="match">직관 ${myRanking.totalGames}경기</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="rank_rate">
+                                                        <div class="txt">승률</div>
+                                                        <div class="rate_number">
+                                                            <fmt:formatNumber value="${myRanking.winRate}" pattern="#,##0.#"/>%
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="rank_rate">
-                                                    <div class="txt">승률</div>
-                                                    <div class="rate_number">
-                                                        <fmt:formatNumber value="${myRanking.winRate}" pattern="#,##0.#"/>%
-                                                    </div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div class="row" style="justify-content: center; padding: 20px 0; color: #999;">
+                                                    해당 조건에 집계된 직관 기록이 없습니다.
                                                 </div>
-                                            </div>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="row" style="justify-content: center; padding: 20px 0; color: #999;">
-                                                해당 조건에 집계된 직관 기록이 없습니다.
-                                            </div>
-                                        </c:otherwise>
-                                    </c:choose>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
                                 </div>
-                            </div>
+                            </c:if>
 
                             <c:forEach var="rank" items="${top100List}" begin="3" varStatus="status">
 
@@ -178,7 +180,7 @@
                                 </div>
 
                                 <c:if test="${status.last}">
-                                        </div>
+                                    </div>
                                     </div>
                                 </c:if>
 

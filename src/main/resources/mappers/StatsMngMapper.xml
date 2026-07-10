@@ -21,8 +21,10 @@
                  JOIN members m ON d.member_id = m.member_id
                  JOIN games g ON d.game_id = g.game_id
                  LEFT JOIN teams t ON m.my_team_code = t.team_code
+                 -- [추가] 직관 인증 테이블 조인
+                 JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
         WHERE d.status = 'COMPLETED'
-          AND d.is_verified = 1
+          -- [수정] d.is_verified = 1 조건 제거 (JOIN으로 대체)
           AND g.status = 'FINISHED'
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
         GROUP BY m.member_id
@@ -55,8 +57,10 @@
                 , 0) AS avgWinRate
         FROM diaries d
                  INNER JOIN games g ON d.game_id = g.game_id
-        WHERE d.is_verified = 1
-          AND g.status = 'FINISHED'
+                 -- [추가] 직관 인증 테이블 조인
+                 JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
+        -- [수정] d.is_verified = 1 조건 제거 (JOIN으로 대체)
+        WHERE g.status = 'FINISHED'
           AND d.status = 'COMPLETED'
           AND g.game_type IN ('REGULAR', 'POST', 'EXHIBITION')
         ]]>

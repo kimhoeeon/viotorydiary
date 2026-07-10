@@ -96,11 +96,6 @@
                                                 </thead>
                                                 <tbody class="text-gray-600 fw-semibold">
                                                 <c:forEach var="item" items="${list}" varStatus="status">
-                                                    <c:set var="validGames" value="${item.winGames + item.loseGames}" />
-                                                    <c:set var="calcWinRate" value="0.0" />
-                                                    <c:if test="${validGames > 0}">
-                                                        <c:set var="calcWinRate" value="${(item.winGames * 100.0) / validGames}" />
-                                                    </c:if>
 
                                                     <tr class="hover-elevate-up">
                                                         <td class="text-center">
@@ -151,9 +146,19 @@
                                                         <td class="text-center fw-bolder text-danger fs-5">${item.loseGames}</td>
 
                                                         <td class="text-center">
-                                                            <span class="badge badge-light-primary fw-bolder fs-6 px-3 py-2">
-                                                                <fmt:formatNumber value="${calcWinRate}" pattern="0.0"/>%
-                                                            </span>
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.manualWinRate}">
+                                                                    <span class="badge fw-bolder fs-6 px-3 py-2" style="background-color: #E8FFF3; color: #0095E8;">
+                                                                        <fmt:formatNumber value="${item.winRate}" pattern="0.0"/>%
+                                                                    </span>
+                                                                    <div class="fs-9 text-muted mt-1">(수동)</div>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <span class="badge badge-light-primary fw-bolder fs-6 px-3 py-2">
+                                                                        <fmt:formatNumber value="${item.winRate}" pattern="0.0"/>%
+                                                                    </span>
+                                                                </c:otherwise>
+                                                            </c:choose>
                                                         </td>
 
                                                         <td class="text-center">
@@ -164,6 +169,13 @@
                                                                     <span class="path2"></span>
                                                                 </i>
                                                             </a>
+                                                            <button type="button" class="btn btn-icon btn-bg-light btn-active-color-info btn-sm ms-1"
+                                                                    title="승요율 수동 입력"
+                                                                    onclick="openWinRateModal('${item.memberId}', '${item.email}', '${item.nickname}', '${item.myTeamCode}', '${item.myTeamName}', '${item.winRate}')">
+                                                                <i class="ki-duotone ki-pencil fs-2">
+                                                                    <span class="path1"></span><span class="path2"></span>
+                                                                </i>
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 </c:forEach>
@@ -187,7 +199,142 @@
         </div>
     </div>
 
+    <!-- 승요율 입력 모달 -->
+    <div class="modal fade" id="winRateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-400px">
+            <div class="modal-content rounded-4">
+                <div class="modal-header pb-0 border-0 justify-content-end">
+                    <div class="btn btn-sm btn-icon btn-active-color-primary" data-bs-dismiss="modal">
+                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                    </div>
+                </div>
+                <div class="modal-body scroll-y px-10 px-lg-15 pt-0 pb-15">
+                    <form id="winRateForm" class="form" action="#">
+                        <input type="hidden" id="modalMemberId" name="memberId">
+                        <div class="mb-13 text-start">
+                            <h2 class="mb-3 text-gray-900 fw-bolder">승요율 입력</h2>
+                            <div class="separator mt-4 mb-5 border-gray-200"></div>
+
+                            <div class="d-flex align-items-center mb-5">
+                                <div class="w-100px text-muted fw-semibold fs-6">아이디</div>
+                                <div class="fw-bold text-gray-800 fs-6" id="modalEmail">ssg_victory</div>
+                            </div>
+                            <div class="d-flex align-items-center mb-5">
+                                <div class="w-100px text-muted fw-semibold fs-6">닉네임</div>
+                                <div class="fw-bold text-gray-800 fs-6" id="modalNickname">랜더스V</div>
+                            </div>
+                            <div class="d-flex align-items-center mb-5">
+                                <div class="w-100px text-muted fw-semibold fs-6">구단</div>
+                                <div class="d-flex align-items-center">
+                                    <div class="symbol symbol-20px symbol-circle me-2">
+                                        <img id="modalTeamLogo" src="/img/logo/logo_ssg.svg" alt="로고">
+                                    </div>
+                                    <span class="fw-bold text-gray-800 fs-6" id="modalTeamName">SSG 랜더스</span>
+                                </div>
+                            </div>
+
+                            <div class="separator mt-5 mb-5 border-gray-200"></div>
+
+                            <div class="d-flex align-items-center">
+                                <div class="w-100px text-muted fw-semibold fs-6">승요율</div>
+                                <div class="input-group input-group-sm input-group-solid border border-gray-300 rounded" style="width: 150px; background-color: #fff;">
+                                    <input type="number" class="form-control form-control-sm text-end pe-2 fs-6 fw-bold text-gray-800 bg-white" id="modalWinRate" min="0" max="100" step="0.1" value="61.1">
+                                    <span class="input-group-text bg-light text-gray-600 border-start border-gray-300">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center d-flex justify-content-center gap-3">
+                            <button type="button" class="btn btn-light w-50" data-bs-dismiss="modal">취소</button>
+                            <button type="button" class="btn w-50 text-white" style="background-color: #0095E8;" onclick="submitWinRate()">
+                                <span class="indicator-label fw-bold">저장</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/assets/plugins/global/plugins.bundle.js"></script>
     <script src="/assets/js/scripts.bundle.js"></script>
+
+    <script>
+        // 모달 열기 및 데이터 세팅
+        function openWinRateModal(memberId, email, nickname, teamCode, teamName, currentRate) {
+            $('#modalMemberId').val(memberId);
+            $('#modalEmail').text(email);
+            $('#modalNickname').text(nickname);
+            $('#modalTeamName').text(teamName);
+
+            // 로고 이미지 처리
+            if (teamCode && teamCode !== 'NONE') {
+                $('#modalTeamLogo').attr('src', '/img/logo/logo_' + teamCode.toLowerCase() + '.svg').parent().show();
+            } else {
+                $('#modalTeamLogo').parent().hide();
+                $('#modalTeamName').text('미설정');
+            }
+
+            // 현재 승요율 세팅
+            $('#modalWinRate').val(currentRate);
+
+            $('#winRateModal').modal('show');
+        }
+
+        // 승요율 저장 AJAX 통신
+        function submitWinRate() {
+            const memberId = $('#modalMemberId').val();
+            let winRate = $('#modalWinRate').val();
+
+            if(winRate === '' || winRate < 0 || winRate > 100) {
+                Swal.fire({
+                    text: "0에서 100 사이의 올바른 승요율을 입력해주세요.",
+                    icon: "warning",
+                    buttonsStyling: false,
+                    confirmButtonText: "확인",
+                    customClass: { confirmButton: "btn btn-primary" }
+                });
+                return;
+            }
+
+            $.ajax({
+                url: '/mng/stats/update-win-rate',
+                type: 'POST',
+                data: {
+                    memberId: memberId,
+                    winRate: winRate
+                },
+                success: function(res) {
+                    if (res === 'ok') {
+                        Swal.fire({
+                            text: "승요율이 저장되었습니다.",
+                            icon: "success",
+                            buttonsStyling: false,
+                            confirmButtonText: "확인",
+                            customClass: { confirmButton: "btn btn-primary" }
+                        }).then(function() {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            text: "저장에 실패했습니다.",
+                            icon: "error",
+                            buttonsStyling: false,
+                            confirmButtonText: "확인",
+                            customClass: { confirmButton: "btn btn-danger" }
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        text: "통신 중 오류가 발생했습니다.",
+                        icon: "error",
+                        buttonsStyling: false,
+                        confirmButtonText: "확인",
+                        customClass: { confirmButton: "btn btn-danger" }
+                    });
+                }
+            });
+        }
+    </script>
 </body>
 </html>
