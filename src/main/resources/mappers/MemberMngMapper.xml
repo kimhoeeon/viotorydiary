@@ -28,12 +28,13 @@
         m.social_provider AS socialProvider,
         m.marketing_agree AS marketingAgree,
 
-        -- 1. 직관 횟수 (이번달)
+        -- 1. 직관 횟수 (이번달) : 인증 테이블 JOIN
         (SELECT COUNT(d.diary_id)
         FROM diaries d
         JOIN games g ON d.game_id = g.game_id
+        JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
         WHERE d.member_id = m.member_id
-        AND d.is_verified = 1
+        AND ga.attendance_id IS NOT NULL
         AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
         AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
 
@@ -43,17 +44,17 @@
         -- 3. 팔로워 수 (나를 팔로우하는 사람)
         (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-        -- 승요 정보 (타팀 경기 제외 조건 추가: IN (home, away))
-        (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id
-        WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED'
+        -- 승요 정보 (타팀 경기 제외 조건 추가: IN (home, away)) : 인증 테이블 JOIN 반영
+        (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id JOIN game_attendances ga2 ON d2.member_id = ga2.member_id AND d2.game_id = ga2.game_id
+        WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND ga2.attendance_id IS NOT NULL AND g2.status = 'FINISHED'
         AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND d2.snapshot_team_code = g2.winning_team) AS winCount,
 
-        (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id
-        WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED'
+        (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id JOIN game_attendances ga2 ON d2.member_id = ga2.member_id AND d2.game_id = ga2.game_id
+        WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND ga2.attendance_id IS NOT NULL AND g2.status = 'FINISHED'
         AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
 
-        (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id
-        WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED'
+        (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id JOIN game_attendances ga2 ON d2.member_id = ga2.member_id AND d2.game_id = ga2.game_id
+        WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND ga2.attendance_id IS NOT NULL AND g2.status = 'FINISHED'
         AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team = 'DRAW') AS drawCount
 
         FROM members m
@@ -89,23 +90,25 @@
                m.social_provider                                                             AS socialProvider,
                m.marketing_agree                                                             AS marketingAgree,
 
-               (SELECT COUNT(d.diary_id) FROM diaries d JOIN games g ON d.game_id = g.game_id WHERE d.member_id = m.member_id AND d.is_verified = 1 AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
-               (SELECT COUNT(d.diary_id) FROM diaries d WHERE d.member_id = m.member_id AND d.is_verified = 1 AND d.status = 'COMPLETED') AS totalAttendanceCount,
+               -- [수정] 서브쿼리에 인증 테이블 JOIN 주입
+               (SELECT COUNT(d.diary_id) FROM diaries d JOIN games g ON d.game_id = g.game_id JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id WHERE d.member_id = m.member_id AND ga.attendance_id IS NOT NULL AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') AND d.status = 'COMPLETED') AS monthlyAttendanceCount,
+               (SELECT COUNT(d.diary_id) FROM diaries d JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id WHERE d.member_id = m.member_id AND ga.attendance_id IS NOT NULL AND d.status = 'COMPLETED') AS totalAttendanceCount,
 
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id) AS followingCount,
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
                (SELECT COUNT(f1.follow_id) FROM follows f1 JOIN follows f2 ON f1.follower_id = f2.following_id AND f1.following_id = f2.follower_id WHERE f1.follower_id = m.member_id) AS mutualFollowCount,
 
                -- 승요 정보 (타팀 경기 제외 조건 추가: IN (home, away))
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND d2.snapshot_team_code = g2.winning_team) AS winCount,
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team = 'DRAW') AS drawCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id JOIN game_attendances ga2 ON d2.member_id = ga2.member_id AND d2.game_id = ga2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND ga2.attendance_id IS NOT NULL AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND d2.snapshot_team_code = g2.winning_team) AS winCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id JOIN game_attendances ga2 ON d2.member_id = ga2.member_id AND d2.game_id = ga2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND ga2.attendance_id IS NOT NULL AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id JOIN game_attendances ga2 ON d2.member_id = ga2.member_id AND d2.game_id = ga2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND ga2.attendance_id IS NOT NULL AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team = 'DRAW') AS drawCount,
 
                (SELECT s.name
                 FROM diaries d
                          JOIN games g ON d.game_id = g.game_id
                          JOIN stadiums s ON g.stadium_id = s.stadium_id
-                WHERE d.member_id = m.member_id AND d.is_verified = 1 AND d.status = 'COMPLETED'
+                         JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
+                WHERE d.member_id = m.member_id AND ga.attendance_id IS NOT NULL AND d.status = 'COMPLETED'
                 GROUP BY s.stadium_id, s.name
                 ORDER BY COUNT(*) DESC LIMIT 1) AS mostVisitedStadium
 
@@ -141,17 +144,18 @@
                (SELECT COUNT(d.diary_id)
                 FROM diaries d
                          JOIN games g ON d.game_id = g.game_id
+                         JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
                 WHERE d.member_id = m.member_id
-                  AND d.is_verified = 1
+                  AND ga.attendance_id IS NOT NULL
                   AND DATE_FORMAT(g.game_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
                   AND d.status = 'COMPLETED')                                                AS monthlyAttendanceCount,
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.follower_id = m.member_id)  AS followingCount,
                (SELECT COUNT(f.follow_id) FROM follows f WHERE f.following_id = m.member_id) AS followerCount,
 
-               -- 승요 정보 (타팀 경기 제외 조건 추가: IN (home, away))
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND d2.snapshot_team_code = g2.winning_team) AS winCount,
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
-               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND d2.is_verified = 1 AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team = 'DRAW') AS drawCount
+               -- 승요 정보 (타팀 경기 제외 조건 추가: IN (home, away)) : 인증 테이블 JOIN 반영
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id JOIN game_attendances ga2 ON d2.member_id = ga2.member_id AND d2.game_id = ga2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND ga2.attendance_id IS NOT NULL AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND d2.snapshot_team_code = g2.winning_team) AS winCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id JOIN game_attendances ga2 ON d2.member_id = ga2.member_id AND d2.game_id = ga2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND ga2.attendance_id IS NOT NULL AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team IS NOT NULL AND g2.winning_team != 'DRAW' AND d2.snapshot_team_code != g2.winning_team) AS loseCount,
+               (SELECT COUNT(*) FROM diaries d2 JOIN games g2 ON d2.game_id = g2.game_id JOIN game_attendances ga2 ON d2.member_id = ga2.member_id AND d2.game_id = ga2.game_id WHERE d2.member_id = m.member_id AND d2.status = 'COMPLETED' AND ga2.attendance_id IS NOT NULL AND g2.status = 'FINISHED' AND d2.snapshot_team_code IN (g2.home_team_code, g2.away_team_code) AND g2.winning_team = 'DRAW') AS drawCount
 
         FROM members m
         ORDER BY m.created_at DESC

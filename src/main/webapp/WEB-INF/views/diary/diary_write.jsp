@@ -63,6 +63,12 @@
 
           <div class="app-tit">
               <div class="page-tit">직관일기</div>
+
+              <div class="location-certify">
+                  <button class="btn btn-certify w-auto" type="button" id="btnVerify" onclick="certifyLocation()">
+                      직관 인증하기
+                  </button>
+              </div>
           </div>
 
           <ul class="comment">
@@ -287,9 +293,9 @@
       // 동행인 유형 UI 선택 처리
       function selectCompanion(type, element) {
           $('#companionType').val(type);
-          $('.check_box label img').each(function() {
+          $('.check_box label img').each(function () {
               let src = $(this).attr('src');
-              if(src.includes('_on.svg')) $(this).attr('src', src.replace('_on.svg', '.svg'));
+              if (src.includes('_on.svg')) $(this).attr('src', src.replace('_on.svg', '.svg'));
           });
           $('.check_box label').removeClass('check');
           $(element).addClass('check');
@@ -306,14 +312,15 @@
           $('#friendTagLayer').show();
           loadFriends();
       }
+
       function closeFriendTagLayer() {
           $('#friendTagLayer').hide();
       }
 
       function loadFriends() {
-          $.get('/diary/api/friends', function(data) {
+          $.get('/diary/api/friends', function (data) {
               let html = '';
-              if(!data || data.length === 0) {
+              if (!data || data.length === 0) {
                   html = '<li style="text-align:center; padding:30px; color:#999;">팔로우한 친구가 없습니다.</li>';
               } else {
                   data.forEach(f => {
@@ -371,6 +378,7 @@
           selectedFriends = selectedFriends.filter(x => x.id != id);
           completeFriendSelection(); // UI 동기화
       }
+
       // ----------------------------------------------------
 
       // 1. 경기 선택 팝업 열기
@@ -478,8 +486,8 @@
           // 주석 처리된 UI지만 추후 부활 시 정상 작동을 위해 readonly 속성 해제
           const $scoreAway = $('input[name="predScoreAway"]');
           const $scoreHome = $('input[name="predScoreHome"]');
-          $scoreAway.prop('readonly', false).css({'background-color':'', 'color':'#000'});
-          $scoreHome.prop('readonly', false).css({'background-color':'', 'color':'#000'});
+          $scoreAway.prop('readonly', false).css({'background-color': '', 'color': '#000'});
+          $scoreHome.prop('readonly', false).css({'background-color': '', 'color': '#000'});
           $('#scoreInputWrap').addClass('clr');
 
           $('#btnNext').prop('disabled', false);
@@ -553,7 +561,7 @@
               box.append(html);
 
               const reader = new FileReader();
-              reader.onload = function(e) {
+              reader.onload = function (e) {
                   $('#' + divId + ' img').first().attr('src', e.target.result);
               };
               reader.readAsDataURL(file);
@@ -569,7 +577,7 @@
           // 1) 필수값 체크: 경기 선택 (req 클래스 항목)
           if (!$('#gameId').val()) {
               if (typeof vibrateError === 'function') vibrateError(); // 에러 진동
-              alert('경기를 선택해주세요.', function() {
+              alert('경기를 선택해주세요.', function () {
                   openGameSheet();
               });
               return;
