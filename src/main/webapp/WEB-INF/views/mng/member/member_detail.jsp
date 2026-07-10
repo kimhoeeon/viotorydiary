@@ -250,17 +250,30 @@
 
                                             <div class="row align-items-center">
                                                 <label class="col-lg-2 fw-semibold text-muted">직관 승률</label>
+
+                                                <!-- [수정] 수동 승요율 우선 노출 영역 -->
                                                 <div class="col-lg-4">
                                                     <c:set var="validGames" value="${member.winCount + member.loseCount}" />
                                                     <c:set var="winRate" value="0.0" />
                                                     <c:if test="${validGames > 0}">
                                                         <c:set var="winRate" value="${(member.winCount * 100.0) / validGames}" />
                                                     </c:if>
-                                                    <span class="fw-bolder fs-3 text-primary"><fmt:formatNumber value="${winRate}" pattern="0.0"/>%</span>
+
+                                                    <div class="d-flex align-items-center">
+                                                        <c:choose>
+                                                            <c:when test="${not empty member.manualWinRate}">
+                                                                <span class="fw-bolder fs-3" style="color: #0095E8;"><fmt:formatNumber value="${member.manualWinRate}" pattern="0.0"/>%</span>
+                                                                <span class="badge badge-light-info ms-2 fs-8">수동 적용</span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="fw-bolder fs-3 text-primary"><fmt:formatNumber value="${winRate}" pattern="0.0"/>%</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
                                                 </div>
+
                                                 <label class="col-lg-2 fw-semibold text-muted">직관 전적</label>
                                                 <div class="col-lg-4">
-                                                    <%-- 무승부 표기 추가 --%>
                                                     <span class="fw-bold fs-6 text-gray-800">${member.winCount}승 <c:if test="${member.drawCount > 0}">${member.drawCount}무 </c:if>${member.loseCount}패</span>
                                                 </div>
                                             </div>

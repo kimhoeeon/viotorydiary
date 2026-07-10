@@ -204,6 +204,10 @@ public class MemberMngService {
             int total = win + lose;
             double winRate = total > 0 ? (win * 100.0) / total : 0.0;
 
+            if (member.getManualWinRate() != null) {
+                winRate = member.getManualWinRate();
+            }
+
             Cell cell10 = row.createCell(colNum++);
             cell10.setCellValue(win);
             cell10.setCellStyle(centerStyle);

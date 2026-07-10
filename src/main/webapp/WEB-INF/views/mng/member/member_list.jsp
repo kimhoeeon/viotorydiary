@@ -220,8 +220,20 @@
 
                                                                     <td class="text-center">
                                                                         <div class="d-flex flex-column align-items-center">
-                                                                            <span class="fw-bolder text-gray-800"><fmt:formatNumber value="${winRate}" pattern="0.0"/>%</span>
-                                                                            <span class="text-muted fs-8">(${item.winCount}승 <c:if test="${item.drawCount > 0}">${item.drawCount}무 </c:if>${item.loseCount}패)</span>
+                                                                            <c:choose>
+                                                                                <c:when test="${not empty item.manualWinRate}">
+                                                                                    <div class="d-flex align-items-center justify-content-center">
+                                                                                        <span class="badge fw-bolder fs-6 px-2 py-1" style="background-color: #E8FFF3; color: #0095E8;">
+                                                                                            <fmt:formatNumber value="${item.manualWinRate}" pattern="0.0"/>%
+                                                                                        </span>
+                                                                                        <span class="fs-9 text-muted ms-1">(수동)</span>
+                                                                                    </div>
+                                                                                </c:when>
+                                                                                <c:otherwise>
+                                                                                    <span class="fw-bolder text-gray-800"><fmt:formatNumber value="${winRate}" pattern="0.0"/>%</span>
+                                                                                </c:otherwise>
+                                                                            </c:choose>
+                                                                            <span class="text-muted fs-8 mt-1">(${item.winCount}승 <c:if test="${item.drawCount > 0}">${item.drawCount}무 </c:if>${item.loseCount}패)</span>
                                                                         </div>
                                                                     </td>
 

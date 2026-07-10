@@ -60,6 +60,8 @@ public class MemberVO {
     private String mostVisitedStadium;      // 최다 방문 구장
     private Integer mutualFollowCount;      // 맞팔 수
 
+    private Double manualWinRate; // 수동 입력 승요율
+
     private String myTeamLogoUrl;
 
     // 화면 및 엑셀 출력 시 하이픈이 추가된 전화번호 반환
