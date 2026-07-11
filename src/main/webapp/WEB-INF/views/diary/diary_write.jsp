@@ -320,6 +320,14 @@
                 if (hCode === myTeam) $('#homeMyTeam').show();
 
                 $('#btnNext').prop('disabled', false);
+
+                // 컨트롤러에서 넘겨준 인증 상태(isAttended)를 감지하여 UI 즉시 반영
+                if ('${isAttended}' === 'true') {
+                    $('#isVerified').val('true');
+                    $('#btnVerify').text('인증 완료')
+                        .prop('disabled', true)
+                        .css({'background-color': '#ccc', 'color': '#fff', 'border': 'none', 'cursor': 'not-allowed'});
+                }
             }
         });
 
@@ -525,11 +533,20 @@
 
             $('#btnNext').prop('disabled', false);
 
-            // [추가] 다른 경기를 선택하면 인증 상태 및 버튼 초기화
-            $('#isVerified').val('false');
-            $('#btnVerify').text('직관 인증하기')
-                .prop('disabled', false)
-                .css({'background-color': '', 'color': '', 'cursor': 'pointer', 'opacity': '1'});
+            // 다른 경기를 선택하면 서버에 해당 경기의 인증 여부를 다시 물어보고 버튼 상태 세팅
+            $.get('/diary/api/check-attendance?gameId=' + g.id, function(res) {
+                if (res === 'true') {
+                    $('#isVerified').val('true');
+                    $('#btnVerify').text('인증 완료')
+                        .prop('disabled', true)
+                        .css({'background-color': '#ccc', 'color': '#fff', 'border': 'none', 'cursor': 'not-allowed'});
+                } else {
+                    $('#isVerified').val('false');
+                    $('#btnVerify').text('직관 인증하기')
+                        .prop('disabled', false)
+                        .css({'background-color': '', 'color': '', 'cursor': 'pointer', 'opacity': '1'});
+                }
+            });
 
             closeGameSheet();
         }

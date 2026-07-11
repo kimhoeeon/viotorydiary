@@ -65,6 +65,10 @@ public class DiaryController {
             if (game != null) {
                 model.addAttribute("selectedGame", game);
                 model.addAttribute("targetGameId", gameId);
+
+                // 메인 화면 등에서 이미 직관 인증을 완료했는지 여부 체크하여 프론트로 전달
+                boolean isAttended = diaryService.checkAttendance(loginMember.getMemberId(), gameId);
+                model.addAttribute("isAttended", isAttended);
             }
         }
 
@@ -700,4 +704,16 @@ public class DiaryController {
         }
     }
 
+    // ==========================================
+    // [추가] 비동기 직관 인증 상태 체크 API
+    // ==========================================
+    @GetMapping("/api/check-attendance")
+    @ResponseBody
+    public String checkAttendanceAPI(@RequestParam("gameId") Long gameId, HttpSession session) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "fail";
+
+        boolean isAttended = diaryService.checkAttendance(loginMember.getMemberId(), gameId);
+        return isAttended ? "true" : "false";
+    }
 }

@@ -447,4 +447,12 @@ public class DiaryService {
     public void saveAttendance(Long memberId, Long gameId) {
         diaryMapper.insertAttendance(memberId, gameId);
     }
+
+    /**
+     * [추가] 특정 유저의 특정 경기 직관 인증 여부 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean checkAttendance(Long memberId, Long gameId) {
+        return diaryMapper.checkAttendance(memberId, gameId) > 0;
+    }
 }

@@ -2,8 +2,10 @@ package com.viotory.diary.service;
 
 import com.viotory.diary.dto.WinYoAnalysisDTO;
 import com.viotory.diary.mapper.DiaryMapper;
+import com.viotory.diary.mapper.MemberMapper;
 import com.viotory.diary.mapper.WinYoMentionMapper;
 import com.viotory.diary.vo.DiaryVO;
+import com.viotory.diary.vo.MemberVO;
 import com.viotory.diary.vo.WinYoMentionVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,7 @@ public class WinYoService {
 
     private final DiaryMapper diaryMapper; // 다이어리 목록 조회용
     private final WinYoMentionMapper mentionMapper; // 멘트 조회용
+    private final MemberMapper memberMapper;
 
     /**
      * 사용자의 승요력(승률+흐름)을 분석하여 결과를 반환한다.
@@ -68,6 +71,14 @@ public class WinYoService {
         int validGames = wins + loses;
         double winRate = (validGames > 0) ? ((double) wins / validGames) * 100.0 : 0.0;
 
+        // [추가] 3-1. 수동 승요율 적용 (Member 테이블 조회하여 덮어쓰기)
+        MemberVO member = memberMapper.selectMemberById(memberId);
+        boolean hasManualWinRate = (member != null && member.getManualWinRate() != null);
+
+        if (hasManualWinRate) {
+            winRate = member.getManualWinRate();
+        }
+
         // 4. DTO 생성
         WinYoAnalysisDTO analysis = WinYoAnalysisDTO.builder()
                 .totalGames(total)
@@ -80,7 +91,8 @@ public class WinYoService {
 
         // 5. [DB 연동] 승률 구간 및 멘트 세팅
         int rateInt = (int) winRate; // 소수점 내림 처리 (엄격한 구간 체크)
-        if (total >= 2) {
+        // 수동 승요율이 부여되었다면 직관 횟수가 2회 미만이어도 칭호를 부여하도록 UX 개선
+        if (total >= 2 || hasManualWinRate) {
             WinYoMentionVO rateMention = mentionMapper.selectMentionByValue("WIN_RATE", rateInt);
             if (rateMention != null) {
                 analysis.setRateLevelName(rateMention.getLevelName());
