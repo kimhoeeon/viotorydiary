@@ -82,7 +82,7 @@
                 <input type="hidden" name="verified" id="isVerified" value="false">
                 <input type="hidden" name="rating" value="5">
 
-                <input type="hidden" name="companionType" id="companionType" value="ALONE">
+                <input type="hidden" name="companionType" id="companionType" value="">
                 <input type="hidden" name="taggedMembers" id="taggedMembers" value="">
 
                 <div class="page-main_wrap">
@@ -186,7 +186,7 @@
                                     <div class="tit">누구와 함께했나요? <span>(선택)</span></div>
                                     <div class="check_box">
                                         <ul>
-                                            <li><label class="check" onclick="selectCompanion('ALONE', this)">
+                                            <li><label onclick="selectCompanion('ALONE', this)">
                                                 <img src="/img/check_together01.svg" alt="">
                                                 <button type="button">혼자</button>
                                             </label></li>
@@ -334,17 +334,31 @@
             }
         });
 
-        // 동행인 유형 UI 선택 처리
+        // 동행인 유형 UI 선택 및 토글(해제) 처리
         function selectCompanion(type, element) {
-            $('#companionType').val(type);
+            // 현재 선택된 값 확인
+            let currentVal = $('#companionType').val();
+
+            // 1. 모든 항목의 스타일 및 이미지 초기화
             $('.check_box label img').each(function () {
                 let src = $(this).attr('src');
-                if (src.includes('_on.svg')) $(this).attr('src', src.replace('_on.svg', '.svg'));
+                if (src.includes('_on.svg')) {
+                    $(this).attr('src', src.replace('_on.svg', '.svg'));
+                }
             });
             $('.check_box label').removeClass('check');
-            $(element).addClass('check');
-            let $img = $(element).find('img');
-            $img.attr('src', $img.attr('src').replace('.svg', '_on.svg'));
+
+            // 2. 토글 로직 (재클릭 시 해제 vs 신규 클릭 시 선택)
+            if (currentVal === type) {
+                // 이미 선택된 버튼을 다시 누른 경우 -> 값 비우기 (선택 해제)
+                $('#companionType').val('');
+            } else {
+                // 다른 버튼을 누르거나 처음 누른 경우 -> 값 세팅 및 스타일 적용
+                $('#companionType').val(type);
+                $(element).addClass('check');
+                let $img = $(element).find('img');
+                $img.attr('src', $img.attr('src').replace('.svg', '_on.svg'));
+            }
         }
 
         // ----------------------------------------------------
@@ -620,7 +634,7 @@
                             $btn.text(originalText).prop('disabled', false).css('opacity', '1');
                         } else if (res === 'fail:not_yet') {
                             alert('직관 인증은 경기 시작 2시간 전부터 가능합니다.');
-                            $btn.text('시간 전')
+                            $btn.text('인증 시간 전')
                                 .css({'background-color': '#ccc', 'color': '#fff', 'border': 'none', 'cursor': 'not-allowed'})
                                 .prop('disabled', true);
                         } else if (res === 'fail:timeout') {

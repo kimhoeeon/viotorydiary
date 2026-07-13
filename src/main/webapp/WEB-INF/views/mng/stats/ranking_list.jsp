@@ -77,12 +77,19 @@
 
                                     <div class="d-flex justify-content-between align-items-center mb-5">
                                         <h3 class="card-title m-0 fw-bolder">🏆 직관 랭킹 리스트 (총 ${page.total}명)</h3>
-                                        <select name="amount" class="form-select form-select-sm form-select-solid w-125px" onchange="$('#pageNum').val(1); $('#searchForm').submit();">
-                                            <option value="10" ${amount == 10 ? 'selected' : ''}>10개씩 보기</option>
-                                            <option value="30" ${amount == 30 ? 'selected' : ''}>30개씩 보기</option>
-                                            <option value="50" ${amount == 50 ? 'selected' : ''}>50개씩 보기</option>
-                                            <option value="100" ${amount == 100 ? 'selected' : ''}>100개씩 보기</option>
-                                        </select>
+                                        <div class="d-flex align-items-center">
+                                            <!-- 초기화 버튼 추가 -->
+                                            <a href="/mng/stats/ranking" class="btn btn-sm btn-light btn-active-light-primary me-3" title="정렬 초기화">
+                                                <i class="ki-duotone ki-arrows-circle fs-3"><span class="path1"></span><span class="path2"></span></i> 초기화
+                                            </a>
+                                            <!-- 기존 10개씩 보기 셀렉트박스 -->
+                                            <select name="amount" class="form-select form-select-sm form-select-solid w-125px" onchange="$('#pageNum').val(1); $('#searchForm').submit();">
+                                                <option value="10" ${amount == 10 ? 'selected' : ''}>10개씩 보기</option>
+                                                <option value="30" ${amount == 30 ? 'selected' : ''}>30개씩 보기</option>
+                                                <option value="50" ${amount == 50 ? 'selected' : ''}>50개씩 보기</option>
+                                                <option value="100" ${amount == 100 ? 'selected' : ''}>100개씩 보기</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </form>
 
@@ -96,14 +103,23 @@
                                                     <th class="min-w-125px text-center">구단</th>
                                                     <th class="min-w-150px">아이디</th>
                                                     <th class="min-w-125px">닉네임</th>
-                                                    <th class="min-w-100px text-center cursor-pointer text-hover-primary" onclick="sortData('totalGames')">
-                                                        직관 경기 수 <i class="ki-duotone ki-arrow-${sortCol == 'totalGames' ? (sortDir == 'ASC' ? 'up' : 'down') : 'up-down'} fs-6 ms-1"></i>
+                                                    <th class="min-w-100px text-center cursor-pointer text-hover-primary ${sortCol == 'totalGames' ? 'text-primary' : ''}" onclick="sortData('totalGames')">
+                                                        직관 경기 수
+                                                        <c:if test="${sortCol == 'totalGames'}">
+                                                            <i class="ki-duotone ki-arrow-${sortDir == 'ASC' ? 'up' : 'down'} fs-6 ms-1 text-primary"></i>
+                                                        </c:if>
                                                     </th>
-                                                    <th class="min-w-100px text-center cursor-pointer text-hover-primary" onclick="sortData('winGames')">
-                                                        승리 경기 수 <i class="ki-duotone ki-arrow-${sortCol == 'winGames' ? (sortDir == 'ASC' ? 'up' : 'down') : 'up-down'} fs-6 ms-1"></i>
+                                                    <th class="min-w-100px text-center cursor-pointer text-hover-primary ${sortCol == 'winGames' ? 'text-primary' : ''}" onclick="sortData('winGames')">
+                                                        승리 경기 수
+                                                        <c:if test="${sortCol == 'winGames'}">
+                                                            <i class="ki-duotone ki-arrow-${sortDir == 'ASC' ? 'up' : 'down'} fs-6 ms-1 text-primary"></i>
+                                                        </c:if>
                                                     </th>
-                                                    <th class="min-w-100px text-center cursor-pointer text-hover-primary" onclick="sortData('winRate')">
-                                                        승요율 <i class="ki-duotone ki-arrow-${sortCol == 'winRate' ? (sortDir == 'ASC' ? 'up' : 'down') : 'up-down'} fs-6 ms-1"></i>
+                                                    <th class="min-w-100px text-center cursor-pointer text-hover-primary ${sortCol == 'winRate' ? 'text-primary' : ''}" onclick="sortData('winRate')">
+                                                        승요율
+                                                        <c:if test="${sortCol == 'winRate'}">
+                                                            <i class="ki-duotone ki-arrow-${sortDir == 'ASC' ? 'up' : 'down'} fs-6 ms-1 text-primary"></i>
+                                                        </c:if>
                                                     </th>
                                                     <th class="min-w-125px text-center">수정일시</th>
                                                     <th class="w-125px text-center">관리</th>

@@ -511,7 +511,7 @@
                             alert('직관 인증은 경기 시작 2시간 전부터 가능합니다.');
 
                             // 시간 전일 경우 텍스트 변경 및 회색 비활성화
-                            $btn.text('시간 전')
+                            $btn.text('인증 시간 전')
                                 .css({'background-color': '#ccc', 'color': '#fff', 'border': 'none', 'cursor': 'not-allowed'})
                                 .prop('disabled', true);
 
