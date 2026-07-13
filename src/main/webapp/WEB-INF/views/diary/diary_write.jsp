@@ -634,12 +634,10 @@
                             $btn.text(originalText).prop('disabled', false).css('opacity', '1');
                         } else if (res === 'fail:not_yet') {
                             alert('직관 인증은 경기 시작 2시간 전부터 가능합니다.');
-                            $btn.text('인증 시간 전')
-                                .css({'background-color': '#ccc', 'color': '#fff', 'border': 'none', 'cursor': 'not-allowed'})
-                                .prop('disabled', true);
+                            $btn.text('인증 시간 전').prop('disabled', false).css('opacity', '1');
                         } else if (res === 'fail:timeout') {
                             alert('경기 시작 후 2시간이 지나 인증이 마감되었습니다.');
-                            $btn.text('시간 초과')
+                            $btn.text('인증 마감')
                                 .css({'background-color': '#ccc', 'color': '#fff', 'border': 'none', 'cursor': 'not-allowed'})
                                 .prop('disabled', true);
                         } else {
