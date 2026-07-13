@@ -82,6 +82,9 @@
                 <input type="hidden" name="verified" id="isVerified" value="false">
                 <input type="hidden" name="rating" value="5">
 
+                <input type="hidden" name="companionType" id="companionType" value="ALONE">
+                <input type="hidden" name="taggedMembers" id="taggedMembers" value="">
+
                 <div class="page-main_wrap">
                     <div class="history">
                         <div class="history-list mt-24">
@@ -733,6 +736,33 @@
                 return;
             }
 
+            // 2) 필수값 체크: 수훈선수
+            if (!$('#heroName').val().trim()) {
+                if (typeof vibrateError === 'function') vibrateError();
+                alert('오늘의 수훈선수를 입력해 주세요.', function () {
+                    $('#heroName').focus();
+                });
+                return;
+            }
+
+            // 3) 필수값 체크: 경기 한 줄 요약
+            if (!$('#oneLine').val().trim()) {
+                if (typeof vibrateError === 'function') vibrateError();
+                alert('경기 한 줄 요약을 입력해 주세요.', function () {
+                    $('#oneLine').focus();
+                });
+                return;
+            }
+
+            // 4) 필수값 체크: 직관 일기 내용
+            if (!$('textarea[name="content"]').val().trim()) {
+                if (typeof vibrateError === 'function') vibrateError();
+                alert('오늘의 직관 이야기를 입력해 주세요.', function () {
+                    $('textarea[name="content"]').focus();
+                });
+                return;
+            }
+
             // 폼 전송 직전, 배열에 모아둔 파일들을 실제 input에 옮겨 담기
             const dataTransfer = new DataTransfer();
             selectedFiles.forEach(file => {
@@ -740,7 +770,7 @@
             });
             document.getElementById('fileUpload').files = dataTransfer.files;
 
-            // [추가] 프론트 인증 상태 체크
+            // 프론트 인증 상태 체크
             const isVerified = $('#isVerified').val();
 
             if (isVerified !== 'true') {

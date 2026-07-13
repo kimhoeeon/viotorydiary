@@ -2,6 +2,8 @@ package com.viotory.diary.vo;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class UserStatsVO {
     private Long memberId;
@@ -19,4 +21,6 @@ public class UserStatsVO {
 
     private String email;          // 아이디 (이메일)
     private Double manualWinRate;  // 수동 입력 승요율
+
+    private LocalDateTime updatedAt;
 }

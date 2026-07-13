@@ -60,6 +60,18 @@
                 <input type="hidden" name="diaryId" value="${diary.diaryId}">
                 <input type="hidden" name="gameId" value="${diary.gameId}">
 
+                <!-- 기존 동행인 및 태그 친구 데이터를 세팅하여 서버로 전송할 hidden input -->
+                <input type="hidden" name="companionType" id="companionType" value="${diary.companionType}">
+
+                <!-- 기존에 태그된 친구 리스트의 ID를 콤마(,)로 연결 -->
+                <c:set var="tagIds" value=""/>
+                <c:if test="${not empty diary.taggedMemberList}">
+                    <c:forEach var="friend" items="${diary.taggedMemberList}" varStatus="status">
+                        <c:set var="tagIds" value="${tagIds}${friend.memberId}${!status.last ? ',' : ''}" />
+                    </c:forEach>
+                </c:if>
+                <input type="hidden" name="taggedMembers" id="taggedMembers" value="${tagIds}">
+
                 <div class="page-main_wrap">
                     <div class="history">
                         <div class="history-list mt-24">
@@ -77,7 +89,7 @@
                                     </button>
                                 </div>
 
-                                <div class="diary_write_list req diary_character yellow ${isScoreEditable ? 'clr' : ''}">
+                                <%--<div class="diary_write_list req diary_character yellow ${isScoreEditable ? 'clr' : ''}">
                                     <div class="tit">
                                         <c:choose>
                                             <c:when test="${isScoreEditable}">스코어를 수정하시겠어요?</c:when>
@@ -132,7 +144,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div>--%>
 
                                 <div class="diary_write_list req">
                                     <div class="tit">오늘의 수훈선수는?</div>
@@ -461,20 +473,34 @@
 
         // 제출
         function submitDiary() {
-            // 1) 필수값 체크: 스코어 (수정 가능 상태일 때만 검사)
-            const isScoreEditable = ${isScoreEditable};
+            // 터치 시 짧은 진동 피드백
+            if (typeof vibrateSuccess === 'function') vibrateSuccess();
 
-            if (isScoreEditable) {
-                var scoreHome = $('input[name="predScoreHome"]');
-                var scoreAway = $('input[name="predScoreAway"]');
+            // 2) 필수값 체크: 수훈선수
+            if (!$('#heroName').val().trim()) {
+                if (typeof vibrateError === 'function') vibrateError();
+                alert('오늘의 수훈선수를 입력해 주세요.', function () {
+                    $('#heroName').focus();
+                });
+                return;
+            }
 
-                if (scoreHome.val() === '' || scoreAway.val() === '') {
-                    alert('스코어를 입력해주세요!', function() {
-                        if(scoreHome.val() === '') scoreHome.focus();
-                        else scoreAway.focus();
-                    });
-                    return;
-                }
+            // 3) 필수값 체크: 경기 한 줄 요약
+            if (!$('#oneLine').val().trim()) {
+                if (typeof vibrateError === 'function') vibrateError();
+                alert('경기 한 줄 요약을 입력해 주세요.', function () {
+                    $('#oneLine').focus();
+                });
+                return;
+            }
+
+            // 4) 필수값 체크: 직관 일기 내용
+            if (!$('textarea[name="content"]').val().trim()) {
+                if (typeof vibrateError === 'function') vibrateError();
+                alert('오늘의 직관 이야기를 입력해 주세요.', function () {
+                    $('textarea[name="content"]').focus();
+                });
+                return;
             }
 
             // 폼 전송 직전, 배열에 새로 추가한 파일들을 실제 input에 옮겨 담기

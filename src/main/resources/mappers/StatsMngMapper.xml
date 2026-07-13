@@ -38,16 +38,22 @@
 
         <choose>
             <when test="sortCol == 'totalGames'">
-                ORDER BY totalGames ${sortDir}, IFNULL(m.manual_win_rate, (winGames / totalGames * 100)) DESC
+                ORDER BY totalGames ${sortDir},
+                IFNULL(m.manual_win_rate, IFNULL((SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)), 0)) DESC
             </when>
             <when test="sortCol == 'winGames'">
-                ORDER BY winGames ${sortDir}, IFNULL(m.manual_win_rate, (winGames / totalGames * 100)) DESC
+                ORDER BY winGames ${sortDir},
+                IFNULL(m.manual_win_rate, IFNULL((SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)), 0)) DESC
             </when>
             <when test="sortCol == 'winRate'">
-                ORDER BY IFNULL(m.manual_win_rate, (winGames / totalGames * 100)) ${sortDir}, totalGames DESC
+                ORDER BY
+                IFNULL(m.manual_win_rate, IFNULL((SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)), 0)) ${sortDir},
+                totalGames DESC
             </when>
             <otherwise>
-                ORDER BY IFNULL(m.manual_win_rate, (winGames / totalGames * 100)) DESC, totalGames DESC
+                ORDER BY
+                IFNULL(m.manual_win_rate, IFNULL((SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND d.snapshot_team_code = g.winning_team THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(CASE WHEN d.snapshot_team_code IN (g.home_team_code, g.away_team_code) AND g.winning_team IS NOT NULL AND g.winning_team != 'DRAW' THEN 1 ELSE 0 END), 0)), 0)) DESC,
+                totalGames DESC
             </otherwise>
         </choose>
 

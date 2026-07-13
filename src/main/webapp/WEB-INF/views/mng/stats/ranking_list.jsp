@@ -158,7 +158,24 @@
                                                         </td>
 
                                                         <td class="text-center text-muted">
-                                                            <fmt:formatDate value="${item.updatedAt}" pattern="yyyy.MM.dd HH:mm"/>
+                                                            <c:choose>
+                                                                <c:when test="${not empty item.updatedAt}">
+                                                                    <!-- 1. LocalDateTime 객체를 태그 바디에 넣어 완벽한 String으로 강제 변환 -->
+                                                                    <c:set var="rawDate">${item.updatedAt}</c:set>
+
+                                                                    <!-- 2. 문자열로 변환된 rawDate를 사용하여 'T'를 공백으로 변경 -->
+                                                                    <c:set var="upDateStr" value="${fn:replace(rawDate, 'T', ' ')}" />
+
+                                                                    <!-- 3. 하이픈(-)을 마침표(.)로 변경 -->
+                                                                    <c:set var="upDateStr" value="${fn:replace(upDateStr, '-', '.')}" />
+
+                                                                    <!-- 4. 초 단위 자르기 (16자리까지만 출력) -->
+                                                                    ${fn:substring(upDateStr, 0, 16)}
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    -
+                                                                </c:otherwise>
+                                                            </c:choose>
                                                         </td>
 
                                                         <td class="text-center">

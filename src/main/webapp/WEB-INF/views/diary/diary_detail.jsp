@@ -208,7 +208,7 @@
                                     <div class="txt_box">
                                         <div class="txt_player">
                                             <div class="inquiry_badge">
-                                                수훈선수
+                                                오늘의 수훈선수는?
                                             </div>
                                             <div class="player">
                                                 ${empty diary.heroName ? '-' : diary.heroName}
@@ -216,7 +216,7 @@
                                         </div>
                                         <div class="txt_game">
                                             <div class="inquiry_badge">
-                                                오늘의 경기는?
+                                                경기 한 줄 요약
                                             </div>
                                             <div>
                                                 ${empty diary.oneLineComment ? '-' : diary.oneLineComment}
@@ -266,7 +266,7 @@
                                     <%-- 일기 본문 영역 (스크립트 제어 대상) --%>
                                     <div class="diary_desc">
                                         <div class="inquiry_badge">
-                                            승요 일기
+                                            오늘의 직관 일기
                                         </div>
                                         <div>
                                             <c:set var="trimmedContent" value="${fn:trim(diary.content)}" />
@@ -282,6 +282,80 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <%-- 동행인 및 태그된 친구 정보 출력 영역 --%>
+                                <c:if test="${not empty diary.companionType or not empty diary.taggedMemberList}">
+                                    <div class="diary_write_list clr">
+                                        <div class="tit">누구와 함께했나요?</div>
+                                        <div class="check_box">
+                                            <ul>
+                                                <c:choose>
+                                                    <c:when test="${diary.companionType eq 'ALONE'}">
+                                                        <li>
+                                                            <label class="${diary.companionType eq 'ALONE' ? 'check' : ''}">
+                                                                <img src="${diary.companionType eq 'ALONE' ? '/img/check_together01_on.svg' : '/img/check_together01.svg'}" alt="혼자">
+                                                                <button type="button">혼자</button>
+                                                            </label>
+                                                        </li>
+                                                    </c:when>
+                                                    <c:when test="${diary.companionType eq 'FRIEND'}">
+                                                        <li>
+                                                            <label class="${diary.companionType eq 'FRIEND' ? 'check' : ''}">
+                                                                <img src="${diary.companionType eq 'FRIEND' ? '/img/check_together02_on.svg' : '/img/check_together02.svg'}" alt="친구">
+                                                                <button type="button">친구</button>
+                                                            </label>
+                                                        </li>
+                                                    </c:when>
+                                                    <c:when test="${diary.companionType eq 'FAMILY'}">
+                                                        <li>
+                                                            <label class="${diary.companionType eq 'FAMILY' ? 'check' : ''}">
+                                                                <img src="${diary.companionType eq 'FAMILY' ? '/img/check_together03_on.svg' : '/img/check_together03.svg'}" alt="가족">
+                                                                <button type="button">가족</button>
+                                                            </label>
+                                                        </li>
+                                                    </c:when>
+                                                    <c:when test="${diary.companionType eq 'COUPLE'}">
+                                                        <li>
+                                                            <label class="${diary.companionType eq 'COUPLE' ? 'check' : ''}">
+                                                                <img src="${diary.companionType eq 'COUPLE' ? '/img/check_together04_on.svg' : '/img/check_together04.svg'}" alt="연인">
+                                                                <button type="button">연인</button>
+                                                            </label>
+                                                        </li>
+                                                    </c:when>
+                                                    <c:when test="${diary.companionType eq 'COLLEAGUE'}">
+                                                        <li>
+                                                            <label class="${diary.companionType eq 'COLLEAGUE' ? 'check' : ''}">
+                                                                <img src="${diary.companionType eq 'COLLEAGUE' ? '/img/check_together05_on.svg' : '/img/check_together05.svg'}" alt="직장동료">
+                                                                <button type="button">직장동료</button>
+                                                            </label>
+                                                        </li>
+                                                    </c:when>
+                                                    <c:when test="${diary.companionType eq 'ETC'}">
+                                                        <li>
+                                                            <label class="${diary.companionType eq 'ETC' ? 'check' : ''}">
+                                                                <img src="${diary.companionType eq 'ETC' ? '/img/check_together06_on.svg' : '/img/check_together06.svg'}" alt="기타">
+                                                                <button type="button">기타</button>
+                                                            </label>
+                                                        </li>
+                                                    </c:when>
+                                                </c:choose>
+                                            </ul>
+                                        </div>
+                                        <div class="tag_box mt-16">
+                                            <div class="flex" style="justify-content: space-between; align-items: center;">
+                                                <div id="taggedFriendsDisplay">
+                                                    <c:if test="${not empty diary.taggedMemberList}">
+                                                        <c:forEach var="friend" items="${diary.taggedMemberList}">
+                                                            <span class="tag-badge">@${friend.nickname}</span>
+                                                        </c:forEach>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </c:if>
+                                <%-- 추가 끝 --%>
+
                                 <div class="stamp">
                                     <c:choose>
                                         <c:when test="${diary.gameStatus eq 'FINISHED'}">

@@ -28,8 +28,11 @@ public class StatsMngService {
             if (vo.getManualWinRate() != null) {
                 vo.setWinRate(vo.getManualWinRate());
             } else {
-                if (vo.getTotalGames() > 0) {
-                    double rate = (double) vo.getWinGames() / vo.getTotalGames() * 100.0;
+                // 전체 게임 수가 아닌 무승부를 제외한 유효 게임(승+패) 기준으로 승률 계산
+                int validGames = vo.getWinGames() + vo.getLoseGames();
+
+                if (validGames > 0) {
+                    double rate = (double) vo.getWinGames() / validGames * 100.0;
                     vo.setWinRate(Math.round(rate * 10) / 10.0);
                 } else {
                     vo.setWinRate(0.0);
