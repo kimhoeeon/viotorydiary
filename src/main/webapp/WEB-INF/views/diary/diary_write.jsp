@@ -186,28 +186,28 @@
                                     <div class="tit">누구와 함께했나요? <span>(선택)</span></div>
                                     <div class="check_box">
                                         <ul>
-                                            <li><label class="check" onclick="selectCompanion('ALONE', this)"><img
-                                                    src="/img/check_together01.svg" alt="">
+                                            <li><label class="check" onclick="selectCompanion('ALONE', this)">
+                                                <img src="/img/check_together01.svg" alt="">
                                                 <button type="button">혼자</button>
                                             </label></li>
-                                            <li><label onclick="selectCompanion('FRIEND', this)"><img
-                                                    src="/img/check_together02.svg" alt="">
+                                            <li><label onclick="selectCompanion('FRIEND', this)">
+                                                <img src="/img/check_together02.svg" alt="">
                                                 <button type="button">친구</button>
                                             </label></li>
-                                            <li><label onclick="selectCompanion('FAMILY', this)"><img
-                                                    src="/img/check_together03.svg" alt="">
+                                            <li><label onclick="selectCompanion('FAMILY', this)">
+                                                <img src="/img/check_together03.svg" alt="">
                                                 <button type="button">가족</button>
                                             </label></li>
-                                            <li><label onclick="selectCompanion('COUPLE', this)"><img
-                                                    src="/img/check_together04.svg" alt="">
+                                            <li><label onclick="selectCompanion('COUPLE', this)">
+                                                <img src="/img/check_together04.svg" alt="">
                                                 <button type="button">연인</button>
                                             </label></li>
-                                            <li><label onclick="selectCompanion('COLLEAGUE', this)"><img
-                                                    src="/img/check_together05.svg" alt="">
+                                            <li><label onclick="selectCompanion('COLLEAGUE', this)">
+                                                <img src="/img/check_together05.svg" alt="">
                                                 <button type="button">직장동료</button>
                                             </label></li>
-                                            <li><label onclick="selectCompanion('ETC', this)"><img
-                                                    src="/img/check_together06.svg" alt="">
+                                            <li><label onclick="selectCompanion('ETC', this)">
+                                                <img src="/img/check_together06.svg" alt="">
                                                 <button type="button">기타</button>
                                             </label></li>
                                         </ul>

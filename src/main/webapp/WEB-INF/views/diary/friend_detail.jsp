@@ -238,25 +238,70 @@
                             <c:if test="${not empty diary.companionType or not empty diary.taggedMemberList}">
                                 <div class="diary_write_list clr">
                                     <div class="tit">누구와 함께했나요?</div>
-                                    <div class="mt-8" style="font-size:14px; color:#333;">
-                                        <c:choose>
-                                            <c:when test="${diary.companionType eq 'ALONE'}">혼자</c:when>
-                                            <c:when test="${diary.companionType eq 'FRIEND'}">친구</c:when>
-                                            <c:when test="${diary.companionType eq 'FAMILY'}">가족</c:when>
-                                            <c:when test="${diary.companionType eq 'COUPLE'}">연인</c:when>
-                                            <c:when test="${diary.companionType eq 'COLLEAGUE'}">직장동료</c:when>
-                                            <c:when test="${diary.companionType eq 'ETC'}">기타</c:when>
-                                        </c:choose>
-
-                                        <c:if test="${not empty diary.taggedMemberList}">
-                                            <div class="tagged-friends-list mt-8">
-                                                <c:forEach var="friend" items="${diary.taggedMemberList}">
-                                                    <span class="tag-badge">
-                                                        @${friend.nickname}
-                                                    </span>
-                                                </c:forEach>
+                                    <div class="check_box">
+                                        <ul>
+                                            <c:choose>
+                                                <c:when test="${diary.companionType eq 'ALONE'}">
+                                                    <li>
+                                                        <label class="${diary.companionType eq 'ALONE' ? 'check' : ''}">
+                                                            <img src="${diary.companionType eq 'ALONE' ? '/img/check_together01_on.svg' : '/img/check_together01.svg'}" alt="혼자">
+                                                            혼자
+                                                        </label>
+                                                    </li>
+                                                </c:when>
+                                                <c:when test="${diary.companionType eq 'FRIEND'}">
+                                                    <li>
+                                                        <label class="${diary.companionType eq 'FRIEND' ? 'check' : ''}">
+                                                            <img src="${diary.companionType eq 'FRIEND' ? '/img/check_together02_on.svg' : '/img/check_together02.svg'}" alt="친구">
+                                                            친구
+                                                        </label>
+                                                    </li>
+                                                </c:when>
+                                                <c:when test="${diary.companionType eq 'FAMILY'}">
+                                                    <li>
+                                                        <label class="${diary.companionType eq 'FAMILY' ? 'check' : ''}">
+                                                            <img src="${diary.companionType eq 'FAMILY' ? '/img/check_together03_on.svg' : '/img/check_together03.svg'}" alt="가족">
+                                                            가족
+                                                        </label>
+                                                    </li>
+                                                </c:when>
+                                                <c:when test="${diary.companionType eq 'COUPLE'}">
+                                                    <li>
+                                                        <label class="${diary.companionType eq 'COUPLE' ? 'check' : ''}">
+                                                            <img src="${diary.companionType eq 'COUPLE' ? '/img/check_together04_on.svg' : '/img/check_together04.svg'}" alt="연인">
+                                                            연인
+                                                        </label>
+                                                    </li>
+                                                </c:when>
+                                                <c:when test="${diary.companionType eq 'COLLEAGUE'}">
+                                                    <li>
+                                                        <label class="${diary.companionType eq 'COLLEAGUE' ? 'check' : ''}">
+                                                            <img src="${diary.companionType eq 'COLLEAGUE' ? '/img/check_together05_on.svg' : '/img/check_together05.svg'}" alt="직장동료">
+                                                            직장동료
+                                                        </label>
+                                                    </li>
+                                                </c:when>
+                                                <c:when test="${diary.companionType eq 'ETC'}">
+                                                    <li>
+                                                        <label class="${diary.companionType eq 'ETC' ? 'check' : ''}">
+                                                            <img src="${diary.companionType eq 'ETC' ? '/img/check_together06_on.svg' : '/img/check_together06.svg'}" alt="기타">
+                                                            기타
+                                                        </label>
+                                                    </li>
+                                                </c:when>
+                                            </c:choose>
+                                        </ul>
+                                    </div>
+                                    <div class="tag_box mt-16">
+                                        <div class="flex" style="justify-content: space-between; align-items: center;">
+                                            <div id="taggedFriendsDisplay">
+                                                <c:if test="${not empty diary.taggedMemberList}">
+                                                    <c:forEach var="friend" items="${diary.taggedMemberList}">
+                                                        <span class="tag-badge">@${friend.nickname}</span>
+                                                    </c:forEach>
+                                                </c:if>
                                             </div>
-                                        </c:if>
+                                        </div>
                                     </div>
                                 </div>
                             </c:if>

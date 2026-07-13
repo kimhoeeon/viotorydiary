@@ -294,7 +294,7 @@
                                                         <li>
                                                             <label class="${diary.companionType eq 'ALONE' ? 'check' : ''}">
                                                                 <img src="${diary.companionType eq 'ALONE' ? '/img/check_together01_on.svg' : '/img/check_together01.svg'}" alt="혼자">
-                                                                <button type="button">혼자</button>
+                                                                혼자
                                                             </label>
                                                         </li>
                                                     </c:when>
@@ -302,7 +302,7 @@
                                                         <li>
                                                             <label class="${diary.companionType eq 'FRIEND' ? 'check' : ''}">
                                                                 <img src="${diary.companionType eq 'FRIEND' ? '/img/check_together02_on.svg' : '/img/check_together02.svg'}" alt="친구">
-                                                                <button type="button">친구</button>
+                                                                친구
                                                             </label>
                                                         </li>
                                                     </c:when>
@@ -310,7 +310,7 @@
                                                         <li>
                                                             <label class="${diary.companionType eq 'FAMILY' ? 'check' : ''}">
                                                                 <img src="${diary.companionType eq 'FAMILY' ? '/img/check_together03_on.svg' : '/img/check_together03.svg'}" alt="가족">
-                                                                <button type="button">가족</button>
+                                                                가족
                                                             </label>
                                                         </li>
                                                     </c:when>
@@ -318,7 +318,7 @@
                                                         <li>
                                                             <label class="${diary.companionType eq 'COUPLE' ? 'check' : ''}">
                                                                 <img src="${diary.companionType eq 'COUPLE' ? '/img/check_together04_on.svg' : '/img/check_together04.svg'}" alt="연인">
-                                                                <button type="button">연인</button>
+                                                                연인
                                                             </label>
                                                         </li>
                                                     </c:when>
@@ -326,7 +326,7 @@
                                                         <li>
                                                             <label class="${diary.companionType eq 'COLLEAGUE' ? 'check' : ''}">
                                                                 <img src="${diary.companionType eq 'COLLEAGUE' ? '/img/check_together05_on.svg' : '/img/check_together05.svg'}" alt="직장동료">
-                                                                <button type="button">직장동료</button>
+                                                                직장동료
                                                             </label>
                                                         </li>
                                                     </c:when>
@@ -334,7 +334,7 @@
                                                         <li>
                                                             <label class="${diary.companionType eq 'ETC' ? 'check' : ''}">
                                                                 <img src="${diary.companionType eq 'ETC' ? '/img/check_together06_on.svg' : '/img/check_together06.svg'}" alt="기타">
-                                                                <button type="button">기타</button>
+                                                                기타
                                                             </label>
                                                         </li>
                                                     </c:when>
