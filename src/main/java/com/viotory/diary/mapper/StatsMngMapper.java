@@ -17,7 +17,7 @@ public interface StatsMngMapper {
 
     int getTotalRankingCount();
 
-    // [추가] 수동 승률 업데이트 쿼리
+    // 수동 승률 업데이트 쿼리
     void updateManualWinRate(@Param("memberId") Long memberId, @Param("winRate") Double winRate);
 
     int selectDau();

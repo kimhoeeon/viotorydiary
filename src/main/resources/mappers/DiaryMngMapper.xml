@@ -149,7 +149,7 @@
                    ELSE 'NONE'
                    END AS gameResult,
 
-               -- [추가] 인증 상태 컬럼 (DiaryVO 매핑용)
+               -- 인증 상태 컬럼 (DiaryVO 매핑용)
                IF(ga.attendance_id IS NOT NULL, 1, 0) AS isVerified,
                ga.verified_at AS verifiedAt
 
@@ -158,7 +158,7 @@
                  INNER JOIN stadiums s ON g.stadium_id = s.stadium_id
                  LEFT JOIN teams t1 ON g.home_team_code = t1.team_code
                  LEFT JOIN teams t2 ON g.away_team_code = t2.team_code
-            -- [추가] 직관 인증 테이블 조인
+            -- 직관 인증 테이블 조인
                  LEFT JOIN game_attendances ga ON d.member_id = ga.member_id AND d.game_id = ga.game_id
         WHERE d.member_id = #{memberId}
           -- [수정] d.is_verified = 1 대신 인증 테이블 데이터 존재 여부 검사

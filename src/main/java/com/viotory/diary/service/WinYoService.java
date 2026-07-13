@@ -71,7 +71,7 @@ public class WinYoService {
         int validGames = wins + loses;
         double winRate = (validGames > 0) ? ((double) wins / validGames) * 100.0 : 0.0;
 
-        // [추가] 3-1. 수동 승요율 적용 (Member 테이블 조회하여 덮어쓰기)
+        // 3-1. 수동 승요율 적용 (Member 테이블 조회하여 덮어쓰기)
         MemberVO member = memberMapper.selectMemberById(memberId);
         boolean hasManualWinRate = (member != null && member.getManualWinRate() != null);
 

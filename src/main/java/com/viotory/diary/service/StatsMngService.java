@@ -64,7 +64,7 @@ public class StatsMngService {
         return result;
     }
 
-    // [추가] 수동 승률 업데이트
+    // 수동 승률 업데이트
     @Transactional
     public void updateManualWinRate(Long memberId, Double winRate) {
         statsMapper.updateManualWinRate(memberId, winRate);

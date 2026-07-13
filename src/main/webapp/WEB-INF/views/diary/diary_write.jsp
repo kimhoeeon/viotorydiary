@@ -554,7 +554,7 @@
             closeGameSheet();
         }
 
-        // [추가] 직관 인증 함수
+        // 직관 인증 함수
         async function certifyLocation() {
             const gameId = $('#gameId').val();
             if (!gameId) {

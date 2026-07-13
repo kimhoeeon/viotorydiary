@@ -705,7 +705,7 @@ public class DiaryController {
     }
 
     // ==========================================
-    // [추가] 비동기 직관 인증 상태 체크 API
+    // 비동기 직관 인증 상태 체크 API
     // ==========================================
     @GetMapping("/api/check-attendance")
     @ResponseBody
