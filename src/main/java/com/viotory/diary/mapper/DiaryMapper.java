@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DiaryMapper {
@@ -114,4 +115,15 @@ public interface DiaryMapper {
 
     // 직관 인증 여부 확인
     int checkAttendance(@Param("memberId") Long memberId, @Param("gameId") Long gameId);
+
+    // ==========================================
+    // [앱 리뷰 별점 관련 신규 메서드]
+    // ==========================================
+    void insertOrUpdateAppReview(@Param("memberId") Long memberId, @Param("rating") int rating);
+
+    Double selectAverageAppRating();
+
+    int selectTotalAppReviewers();
+
+    List<Map<String, Object>> selectAppRatingCounts();
 }

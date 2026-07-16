@@ -639,7 +639,7 @@ public class MemberService {
         // 2) 사용자 정보 조회
         MemberVO kakaoUser = getKakaoUserInfo(accessToken);
 
-        // 2-1) [신규 추가] 카카오톡 채널 추가 여부 조회 (마케팅 수신 동의)
+        // 2-1) 카카오톡 채널 추가 여부 조회 (마케팅 수신 동의)
         String marketingAgree = getKakaoChannelStatus(accessToken);
         kakaoUser.setMarketingAgree(marketingAgree);
 

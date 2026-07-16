@@ -716,4 +716,22 @@ public class DiaryController {
         boolean isAttended = diaryService.checkAttendance(loginMember.getMemberId(), gameId);
         return isAttended ? "true" : "false";
     }
+
+    // ==========================================
+    // [앱 리뷰 별점 저장 API]
+    // ==========================================
+    @PostMapping("/review/save")
+    @ResponseBody
+    public String saveAppReviewAction(@RequestParam("rating") int rating, HttpSession session) {
+        MemberVO loginMember = (MemberVO) session.getAttribute("loginMember");
+        if (loginMember == null) return "fail:login";
+
+        try {
+            diaryService.saveAppReview(loginMember.getMemberId(), rating);
+            return "ok";
+        } catch (Exception e) {
+            log.error("별점 저장 중 오류 발생", e);
+            return "fail:error";
+        }
+    }
 }

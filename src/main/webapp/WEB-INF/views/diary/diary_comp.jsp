@@ -102,6 +102,13 @@
     <script src="/js/app_interface.js"></script>
 
     <script>
+
+        // ----------------------------------------------------
+        // [스토어 설정] 실제 앱의 고유 ID를 입력해 주세요.
+        // ----------------------------------------------------
+        const AOS_PACKAGE_NAME = 'com.myseungyo.app'; // 구글 플레이 패키지명
+        const IOS_APPLE_ID = '6760984924'; // 애플 앱스토어 ID 숫자
+
         // 현재 유저의 아이디와 총 작성 일기 개수
         const memberId = '${sessionScope.loginMember.memberId}';
         const currentDiaryCount = parseInt('${not empty totalDiaryCount ? totalDiaryCount : 0}', 10);
@@ -181,6 +188,13 @@
         function submitRating() {
             $('#reviewPopup1').hide();
 
+            // 백엔드로 별점 전송 (AJAX)
+            $.post('/diary/review/save', { rating: selectedStar }, function(res) {
+                if(res === 'fail:login') {
+                    console.log('별점 저장을 위한 로그인 세션이 만료되었습니다.');
+                }
+            });
+
             if (selectedStar >= 4) {
                 // 4~5점: 앱스토어 인앱 리뷰 유도
                 setTimeout(function() {
@@ -208,17 +222,40 @@
 
                     if (result === null) {
                         console.log('이 환경에서는 인앱 리뷰를 지원하지 않습니다.');
-                        alert('리뷰 작성을 위해 스토어로 이동합니다.');
-                        // 지원하지 않을 경우 수동 마켓 이동 처리 (선택사항)
+                        fallbackToStore(); // 브릿지 미지원 시 수동 스토어 이동
                     } else if (result) {
                         console.log('리뷰 다이얼로그 표시 성공');
                     }
                 } catch (error) {
                     console.error('리뷰 호출 중 오류:', error);
+                    fallbackToStore(); // 에러 발생 시 수동 스토어 이동
                 }
             } else {
-                alert("앱에서만 지원되는 기능입니다.");
+                // 앱 웹뷰 환경이 아닌 일반 모바일/PC 웹 브라우저일 경우
+                fallbackToStore();
             }
+        }
+
+        // ----------------------------------------------------
+        // 스토어 수동 이동 우회 함수 (OS 감지)
+        // ----------------------------------------------------
+        function fallbackToStore() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            let storeUrl = '';
+
+            if (userAgent.indexOf("android") > -1) {
+                // 안드로이드 유저
+                storeUrl = 'https://play.google.com/store/apps/details?id=' + AOS_PACKAGE_NAME;
+            } else if (userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1 || userAgent.indexOf("ipod") > -1) {
+                // iOS 유저
+                storeUrl = 'https://apps.apple.com/app/id' + IOS_APPLE_ID + '?action=write-review';
+            } else {
+                // PC 등 기타 환경 (임시로 플레이스토어 연결)
+                storeUrl = 'https://play.google.com/store/apps/details?id=' + AOS_PACKAGE_NAME;
+            }
+
+            alert("리뷰 작성을 위해 앱 스토어로 이동합니다.\n소중한 의견 감사합니다!");
+            window.open(storeUrl, '_blank');
         }
 
         // 팝업 닫기 유틸

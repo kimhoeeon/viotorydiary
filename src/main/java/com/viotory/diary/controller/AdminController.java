@@ -130,6 +130,27 @@ public class AdminController {
         model.addAttribute("avgWinRate", String.format("%.1f", avgWinRate));
         model.addAttribute("avgMonthlyDiaries", String.format("%.1f", avgMonthlyDiaries));
 
+        // 앱 리뷰(별점) 및 각 점수별 획득 수 통계 주입
+        Double avgAppRating = diaryService.getAvgAppRating();
+        int totalAppReviewers = diaryService.getTotalAppReviewers();
+        model.addAttribute("avgAppRating", avgAppRating != null ? String.format("%.1f", avgAppRating) : "0.0");
+        model.addAttribute("totalAppReviewers", totalAppReviewers);
+
+        // 1~5점 기본값(0) 세팅
+        Map<Integer, Integer> ratingCounts = new HashMap<>();
+        for (int i = 1; i <= 5; i++) {
+            ratingCounts.put(i, 0);
+        }
+
+        // DB에서 가져온 실제 카운트로 덮어쓰기
+        List<Map<String, Object>> dbCounts = diaryService.getAppRatingCounts();
+        for (Map<String, Object> map : dbCounts) {
+            int r = ((Number) map.get("rating")).intValue();
+            int c = ((Number) map.get("cnt")).intValue();
+            ratingCounts.put(r, c);
+        }
+        model.addAttribute("ratingCounts", ratingCounts);
+
         // 2. 주간 접속 통계 차트 데이터 가공
         List<Map<String, Object>> weeklyStats = statsMngService.getWeeklyAccessStats();
 

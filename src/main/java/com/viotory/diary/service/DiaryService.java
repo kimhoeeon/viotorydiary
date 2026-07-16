@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -455,4 +456,28 @@ public class DiaryService {
     public boolean checkAttendance(Long memberId, Long gameId) {
         return diaryMapper.checkAttendance(memberId, gameId) > 0;
     }
+
+    // ==========================================
+    // [앱 리뷰 별점 로직]
+    // ==========================================
+    @Transactional
+    public void saveAppReview(Long memberId, int rating) {
+        diaryMapper.insertOrUpdateAppReview(memberId, rating);
+    }
+
+    @Transactional(readOnly = true)
+    public Double getAvgAppRating() {
+        return diaryMapper.selectAverageAppRating();
+    }
+
+    @Transactional(readOnly = true)
+    public int getTotalAppReviewers() {
+        return diaryMapper.selectTotalAppReviewers();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getAppRatingCounts() {
+        return diaryMapper.selectAppRatingCounts();
+    }
+
 }

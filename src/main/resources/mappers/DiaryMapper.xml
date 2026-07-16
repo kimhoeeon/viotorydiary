@@ -787,4 +787,27 @@
         WHERE member_id = #{memberId} AND game_id = #{gameId}
     </select>
 
+    <insert id="insertOrUpdateAppReview">
+        INSERT INTO app_reviews (member_id, rating, created_at, updated_at)
+        VALUES (#{memberId}, #{rating}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE
+                             rating = #{rating},
+                             updated_at = NOW()
+    </insert>
+
+    <select id="selectAverageAppRating" resultType="java.lang.Double">
+        SELECT AVG(rating) FROM app_reviews
+    </select>
+
+    <select id="selectTotalAppReviewers" resultType="int">
+        SELECT COUNT(review_id) FROM app_reviews
+    </select>
+
+    <select id="selectAppRatingCounts" resultType="java.util.Map">
+        SELECT rating, COUNT(*) as cnt
+        FROM app_reviews
+        GROUP BY rating
+        ORDER BY rating DESC
+    </select>
+
 </mapper>
