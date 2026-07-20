@@ -520,19 +520,24 @@
                                                 <!-- 앱 리뷰 별점 통계 -->
                                                 <div class="row g-5 g-xl-8 mt-2">
                                                     <div class="col-sm-6 col-xxl-6">
-                                                        <div class="bg-light-primary border border-primary border-dashed rounded p-5 d-flex flex-column justify-content-center">
+                                                        <div class="bg-light-primary border border-primary border-dashed rounded p-5 d-flex flex-column justify-content-center h-100">
                                                             <div class="text-gray-600 fw-bold fs-6 mb-2">앱 평균 별점 (내부 설문)</div>
                                                             <div class="text-dark fw-bolder fs-2hx">⭐ ${avgAppRating} <span class="fs-3 text-muted">/ 5.0</span></div>
                                                             <div class="fs-6 text-muted fw-semibold mt-2">총 <fmt:formatNumber value="${totalAppReviewers}" pattern="#,###"/>명 평가</div>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6 col-xxl-6">
-                                                        <div class="bg-light border border-gray-300 border-dashed rounded p-5">
+                                                        <div class="bg-light border border-gray-300 border-dashed rounded p-5 d-flex flex-column justify-content-center h-100">
                                                             <div class="text-gray-700 fw-bold fs-6 mb-4">별점 획득 비율</div>
 
                                                             <c:forEach var="i" begin="1" end="5" step="1">
                                                                 <c:set var="starIdx" value="${6 - i}" />
-                                                                <c:set var="count" value="${ratingCounts[starIdx]}" />
+                                                                <c:set var="count" value="0" />
+                                                                <c:forEach var="entry" items="${ratingCounts}">
+                                                                    <c:if test="${entry.key == starIdx}">
+                                                                        <c:set var="count" value="${entry.value}" />
+                                                                    </c:if>
+                                                                </c:forEach>
                                                                 <c:set var="percentage" value="0" />
                                                                 <c:if test="${totalAppReviewers > 0}">
                                                                     <c:set var="percentage" value="${(count * 100) / totalAppReviewers}" />
