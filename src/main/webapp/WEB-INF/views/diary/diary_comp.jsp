@@ -236,6 +236,16 @@
             // "작성하기"를 누르면 무조건 영구 완료 상태로 마킹 (다시 안 뜨게)
             markReviewCompleted();
 
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isIOS = userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1 || userAgent.indexOf("ipod") > -1;
+
+            // [핵심 해결] iOS는 네이티브 팝업 무시(침묵) 현상이 심하므로 인앱 리뷰를 건너뛰고 스토어로 직행
+            if (isIOS) {
+                fallbackToStore();
+                return;
+            }
+
+            // 안드로이드 및 기타 환경은 기존처럼 인앱 리뷰 시도
             if (typeof appify !== 'undefined' && appify.isWebview) {
                 try {
                     const result = await appify.review.request();
@@ -262,6 +272,7 @@
         function fallbackToStore() {
             const userAgent = navigator.userAgent.toLowerCase();
             let storeUrl = '';
+            let isIOS = false;
 
             if (userAgent.indexOf("android") > -1) {
                 // 안드로이드 유저
@@ -269,6 +280,7 @@
             } else if (userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1 || userAgent.indexOf("ipod") > -1) {
                 // iOS 유저
                 storeUrl = 'https://apps.apple.com/app/id' + IOS_APPLE_ID + '?action=write-review';
+                isIOS = true;
             } else {
                 // PC 등 기타 환경 (임시로 플레이스토어 연결)
                 storeUrl = 'https://play.google.com/store/apps/details?id=' + AOS_PACKAGE_NAME;
@@ -276,8 +288,9 @@
 
             alert("리뷰 작성을 위해 앱 스토어로 이동합니다.\n소중한 의견 감사합니다!");
 
-            // [수정] 아이폰 웹뷰에서 비동기 콜백 내 새 창(window.open) 차단을 우회하기 위해 location.href 사용
-            if (userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1) {
+            // 아이폰의 웹뷰에서는 비동기 통신 직후 window.open(새창)을 팝업 광고로 간주해 차단하는 경우가 있으므로,
+            // 현재 창(href)에서 앱스토어 딥링크로 이동시킴
+            if (isIOS) {
                 location.href = storeUrl;
             } else {
                 window.open(storeUrl, '_blank');
