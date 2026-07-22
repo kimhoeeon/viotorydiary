@@ -275,7 +275,13 @@
             }
 
             alert("리뷰 작성을 위해 앱 스토어로 이동합니다.\n소중한 의견 감사합니다!");
-            window.open(storeUrl, '_blank');
+
+            // [수정] 아이폰 웹뷰에서 비동기 콜백 내 새 창(window.open) 차단을 우회하기 위해 location.href 사용
+            if (userAgent.indexOf("iphone") > -1 || userAgent.indexOf("ipad") > -1) {
+                location.href = storeUrl;
+            } else {
+                window.open(storeUrl, '_blank');
+            }
         }
 
         // 팝업 닫기 유틸
