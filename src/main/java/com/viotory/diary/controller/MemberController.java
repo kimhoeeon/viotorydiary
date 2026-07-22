@@ -1002,7 +1002,7 @@ public class MemberController {
         }
 
         try {
-            log.info("푸시 토큰 갱신 요청: memberId={}, token={}", loginMember.getMemberId(), token);
+            //log.info("푸시 토큰 갱신 요청: memberId={}, token={}", loginMember.getMemberId(), token);
             memberService.updatePushToken(loginMember.getMemberId(), token);
             return "ok";
         } catch (Exception e) {
