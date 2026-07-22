@@ -148,7 +148,7 @@
 
             // 초기 상태 세팅
             if (!state) {
-                state = { isCompleted: false, promptCount: 0, lastPromptDate: null, diaryCountAtLastPrompt: 0 };
+                state = { isCompleted: false, promptCount: 0, lastPromptDate: null, diaryCountAtLastPrompt: 0, savedRating: 0 };
             }
 
             // [방어] 이미 리뷰를 남겼거나, 최대 노출 횟수(3회)를 채웠다면 무시
@@ -173,12 +173,24 @@
 
             // 조건 달성 시 팝업 띄우고 상태 저장
             if (shouldShow) {
-                state.promptCount += 1;
-                state.lastPromptDate = new Date().toISOString();
-                state.diaryCountAtLastPrompt = currentDiaryCount;
-                localStorage.setItem(storageKey, JSON.stringify(state));
+                // [버그 수정] 과거에 4~5점을 줬던 유저라면 1차 팝업을 스킵하고 바로 2차 팝업 노출
+                // 이 경우(충성 유저)에는 promptCount(노출 횟수 제한)를 소모시키지 않습니다.
+                if (state.savedRating && state.savedRating >= 4) {
+                    $('#reviewPopup2').css('display', 'flex');
 
-                $('#reviewPopup1').css('display', 'flex');
+                    // 다음 재노출 쿨타임(30일 또는 10개) 적용을 위해 날짜와 카운트만 갱신
+                    state.lastPromptDate = new Date().toISOString();
+                    state.diaryCountAtLastPrompt = currentDiaryCount;
+                    localStorage.setItem(storageKey, JSON.stringify(state));
+                } else {
+                    $('#reviewPopup1').css('display', 'flex');
+
+                    // 1차 팝업이 뜰 때만 노출 횟수를 차감
+                    state.promptCount += 1;
+                    state.lastPromptDate = new Date().toISOString();
+                    state.diaryCountAtLastPrompt = currentDiaryCount;
+                    localStorage.setItem(storageKey, JSON.stringify(state));
+                }
             }
         }
 
@@ -194,6 +206,14 @@
                     console.log('별점 저장을 위한 로그인 세션이 만료되었습니다.');
                 }
             });
+
+            // [추가] 선택한 별점을 로컬 스토리지에 기억 (다음 재노출 시 스킵을 위해)
+            const storageKey = 'review_state_' + memberId;
+            let state = JSON.parse(localStorage.getItem(storageKey));
+            if(state) {
+                state.savedRating = selectedStar;
+                localStorage.setItem(storageKey, JSON.stringify(state));
+            }
 
             if (selectedStar >= 4) {
                 // 4~5점: 앱스토어 인앱 리뷰 유도
