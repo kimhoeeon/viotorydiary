@@ -78,8 +78,9 @@
             a.name AS writerName,
             a.role AS writerRole
         FROM dev_comments c
-                 JOIN admins a ON c.admin_id = a.admin_id
+        JOIN admins a ON c.admin_id = a.admin_id
         WHERE c.req_id = #{reqId}
+        AND c.del_yn = 'N'
         ORDER BY IFNULL(c.parent_id, c.comment_id), c.created_at ASC
     </select>
 
